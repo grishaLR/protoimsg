@@ -1,0 +1,25 @@
+{
+  "name": "@chatmosphere/lexicon",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "lint": "eslint src/",
+    "typecheck": "tsc --noEmit",
+    "codegen": "lex gen-api --src ./schemas --out ./generated"
+  },
+  "devDependencies": {
+    "@atproto/lex-cli": "^0.5.0",
+    "typescript": "^5.7.3"
+  }
+}

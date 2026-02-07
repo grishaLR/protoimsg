@@ -1,0 +1,37 @@
+{
+  "lexicon": 1,
+  "id": "app.chatmosphere.chat.presence",
+  "defs": {
+    "main": {
+      "type": "record",
+      "description": "User's current status. Lives in their repo, updated by their client.",
+      "key": "literal:self",
+      "record": {
+        "type": "object",
+        "required": ["status", "visibleTo", "updatedAt"],
+        "properties": {
+          "status": {
+            "type": "string",
+            "knownValues": ["online", "away", "idle", "offline", "invisible"],
+            "description": "Current presence status."
+          },
+          "visibleTo": {
+            "type": "string",
+            "knownValues": ["everyone", "close-friends", "nobody"],
+            "description": "Who can see your real presence status."
+          },
+          "awayMessage": {
+            "type": "string",
+            "maxLength": 300,
+            "description": "Custom away message / status text."
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "datetime",
+            "description": "When presence was last updated."
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,33 @@
+{
+  "name": "@chatmosphere/server",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "main": "./dist/index.js",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsx watch src/index.ts",
+    "start": "node dist/index.js",
+    "lint": "eslint src/",
+    "typecheck": "tsc --noEmit",
+    "db:migrate": "tsx src/db/migrate.ts"
+  },
+  "dependencies": {
+    "@atproto/api": "^0.13.0",
+    "@atproto/oauth-client-node": "^0.2.0",
+    "@chatmosphere/lexicon": "workspace:*",
+    "@chatmosphere/shared": "workspace:*",
+    "cors": "^2.8.5",
+    "express": "^4.21.2",
+    "postgres": "^3.4.5",
+    "ws": "^8.18.0",
+    "zod": "^3.24.1"
+  },
+  "devDependencies": {
+    "@types/cors": "^2.8.17",
+    "@types/express": "^5.0.0",
+    "@types/ws": "^8.5.14",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.3"
+  }
+}

@@ -1,0 +1,52 @@
+{
+  "lexicon": 1,
+  "id": "app.chatmosphere.chat.poll",
+  "defs": {
+    "main": {
+      "type": "record",
+      "description": "A poll within a chat room. Lives in the creator's repo.",
+      "key": "tid",
+      "record": {
+        "type": "object",
+        "required": ["room", "question", "options", "createdAt"],
+        "properties": {
+          "room": {
+            "type": "string",
+            "format": "at-uri",
+            "description": "AT-URI of the room this poll belongs to."
+          },
+          "question": {
+            "type": "string",
+            "maxLength": 200,
+            "description": "The poll question."
+          },
+          "options": {
+            "type": "array",
+            "minLength": 2,
+            "maxLength": 10,
+            "description": "Poll answer options.",
+            "items": {
+              "type": "string",
+              "maxLength": 100
+            }
+          },
+          "allowMultiple": {
+            "type": "boolean",
+            "default": false,
+            "description": "Whether voters can select multiple options."
+          },
+          "expiresAt": {
+            "type": "string",
+            "format": "datetime",
+            "description": "When the poll closes. Omit for no expiry."
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "datetime",
+            "description": "Timestamp of poll creation."
+          }
+        }
+      }
+    }
+  }
+}

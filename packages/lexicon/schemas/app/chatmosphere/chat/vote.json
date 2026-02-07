@@ -1,0 +1,35 @@
+{
+  "lexicon": 1,
+  "id": "app.chatmosphere.chat.vote",
+  "defs": {
+    "main": {
+      "type": "record",
+      "description": "A vote on a poll. Lives in the voter's repo.",
+      "key": "tid",
+      "record": {
+        "type": "object",
+        "required": ["poll", "selectedOptions", "createdAt"],
+        "properties": {
+          "poll": {
+            "type": "string",
+            "format": "at-uri",
+            "description": "AT-URI of the poll being voted on."
+          },
+          "selectedOptions": {
+            "type": "array",
+            "description": "Indices of selected options (0-based).",
+            "items": {
+              "type": "integer",
+              "minimum": 0
+            }
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "datetime",
+            "description": "Timestamp of vote."
+          }
+        }
+      }
+    }
+  }
+}

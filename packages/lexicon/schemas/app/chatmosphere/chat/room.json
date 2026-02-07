@@ -1,0 +1,65 @@
+{
+  "lexicon": 1,
+  "id": "app.chatmosphere.chat.room",
+  "defs": {
+    "main": {
+      "type": "record",
+      "description": "Declares a chat room. Created by whoever starts the room.",
+      "key": "tid",
+      "record": {
+        "type": "object",
+        "required": ["name", "purpose", "createdAt"],
+        "properties": {
+          "name": {
+            "type": "string",
+            "maxLength": 100,
+            "description": "Display name for the room."
+          },
+          "description": {
+            "type": "string",
+            "maxLength": 500,
+            "description": "What the room is about."
+          },
+          "purpose": {
+            "type": "string",
+            "knownValues": ["discussion", "event", "community", "support"],
+            "description": "Room purpose categorization."
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "datetime",
+            "description": "Timestamp of room creation."
+          },
+          "settings": {
+            "type": "ref",
+            "ref": "#roomSettings"
+          }
+        }
+      }
+    },
+    "roomSettings": {
+      "type": "object",
+      "description": "Configurable room settings.",
+      "properties": {
+        "visibility": {
+          "type": "string",
+          "knownValues": ["public", "unlisted", "private"],
+          "default": "public",
+          "description": "Room discoverability. public = listed in directory, unlisted = link only, private = invite only."
+        },
+        "minAccountAgeDays": {
+          "type": "integer",
+          "minimum": 0,
+          "default": 0,
+          "description": "Minimum ATProto account age in days to participate."
+        },
+        "slowModeSeconds": {
+          "type": "integer",
+          "minimum": 0,
+          "default": 0,
+          "description": "Minimum seconds between messages per user. 0 = disabled."
+        }
+      }
+    }
+  }
+}

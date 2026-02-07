@@ -1,0 +1,37 @@
+{
+  "lexicon": 1,
+  "id": "app.chatmosphere.chat.role",
+  "defs": {
+    "main": {
+      "type": "record",
+      "description": "Assign a moderator role to a user for a specific room.",
+      "key": "tid",
+      "record": {
+        "type": "object",
+        "required": ["room", "subject", "role", "createdAt"],
+        "properties": {
+          "room": {
+            "type": "string",
+            "format": "at-uri",
+            "description": "AT-URI of the room."
+          },
+          "subject": {
+            "type": "string",
+            "format": "did",
+            "description": "DID of the user being assigned the role."
+          },
+          "role": {
+            "type": "string",
+            "knownValues": ["moderator", "owner"],
+            "description": "The role being assigned."
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "datetime",
+            "description": "Timestamp of role assignment."
+          }
+        }
+      }
+    }
+  }
+}

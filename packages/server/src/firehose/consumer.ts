@@ -1,0 +1,144 @@
+import WebSocket from 'ws';
+import { NSID_PREFIX } from '@chatmosphere/shared';
+import type { Sql } from '../db/client.js';
+import { getCursor, saveCursor } from './cursor.js';
+import { createHandlers, type FirehoseEvent } from './handlers.js';
+import type { WsServer } from '../ws/server.js';
+
+/** Jetstream event structure */
+interface JetstreamCommitEvent {
+  did: string;
+  time_us: number;
+  kind: 'commit';
+  commit: {
+    rev: string;
+    operation: 'create' | 'update' | 'delete';
+    collection: string;
+    rkey: string;
+    record?: unknown;
+    cid?: string;
+  };
+}
+
+interface JetstreamIdentityEvent {
+  did: string;
+  time_us: number;
+  kind: 'identity';
+}
+
+interface JetstreamAccountEvent {
+  did: string;
+  time_us: number;
+  kind: 'account';
+}
+
+type JetstreamEvent = JetstreamCommitEvent | JetstreamIdentityEvent | JetstreamAccountEvent;
+
+export interface FirehoseConsumer {
+  start: () => void;
+  stop: () => void;
+}
+
+const RECONNECT_DELAY_MS = 3000;
+const CURSOR_SAVE_INTERVAL = 100;
+
+export function createFirehoseConsumer(
+  jetstreamUrl: string,
+  db: Sql,
+  wss: WsServer,
+): FirehoseConsumer {
+  const handlers = createHandlers(db, wss);
+  let ws: WebSocket | null = null;
+  let shouldReconnect = true;
+  let eventCount = 0;
+  let lastCursor: number | undefined;
+
+  function connect(cursor: number | undefined) {
+    const url = new URL(jetstreamUrl);
+    url.searchParams.set('wantedCollections', NSID_PREFIX + '*');
+    if (cursor) {
+      url.searchParams.set('cursor', String(cursor));
+    }
+
+    console.log(`Connecting to Jetstream: ${url.toString()}`);
+    ws = new WebSocket(url.toString());
+
+    ws.on('open', () => {
+      console.log('Jetstream connected');
+    });
+
+    ws.on('message', (raw: Buffer) => {
+      try {
+        const event = JSON.parse(raw.toString('utf-8')) as JetstreamEvent;
+        lastCursor = event.time_us;
+
+        if (event.kind !== 'commit') return;
+        if (event.commit.operation === 'delete') return;
+        if (!event.commit.record) return;
+
+        const handler = handlers[event.commit.collection];
+        if (!handler) return;
+
+        const firehoseEvent: FirehoseEvent = {
+          did: event.did,
+          collection: event.commit.collection,
+          rkey: event.commit.rkey,
+          record: event.commit.record,
+          uri: `at://${event.did}/${event.commit.collection}/${event.commit.rkey}`,
+        };
+
+        void handler(firehoseEvent).catch((err: unknown) => {
+          console.error(`Error handling ${event.commit.collection} event:`, err);
+        });
+
+        // Save cursor periodically
+        eventCount++;
+        if (eventCount % CURSOR_SAVE_INTERVAL === 0) {
+          void saveCursor(db, lastCursor);
+        }
+      } catch (err) {
+        console.error('Error parsing Jetstream event:', err);
+      }
+    });
+
+    ws.on('close', () => {
+      console.log('Jetstream disconnected');
+      ws = null;
+      if (shouldReconnect) {
+        // Save cursor before reconnect
+        if (lastCursor !== undefined) {
+          void saveCursor(db, lastCursor);
+        }
+        console.log(`Reconnecting in ${String(RECONNECT_DELAY_MS)}ms...`);
+        setTimeout(() => {
+          connect(lastCursor);
+        }, RECONNECT_DELAY_MS);
+      }
+    });
+
+    ws.on('error', (err) => {
+      console.error('Jetstream error:', err);
+    });
+  }
+
+  return {
+    start: () => {
+      shouldReconnect = true;
+      void getCursor(db).then((cursor) => {
+        connect(cursor);
+      });
+    },
+
+    stop: () => {
+      shouldReconnect = false;
+      if (lastCursor !== undefined) {
+        void saveCursor(db, lastCursor);
+      }
+      if (ws) {
+        ws.close();
+        ws = null;
+      }
+      console.log('Jetstream consumer stopped');
+    },
+  };
+}

@@ -1,0 +1,37 @@
+{
+  "lexicon": 1,
+  "id": "app.chatmosphere.chat.ban",
+  "defs": {
+    "main": {
+      "type": "record",
+      "description": "A ban issued by a room owner or moderator. Lives in the issuer's repo.",
+      "key": "tid",
+      "record": {
+        "type": "object",
+        "required": ["room", "subject", "createdAt"],
+        "properties": {
+          "room": {
+            "type": "string",
+            "format": "at-uri",
+            "description": "AT-URI of the room the ban applies to."
+          },
+          "subject": {
+            "type": "string",
+            "format": "did",
+            "description": "DID of the banned user."
+          },
+          "reason": {
+            "type": "string",
+            "maxLength": 300,
+            "description": "Reason for the ban."
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "datetime",
+            "description": "Timestamp of ban."
+          }
+        }
+      }
+    }
+  }
+}
