@@ -3,23 +3,19 @@ import type { Server } from 'http';
 import { RoomSubscriptions } from './rooms.js';
 import { BuddyWatchers } from './buddy-watchers.js';
 import { handleClientMessage } from './handlers.js';
-import {
-  handleUserConnect,
-  handleUserDisconnect,
-  getUserRooms,
-  handleLeaveRoom,
-} from '../presence/service.js';
+import type { PresenceService } from '../presence/service.js';
 import type { ClientMessage, ServerMessage } from './types.js';
+import type { Sql } from '../db/client.js';
 
 export interface WsServer {
   broadcastToRoom: (roomId: string, message: ServerMessage) => void;
   close: () => void;
 }
 
-export function createWsServer(httpServer: Server): WsServer {
+export function createWsServer(httpServer: Server, sql: Sql, service: PresenceService): WsServer {
   const wss = new WebSocketServer({ server: httpServer, path: '/ws' });
   const roomSubs = new RoomSubscriptions();
-  const buddyWatchers = new BuddyWatchers();
+  const buddyWatchers = new BuddyWatchers(sql);
 
   wss.on('connection', (ws: WebSocket) => {
     // For now, DID is sent as first message or query param
@@ -34,7 +30,7 @@ export function createWsServer(httpServer: Server): WsServer {
         if (!did) {
           if ('did' in data && typeof data.did === 'string') {
             did = data.did;
-            handleUserConnect(did);
+            service.handleUserConnect(did);
             buddyWatchers.notify(did, 'online');
             console.log(`WS connected: ${did}`);
           } else {
@@ -43,7 +39,7 @@ export function createWsServer(httpServer: Server): WsServer {
           }
         }
 
-        handleClientMessage(ws, did, data, roomSubs, buddyWatchers);
+        handleClientMessage(ws, did, data, roomSubs, buddyWatchers, service);
       } catch {
         ws.send(JSON.stringify({ type: 'error', message: 'Invalid message format' }));
       }
@@ -52,9 +48,9 @@ export function createWsServer(httpServer: Server): WsServer {
     ws.on('close', () => {
       if (did) {
         // Broadcast offline to every room before unsubscribing
-        const rooms = getUserRooms(did);
+        const rooms = service.getUserRooms(did);
         for (const roomId of rooms) {
-          handleLeaveRoom(did, roomId);
+          service.handleLeaveRoom(did, roomId);
           roomSubs.broadcast(roomId, {
             type: 'presence',
             data: { did, status: 'offline' },
@@ -62,7 +58,7 @@ export function createWsServer(httpServer: Server): WsServer {
         }
         // Notify anyone watching this DID's buddy presence
         buddyWatchers.notify(did, 'offline');
-        handleUserDisconnect(did);
+        service.handleUserDisconnect(did);
         roomSubs.unsubscribeAll(ws);
         buddyWatchers.unwatchAll(ws);
         console.log(`WS disconnected: ${did}`);

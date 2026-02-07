@@ -4,15 +4,22 @@ import { loadConfig } from './config.js';
 import { createDb } from './db/client.js';
 import { createFirehoseConsumer } from './firehose/consumer.js';
 import { createWsServer } from './ws/server.js';
+import { PresenceTracker } from './presence/tracker.js';
+import { createPresenceService } from './presence/service.js';
 
 function main() {
   const config = loadConfig();
   const db = createDb(config.DATABASE_URL);
-  const app = createApp(config);
+
+  // Shared presence tracker + service (used by both HTTP routes and WS)
+  const tracker = new PresenceTracker();
+  const presenceService = createPresenceService(tracker);
+
+  const app = createApp(config, db, presenceService);
   const httpServer = createServer(app);
 
   // WebSocket server (shares the HTTP server)
-  const wss = createWsServer(httpServer);
+  const wss = createWsServer(httpServer, db, presenceService);
   console.log('WebSocket server attached');
 
   // Firehose consumer

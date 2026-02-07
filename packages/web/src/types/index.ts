@@ -38,4 +38,6 @@ export interface BuddyWithPresence {
   status: string;
   awayMessage?: string;
   addedAt: string;
+  isCloseFriend?: boolean;
+  isBlocked?: boolean;
 }

@@ -1,12 +1,17 @@
 import { useState } from 'react';
 import { StatusIndicator } from './StatusIndicator';
-import type { PresenceStatus } from '@chatmosphere/shared';
+import type { PresenceStatus, PresenceVisibility } from '@chatmosphere/shared';
 import styles from './StatusSelector.module.css';
 
 interface StatusSelectorProps {
   status: PresenceStatus;
   awayMessage?: string;
-  onChangeStatus: (status: PresenceStatus, awayMessage?: string) => void;
+  visibleTo: PresenceVisibility;
+  onChangeStatus: (
+    status: PresenceStatus,
+    awayMessage?: string,
+    visibleTo?: PresenceVisibility,
+  ) => void;
 }
 
 const STATUS_OPTIONS: Array<{ value: PresenceStatus; label: string }> = [
@@ -15,7 +20,18 @@ const STATUS_OPTIONS: Array<{ value: PresenceStatus; label: string }> = [
   { value: 'idle', label: 'Idle' },
 ];
 
-export function StatusSelector({ status, awayMessage, onChangeStatus }: StatusSelectorProps) {
+const VISIBILITY_OPTIONS: Array<{ value: PresenceVisibility; label: string }> = [
+  { value: 'everyone', label: 'Everyone' },
+  { value: 'close-friends', label: 'Close Friends' },
+  { value: 'nobody', label: 'Nobody' },
+];
+
+export function StatusSelector({
+  status,
+  awayMessage,
+  visibleTo,
+  onChangeStatus,
+}: StatusSelectorProps) {
   const [open, setOpen] = useState(false);
   const [draftMessage, setDraftMessage] = useState(awayMessage ?? '');
 
@@ -68,6 +84,27 @@ export function StatusSelector({ status, awayMessage, onChangeStatus }: StatusSe
                 }
               }}
             />
+          </div>
+          <div className={styles.visibilitySection}>
+            <label className={styles.visibilityLabel}>Who can see me</label>
+            <div className={styles.visibilityOptions}>
+              {VISIBILITY_OPTIONS.map((opt) => (
+                <button
+                  key={opt.value}
+                  className={`${styles.visibilityBtn} ${visibleTo === opt.value ? styles.visibilityActive : ''}`}
+                  onClick={() => {
+                    onChangeStatus(
+                      status,
+                      status === 'away' ? draftMessage || undefined : undefined,
+                      opt.value,
+                    );
+                    setOpen(false);
+                  }}
+                >
+                  {opt.label}
+                </button>
+              ))}
+            </div>
           </div>
         </div>
       )}

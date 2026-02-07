@@ -1,8 +1,9 @@
-import type { PresenceStatus } from '@chatmosphere/shared';
+import type { PresenceStatus, PresenceVisibility } from '@chatmosphere/shared';
 
 export interface UserPresence {
   did: string;
   status: PresenceStatus;
+  visibleTo: PresenceVisibility;
   awayMessage?: string;
   lastSeen: Date;
   rooms: Set<string>;
@@ -21,6 +22,7 @@ export class PresenceTracker {
       this.users.set(did, {
         did,
         status: 'online',
+        visibleTo: 'everyone',
         lastSeen: new Date(),
         rooms: new Set(),
       });
@@ -31,11 +33,17 @@ export class PresenceTracker {
     this.users.delete(did);
   }
 
-  setStatus(did: string, status: PresenceStatus, awayMessage?: string): void {
+  setStatus(
+    did: string,
+    status: PresenceStatus,
+    awayMessage?: string,
+    visibleTo?: PresenceVisibility,
+  ): void {
     const user = this.users.get(did);
     if (user) {
       user.status = status;
       user.awayMessage = status === 'away' ? awayMessage : undefined;
+      if (visibleTo) user.visibleTo = visibleTo;
       user.lastSeen = new Date();
     }
   }
@@ -61,6 +69,10 @@ export class PresenceTracker {
   getPresence(did: string): { status: PresenceStatus; awayMessage?: string } {
     const user = this.users.get(did);
     return { status: user?.status ?? 'offline', awayMessage: user?.awayMessage };
+  }
+
+  getVisibleTo(did: string): PresenceVisibility {
+    return this.users.get(did)?.visibleTo ?? 'everyone';
   }
 
   getPresenceBulk(dids: string[]): Map<string, { status: PresenceStatus; awayMessage?: string }> {
@@ -89,5 +101,3 @@ export class PresenceTracker {
     return Array.from(this.users.keys());
   }
 }
-
-export const presenceTracker = new PresenceTracker();

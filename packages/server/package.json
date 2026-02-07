@@ -5,12 +5,13 @@
   "type": "module",
   "main": "./dist/index.js",
   "scripts": {
-    "build": "tsc",
+    "build": "tsc -p tsconfig.build.json",
     "dev": "tsx watch --env-file=.env src/index.ts",
     "start": "node --env-file=.env dist/index.js",
     "lint": "eslint src/",
     "typecheck": "tsc --noEmit",
-    "db:migrate": "tsx --env-file=.env src/db/migrate.ts"
+    "db:migrate": "tsx --env-file=.env src/db/migrate.ts",
+    "test": "vitest run"
   },
   "dependencies": {
     "@atproto/api": "^0.13.0",
@@ -28,6 +29,7 @@
     "@types/express": "^5.0.0",
     "@types/ws": "^8.5.14",
     "tsx": "^4.19.2",
-    "typescript": "^5.7.3"
+    "typescript": "^5.7.3",
+    "vitest": "^4.0.18"
   }
 }

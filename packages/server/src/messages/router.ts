@@ -1,12 +1,9 @@
 import { Router } from 'express';
 import { getRoomMessages } from './service.js';
-import { createDb } from '../db/client.js';
-import { loadConfig } from '../config.js';
+import type { Sql } from '../db/client.js';
 
-export function messagesRouter(): Router {
+export function messagesRouter(sql: Sql): Router {
   const router = Router();
-  const config = loadConfig();
-  const sql = createDb(config.DATABASE_URL);
 
   // GET /api/rooms/:id/messages — get message history for a room
   router.get('/:id/messages', async (req, res, next) => {

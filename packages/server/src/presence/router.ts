@@ -1,7 +1,7 @@
 import { Router } from 'express';
-import { getBulkPresence } from './service.js';
+import type { PresenceService } from './service.js';
 
-export function presenceRouter(): Router {
+export function presenceRouter(service: PresenceService): Router {
   const router = Router();
 
   // GET /api/presence?dids=did1,did2,...
@@ -13,7 +13,7 @@ export function presenceRouter(): Router {
     }
 
     const dids = didsParam.split(',').filter(Boolean).slice(0, 100);
-    const presence = getBulkPresence(dids);
+    const presence = service.getBulkPresence(dids);
     res.json({ presence });
   });
 

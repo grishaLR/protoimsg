@@ -1,6 +1,7 @@
 import postgres from 'postgres';
 
 export type Sql = postgres.Sql;
+export type JsonValue = postgres.JSONValue;
 
 export function createDb(connectionString: string): Sql {
   return postgres(connectionString, {

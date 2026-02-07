@@ -8,8 +8,10 @@ import { authRouter } from './auth/router.js';
 import { presenceRouter } from './presence/router.js';
 import { buddylistRouter } from './buddylist/router.js';
 import type { Config } from './config.js';
+import type { Sql } from './db/client.js';
+import type { PresenceService } from './presence/service.js';
 
-export function createApp(config: Config): Express {
+export function createApp(config: Config, sql: Sql, presenceService: PresenceService): Express {
   const app = express();
 
   // Middleware
@@ -24,10 +26,10 @@ export function createApp(config: Config): Express {
 
   // API routes
   app.use('/api/auth', authRouter());
-  app.use('/api/rooms', roomsRouter());
-  app.use('/api/rooms', messagesRouter());
-  app.use('/api/presence', presenceRouter());
-  app.use('/api/buddylist', buddylistRouter());
+  app.use('/api/rooms', roomsRouter(sql));
+  app.use('/api/rooms', messagesRouter(sql));
+  app.use('/api/presence', presenceRouter(presenceService));
+  app.use('/api/buddylist', buddylistRouter(sql));
 
   // Error handler (must be last)
   app.use(errorHandler);

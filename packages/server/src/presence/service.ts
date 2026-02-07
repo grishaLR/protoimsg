@@ -1,48 +1,73 @@
-import type { PresenceStatus } from '@chatmosphere/shared';
-import { presenceTracker } from './tracker.js';
+import type { PresenceStatus, PresenceVisibility } from '@chatmosphere/shared';
+import type { PresenceTracker } from './tracker.js';
 
-export function handleUserConnect(did: string): void {
-  presenceTracker.setOnline(did);
+export interface PresenceService {
+  handleUserConnect(did: string): void;
+  handleUserDisconnect(did: string): void;
+  handleStatusChange(
+    did: string,
+    status: PresenceStatus,
+    awayMessage?: string,
+    visibleTo?: PresenceVisibility,
+  ): void;
+  handleJoinRoom(did: string, roomId: string): void;
+  handleLeaveRoom(did: string, roomId: string): void;
+  getUserStatus(did: string): PresenceStatus;
+  getPresence(did: string): { status: PresenceStatus; awayMessage?: string };
+  getRoomPresence(roomId: string): string[];
+  getBulkPresence(dids: string[]): Array<{ did: string; status: string; awayMessage?: string }>;
+  getUserRooms(did: string): Set<string>;
 }
 
-export function handleUserDisconnect(did: string): void {
-  presenceTracker.setOffline(did);
-}
+export function createPresenceService(tracker: PresenceTracker): PresenceService {
+  return {
+    handleUserConnect(did: string): void {
+      tracker.setOnline(did);
+    },
 
-export function handleStatusChange(
-  did: string,
-  status: PresenceStatus,
-  awayMessage?: string,
-): void {
-  presenceTracker.setStatus(did, status, awayMessage);
-}
+    handleUserDisconnect(did: string): void {
+      tracker.setOffline(did);
+    },
 
-export function handleJoinRoom(did: string, roomId: string): void {
-  presenceTracker.joinRoom(did, roomId);
-}
+    handleStatusChange(
+      did: string,
+      status: PresenceStatus,
+      awayMessage?: string,
+      visibleTo?: PresenceVisibility,
+    ): void {
+      tracker.setStatus(did, status, awayMessage, visibleTo);
+    },
 
-export function handleLeaveRoom(did: string, roomId: string): void {
-  presenceTracker.leaveRoom(did, roomId);
-}
+    handleJoinRoom(did: string, roomId: string): void {
+      tracker.joinRoom(did, roomId);
+    },
 
-export function getUserStatus(did: string): PresenceStatus {
-  return presenceTracker.getStatus(did);
-}
+    handleLeaveRoom(did: string, roomId: string): void {
+      tracker.leaveRoom(did, roomId);
+    },
 
-export function getRoomPresence(roomId: string): string[] {
-  return presenceTracker.getRoomMembers(roomId);
-}
+    getUserStatus(did: string): PresenceStatus {
+      return tracker.getStatus(did);
+    },
 
-export function getBulkPresence(
-  dids: string[],
-): Array<{ did: string; status: string; awayMessage?: string }> {
-  const presenceMap = presenceTracker.getPresenceBulk(dids);
-  return dids.map((did) => {
-    const p = presenceMap.get(did) ?? { status: 'offline' };
-    return { did, status: p.status, awayMessage: p.awayMessage };
-  });
-}
+    getPresence(did: string): { status: PresenceStatus; awayMessage?: string } {
+      return tracker.getPresence(did);
+    },
 
-export function getUserRooms(did: string): Set<string> {
-  return presenceTracker.getUserRooms(did);
+    getRoomPresence(roomId: string): string[] {
+      return tracker.getRoomMembers(roomId);
+    },
+
+    getBulkPresence(dids: string[]): Array<{ did: string; status: string; awayMessage?: string }> {
+      const presenceMap = tracker.getPresenceBulk(dids);
+      return dids.map((did) => {
+        const p = presenceMap.get(did) ?? { status: 'offline' };
+        return { did, status: p.status, awayMessage: p.awayMessage };
+      });
+    },
+
+    getUserRooms(did: string): Set<string> {
+      return tracker.getUserRooms(did);
+    },
+  };
 }

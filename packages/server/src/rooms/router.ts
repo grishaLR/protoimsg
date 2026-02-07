@@ -1,12 +1,9 @@
 import { Router } from 'express';
 import { getRooms, getRoom } from './service.js';
-import { createDb } from '../db/client.js';
-import { loadConfig } from '../config.js';
+import type { Sql } from '../db/client.js';
 
-export function roomsRouter(): Router {
+export function roomsRouter(sql: Sql): Router {
   const router = Router();
-  const config = loadConfig();
-  const sql = createDb(config.DATABASE_URL);
 
   // GET /api/rooms — list public rooms
   router.get('/', async (_req, res, next) => {

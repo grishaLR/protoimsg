@@ -9,7 +9,16 @@ import styles from './RoomDirectoryPage.module.css';
 
 export function RoomDirectoryPage() {
   const { rooms, loading, error, refresh } = useRooms();
-  const { buddies, doorEvents, loading: buddiesLoading, addBuddy, removeBuddy } = useBuddyList();
+  const {
+    buddies,
+    doorEvents,
+    loading: buddiesLoading,
+    addBuddy,
+    removeBuddy,
+    toggleCloseFriend,
+    blockBuddy,
+    agent,
+  } = useBuddyList();
   const [search, setSearch] = useState('');
   const [showCreate, setShowCreate] = useState(false);
 
@@ -49,8 +58,11 @@ export function RoomDirectoryPage() {
             buddies={buddies}
             doorEvents={doorEvents}
             loading={buddiesLoading}
+            agent={agent}
             onAddBuddy={addBuddy}
             onRemoveBuddy={removeBuddy}
+            onToggleCloseFriend={toggleCloseFriend}
+            onBlockBuddy={blockBuddy}
           />
         </aside>
       </div>

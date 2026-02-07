@@ -20,6 +20,7 @@
 
 .sidebar {
   flex-shrink: 0;
+  align-self: stretch;
 }
 
 .toolbar {

@@ -1,9 +1,9 @@
 .panel {
   width: 240px;
+  height: 100%;
   border-left: 1px solid #ddd;
   display: flex;
   flex-direction: column;
-  overflow: hidden;
 }
 
 .title {
@@ -54,6 +54,13 @@
 .addBtn:disabled {
   opacity: 0.5;
   cursor: not-allowed;
+}
+
+.addError {
+  margin: 0;
+  padding: 0.25rem 0.75rem;
+  font-size: 0.6875rem;
+  color: #d44;
 }
 
 .list {
@@ -111,28 +118,140 @@
   }
 }
 
-.awayMsg {
-  font-size: 0.6875rem;
-  color: #888;
-  font-style: italic;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+/* Away message chat bubble */
+
+.awayBubble {
+  flex-shrink: 0;
+  cursor: default;
+  line-height: 0;
+  position: relative;
 }
 
-.removeBtn {
-  background: none;
-  border: none;
-  font-size: 0.875rem;
-  cursor: pointer;
-  color: #ccc;
-  padding: 0 0.25rem;
-  line-height: 1;
+.awayBubble::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  left: 0;
+  bottom: calc(100% + 8px);
+  background: #1a1a1a;
+  color: #f5f5f5;
+  font-size: 0.75rem;
+  line-height: 1.4;
+  padding: 0.5rem 0.75rem;
+  border-radius: 6px;
+  white-space: normal;
+  width: max-content;
+  max-width: 200px;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.1s;
+  z-index: 200;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.awayBubble:hover::after {
+  opacity: 1;
+}
+
+.awayBubbleSvg {
+  width: 14px;
+  height: 14px;
+}
+
+/* Hamburger menu */
+
+.menuWrap {
+  position: relative;
   flex-shrink: 0;
 }
 
-.removeBtn:hover {
-  color: #e55;
+.menuBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  background: none;
+  border: none;
+  border-radius: 3px;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+
+.buddy:hover .menuBtn,
+.menuBtn:focus {
+  opacity: 1;
+}
+
+.menuBtn:hover {
+  background: #eee;
+}
+
+.menuIcon {
+  display: block;
+  width: 12px;
+  height: 2px;
+  background: #888;
+  position: relative;
+}
+
+.menuIcon::before,
+.menuIcon::after {
+  content: '';
+  display: block;
+  width: 12px;
+  height: 2px;
+  background: #888;
+  position: absolute;
+  left: 0;
+}
+
+.menuIcon::before {
+  top: -4px;
+}
+
+.menuIcon::after {
+  top: 4px;
+}
+
+.menuDropdown {
+  position: absolute;
+  right: 0;
+  top: 100%;
+  margin-top: 2px;
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  min-width: 170px;
+  z-index: 100;
+  padding: 0.25rem 0;
+}
+
+.menuItem {
+  display: block;
+  width: 100%;
+  padding: 0.4rem 0.75rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 0.75rem;
+  color: #333;
+  text-align: left;
+  white-space: nowrap;
+}
+
+.menuItem:hover {
+  background: #f5f5f5;
+}
+
+.menuItemDanger {
+  color: #d44;
+}
+
+.menuItemDanger:hover {
+  background: #fef2f2;
 }
 
 .empty {

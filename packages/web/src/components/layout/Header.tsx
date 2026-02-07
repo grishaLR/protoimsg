@@ -6,7 +6,7 @@ import styles from './Header.module.css';
 
 export function Header() {
   const { did, logout } = useAuth();
-  const { status, awayMessage, changeStatus } = usePresence();
+  const { status, awayMessage, visibleTo, changeStatus } = usePresence();
 
   return (
     <header className={styles.header}>
@@ -17,6 +17,7 @@ export function Header() {
             <StatusSelector
               status={status}
               awayMessage={awayMessage}
+              visibleTo={visibleTo}
               onChangeStatus={changeStatus}
             />
             <span className={styles.did}>

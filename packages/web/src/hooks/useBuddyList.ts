@@ -23,6 +23,11 @@ export function useBuddyList() {
   const prevStatusRef = useRef<Map<string, string>>(new Map());
   const doorTimersRef = useRef<ReturnType<typeof setTimeout>[]>([]);
 
+  // Derive close-friend DIDs from groups
+  const closeFriendDids = new Set(
+    groups.filter((g) => g.isCloseFriends === true).flatMap((g) => g.members.map((m) => m.did)),
+  );
+
   // Load buddy list from PDS + fetch presence
   const cancelledRef = useRef(false);
 
@@ -37,8 +42,7 @@ export function useBuddyList() {
       if (cancelledRef.current) return;
       setGroups(pdsGroups);
 
-      // Flatten all DIDs
-      const allDids = pdsGroups.flatMap((g) => g.members.map((m) => m.did));
+      // Flatten all DIDs (deduplicated)
       const addedAtMap = new Map<string, string>();
       for (const g of pdsGroups) {
         for (const m of g.members) {
@@ -47,6 +51,7 @@ export function useBuddyList() {
           }
         }
       }
+      const allDids = [...addedAtMap.keys()];
 
       if (allDids.length === 0) {
         setBuddies([]);
@@ -63,12 +68,19 @@ export function useBuddyList() {
         prevStatusRef.current.set(p.did, p.status);
       }
 
+      const cfDids = new Set(
+        pdsGroups
+          .filter((g) => g.isCloseFriends === true)
+          .flatMap((g) => g.members.map((m) => m.did)),
+      );
+
       setBuddies(
         presenceList.map((p) => ({
           did: p.did,
           status: p.status,
           awayMessage: p.awayMessage,
           addedAt: addedAtMap.get(p.did) ?? new Date().toISOString(),
+          isCloseFriend: cfDids.has(p.did),
         })),
       );
       setLoading(false);
@@ -199,6 +211,72 @@ export function useBuddyList() {
     [agent, groups],
   );
 
+  const CLOSE_FRIENDS_GROUP = 'Close Friends';
+
+  const toggleCloseFriend = useCallback(
+    async (did: string) => {
+      if (!agent) return;
+
+      let cfGroup = groups.find((g) => g.name === CLOSE_FRIENDS_GROUP);
+      let updatedGroups: BuddyGroup[];
+
+      if (!cfGroup) {
+        // Create close friends group with this member
+        cfGroup = {
+          name: CLOSE_FRIENDS_GROUP,
+          isCloseFriends: true,
+          members: [{ did, addedAt: new Date().toISOString() }],
+        };
+        updatedGroups = [...groups, cfGroup];
+      } else {
+        const alreadyIn = cfGroup.members.some((m) => m.did === did);
+        if (alreadyIn) {
+          // Remove from close friends
+          updatedGroups = groups.map((g) =>
+            g.name === CLOSE_FRIENDS_GROUP
+              ? { ...g, members: g.members.filter((m) => m.did !== did) }
+              : g,
+          );
+        } else {
+          // Add to close friends
+          updatedGroups = groups.map((g) =>
+            g.name === CLOSE_FRIENDS_GROUP
+              ? { ...g, members: [...g.members, { did, addedAt: new Date().toISOString() }] }
+              : g,
+          );
+        }
+      }
+
+      setGroups(updatedGroups);
+      // Update buddy's isCloseFriend flag
+      const newCfDids = new Set(
+        updatedGroups
+          .filter((g) => g.isCloseFriends === true)
+          .flatMap((g) => g.members.map((m) => m.did)),
+      );
+      setBuddies((prev) => prev.map((b) => ({ ...b, isCloseFriend: newCfDids.has(b.did) })));
+
+      await putBuddyListRecord(agent, updatedGroups);
+    },
+    [agent, groups],
+  );
+
+  const blockBuddy = useCallback(
+    (did: string) => {
+      if (!agent) return;
+
+      const isCurrentlyBlocked = buddies.find((b) => b.did === did)?.isBlocked === true;
+
+      // Toggle block state locally
+      setBuddies((prev) =>
+        prev.map((b) => (b.did === did ? { ...b, isBlocked: !isCurrentlyBlocked } : b)),
+      );
+
+      // TODO: write ATProto ban record when block system is implemented
+    },
+    [agent, buddies],
+  );
+
   // Cleanup door timers on unmount
   useEffect(() => {
     const timers = doorTimersRef.current;
@@ -207,5 +285,15 @@ export function useBuddyList() {
     };
   }, []);
 
-  return { buddies, doorEvents, loading, addBuddy, removeBuddy };
+  return {
+    buddies,
+    doorEvents,
+    loading,
+    addBuddy,
+    removeBuddy,
+    toggleCloseFriend,
+    blockBuddy,
+    closeFriendDids,
+    agent,
+  };
 }

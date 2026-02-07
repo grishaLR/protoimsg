@@ -1,12 +1,9 @@
 import { Router } from 'express';
-import { createDb } from '../db/client.js';
-import { loadConfig } from '../config.js';
+import type { Sql } from '../db/client.js';
 import { getBuddyList } from './queries.js';
 
-export function buddylistRouter(): Router {
+export function buddylistRouter(sql: Sql): Router {
   const router = Router();
-  const config = loadConfig();
-  const sql = createDb(config.DATABASE_URL);
 
   // GET /api/buddylist/:did
   router.get('/:did', async (req, res, next) => {

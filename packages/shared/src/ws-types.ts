@@ -20,6 +20,7 @@ export interface StatusChangeMessage extends WsMessageBase {
   type: 'status_change';
   status: 'online' | 'away' | 'idle';
   awayMessage?: string;
+  visibleTo?: string;
 }
 
 export interface PingMessage extends WsMessageBase {
