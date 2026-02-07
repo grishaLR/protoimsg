@@ -1,11 +1,13 @@
 import { useState } from 'react';
 import { StatusIndicator } from './StatusIndicator';
 import { UserIdentity } from './UserIdentity';
+import type { DoorEvent } from '../../hooks/useBuddyList';
 import type { BuddyWithPresence } from '../../types';
 import styles from './BuddyListPanel.module.css';
 
 interface BuddyListPanelProps {
   buddies: BuddyWithPresence[];
+  doorEvents?: Record<string, DoorEvent>;
   loading: boolean;
   onAddBuddy: (did: string) => Promise<void>;
   onRemoveBuddy: (did: string) => Promise<void>;
@@ -20,6 +22,7 @@ const STATUS_ORDER: Record<string, number> = {
 
 export function BuddyListPanel({
   buddies,
+  doorEvents = {},
   loading,
   onAddBuddy,
   onRemoveBuddy,
@@ -69,24 +72,33 @@ export function BuddyListPanel({
         <p className={styles.empty}>No buddies yet</p>
       ) : (
         <ul className={styles.list}>
-          {sorted.map((buddy) => (
-            <li key={buddy.did} className={styles.buddy}>
-              <StatusIndicator status={buddy.status} />
-              <div className={styles.buddyInfo}>
-                <span className={styles.buddyDid}>
-                  <UserIdentity did={buddy.did} showAvatar />
-                </span>
-                {buddy.awayMessage && <span className={styles.awayMsg}>{buddy.awayMessage}</span>}
-              </div>
-              <button
-                className={styles.removeBtn}
-                onClick={() => void onRemoveBuddy(buddy.did)}
-                title="Remove buddy"
-              >
-                &times;
-              </button>
-            </li>
-          ))}
+          {sorted.map((buddy) => {
+            const door = doorEvents[buddy.did];
+            return (
+              <li key={buddy.did} className={styles.buddy}>
+                {door ? (
+                  <span className={styles.doorEmoji}>
+                    {door === 'join' ? '\u{1F6AA}\u{2728}' : '\u{1F6AA}\u{1F4A8}'}
+                  </span>
+                ) : (
+                  <StatusIndicator status={buddy.status} />
+                )}
+                <div className={styles.buddyInfo}>
+                  <span className={styles.buddyDid}>
+                    <UserIdentity did={buddy.did} showAvatar />
+                  </span>
+                  {buddy.awayMessage && <span className={styles.awayMsg}>{buddy.awayMessage}</span>}
+                </div>
+                <button
+                  className={styles.removeBtn}
+                  onClick={() => void onRemoveBuddy(buddy.did)}
+                  title="Remove buddy"
+                >
+                  &times;
+                </button>
+              </li>
+            );
+          })}
         </ul>
       )}
     </div>

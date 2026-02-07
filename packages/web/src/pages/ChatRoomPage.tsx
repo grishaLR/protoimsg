@@ -14,7 +14,7 @@ export function ChatRoomPage() {
 }
 
 function ChatRoomContent({ roomId }: { roomId: string }) {
-  const { room, members, loading: roomLoading, error: roomError } = useRoom(roomId);
+  const { room, members, doorEvents, loading: roomLoading, error: roomError } = useRoom(roomId);
   const { messages, loading: msgLoading, sendMessage } = useMessages(roomId);
 
   if (roomLoading) return <div className={styles.loading}>Room is being set up...</div>;
@@ -40,7 +40,7 @@ function ChatRoomContent({ roomId }: { roomId: string }) {
           />
         </div>
         <aside className={styles.sidebar}>
-          <MemberList members={members} />
+          <MemberList members={members} doorEvents={doorEvents} />
         </aside>
       </div>
     </div>

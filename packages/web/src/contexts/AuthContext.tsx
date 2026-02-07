@@ -22,6 +22,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [handle, setHandle] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
+  const clearAuth = useCallback(() => {
+    setSession(null);
+    setAgent(null);
+    setDid(null);
+    setHandle(null);
+  }, []);
+
   useEffect(() => {
     const oauthClient = getOAuthClient();
 
@@ -43,7 +50,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       .finally(() => {
         setIsLoading(false);
       });
-  }, []);
+
+    // Sync logout across tabs — fires when session is revoked anywhere
+    const onDeleted = () => {
+      clearAuth();
+    };
+    oauthClient.addEventListener('deleted', onDeleted);
+    return () => {
+      oauthClient.removeEventListener('deleted', onDeleted);
+    };
+  }, [clearAuth]);
 
   const login = useCallback(async (inputHandle: string) => {
     const oauthClient = getOAuthClient();
@@ -55,11 +71,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const logout = useCallback(() => {
-    setSession(null);
-    setAgent(null);
-    setDid(null);
-    setHandle(null);
-  }, []);
+    const sub = did;
+    clearAuth();
+    if (sub) {
+      const oauthClient = getOAuthClient();
+      void oauthClient.revoke(sub);
+    }
+  }, [did, clearAuth]);
 
   return (
     <AuthContext.Provider value={{ session, agent, did, handle, isLoading, login, logout }}>

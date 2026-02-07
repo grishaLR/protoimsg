@@ -1,8 +1,14 @@
 import { WebSocketServer, type WebSocket } from 'ws';
 import type { Server } from 'http';
 import { RoomSubscriptions } from './rooms.js';
+import { BuddyWatchers } from './buddy-watchers.js';
 import { handleClientMessage } from './handlers.js';
-import { handleUserConnect, handleUserDisconnect } from '../presence/service.js';
+import {
+  handleUserConnect,
+  handleUserDisconnect,
+  getUserRooms,
+  handleLeaveRoom,
+} from '../presence/service.js';
 import type { ClientMessage, ServerMessage } from './types.js';
 
 export interface WsServer {
@@ -13,6 +19,7 @@ export interface WsServer {
 export function createWsServer(httpServer: Server): WsServer {
   const wss = new WebSocketServer({ server: httpServer, path: '/ws' });
   const roomSubs = new RoomSubscriptions();
+  const buddyWatchers = new BuddyWatchers();
 
   wss.on('connection', (ws: WebSocket) => {
     // For now, DID is sent as first message or query param
@@ -28,6 +35,7 @@ export function createWsServer(httpServer: Server): WsServer {
           if ('did' in data && typeof data.did === 'string') {
             did = data.did;
             handleUserConnect(did);
+            buddyWatchers.notify(did, 'online');
             console.log(`WS connected: ${did}`);
           } else {
             ws.send(JSON.stringify({ type: 'error', message: 'First message must include did' }));
@@ -35,7 +43,7 @@ export function createWsServer(httpServer: Server): WsServer {
           }
         }
 
-        handleClientMessage(ws, did, data, roomSubs);
+        handleClientMessage(ws, did, data, roomSubs, buddyWatchers);
       } catch {
         ws.send(JSON.stringify({ type: 'error', message: 'Invalid message format' }));
       }
@@ -43,8 +51,20 @@ export function createWsServer(httpServer: Server): WsServer {
 
     ws.on('close', () => {
       if (did) {
+        // Broadcast offline to every room before unsubscribing
+        const rooms = getUserRooms(did);
+        for (const roomId of rooms) {
+          handleLeaveRoom(did, roomId);
+          roomSubs.broadcast(roomId, {
+            type: 'presence',
+            data: { did, status: 'offline' },
+          });
+        }
+        // Notify anyone watching this DID's buddy presence
+        buddyWatchers.notify(did, 'offline');
         handleUserDisconnect(did);
         roomSubs.unsubscribeAll(ws);
+        buddyWatchers.unwatchAll(ws);
         console.log(`WS disconnected: ${did}`);
       }
     });

@@ -3,18 +3,25 @@ import { useAuth } from './useAuth';
 import { useWebSocket } from '../contexts/WebSocketContext';
 import { getBuddyListRecord, putBuddyListRecord } from '../lib/atproto';
 import { fetchPresence } from '../lib/api';
+import { playDoorOpen, playDoorClose } from '../lib/sounds';
 import type { BuddyGroup } from '@chatmosphere/lexicon';
 import type { BuddyWithPresence } from '../types';
 import type { ServerMessage } from '@chatmosphere/shared';
 
+export type DoorEvent = 'join' | 'leave';
+
 const DEFAULT_GROUP = 'Buddies';
+const DOOR_LINGER_MS = 5000;
 
 export function useBuddyList() {
   const { agent } = useAuth();
   const { send, subscribe } = useWebSocket();
   const [buddies, setBuddies] = useState<BuddyWithPresence[]>([]);
+  const [doorEvents, setDoorEvents] = useState<Record<string, DoorEvent>>({});
   const [loading, setLoading] = useState(true);
   const [groups, setGroups] = useState<BuddyGroup[]>([]);
+  const prevStatusRef = useRef<Map<string, string>>(new Map());
+  const doorTimersRef = useRef<ReturnType<typeof setTimeout>[]>([]);
 
   // Load buddy list from PDS + fetch presence
   const cancelledRef = useRef(false);
@@ -51,6 +58,11 @@ export function useBuddyList() {
       // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- ref mutated in cleanup
       if (cancelledRef.current) return;
 
+      // Seed previous status so first WS delta triggers door sounds
+      for (const p of presenceList) {
+        prevStatusRef.current.set(p.did, p.status);
+      }
+
       setBuddies(
         presenceList.map((p) => ({
           did: p.did,
@@ -71,10 +83,40 @@ export function useBuddyList() {
     };
   }, [agent, send]);
 
+  const triggerDoor = useCallback((did: string, event: DoorEvent) => {
+    if (event === 'join') playDoorOpen();
+    else playDoorClose();
+
+    setDoorEvents((prev) => ({ ...prev, [did]: event }));
+    const t = setTimeout(() => {
+      setDoorEvents((prev) => {
+        const { [did]: _, ...rest } = prev;
+        return rest;
+      });
+    }, DOOR_LINGER_MS);
+    doorTimersRef.current.push(t);
+  }, []);
+
+  const checkTransition = useCallback(
+    (did: string, newStatus: string) => {
+      const prev = prevStatusRef.current.get(did);
+      prevStatusRef.current.set(did, newStatus);
+      if (!prev) return; // initial load, no sound
+      const wasOnline = prev !== 'offline';
+      const isOnline = newStatus !== 'offline';
+      if (!wasOnline && isOnline) triggerDoor(did, 'join');
+      else if (wasOnline && !isOnline) triggerDoor(did, 'leave');
+    },
+    [triggerDoor],
+  );
+
   // Subscribe to presence + buddy_presence WS events
   useEffect(() => {
     const unsub = subscribe((msg: ServerMessage) => {
       if (msg.type === 'buddy_presence') {
+        for (const p of msg.data) {
+          checkTransition(p.did, p.status);
+        }
         setBuddies((prev) => {
           const presMap = new Map(msg.data.map((p) => [p.did, p]));
           return prev.map((b) => {
@@ -86,6 +128,7 @@ export function useBuddyList() {
           });
         });
       } else if (msg.type === 'presence') {
+        checkTransition(msg.data.did, msg.data.status);
         setBuddies((prev) =>
           prev.map((b) =>
             b.did === msg.data.did
@@ -97,7 +140,7 @@ export function useBuddyList() {
     });
 
     return unsub;
-  }, [subscribe]);
+  }, [subscribe, checkTransition]);
 
   const addBuddy = useCallback(
     async (did: string) => {
@@ -156,5 +199,13 @@ export function useBuddyList() {
     [agent, groups],
   );
 
-  return { buddies, loading, addBuddy, removeBuddy };
+  // Cleanup door timers on unmount
+  useEffect(() => {
+    const timers = doorTimersRef.current;
+    return () => {
+      timers.forEach(clearTimeout);
+    };
+  }, []);
+
+  return { buddies, doorEvents, loading, addBuddy, removeBuddy };
 }

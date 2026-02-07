@@ -1,15 +1,20 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { fetchRoom, NotFoundError } from '../lib/api';
 import { useWebSocket } from '../contexts/WebSocketContext';
+import { playDoorOpen, playDoorClose } from '../lib/sounds';
 import type { RoomView, MemberPresence } from '../types';
 import type { ServerMessage } from '@chatmosphere/shared';
+
+export type DoorEvent = 'join' | 'leave';
 
 export function useRoom(roomId: string) {
   const [room, setRoom] = useState<RoomView | null>(null);
   const [members, setMembers] = useState<MemberPresence[]>([]);
+  const [doorEvents, setDoorEvents] = useState<Record<string, DoorEvent>>({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const { send, subscribe } = useWebSocket();
+  const knownDidsRef = useRef<Set<string>>(new Set());
 
   // Fetch room details with retry for newly created rooms
   const loadRoom = useCallback(async () => {
@@ -46,37 +51,60 @@ export function useRoom(roomId: string) {
 
     send({ type: 'join_room', roomId });
 
+    const timers: ReturnType<typeof setTimeout>[] = [];
+
+    const addDoorEvent = (did: string, event: DoorEvent) => {
+      setDoorEvents((prev) => ({ ...prev, [did]: event }));
+      const t = setTimeout(() => {
+        setDoorEvents((prev) => {
+          const { [did]: _, ...rest } = prev;
+          return rest;
+        });
+        if (event === 'leave') {
+          setMembers((prev) => prev.filter((m) => m.did !== did));
+        }
+      }, 5000);
+      timers.push(t);
+    };
+
     const unsub = subscribe((msg: ServerMessage) => {
       if (msg.type === 'room_joined') {
         if (msg.roomId === roomId) {
+          knownDidsRef.current = new Set(msg.members);
           setMembers(msg.members.map((did) => ({ did, status: 'online' })));
         }
       } else if (msg.type === 'presence') {
-        setMembers((prev) => {
-          if (msg.data.status === 'offline') {
-            return prev.filter((m) => m.did !== msg.data.did);
-          }
-          const existing = prev.find((m) => m.did === msg.data.did);
-          if (existing) {
-            return prev.map((m) =>
-              m.did === msg.data.did
-                ? { ...m, status: msg.data.status, awayMessage: msg.data.awayMessage }
-                : m,
+        const { did, status: s, awayMessage: away } = msg.data;
+
+        if (s === 'offline') {
+          if (knownDidsRef.current.has(did)) {
+            knownDidsRef.current.delete(did);
+            playDoorClose();
+            setMembers((prev) =>
+              prev.map((m) => (m.did === did ? { ...m, status: 'offline' } : m)),
             );
+            addDoorEvent(did, 'leave');
           }
-          return [
-            ...prev,
-            { did: msg.data.did, status: msg.data.status, awayMessage: msg.data.awayMessage },
-          ];
-        });
+        } else if (!knownDidsRef.current.has(did)) {
+          knownDidsRef.current.add(did);
+          playDoorOpen();
+          setMembers((prev) => [...prev, { did, status: s, awayMessage: away }]);
+          addDoorEvent(did, 'join');
+        } else {
+          setMembers((prev) =>
+            prev.map((m) => (m.did === did ? { ...m, status: s, awayMessage: away } : m)),
+          );
+        }
       }
     });
 
     return () => {
       send({ type: 'leave_room', roomId });
+      timers.forEach(clearTimeout);
+      knownDidsRef.current.clear();
       unsub();
     };
   }, [room, roomId, send, subscribe]);
 
-  return { room, members, loading, error };
+  return { room, members, doorEvents, loading, error };
 }

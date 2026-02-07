@@ -1,6 +1,7 @@
 import type { WebSocket } from 'ws';
 import type { ClientMessage } from './types.js';
 import type { RoomSubscriptions } from './rooms.js';
+import type { BuddyWatchers } from './buddy-watchers.js';
 import {
   handleJoinRoom,
   handleLeaveRoom,
@@ -17,6 +18,7 @@ export function handleClientMessage(
   did: string,
   data: ClientMessage,
   roomSubs: RoomSubscriptions,
+  buddyWatchers: BuddyWatchers,
 ): void {
   switch (data.type) {
     case 'join_room': {
@@ -59,6 +61,8 @@ export function handleClientMessage(
           data: { did, status: data.status, awayMessage: data.awayMessage },
         });
       }
+      // Notify buddy watchers
+      buddyWatchers.notify(did, data.status, data.awayMessage);
       break;
     }
 
@@ -71,6 +75,8 @@ export function handleClientMessage(
           data: presenceList,
         }),
       );
+      // Register this socket as watching these DIDs for live updates
+      buddyWatchers.watch(ws, capped);
       break;
     }
 

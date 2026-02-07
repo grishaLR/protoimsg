@@ -9,7 +9,7 @@ import styles from './RoomDirectoryPage.module.css';
 
 export function RoomDirectoryPage() {
   const { rooms, loading, error, refresh } = useRooms();
-  const { buddies, loading: buddiesLoading, addBuddy, removeBuddy } = useBuddyList();
+  const { buddies, doorEvents, loading: buddiesLoading, addBuddy, removeBuddy } = useBuddyList();
   const [search, setSearch] = useState('');
   const [showCreate, setShowCreate] = useState(false);
 
@@ -47,6 +47,7 @@ export function RoomDirectoryPage() {
         <aside className={styles.sidebar}>
           <BuddyListPanel
             buddies={buddies}
+            doorEvents={doorEvents}
             loading={buddiesLoading}
             onAddBuddy={addBuddy}
             onRemoveBuddy={removeBuddy}
