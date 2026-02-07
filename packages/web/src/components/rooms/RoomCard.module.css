@@ -1,0 +1,44 @@
+.card {
+  display: block;
+  padding: 1rem;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  text-decoration: none;
+  color: inherit;
+  transition: border-color 0.15s;
+}
+
+.card:hover {
+  border-color: #0066cc;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.25rem;
+}
+
+.name {
+  margin: 0;
+  font-size: 1rem;
+}
+
+.badge {
+  font-size: 0.75rem;
+  padding: 0.125rem 0.5rem;
+  background: #eee;
+  border-radius: 12px;
+  color: #555;
+}
+
+.description {
+  margin: 0.25rem 0 0.5rem;
+  font-size: 0.875rem;
+  color: #444;
+}
+
+.meta {
+  font-size: 0.75rem;
+  color: #888;
+}

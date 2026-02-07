@@ -1,0 +1,28 @@
+.item {
+  padding: 0.375rem 0;
+  line-height: 1.4;
+}
+
+.pending {
+  opacity: 0.6;
+}
+
+.meta {
+  margin-right: 0.5rem;
+}
+
+.did {
+  font-weight: 600;
+  font-size: 0.8125rem;
+  color: #0066cc;
+}
+
+.time {
+  font-size: 0.75rem;
+  color: #999;
+  margin-left: 0.375rem;
+}
+
+.text {
+  font-size: 0.875rem;
+}

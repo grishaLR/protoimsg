@@ -1,0 +1,12 @@
+.container {
+  flex: 1;
+  overflow-y: auto;
+  padding: 1rem;
+}
+
+.loading,
+.empty {
+  text-align: center;
+  color: #888;
+  padding: 2rem;
+}
