@@ -6,9 +6,21 @@ import { SessionStore } from '../auth/session.js';
 import { RateLimiter } from '../moderation/rate-limiter.js';
 import { createPresenceService } from '../presence/service.js';
 import { PresenceTracker } from '../presence/tracker.js';
+import type { DmService } from '../dms/service.js';
 
 // Minimal mock for Sql — ws server only passes it through
 const mockSql = {} as never;
+
+// Minimal mock DmService — ws server only passes it through
+const mockDmService = {
+  openConversation: () => Promise.resolve({ conversation: {}, messages: [] }),
+  sendMessage: () => Promise.resolve({ message: {}, recipientDid: '' }),
+  togglePersist: () => Promise.resolve(),
+  cleanupIfEmpty: () => Promise.resolve(true),
+  pruneExpired: () => Promise.resolve(),
+  isParticipant: () => Promise.resolve(false),
+  getRecipientDid: () => Promise.resolve(null),
+} as unknown as DmService;
 
 function setup() {
   const httpServer = createServer();
@@ -16,7 +28,7 @@ function setup() {
   const rateLimiter = new RateLimiter();
   const tracker = new PresenceTracker();
   const service = createPresenceService(tracker);
-  const wss = createWsServer(httpServer, mockSql, service, sessions, rateLimiter);
+  const wss = createWsServer(httpServer, mockSql, service, sessions, rateLimiter, mockDmService);
 
   return new Promise<{
     httpServer: ReturnType<typeof createServer>;

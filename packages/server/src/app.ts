@@ -10,6 +10,7 @@ import { createRequireAuth } from './auth/middleware.js';
 import { presenceRouter } from './presence/router.js';
 import { buddylistRouter } from './buddylist/router.js';
 import { moderationRouter } from './moderation/router.js';
+import { dmRouter } from './dms/router.js';
 import type { Config } from './config.js';
 import type { Sql } from './db/client.js';
 import type { PresenceService } from './presence/service.js';
@@ -45,6 +46,7 @@ export function createApp(
   app.use('/api/rooms', requireAuth, createRateLimitMiddleware(rateLimiter), moderationRouter(sql));
   app.use('/api/presence', requireAuth, presenceRouter(presenceService));
   app.use('/api/buddylist', requireAuth, buddylistRouter(sql));
+  app.use('/api/dms', requireAuth, createRateLimitMiddleware(rateLimiter), dmRouter(sql));
 
   // Error handler (must be last)
   app.use(createErrorHandler(config));

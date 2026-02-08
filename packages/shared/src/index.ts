@@ -8,7 +8,7 @@ export type {
   WsDirection,
 } from './types.js';
 
-export { NSID, NSID_PREFIX, ROOM_DEFAULTS, LIMITS } from './constants.js';
+export { NSID, NSID_PREFIX, ROOM_DEFAULTS, LIMITS, DM_LIMITS } from './constants.js';
 
 export type {
   WsMessageBase,
@@ -18,6 +18,11 @@ export type {
   PingMessage,
   RequestBuddyPresenceMessage,
   AuthMessage,
+  DmOpenMessage,
+  DmCloseMessage,
+  DmSendMessage,
+  DmTypingMessage,
+  DmTogglePersistMessage,
   ClientMessage,
   NewMessageEvent,
   PresenceUpdateEvent,
@@ -25,5 +30,10 @@ export type {
   RoomJoinedEvent,
   PongEvent,
   ErrorEvent,
+  DmOpenedEvent,
+  DmMessageEvent,
+  DmTypingEvent,
+  DmPersistChangedEvent,
+  DmIncomingEvent,
   ServerMessage,
 } from './ws-types.js';

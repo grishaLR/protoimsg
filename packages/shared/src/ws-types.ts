@@ -37,13 +37,47 @@ export interface AuthMessage extends WsMessageBase {
   token: string;
 }
 
+// DM Client → Server messages
+
+export interface DmOpenMessage extends WsMessageBase {
+  type: 'dm_open';
+  recipientDid: string;
+}
+
+export interface DmCloseMessage extends WsMessageBase {
+  type: 'dm_close';
+  conversationId: string;
+}
+
+export interface DmSendMessage extends WsMessageBase {
+  type: 'dm_send';
+  conversationId: string;
+  text: string;
+}
+
+export interface DmTypingMessage extends WsMessageBase {
+  type: 'dm_typing';
+  conversationId: string;
+}
+
+export interface DmTogglePersistMessage extends WsMessageBase {
+  type: 'dm_toggle_persist';
+  conversationId: string;
+  persist: boolean;
+}
+
 export type ClientMessage =
   | AuthMessage
   | JoinRoomMessage
   | LeaveRoomMessage
   | StatusChangeMessage
   | PingMessage
-  | RequestBuddyPresenceMessage;
+  | RequestBuddyPresenceMessage
+  | DmOpenMessage
+  | DmCloseMessage
+  | DmSendMessage
+  | DmTypingMessage
+  | DmTogglePersistMessage;
 
 // Server → Client messages
 
@@ -93,10 +127,70 @@ export interface ErrorEvent extends WsMessageBase {
   message: string;
 }
 
+// DM Server → Client events
+
+export interface DmOpenedEvent extends WsMessageBase {
+  type: 'dm_opened';
+  data: {
+    conversationId: string;
+    recipientDid: string;
+    persist: boolean;
+    messages: Array<{
+      id: string;
+      conversationId: string;
+      senderDid: string;
+      text: string;
+      createdAt: string;
+    }>;
+  };
+}
+
+export interface DmMessageEvent extends WsMessageBase {
+  type: 'dm_message';
+  data: {
+    id: string;
+    conversationId: string;
+    senderDid: string;
+    text: string;
+    createdAt: string;
+  };
+}
+
+export interface DmTypingEvent extends WsMessageBase {
+  type: 'dm_typing';
+  data: {
+    conversationId: string;
+    senderDid: string;
+  };
+}
+
+export interface DmPersistChangedEvent extends WsMessageBase {
+  type: 'dm_persist_changed';
+  data: {
+    conversationId: string;
+    persist: boolean;
+    changedBy: string;
+  };
+}
+
+export interface DmIncomingEvent extends WsMessageBase {
+  type: 'dm_incoming';
+  data: {
+    conversationId: string;
+    senderDid: string;
+    preview: string;
+  };
+}
+
 export type ServerMessage =
   | NewMessageEvent
   | PresenceUpdateEvent
   | BuddyPresenceEvent
   | RoomJoinedEvent
   | PongEvent
-  | ErrorEvent;
+  | ErrorEvent
+  | DmOpenedEvent
+  | DmMessageEvent
+  | DmTypingEvent
+  | DmPersistChangedEvent
+  | DmIncomingEvent;

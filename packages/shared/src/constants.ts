@@ -46,3 +46,13 @@ export const LIMITS = {
   /** Default page size for paginated queries */
   defaultPageSize: 50,
 } as const;
+
+/** DM-specific limits */
+export const DM_LIMITS = {
+  /** Maximum DM message text length in characters */
+  maxMessageLength: 3000,
+  /** Maximum preview text length for dm_incoming notifications */
+  maxPreviewLength: 100,
+  /** Maximum days to retain persisted DM messages */
+  retentionDays: 7,
+} as const;

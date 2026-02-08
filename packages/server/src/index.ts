@@ -8,6 +8,7 @@ import { PresenceTracker } from './presence/tracker.js';
 import { createPresenceService } from './presence/service.js';
 import { SessionStore } from './auth/session.js';
 import { RateLimiter } from './moderation/rate-limiter.js';
+import { createDmService } from './dms/service.js';
 
 function main() {
   const config = loadConfig();
@@ -21,11 +22,14 @@ function main() {
   const sessions = new SessionStore(config.SESSION_TTL_MS);
   const rateLimiter = new RateLimiter();
 
+  // DM service
+  const dmService = createDmService(db);
+
   const app = createApp(config, db, presenceService, sessions, rateLimiter);
   const httpServer = createServer(app);
 
   // WebSocket server (shares the HTTP server)
-  const wss = createWsServer(httpServer, db, presenceService, sessions, rateLimiter);
+  const wss = createWsServer(httpServer, db, presenceService, sessions, rateLimiter, dmService);
   console.log('WebSocket server attached');
 
   // Firehose consumer
@@ -37,6 +41,7 @@ function main() {
   const pruneInterval = setInterval(() => {
     sessions.prune();
     rateLimiter.prune();
+    void dmService.pruneExpired();
   }, 60_000);
 
   httpServer.listen(config.PORT, config.HOST, () => {
