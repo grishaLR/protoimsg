@@ -5,6 +5,7 @@ import { AuthProvider } from './contexts/AuthContext';
 import { useAuth } from './hooks/useAuth';
 import { LoginPage } from './pages/LoginPage';
 import { ConnectingScreen } from './components/auth/ConnectingScreen';
+import { AppErrorBoundary } from './components/AppErrorBoundary';
 
 // Set by login() before redirect, cleared by init() after processing.
 // On a hard refresh this flag is absent → skip ConnectingScreen.
@@ -98,11 +99,13 @@ function AppRoutes() {
 export function App() {
   return (
     <BrowserRouter>
-      <AuthProvider>
-        <QueryClientProvider client={queryClient}>
-          <AppRoutes />
-        </QueryClientProvider>
-      </AuthProvider>
+      <AppErrorBoundary>
+        <AuthProvider>
+          <QueryClientProvider client={queryClient}>
+            <AppRoutes />
+          </QueryClientProvider>
+        </AuthProvider>
+      </AppErrorBoundary>
     </BrowserRouter>
   );
 }
