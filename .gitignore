@@ -1,4 +1,5 @@
 node_modules/
+.pnpm-store/
 dist/
 .turbo/
 *.tsbuildinfo
@@ -18,6 +19,10 @@ dist/
 # OS
 .DS_Store
 Thumbs.db
+
+# Coverage (Vitest v8 / Istanbul)
+coverage/
+.nyc_output/
 
 # Logs
 *.log

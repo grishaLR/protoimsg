@@ -4,6 +4,31 @@ UNDER CONSTRUCTION
 
 Group chat as an [atproto Lexicon](https://atproto.com/guides/lexicon). Chat rooms, buddy lists, presence, away messages — all as user-owned records in the AT Protocol.
 
+## Getting Started
+
+**Prerequisites:** Node.js 22+, [pnpm](https://pnpm.io/) 9+, Docker (for Postgres).
+
+```bash
+# Install dependencies
+pnpm install
+
+# Start Postgres (port 5433 → 5432 in container)
+docker compose up -d
+
+# Server: copy env and run migrations
+cp packages/server/.env.example packages/server/.env
+# Edit packages/server/.env and set DATABASE_URL if needed (default: postgres://chatmosphere:localdev@localhost:5433/chatmosphere)
+pnpm --filter @chatmosphere/server db:migrate
+
+# Run everything (server + web)
+pnpm dev
+```
+
+- **Server** — `http://localhost:3000` (API + WebSocket).  
+- **Web app** — `http://localhost:5173` (Vite dev server).
+
+Other commands: `pnpm build`, `pnpm test`, `pnpm lint`, `pnpm typecheck`. See `packages/server/.env.example` for server configuration.
+
 ## Namespace
 
 ```
