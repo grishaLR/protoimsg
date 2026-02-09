@@ -1,33 +1,39 @@
-app = "chatmosphere"
-primary_region = "iad"
+# fly.toml app configuration file generated for chatmosphere on 2026-02-09T15:38:44-05:00
+#
+# See https://fly.io/docs/reference/configuration/ for information about how to use this file.
+#
+
+app = 'chatmosphere'
+primary_region = 'iad'
 
 [build]
-  dockerfile = "packages/server/Dockerfile"
+  dockerfile = 'packages/server/Dockerfile'
+
+[deploy]
+  release_command = 'node dist/db/migrate.js'
 
 [env]
-  NODE_ENV = "production"
-  PORT = "3000"
-  HOST = "0.0.0.0"
+  HOST = '0.0.0.0'
+  NODE_ENV = 'production'
+  PORT = '3000'
 
 [http_service]
   internal_port = 3000
   force_https = true
-  auto_stop_machines = "stop"
+  auto_stop_machines = 'stop'
   auto_start_machines = true
   min_machines_running = 1
 
 [checks]
   [checks.health]
-    type = "http"
     port = 3000
-    path = "/health"
-    interval = "15s"
-    timeout = "5s"
-
-[deploy]
-  release_command = "node dist/db/migrate.js"
+    type = 'http'
+    interval = '15s'
+    timeout = '5s'
+    path = '/health'
 
 [[vm]]
-  memory = "256mb"
-  cpu_kind = "shared"
+  memory = '256mb'
+  cpu_kind = 'shared'
   cpus = 1
+  memory_mb = 256

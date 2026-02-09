@@ -16,14 +16,15 @@ COPY packages/server/ packages/server/
 RUN pnpm --filter @chatmosphere/shared build && \
     pnpm --filter @chatmosphere/lexicon build && \
     pnpm --filter @chatmosphere/server build && \
-    cp -r packages/server/src/db/migrations packages/server/dist/db/
+    cp -r packages/server/src/db/migrations packages/server/dist/db/ && \
+    pnpm --filter @chatmosphere/server deploy --prod /app/deploy
 
 FROM node:22-alpine
 
 WORKDIR /app
-COPY --from=build /app/packages/server/dist ./dist
-COPY --from=build /app/packages/server/package.json ./
-COPY --from=build /app/node_modules ./node_modules
+COPY --from=build /app/deploy/dist ./dist
+COPY --from=build /app/deploy/node_modules ./node_modules
+COPY --from=build /app/deploy/package.json ./
 
 ENV NODE_ENV=production
 EXPOSE 3000
