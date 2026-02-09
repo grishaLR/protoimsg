@@ -43,6 +43,16 @@ export interface BuddyWithPresence {
   blockRkey?: string;
 }
 
+export type BuddyListRow =
+  | {
+      type: 'group-header';
+      groupName: string;
+      onlineCount: number;
+      totalCount: number;
+      isCollapsed: boolean;
+    }
+  | { type: 'buddy'; buddy: BuddyWithPresence; groupName: string };
+
 export interface DmConversationView {
   id: string;
   did1: string;

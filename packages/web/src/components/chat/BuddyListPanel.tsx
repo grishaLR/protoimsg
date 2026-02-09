@@ -1,16 +1,19 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useMemo, useCallback } from 'react';
 import { useVirtualList } from 'virtualized-ui';
 import type { Agent } from '@atproto/api';
+import type { BuddyGroup } from '@chatmosphere/lexicon';
 import { StatusIndicator } from './StatusIndicator';
 import { UserIdentity } from './UserIdentity';
 import { resolveDidOrHandle } from '../../lib/resolve-identity';
 import { useBlocks } from '../../contexts/BlockContext';
+import { useCollapsedGroups } from '../../hooks/useCollapsedGroups';
 import type { DoorEvent } from '../../hooks/useBuddyList';
-import type { BuddyWithPresence } from '../../types';
+import type { BuddyWithPresence, BuddyListRow } from '../../types';
 import styles from './BuddyListPanel.module.css';
 
 interface BuddyListPanelProps {
   buddies: BuddyWithPresence[];
+  groups: BuddyGroup[];
   doorEvents?: Record<string, DoorEvent>;
   loading: boolean;
   agent: Agent | null;
@@ -19,31 +22,44 @@ interface BuddyListPanelProps {
   onToggleCloseFriend: (did: string) => Promise<void>;
   onBlockBuddy: (did: string) => void;
   onSendIm?: (did: string) => void;
+  onCreateGroup: (name: string) => Promise<void>;
+  onRenameGroup: (oldName: string, newName: string) => Promise<void>;
+  onDeleteGroup: (name: string) => Promise<void>;
+  onMoveBuddy: (did: string, fromGroup: string, toGroup: string) => Promise<void>;
 }
+
+const OFFLINE_GROUP = 'Offline';
+const PROTECTED_GROUPS = new Set(['Buddies', 'Close Friends']);
 
 const STATUS_ORDER: Record<string, number> = {
   online: 0,
   away: 1,
   idle: 2,
-  offline: 3,
 };
 
 function BuddyMenu({
   buddy,
+  groupName,
+  allGroups,
   isBlocked,
   onRemove,
   onToggleCloseFriend,
   onBlock,
   onSendIm,
+  onMoveBuddy,
 }: {
   buddy: BuddyWithPresence;
+  groupName: string;
+  allGroups: BuddyGroup[];
   isBlocked: boolean;
   onRemove: () => void;
   onToggleCloseFriend: () => void;
   onBlock: () => void;
   onSendIm?: () => void;
+  onMoveBuddy: (fromGroup: string, toGroup: string) => void;
 }) {
   const [open, setOpen] = useState(false);
+  const [moveOpen, setMoveOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -51,6 +67,7 @@ function BuddyMenu({
     function handleClick(e: MouseEvent) {
       if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
         setOpen(false);
+        setMoveOpen(false);
       }
     }
     document.addEventListener('mousedown', handleClick);
@@ -58,6 +75,8 @@ function BuddyMenu({
       document.removeEventListener('mousedown', handleClick);
     };
   }, [open]);
+
+  const moveTargets = allGroups.filter((g) => g.name !== groupName && g.name !== OFFLINE_GROUP);
 
   return (
     <div className={styles.menuWrap} ref={menuRef}>
@@ -92,6 +111,33 @@ function BuddyMenu({
           >
             {buddy.isCloseFriend ? 'Remove from Close Friends' : 'Add to Close Friends'}
           </button>
+          {groupName !== OFFLINE_GROUP && moveTargets.length > 0 && (
+            <div className={styles.moveSubmenu}>
+              <button
+                className={styles.menuItem}
+                onClick={() => {
+                  setMoveOpen(!moveOpen);
+                }}
+              >
+                <span>Move to...</span>{' '}
+                <span className={styles.moveCaret}>{moveOpen ? '\u25B2' : '\u25BC'}</span>
+              </button>
+              {moveOpen &&
+                moveTargets.map((g) => (
+                  <button
+                    key={g.name}
+                    className={styles.moveTarget}
+                    onClick={() => {
+                      onMoveBuddy(groupName, g.name);
+                      setOpen(false);
+                      setMoveOpen(false);
+                    }}
+                  >
+                    {g.name}
+                  </button>
+                ))}
+            </div>
+          )}
           <button
             className={styles.menuItem}
             onClick={() => {
@@ -116,8 +162,62 @@ function BuddyMenu({
   );
 }
 
+function GroupHeaderRow({
+  groupName,
+  onlineCount,
+  totalCount,
+  isCollapsed,
+  onToggleCollapse,
+  isProtected,
+  onRename,
+  onDelete,
+}: {
+  groupName: string;
+  onlineCount: number;
+  totalCount: number;
+  isCollapsed: boolean;
+  onToggleCollapse: () => void;
+  isProtected: boolean;
+  onRename?: () => void;
+  onDelete?: () => void;
+}) {
+  const isSynthetic = groupName === OFFLINE_GROUP;
+
+  return (
+    <div className={styles.groupHeader} onClick={onToggleCollapse}>
+      <button className={styles.collapseBtn} aria-label={isCollapsed ? 'Expand' : 'Collapse'}>
+        {isCollapsed ? '\u25B6' : '\u25BC'}
+      </button>
+      <span className={styles.groupName}>{groupName}</span>
+      <span className={styles.groupCount}>
+        ({onlineCount}/{totalCount})
+      </span>
+      {!isSynthetic && !isProtected && (
+        <span
+          className={styles.groupHeaderActions}
+          onClick={(e) => {
+            e.stopPropagation();
+          }}
+        >
+          {onRename && (
+            <button className={styles.groupActionBtn} onClick={onRename} title="Rename group">
+              &#9998;
+            </button>
+          )}
+          {onDelete && (
+            <button className={styles.groupActionBtn} onClick={onDelete} title="Delete group">
+              &times;
+            </button>
+          )}
+        </span>
+      )}
+    </div>
+  );
+}
+
 export function BuddyListPanel({
   buddies,
+  groups,
   doorEvents = {},
   loading,
   agent,
@@ -126,21 +226,114 @@ export function BuddyListPanel({
   onToggleCloseFriend,
   onBlockBuddy,
   onSendIm,
+  onCreateGroup,
+  onRenameGroup,
+  onDeleteGroup,
+  onMoveBuddy,
 }: BuddyListPanelProps) {
   const { blockedDids } = useBlocks();
+  const { collapsed, toggle: toggleCollapse } = useCollapsedGroups();
   const [addInput, setAddInput] = useState('');
   const [adding, setAdding] = useState(false);
   const [addError, setAddError] = useState<string | null>(null);
+  const [creatingGroup, setCreatingGroup] = useState(false);
+  const [newGroupName, setNewGroupName] = useState('');
+  const [renamingGroup, setRenamingGroup] = useState<string | null>(null);
+  const [renameValue, setRenameValue] = useState('');
 
-  const sorted = [...buddies].sort(
-    (a, b) => (STATUS_ORDER[a.status] ?? 3) - (STATUS_ORDER[b.status] ?? 3),
-  );
+  // Build presence map from flat buddies array
+  const presenceMap = useMemo(() => {
+    const map = new Map<string, BuddyWithPresence>();
+    for (const b of buddies) {
+      map.set(b.did, b);
+    }
+    return map;
+  }, [buddies]);
 
-  const { virtualItems, totalSize, containerRef, handleScroll, data } = useVirtualList({
-    data: sorted,
-    getItemId: (buddy) => buddy.did,
-    estimatedItemHeight: 36,
-  });
+  // Build flat rows for virtualization
+  const rows: BuddyListRow[] = useMemo(() => {
+    const result: BuddyListRow[] = [];
+    const offlineBuddies = new Map<string, BuddyWithPresence>();
+
+    const seenOnline = new Set<string>();
+    // Render Close Friends first so its members are claimed before Buddies
+    const sortedGroups = [...groups].sort((a, b) =>
+      a.isCloseFriends === b.isCloseFriends ? 0 : a.isCloseFriends ? -1 : 1,
+    );
+
+    for (const group of sortedGroups) {
+      const onlineMembers: BuddyWithPresence[] = [];
+      let totalInGroup = 0;
+
+      for (const member of group.members) {
+        const buddy = presenceMap.get(member.did);
+        if (!buddy) continue;
+        totalInGroup++;
+
+        if (buddy.status === 'offline') {
+          // Collect for synthetic Offline group (deduplicated)
+          if (!offlineBuddies.has(buddy.did)) {
+            offlineBuddies.set(buddy.did, buddy);
+          }
+        } else if (!seenOnline.has(buddy.did)) {
+          onlineMembers.push(buddy);
+          seenOnline.add(buddy.did);
+        }
+      }
+
+      // Sort online members by status
+      onlineMembers.sort((a, b) => (STATUS_ORDER[a.status] ?? 3) - (STATUS_ORDER[b.status] ?? 3));
+
+      const onlineCount = onlineMembers.length;
+      const isGroupCollapsed = collapsed.has(group.name);
+
+      // Always push the group header
+      result.push({
+        type: 'group-header',
+        groupName: group.name,
+        onlineCount,
+        totalCount: totalInGroup,
+        isCollapsed: isGroupCollapsed,
+      });
+
+      // Push online buddy rows if not collapsed
+      if (!isGroupCollapsed) {
+        for (const buddy of onlineMembers) {
+          result.push({ type: 'buddy', buddy, groupName: group.name });
+        }
+      }
+    }
+
+    // Synthetic "Offline" group at the bottom
+    if (offlineBuddies.size > 0) {
+      const offlineArray = [...offlineBuddies.values()];
+      const isOfflineCollapsed = collapsed.has(OFFLINE_GROUP);
+
+      result.push({
+        type: 'group-header',
+        groupName: OFFLINE_GROUP,
+        onlineCount: 0,
+        totalCount: offlineArray.length,
+        isCollapsed: isOfflineCollapsed,
+      });
+
+      if (!isOfflineCollapsed) {
+        for (const buddy of offlineArray) {
+          result.push({ type: 'buddy', buddy, groupName: OFFLINE_GROUP });
+        }
+      }
+    }
+
+    return result;
+  }, [groups, presenceMap, collapsed]);
+
+  const { virtualItems, totalSize, containerRef, handleScroll, measureElement, data } =
+    useVirtualList({
+      data: rows,
+      getItemId: (row) =>
+        row.type === 'group-header' ? `gh:${row.groupName}` : `b:${row.groupName}:${row.buddy.did}`,
+      estimatedItemHeight: 28,
+    });
 
   const handleAdd = async () => {
     const input = addInput.trim();
@@ -157,6 +350,29 @@ export function BuddyListPanel({
       setAdding(false);
     }
   };
+
+  const handleCreateGroup = useCallback(async () => {
+    const trimmed = newGroupName.trim();
+    if (!trimmed) {
+      setCreatingGroup(false);
+      return;
+    }
+    await onCreateGroup(trimmed);
+    setNewGroupName('');
+    setCreatingGroup(false);
+  }, [newGroupName, onCreateGroup]);
+
+  const handleRenameGroup = useCallback(async () => {
+    if (!renamingGroup) return;
+    const trimmed = renameValue.trim();
+    if (trimmed && trimmed !== renamingGroup) {
+      await onRenameGroup(renamingGroup, trimmed);
+    }
+    setRenamingGroup(null);
+    setRenameValue('');
+  }, [renamingGroup, renameValue, onRenameGroup]);
+
+  const hasAnyBuddies = buddies.length > 0;
 
   return (
     <div className={styles.panel}>
@@ -185,20 +401,86 @@ export function BuddyListPanel({
 
       {loading ? (
         <p className={styles.empty}>Loading...</p>
-      ) : sorted.length === 0 ? (
+      ) : !hasAnyBuddies ? (
         <p className={styles.empty}>No buddies yet</p>
       ) : (
         <div className={styles.list} ref={containerRef} onScroll={handleScroll}>
           <div className={styles.spacer} style={{ height: totalSize }}>
             {virtualItems.map((vi) => {
-              const buddy = data[vi.index] as BuddyWithPresence;
+              const row = data[vi.index] as BuddyListRow;
+
+              if (row.type === 'group-header') {
+                const isProtected = PROTECTED_GROUPS.has(row.groupName);
+                const isSynthetic = row.groupName === OFFLINE_GROUP;
+                const isEmpty = row.totalCount === 0;
+
+                return (
+                  <div
+                    key={vi.key}
+                    data-index={vi.index}
+                    ref={measureElement}
+                    className={styles.virtualItem}
+                    style={{ transform: `translateY(${vi.start}px)` }}
+                  >
+                    {renamingGroup === row.groupName ? (
+                      <div className={styles.groupHeader}>
+                        <input
+                          className={styles.createGroupInput}
+                          autoFocus
+                          value={renameValue}
+                          onChange={(e) => {
+                            setRenameValue(e.target.value);
+                          }}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter') void handleRenameGroup();
+                            if (e.key === 'Escape') {
+                              setRenamingGroup(null);
+                              setRenameValue('');
+                            }
+                          }}
+                          onBlur={() => void handleRenameGroup()}
+                        />
+                      </div>
+                    ) : (
+                      <GroupHeaderRow
+                        groupName={row.groupName}
+                        onlineCount={row.onlineCount}
+                        totalCount={row.totalCount}
+                        isCollapsed={row.isCollapsed}
+                        onToggleCollapse={() => {
+                          toggleCollapse(row.groupName);
+                        }}
+                        isProtected={isProtected || isSynthetic}
+                        onRename={
+                          !isProtected && !isSynthetic
+                            ? () => {
+                                setRenamingGroup(row.groupName);
+                                setRenameValue(row.groupName);
+                              }
+                            : undefined
+                        }
+                        onDelete={
+                          !isProtected && !isSynthetic && isEmpty
+                            ? () => void onDeleteGroup(row.groupName)
+                            : undefined
+                        }
+                      />
+                    )}
+                  </div>
+                );
+              }
+
+              // Buddy row
+              const buddy = row.buddy;
               const door = doorEvents[buddy.did];
               const hasAwayMessage = buddy.awayMessage && buddy.status !== 'offline';
+
               return (
                 <div
                   key={vi.key}
                   data-index={vi.index}
-                  className={`${styles.virtualItem} ${styles.buddy}`}
+                  ref={measureElement}
+                  className={`${styles.virtualItem} ${styles.buddy} ${styles.buddyIndented}`}
                   style={{ transform: `translateY(${vi.start}px)` }}
                 >
                   {door ? (
@@ -251,6 +533,8 @@ export function BuddyListPanel({
                   </div>
                   <BuddyMenu
                     buddy={buddy}
+                    groupName={row.groupName}
+                    allGroups={groups}
                     isBlocked={blockedDids.has(buddy.did)}
                     onRemove={() => void onRemoveBuddy(buddy.did)}
                     onToggleCloseFriend={() => void onToggleCloseFriend(buddy.did)}
@@ -264,12 +548,47 @@ export function BuddyListPanel({
                           }
                         : undefined
                     }
+                    onMoveBuddy={(fromGroup, toGroup) => {
+                      void onMoveBuddy(buddy.did, fromGroup, toGroup);
+                    }}
                   />
                 </div>
               );
             })}
           </div>
         </div>
+      )}
+
+      {/* Create group UI */}
+      {creatingGroup ? (
+        <div className={styles.addSection}>
+          <input
+            className={styles.createGroupInput}
+            autoFocus
+            placeholder="Group name..."
+            value={newGroupName}
+            onChange={(e) => {
+              setNewGroupName(e.target.value);
+            }}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') void handleCreateGroup();
+              if (e.key === 'Escape') {
+                setCreatingGroup(false);
+                setNewGroupName('');
+              }
+            }}
+            onBlur={() => void handleCreateGroup()}
+          />
+        </div>
+      ) : (
+        <button
+          className={styles.createGroupBtn}
+          onClick={() => {
+            setCreatingGroup(true);
+          }}
+        >
+          + Create Group
+        </button>
       )}
     </div>
   );

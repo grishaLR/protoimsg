@@ -11,6 +11,9 @@ import type { ServerMessage } from '@chatmosphere/shared';
 export type DoorEvent = 'join' | 'leave';
 
 const DEFAULT_GROUP = 'Buddies';
+const CLOSE_FRIENDS_GROUP = 'Close Friends';
+const PROTECTED_GROUPS = new Set([DEFAULT_GROUP, CLOSE_FRIENDS_GROUP]);
+const MAX_GROUPS = 50;
 const DOOR_LINGER_MS = 5000;
 
 export function useBuddyList() {
@@ -232,8 +235,6 @@ export function useBuddyList() {
     [agent, groups],
   );
 
-  const CLOSE_FRIENDS_GROUP = 'Close Friends';
-
   const toggleCloseFriend = useCallback(
     async (did: string) => {
       if (!agent) return;
@@ -316,6 +317,70 @@ export function useBuddyList() {
     [agent, buddies],
   );
 
+  const createGroup = useCallback(
+    async (name: string) => {
+      if (!agent) return;
+      const trimmed = name.trim();
+      if (!trimmed) return;
+      if (groups.some((g) => g.name === trimmed)) return;
+      if (groups.length >= MAX_GROUPS) return;
+
+      const updatedGroups = [...groups, { name: trimmed, members: [] }];
+      setGroups(updatedGroups);
+      await putBuddyListRecord(agent, updatedGroups);
+    },
+    [agent, groups],
+  );
+
+  const renameGroup = useCallback(
+    async (oldName: string, newName: string) => {
+      if (!agent) return;
+      const trimmed = newName.trim();
+      if (!trimmed || trimmed === oldName) return;
+      if (groups.some((g) => g.name === trimmed)) return;
+
+      const updatedGroups = groups.map((g) => (g.name === oldName ? { ...g, name: trimmed } : g));
+      setGroups(updatedGroups);
+      await putBuddyListRecord(agent, updatedGroups);
+    },
+    [agent, groups],
+  );
+
+  const deleteGroup = useCallback(
+    async (name: string) => {
+      if (!agent) return;
+      if (PROTECTED_GROUPS.has(name)) return;
+      const group = groups.find((g) => g.name === name);
+      if (!group || group.members.length > 0) return;
+
+      const updatedGroups = groups.filter((g) => g.name !== name);
+      setGroups(updatedGroups);
+      await putBuddyListRecord(agent, updatedGroups);
+    },
+    [agent, groups],
+  );
+
+  const moveBuddy = useCallback(
+    async (did: string, fromGroup: string, toGroup: string) => {
+      if (!agent || fromGroup === toGroup) return;
+
+      const updatedGroups = groups.map((g) => {
+        if (g.name === fromGroup) {
+          return { ...g, members: g.members.filter((m) => m.did !== did) };
+        }
+        if (g.name === toGroup) {
+          if (g.members.some((m) => m.did === did)) return g;
+          return { ...g, members: [...g.members, { did, addedAt: new Date().toISOString() }] };
+        }
+        return g;
+      });
+
+      setGroups(updatedGroups);
+      await putBuddyListRecord(agent, updatedGroups);
+    },
+    [agent, groups],
+  );
+
   // Cleanup door timers on unmount
   useEffect(() => {
     const timers = doorTimersRef.current;
@@ -326,6 +391,7 @@ export function useBuddyList() {
 
   return {
     buddies,
+    groups,
     doorEvents,
     loading,
     addBuddy,
@@ -334,5 +400,9 @@ export function useBuddyList() {
     blockBuddy,
     closeFriendDids,
     agent,
+    createGroup,
+    renameGroup,
+    deleteGroup,
+    moveBuddy,
   };
 }

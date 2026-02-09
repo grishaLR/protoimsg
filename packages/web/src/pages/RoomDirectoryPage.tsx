@@ -13,6 +13,7 @@ export function RoomDirectoryPage() {
   const { rooms, loading, error, refresh } = useRooms();
   const {
     buddies,
+    groups,
     doorEvents,
     loading: buddiesLoading,
     addBuddy,
@@ -20,6 +21,10 @@ export function RoomDirectoryPage() {
     toggleCloseFriend,
     blockBuddy,
     agent,
+    createGroup,
+    renameGroup,
+    deleteGroup,
+    moveBuddy,
   } = useBuddyList();
   const { openDm } = useDm();
   const { blockedDids, toggleBlock } = useBlocks();
@@ -60,6 +65,7 @@ export function RoomDirectoryPage() {
         <aside className={styles.sidebar}>
           <BuddyListPanel
             buddies={buddies}
+            groups={groups}
             doorEvents={doorEvents}
             loading={buddiesLoading}
             agent={agent}
@@ -74,6 +80,10 @@ export function RoomDirectoryPage() {
               });
             }}
             onSendIm={openDm}
+            onCreateGroup={createGroup}
+            onRenameGroup={renameGroup}
+            onDeleteGroup={deleteGroup}
+            onMoveBuddy={moveBuddy}
           />
         </aside>
       </div>
