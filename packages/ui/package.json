@@ -59,6 +59,7 @@
     "react-dom": "^19.0.0"
   },
   "devDependencies": {
+    "@storybook/addon-a11y": "^10.2.8",
     "@storybook/react-vite": "^10.2.7",
     "@types/react": "^19.0.0",
     "@vitejs/plugin-react": "^4.3.0",
