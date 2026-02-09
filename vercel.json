@@ -1,0 +1,6 @@
+{
+  "buildCommand": "pnpm --filter @chatmosphere/web build",
+  "outputDirectory": "packages/web/dist",
+  "installCommand": "pnpm install",
+  "framework": "vite"
+}

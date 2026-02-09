@@ -15,7 +15,8 @@ COPY packages/server/ packages/server/
 
 RUN pnpm --filter @chatmosphere/shared build && \
     pnpm --filter @chatmosphere/lexicon build && \
-    pnpm --filter @chatmosphere/server build
+    pnpm --filter @chatmosphere/server build && \
+    cp -r packages/server/src/db/migrations packages/server/dist/db/
 
 FROM node:22-alpine
 

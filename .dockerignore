@@ -1,0 +1,6 @@
+node_modules
+.git
+.turbo
+*.md
+packages/web
+packages/ui
