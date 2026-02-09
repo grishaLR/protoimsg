@@ -28,19 +28,23 @@ export async function checkUserAccess(
     return { allowed: false, reason: 'Room not found' };
   }
 
-  // Account age gate
+  // Account age gate — fail closed if we can't verify (e.g. did:web)
   if (room.min_account_age_days > 0) {
     const creationDate = await getDidCreationDate(did);
-    if (creationDate) {
-      const ageDays = getAccountAgeDays(creationDate);
-      if (ageDays < room.min_account_age_days) {
-        return {
-          allowed: false,
-          reason: `Account must be at least ${String(room.min_account_age_days)} days old to join this room`,
-        };
-      }
+    if (!creationDate) {
+      return {
+        allowed: false,
+        reason:
+          'Account age could not be verified for this room (e.g. non-PLC DIDs). Use a PLC-backed account to join.',
+      };
     }
-    // If we can't resolve creation date (e.g. did:web), allow access
+    const ageDays = getAccountAgeDays(creationDate);
+    if (ageDays < room.min_account_age_days) {
+      return {
+        allowed: false,
+        reason: `Account must be at least ${String(room.min_account_age_days)} days old to join this room`,
+      };
+    }
   }
 
   return { allowed: true };

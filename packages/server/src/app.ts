@@ -17,6 +17,7 @@ import type { Sql } from './db/client.js';
 import type { PresenceService } from './presence/service.js';
 import type { SessionStore } from './auth/session.js';
 import type { RateLimiter } from './moderation/rate-limiter.js';
+import type { BlockService } from './moderation/block-service.js';
 
 export function createApp(
   config: Config,
@@ -25,6 +26,7 @@ export function createApp(
   sessions: SessionStore,
   rateLimiter: RateLimiter,
   authRateLimiter: RateLimiter,
+  blockService: BlockService,
 ): Express {
   const app = express();
   const requireAuth = createRequireAuth(sessions);
@@ -47,7 +49,7 @@ export function createApp(
   app.use('/api/rooms', requireAuth, createRateLimitMiddleware(rateLimiter), roomsRouter(sql));
   app.use('/api/rooms', requireAuth, createRateLimitMiddleware(rateLimiter), messagesRouter(sql));
   app.use('/api/rooms', requireAuth, createRateLimitMiddleware(rateLimiter), moderationRouter(sql));
-  app.use('/api/presence', requireAuth, presenceRouter(presenceService));
+  app.use('/api/presence', requireAuth, presenceRouter(presenceService, blockService));
   app.use('/api/buddylist', requireAuth, buddylistRouter(sql));
   app.use('/api/dms', requireAuth, createRateLimitMiddleware(rateLimiter), dmRouter(sql));
 

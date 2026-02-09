@@ -4,6 +4,7 @@ import WebSocket from 'ws';
 import { createWsServer } from './server.js';
 import { SessionStore } from '../auth/session.js';
 import { RateLimiter } from '../moderation/rate-limiter.js';
+import { BlockService } from '../moderation/block-service.js';
 import { createPresenceService } from '../presence/service.js';
 import { PresenceTracker } from '../presence/tracker.js';
 import type { DmService } from '../dms/service.js';
@@ -28,7 +29,16 @@ function setup() {
   const rateLimiter = new RateLimiter();
   const tracker = new PresenceTracker();
   const service = createPresenceService(tracker);
-  const wss = createWsServer(httpServer, mockSql, service, sessions, rateLimiter, mockDmService);
+  const blockService = new BlockService();
+  const wss = createWsServer(
+    httpServer,
+    mockSql,
+    service,
+    sessions,
+    rateLimiter,
+    mockDmService,
+    blockService,
+  );
 
   return new Promise<{
     httpServer: ReturnType<typeof createServer>;

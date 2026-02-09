@@ -56,6 +56,7 @@ export function createWsServer(
   sessions: SessionStore,
   rateLimiter: RateLimiter,
   dmService: DmService,
+  blockService: BlockService,
 ): WsServer {
   const wss = new WebSocketServer({
     server: httpServer,
@@ -65,7 +66,6 @@ export function createWsServer(
   const roomSubs = new RoomSubscriptions();
   const dmSubs = new DmSubscriptions();
   const userSockets = new UserSockets();
-  const blockService = new BlockService();
   blockService.startSweep();
   const buddyWatchers = new BuddyWatchers(sql, blockService);
 
