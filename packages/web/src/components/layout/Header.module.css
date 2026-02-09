@@ -31,6 +31,35 @@
   white-space: nowrap;
 }
 
+.didClickable {
+  cursor: pointer;
+}
+
+.didClickable:hover {
+  color: var(--cm-chrome-text);
+}
+
+.settingsButton {
+  padding: 1px 6px;
+  background: var(--cm-surface);
+  border: none;
+  border-radius: 0;
+  cursor: pointer;
+  font-size: var(--cm-text-md);
+  color: var(--cm-chrome-text);
+  box-shadow: var(--cm-raised);
+  min-height: 21px;
+}
+
+.settingsButton:hover {
+  background: var(--cm-button-hover);
+  color: var(--color-base-content);
+}
+
+.settingsButton:active {
+  box-shadow: var(--cm-pressed);
+}
+
 .logoutButton {
   padding: 1px 6px;
   background: var(--cm-surface);

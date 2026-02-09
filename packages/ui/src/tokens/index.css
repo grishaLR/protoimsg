@@ -98,6 +98,34 @@
   --cm-text-xl: 1rem;         /* 16px — section titles */
   --cm-text-2xl: 1.5rem;      /* 24px — page titles */
 
+  /* ── Spacing ─────────────────────────────────────── */
+  --cm-space-0: 0px;
+  --cm-space-1: 2px;
+  --cm-space-2: 4px;
+  --cm-space-3: 6px;
+  --cm-space-4: 8px;
+  --cm-space-5: 10px;
+  --cm-space-6: 12px;
+  --cm-space-8: 16px;
+  --cm-space-10: 20px;
+  --cm-space-12: 24px;
+  --cm-space-16: 32px;
+
+  /* ── Icon / Avatar Sizes ───────────────────────────── */
+  --cm-avatar-xs: 14px;
+  --cm-avatar-sm: 20px;
+  --cm-avatar-md: 24px;
+  --cm-avatar-lg: 64px;
+
+  /* ── Image Constraints ─────────────────────────────── */
+  --cm-image-max-h: 300px;
+  --cm-link-thumb: 80px;
+
+  /* ── Layout Widths / Heights ───────────────────────── */
+  --cm-content-max-w: 600px;
+  --cm-content-wide-max-w: 800px;
+  --cm-banner-h: 120px;
+
   /* Border radii — AIM uses sharp corners */
   --cm-radius-sm: 0px;
   --cm-radius-md: 0px;

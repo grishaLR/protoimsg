@@ -15,9 +15,13 @@
 .main {
   flex: 1;
   min-width: 0;
-  max-width: 800px;
+  min-height: 0;
+  max-width: var(--cm-content-wide-max-w);
   margin: 0 auto;
   padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
 }
 
 .sidebar {
@@ -68,4 +72,34 @@
 .error {
   color: var(--color-error);
   margin-bottom: 1rem;
+}
+
+.viewToggle {
+  display: flex;
+  gap: var(--cm-space-1);
+  margin-bottom: var(--cm-space-4);
+}
+
+.viewTab {
+  padding: var(--cm-space-1) var(--cm-space-8);
+  background: var(--color-base-200);
+  color: var(--color-base-content);
+  border: none;
+  border-radius: var(--cm-radius-sm);
+  cursor: pointer;
+  font-size: var(--cm-text-md);
+  box-shadow: var(--cm-raised);
+}
+
+.viewTab:hover {
+  background: var(--cm-button-hover);
+}
+
+.viewTabActive {
+  box-shadow: var(--cm-pressed);
+  background: var(--cm-surface-content);
+}
+
+.viewTabActive:hover {
+  background: var(--cm-surface-content);
 }

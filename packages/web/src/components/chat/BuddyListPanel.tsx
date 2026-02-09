@@ -22,6 +22,7 @@ interface BuddyListPanelProps {
   onToggleCloseFriend: (did: string) => Promise<void>;
   onBlockBuddy: (did: string) => void;
   onSendIm?: (did: string) => void;
+  onBuddyClick?: (did: string) => void;
   onCreateGroup: (name: string) => Promise<void>;
   onRenameGroup: (oldName: string, newName: string) => Promise<void>;
   onDeleteGroup: (name: string) => Promise<void>;
@@ -229,6 +230,7 @@ export function BuddyListPanel({
   onToggleCloseFriend,
   onBlockBuddy,
   onSendIm,
+  onBuddyClick,
   onCreateGroup,
   onRenameGroup,
   onDeleteGroup,
@@ -538,20 +540,20 @@ export function BuddyListPanel({
                   <div className={styles.buddyInfo}>
                     <span
                       className={styles.buddyDid}
-                      role={onSendIm ? 'button' : undefined}
-                      tabIndex={onSendIm ? 0 : undefined}
-                      style={onSendIm ? { cursor: 'pointer' } : undefined}
+                      role={onBuddyClick ? 'button' : undefined}
+                      tabIndex={onBuddyClick ? 0 : undefined}
+                      style={onBuddyClick ? { cursor: 'pointer' } : undefined}
                       onClick={
-                        onSendIm
+                        onBuddyClick
                           ? () => {
-                              onSendIm(buddy.did);
+                              onBuddyClick(buddy.did);
                             }
                           : undefined
                       }
                       onKeyDown={
-                        onSendIm
+                        onBuddyClick
                           ? (e) => {
-                              if (e.key === 'Enter') onSendIm(buddy.did);
+                              if (e.key === 'Enter') onBuddyClick(buddy.did);
                             }
                           : undefined
                       }

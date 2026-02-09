@@ -4,7 +4,12 @@ import { StatusSelector } from '../chat/StatusSelector';
 import { UserIdentity } from '../chat/UserIdentity';
 import styles from './Header.module.css';
 
-export function Header() {
+interface HeaderProps {
+  onOpenSettings?: () => void;
+  onOpenProfile?: (did: string) => void;
+}
+
+export function Header({ onOpenSettings, onOpenProfile }: HeaderProps) {
   const { did, logout } = useAuth();
   const { status, awayMessage, visibleTo, changeStatus } = usePresence();
 
@@ -20,10 +25,25 @@ export function Header() {
               visibleTo={visibleTo}
               onChangeStatus={changeStatus}
             />
-            <span className={styles.did}>
+            <span
+              className={`${styles.did} ${onOpenProfile ? styles.didClickable : ''}`}
+              onClick={() => {
+                onOpenProfile?.(did);
+              }}
+            >
               <UserIdentity did={did} showAvatar size="md" />
             </span>
           </>
+        )}
+        {onOpenSettings && (
+          <button
+            className={styles.settingsButton}
+            onClick={onOpenSettings}
+            type="button"
+            title="Settings"
+          >
+            &#x2699;
+          </button>
         )}
         <button
           className={styles.logoutButton}

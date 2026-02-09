@@ -70,3 +70,8 @@ export interface DmMessageView {
   createdAt: string;
   pending?: boolean;
 }
+
+export interface FeedInfo {
+  uri: string | undefined; // undefined = Following timeline
+  displayName: string;
+}

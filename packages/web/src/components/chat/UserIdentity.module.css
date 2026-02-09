@@ -1,24 +1,24 @@
 .identity {
   display: inline-flex;
   align-items: center;
-  gap: 0.25rem;
+  gap: var(--cm-space-2);
   min-width: 0;
 }
 
 .avatar {
-  border-radius: 0;
+  border-radius: var(--cm-radius-sm);
   flex-shrink: 0;
   object-fit: cover;
 }
 
 .avatarSm {
-  width: 20px;
-  height: 20px;
+  width: var(--cm-avatar-sm);
+  height: var(--cm-avatar-sm);
 }
 
 .avatarMd {
-  width: 24px;
-  height: 24px;
+  width: var(--cm-avatar-md);
+  height: var(--cm-avatar-md);
 }
 
 .handle {

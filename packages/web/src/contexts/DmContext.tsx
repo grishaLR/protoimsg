@@ -40,6 +40,7 @@ interface DmContextValue {
   conversations: DmConversation[];
   notifications: DmNotification[];
   openDm: (recipientDid: string) => void;
+  openDmMinimized: (recipientDid: string) => void;
   closeDm: (conversationId: string) => void;
   toggleMinimize: (conversationId: string) => void;
   sendDm: (conversationId: string, text: string) => void;
@@ -64,6 +65,7 @@ export function DmProvider({ children }: { children: ReactNode }) {
   const typingTimers = useRef<Map<string, ReturnType<typeof setTimeout>>>(new Map());
   const lastTypingSent = useRef<Map<string, number>>(new Map());
   const pendingTimers = useRef<Map<string, ReturnType<typeof setTimeout>>>(new Map());
+  const pendingMinimized = useRef<Set<string>>(new Set());
 
   // Ref for reading current conversations without adding to deps (fixes H1 stale closure)
   const conversationsRef = useRef(conversations);
@@ -82,6 +84,25 @@ export function DmProvider({ children }: { children: ReactNode }) {
         );
         return;
       }
+      send({ type: 'dm_open', recipientDid });
+    },
+    [send],
+  );
+
+  const openDmMinimized = useCallback(
+    (recipientDid: string) => {
+      const existing = conversationsRef.current.find((c) => c.recipientDid === recipientDid);
+      if (existing) {
+        // Already open — ensure minimized
+        setConversations((prev) =>
+          prev.map((c) =>
+            c.conversationId === existing.conversationId ? { ...c, minimized: true } : c,
+          ),
+        );
+        return;
+      }
+      // Not yet open — mark for minimized state when dm_opened arrives
+      pendingMinimized.current.add(recipientDid);
       send({ type: 'dm_open', recipientDid });
     },
     [send],
@@ -192,6 +213,9 @@ export function DmProvider({ children }: { children: ReactNode }) {
           // Clear matching notification (safe — separate state, not inside updater)
           setNotifications((prev) => prev.filter((n) => n.conversationId !== conversationId));
 
+          const shouldMinimize = pendingMinimized.current.has(recipientDid);
+          if (shouldMinimize) pendingMinimized.current.delete(recipientDid);
+
           setConversations((prev) => {
             if (prev.some((c) => c.conversationId === conversationId)) return prev;
 
@@ -206,7 +230,7 @@ export function DmProvider({ children }: { children: ReactNode }) {
                 createdAt: m.createdAt,
               })),
               persist,
-              minimized: false,
+              minimized: shouldMinimize,
               typing: false,
               unreadCount: 0,
             };
@@ -366,12 +390,31 @@ export function DmProvider({ children }: { children: ReactNode }) {
     };
   }, []);
 
+  // Safety net: if dm_opened handler didn't catch the pendingMinimized flag,
+  // minimize the conversation reactively when it appears in state
+  useEffect(() => {
+    if (pendingMinimized.current.size === 0) return;
+    const toMinimize: string[] = [];
+    for (const c of conversations) {
+      if (pendingMinimized.current.has(c.recipientDid) && !c.minimized) {
+        toMinimize.push(c.conversationId);
+        pendingMinimized.current.delete(c.recipientDid);
+      }
+    }
+    if (toMinimize.length > 0) {
+      setConversations((prev) =>
+        prev.map((c) => (toMinimize.includes(c.conversationId) ? { ...c, minimized: true } : c)),
+      );
+    }
+  }, [conversations]);
+
   // M1: Memoize context value to prevent unnecessary consumer re-renders
   const value = useMemo<DmContextValue>(
     () => ({
       conversations,
       notifications,
       openDm,
+      openDmMinimized,
       closeDm,
       toggleMinimize,
       sendDm,
@@ -384,6 +427,7 @@ export function DmProvider({ children }: { children: ReactNode }) {
       conversations,
       notifications,
       openDm,
+      openDmMinimized,
       closeDm,
       toggleMinimize,
       sendDm,

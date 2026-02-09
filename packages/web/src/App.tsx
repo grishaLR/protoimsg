@@ -1,4 +1,5 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { AuthProvider } from './contexts/AuthContext';
 import { ModerationProvider } from './contexts/ModerationContext';
 import { ProfileProvider } from './contexts/ProfileContext';
@@ -6,11 +7,22 @@ import { useAuth } from './hooks/useAuth';
 import { LoginPage } from './pages/LoginPage';
 import { RoomDirectoryPage } from './pages/RoomDirectoryPage';
 import { ChatRoomPage } from './pages/ChatRoomPage';
+
 import { WebSocketProvider } from './contexts/WebSocketContext';
 import { DmProvider } from './contexts/DmContext';
 import { DmPopoverContainer } from './components/dm/DmPopoverContainer';
 import { BlockProvider } from './contexts/BlockContext';
 import { ConnectionBanner } from './components/ConnectionBanner';
+
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 2 * 60 * 1000,
+      gcTime: 10 * 60 * 1000,
+      refetchOnWindowFocus: false,
+    },
+  },
+});
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { did, serverToken, isLoading, authError, logout } = useAuth();
@@ -62,19 +74,21 @@ export function App() {
   return (
     <BrowserRouter>
       <AuthProvider>
-        <ModerationProvider>
-          <ProfileProvider>
-            <WebSocketProvider>
-              <ConnectionBanner />
-              <BlockProvider>
-                <DmProvider>
-                  <AppRoutes />
-                  <DmPopoverContainer />
-                </DmProvider>
-              </BlockProvider>
-            </WebSocketProvider>
-          </ProfileProvider>
-        </ModerationProvider>
+        <QueryClientProvider client={queryClient}>
+          <ModerationProvider>
+            <ProfileProvider>
+              <WebSocketProvider>
+                <ConnectionBanner />
+                <BlockProvider>
+                  <DmProvider>
+                    <AppRoutes />
+                    <DmPopoverContainer />
+                  </DmProvider>
+                </BlockProvider>
+              </WebSocketProvider>
+            </ProfileProvider>
+          </ModerationProvider>
+        </QueryClientProvider>
       </AuthProvider>
     </BrowserRouter>
   );

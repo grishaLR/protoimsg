@@ -1,0 +1,128 @@
+.profileView {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+}
+
+.backButton {
+  padding: var(--cm-space-1) var(--cm-space-6);
+  background: var(--color-base-200);
+  color: var(--color-base-content);
+  border: none;
+  border-radius: var(--cm-radius-sm);
+  cursor: pointer;
+  font-size: var(--cm-text-sm);
+  box-shadow: var(--cm-raised);
+  margin-bottom: var(--cm-space-4);
+  align-self: flex-start;
+}
+
+.backButton:hover {
+  background: var(--cm-button-hover);
+}
+
+.backButton:active {
+  box-shadow: var(--cm-pressed);
+}
+
+.scrollArea {
+  flex: 1;
+  overflow-y: auto;
+  min-height: 0;
+}
+
+.profileHeader {
+  box-shadow: var(--cm-raised);
+  background: var(--cm-surface-content);
+  margin-bottom: var(--cm-space-4);
+  flex-shrink: 0;
+}
+
+.banner {
+  width: 100%;
+  height: var(--cm-banner-h);
+  object-fit: cover;
+  display: block;
+  background: var(--color-base-300);
+}
+
+.profileInfo {
+  padding: var(--cm-space-5);
+}
+
+.avatarRow {
+  display: flex;
+  align-items: flex-end;
+  gap: var(--cm-space-5);
+  margin-top: calc(-1 * var(--cm-space-16));
+  margin-bottom: var(--cm-space-4);
+}
+
+.profileAvatar {
+  width: var(--cm-avatar-lg);
+  height: var(--cm-avatar-lg);
+  border-radius: var(--cm-radius-sm);
+  object-fit: cover;
+  box-shadow: var(--cm-raised);
+  background: var(--color-base-200);
+}
+
+.names {
+  padding-bottom: var(--cm-space-2);
+}
+
+.profileDisplayName {
+  font-size: var(--cm-text-xl);
+  font-weight: 700;
+  color: var(--color-base-content);
+}
+
+.profileHandle {
+  font-size: var(--cm-text-sm);
+  color: var(--cm-border-dark);
+}
+
+.bio {
+  font-size: var(--cm-text-md);
+  line-height: 1.4;
+  color: var(--color-base-content);
+  margin-bottom: var(--cm-space-4);
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.stats {
+  display: flex;
+  gap: var(--cm-space-8);
+  font-size: var(--cm-text-sm);
+  color: var(--cm-border-dark);
+}
+
+.statCount {
+  font-weight: 700;
+  color: var(--color-base-content);
+}
+
+.postsSection {
+  padding: 0 var(--cm-space-2) var(--cm-space-4);
+}
+
+.loading {
+  text-align: center;
+  color: var(--cm-border-dark);
+  padding: var(--cm-space-16);
+}
+
+.loadingMore {
+  text-align: center;
+  color: var(--cm-border-dark);
+  padding: var(--cm-space-4);
+  font-size: var(--cm-text-sm);
+}
+
+.error {
+  text-align: center;
+  color: var(--color-error);
+  padding: var(--cm-space-8);
+}

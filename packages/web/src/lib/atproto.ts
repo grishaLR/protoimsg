@@ -8,6 +8,12 @@ import type {
 } from '@chatmosphere/shared';
 import type { BuddyGroup } from '@chatmosphere/lexicon';
 
+/** Extract the record key (last path segment) from an AT URI */
+export function extractRkey(uri: string): string {
+  const segments = uri.split('/');
+  return segments[segments.length - 1] ?? '';
+}
+
 const TID_CHARS = '234567abcdefghijklmnopqrstuvwxyz';
 
 let lastTimestamp = 0;

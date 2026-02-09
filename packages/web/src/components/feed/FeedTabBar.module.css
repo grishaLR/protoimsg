@@ -1,0 +1,36 @@
+.tabBar {
+  display: flex;
+  gap: var(--cm-space-1);
+  overflow-x: auto;
+  scrollbar-width: none;
+  padding: var(--cm-space-2) 0 var(--cm-space-3);
+}
+
+.tabBar::-webkit-scrollbar {
+  display: none;
+}
+
+.tab {
+  padding: var(--cm-space-1) var(--cm-space-5);
+  background: var(--color-base-200);
+  color: var(--color-base-content);
+  border: none;
+  border-radius: var(--cm-radius-sm);
+  cursor: pointer;
+  font-size: var(--cm-text-sm);
+  white-space: nowrap;
+  box-shadow: var(--cm-raised);
+}
+
+.tab:hover {
+  background: var(--cm-button-hover);
+}
+
+.tabActive {
+  box-shadow: var(--cm-pressed);
+  background: var(--cm-surface-content);
+}
+
+.tabActive:hover {
+  background: var(--cm-surface-content);
+}

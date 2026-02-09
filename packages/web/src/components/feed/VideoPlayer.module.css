@@ -1,0 +1,35 @@
+.poster {
+  position: relative;
+  margin-bottom: var(--cm-space-3);
+  cursor: pointer;
+}
+
+.posterImg {
+  width: 100%;
+  border-radius: var(--cm-radius-sm);
+  max-height: var(--cm-image-max-h);
+  object-fit: cover;
+  display: block;
+}
+
+.playIcon {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: var(--cm-text-2xl);
+  color: var(--cm-chrome-text);
+  text-shadow: var(--cm-shadow-md);
+  pointer-events: none;
+}
+
+.playerWrap {
+  margin-bottom: var(--cm-space-3);
+}
+
+.video {
+  width: 100%;
+  max-height: var(--cm-image-max-h);
+  border-radius: var(--cm-radius-sm);
+  background: var(--color-neutral);
+}

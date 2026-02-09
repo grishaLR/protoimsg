@@ -1,0 +1,200 @@
+.settingsView {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+}
+
+.backButton {
+  padding: var(--cm-space-1) var(--cm-space-6);
+  background: var(--color-base-200);
+  color: var(--color-base-content);
+  border: none;
+  border-radius: var(--cm-radius-sm);
+  cursor: pointer;
+  font-size: var(--cm-text-sm);
+  box-shadow: var(--cm-raised);
+  margin-bottom: var(--cm-space-4);
+  align-self: flex-start;
+}
+
+.backButton:hover {
+  background: var(--cm-button-hover);
+}
+
+.backButton:active {
+  box-shadow: var(--cm-pressed);
+}
+
+.scrollArea {
+  flex: 1;
+  overflow-y: auto;
+  min-height: 0;
+  padding: 0 var(--cm-space-2);
+}
+
+.section {
+  margin-bottom: var(--cm-space-8);
+  box-shadow: var(--cm-raised);
+  background: var(--cm-surface-content);
+}
+
+.sectionTitle {
+  padding: var(--cm-space-1) var(--cm-space-4);
+  background: var(--cm-titlebar);
+  color: var(--cm-chrome-text);
+  font-size: var(--cm-text-sm);
+  font-weight: 700;
+}
+
+.sectionBody {
+  padding: var(--cm-space-4);
+}
+
+.label {
+  display: block;
+  font-size: var(--cm-text-xs);
+  color: var(--cm-border-dark);
+  margin-bottom: var(--cm-space-1);
+  margin-top: var(--cm-space-3);
+}
+
+.label:first-child {
+  margin-top: 0;
+}
+
+.readOnly {
+  width: 100%;
+  box-sizing: border-box;
+  padding: var(--cm-space-1) var(--cm-space-2);
+  border: none;
+  border-radius: var(--cm-radius-sm);
+  font-size: var(--cm-text-sm);
+  background: var(--color-base-100);
+  box-shadow: var(--cm-sunken);
+  color: var(--cm-border-dark);
+}
+
+.input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: var(--cm-space-1) var(--cm-space-2);
+  border: none;
+  border-radius: var(--cm-radius-sm);
+  font-size: var(--cm-text-md);
+  background: var(--cm-surface-content);
+  box-shadow: var(--cm-sunken);
+  color: var(--color-base-content);
+}
+
+.input:focus {
+  outline: none;
+}
+
+.textarea {
+  width: 100%;
+  box-sizing: border-box;
+  padding: var(--cm-space-2);
+  border: none;
+  border-radius: var(--cm-radius-sm);
+  font-size: var(--cm-text-md);
+  font-family: inherit;
+  resize: vertical;
+  background: var(--cm-surface-content);
+  box-shadow: var(--cm-sunken);
+  color: var(--color-base-content);
+}
+
+.textarea:focus {
+  outline: none;
+}
+
+.avatarRow {
+  display: flex;
+  align-items: center;
+  gap: var(--cm-space-4);
+  margin-bottom: var(--cm-space-3);
+}
+
+.avatarPreview {
+  width: var(--cm-avatar-lg);
+  height: var(--cm-avatar-lg);
+  border-radius: var(--cm-radius-sm);
+  object-fit: cover;
+  box-shadow: var(--cm-sunken);
+}
+
+.changeAvatarButton {
+  padding: var(--cm-space-1) var(--cm-space-4);
+  background: var(--color-base-200);
+  color: var(--color-base-content);
+  border: none;
+  border-radius: var(--cm-radius-sm);
+  cursor: pointer;
+  font-size: var(--cm-text-sm);
+  box-shadow: var(--cm-raised);
+}
+
+.changeAvatarButton:hover {
+  background: var(--cm-button-hover);
+}
+
+.changeAvatarButton:active {
+  box-shadow: var(--cm-pressed);
+}
+
+.loadingText {
+  color: var(--cm-border-dark);
+  font-size: var(--cm-text-sm);
+}
+
+.error {
+  color: var(--color-error);
+  font-size: var(--cm-text-xs);
+  margin-top: var(--cm-space-2);
+}
+
+.saveButton {
+  margin-top: var(--cm-space-4);
+  padding: var(--cm-space-1) var(--cm-space-8);
+  background: var(--color-base-200);
+  color: var(--color-base-content);
+  border: none;
+  border-radius: var(--cm-radius-sm);
+  cursor: pointer;
+  font-size: var(--cm-text-sm);
+  font-weight: 700;
+  box-shadow: var(--cm-raised);
+}
+
+.saveButton:hover {
+  background: var(--cm-button-hover);
+}
+
+.saveButton:active {
+  box-shadow: var(--cm-pressed);
+}
+
+.saveButton:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.signOutButton {
+  padding: var(--cm-space-1) var(--cm-space-8);
+  background: var(--color-base-200);
+  color: var(--color-error);
+  border: none;
+  border-radius: var(--cm-radius-sm);
+  cursor: pointer;
+  font-size: var(--cm-text-sm);
+  box-shadow: var(--cm-raised);
+}
+
+.signOutButton:hover {
+  background: var(--cm-button-hover);
+}
+
+.signOutButton:active {
+  box-shadow: var(--cm-pressed);
+}
