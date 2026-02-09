@@ -27,8 +27,9 @@ export async function handleClientMessage(
   dmService: DmService,
   blockService: BlockService,
 ): Promise<void> {
-  // Rate limit WS messages
-  if (!rateLimiter.check(`ws:${did}`)) {
+  // Rate limit per-socket so multi-tab users get separate quotas
+  const socketId = (ws as WebSocket & { socketId?: string }).socketId ?? did;
+  if (!rateLimiter.check(`ws:socket:${socketId}`)) {
     ws.send(JSON.stringify({ type: 'error', message: 'Rate limited' }));
     return;
   }

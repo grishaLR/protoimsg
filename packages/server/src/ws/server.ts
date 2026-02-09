@@ -1,3 +1,4 @@
+import { randomUUID } from 'crypto';
 import { WebSocketServer, type WebSocket } from 'ws';
 import type { Server } from 'http';
 import { RoomSubscriptions } from './rooms.js';
@@ -70,6 +71,7 @@ export function createWsServer(
   const buddyWatchers = new BuddyWatchers(sql, blockService);
 
   wss.on('connection', (ws: WebSocket) => {
+    (ws as WebSocket & { socketId?: string }).socketId = randomUUID();
     let did: string | null = null;
     let authenticated = false;
     let cleanupHeartbeat: (() => void) | null = null;
