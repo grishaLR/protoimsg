@@ -17,7 +17,7 @@
     "lint": "eslint src/",
     "typecheck": "tsc --noEmit",
     "codegen": "lex gen-api --yes ./generated ./schemas/app/chatmosphere/chat/*.json",
-    "codegen:check": "pnpm codegen && node -e \"const { execSync } = require('child_process'); const path = require('path'); const root = path.resolve(process.cwd(), '../..'); try { execSync('git diff --exit-code -- packages/lexicon/generated', { cwd: root }); } catch (e) { console.error('Generated lexicon files changed. Commit them after schema changes.'); process.exit(1); }\""
+    "codegen:check": "pnpm codegen && prettier --write 'generated/**/*.ts' && node -e \"const { execSync } = require('child_process'); const path = require('path'); const root = path.resolve(process.cwd(), '../..'); try { execSync('git diff --exit-code -- packages/lexicon/generated', { cwd: root }); } catch (e) { console.error('Generated lexicon files changed. Commit them after schema changes.'); process.exit(1); }\""
   },
   "devDependencies": {
     "@atproto/lex-cli": "^0.5.0",
