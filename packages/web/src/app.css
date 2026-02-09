@@ -1,3 +1,4 @@
+/* Tailwind/daisyUI: base layer and theme only. Component styling is CSS Modules + design tokens. */
 @import "tailwindcss";
 @plugin "daisyui" {
   themes: aim --default;
@@ -14,8 +15,8 @@
 /* Win98-style Scrollbars (WebKit/Blink) */
 
 ::-webkit-scrollbar {
-  width: 16px;
-  height: 16px;
+  width: var(--cm-space-8);
+  height: var(--cm-space-8);
 }
 
 ::-webkit-scrollbar-track {
