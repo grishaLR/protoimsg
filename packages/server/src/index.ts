@@ -51,7 +51,7 @@ function main() {
     dmService,
     blockService,
   );
-  console.log('WebSocket server attached');
+  console.info('WebSocket server attached');
 
   // Firehose consumer
   // Jetstream consumer (atproto event stream)
@@ -64,24 +64,24 @@ function main() {
     rateLimiter.prune();
     void dmService.pruneExpired();
     void pruneOldMessages(db, LIMITS.defaultRetentionDays).then((count) => {
-      if (count > 0) console.log(`Pruned ${String(count)} old room messages`);
+      if (count > 0) console.info(`Pruned ${String(count)} old room messages`);
     });
   }, 60_000);
 
   httpServer.listen(config.PORT, config.HOST, () => {
-    console.log(`Server listening on http://${config.HOST}:${config.PORT}`);
-    console.log(`Environment: ${config.NODE_ENV}`);
+    console.info(`Server listening on http://${config.HOST}:${config.PORT}`);
+    console.info(`Environment: ${config.NODE_ENV}`);
   });
 
   // Graceful shutdown
   const shutdown = async () => {
-    console.log('Shutting down...');
+    console.info('Shutting down...');
     clearInterval(pruneInterval);
     await firehose.stop();
     wss.close();
     httpServer.close(() => {
       void db.end().then(() => {
-        console.log('Shutdown complete');
+        console.info('Shutdown complete');
         process.exit(0);
       });
     });

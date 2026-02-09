@@ -11,7 +11,7 @@ async function migrate() {
   const config = loadConfig();
   const sql = createDb(config.DATABASE_URL);
 
-  console.log('Running migrations...');
+  console.info('Running migrations...');
 
   // Bootstrap: ensure schema_migrations exists (idempotent)
   await sql.unsafe(`
@@ -30,7 +30,7 @@ async function migrate() {
       SELECT 1 FROM schema_migrations WHERE name = ${name}
     `;
     if (applied.length > 0) {
-      console.log(`  Skip ${name} (already applied)`);
+      console.info(`  Skip ${name} (already applied)`);
       continue;
     }
 
@@ -38,10 +38,10 @@ async function migrate() {
     const body = readFileSync(path, 'utf-8');
     await sql.unsafe(body);
     await sql`INSERT INTO schema_migrations (name) VALUES (${name})`;
-    console.log(`  Applied ${name}`);
+    console.info(`  Applied ${name}`);
   }
 
-  console.log('Migrations complete');
+  console.info('Migrations complete');
   await sql.end();
 }
 

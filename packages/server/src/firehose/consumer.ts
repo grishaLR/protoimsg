@@ -60,11 +60,11 @@ export function createFirehoseConsumer(
       url.searchParams.set('cursor', String(cursor));
     }
 
-    console.log(`Connecting to Jetstream: ${url.toString()}`);
+    console.info(`Connecting to Jetstream: ${url.toString()}`);
     ws = new WebSocket(url.toString());
 
     ws.on('open', () => {
-      console.log('Jetstream connected');
+      console.info('Jetstream connected');
     });
 
     ws.on('message', (raw: Buffer) => {
@@ -102,14 +102,14 @@ export function createFirehoseConsumer(
     });
 
     ws.on('close', () => {
-      console.log('Jetstream disconnected');
+      console.info('Jetstream disconnected');
       ws = null;
       if (shouldReconnect) {
         // Save cursor before reconnect
         if (lastCursor !== undefined) {
           void saveCursor(db, lastCursor);
         }
-        console.log(`Reconnecting in ${String(RECONNECT_DELAY_MS)}ms...`);
+        console.info(`Reconnecting in ${String(RECONNECT_DELAY_MS)}ms...`);
         setTimeout(() => {
           connect(lastCursor);
         }, RECONNECT_DELAY_MS);
@@ -138,7 +138,7 @@ export function createFirehoseConsumer(
         ws.close();
         ws = null;
       }
-      console.log('Jetstream consumer stopped');
+      console.info('Jetstream consumer stopped');
     },
   };
 }

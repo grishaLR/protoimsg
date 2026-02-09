@@ -107,7 +107,7 @@ export function createDmService(sql: Sql): DmService {
       if (deleted > 0) {
         const pruned = await pruneEmptyConversations(sql);
         if (pruned > 0) {
-          console.log(`Pruned ${String(pruned)} empty DM conversations`);
+          console.info(`Pruned ${String(pruned)} empty DM conversations`);
         }
       }
     },

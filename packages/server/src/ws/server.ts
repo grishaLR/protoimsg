@@ -115,7 +115,7 @@ export function createWsServer(
         blockService.touch(did);
         buddyWatchers.notify(did, 'online');
         cleanupHeartbeat = attachHeartbeat(ws);
-        console.log(`WS authenticated: ${did}`);
+        console.info(`WS authenticated: ${did}`);
         return;
       }
 
@@ -175,7 +175,7 @@ export function createWsServer(
 
         // Keep block list across reconnections — it will be overwritten by
         // the next sync_blocks message, avoiding a flash of real presence.
-        console.log(`WS disconnected: ${did} (${String(remaining.size)} sessions remain)`);
+        console.info(`WS disconnected: ${did} (${String(remaining.size)} sessions remain)`);
       }
     });
 

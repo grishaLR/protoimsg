@@ -46,7 +46,7 @@ export function createHandlers(db: Sql, wss: WsServer) {
         slowModeSeconds: record.settings?.slowModeSeconds ?? 0,
         createdAt: record.createdAt,
       });
-      console.log(`Indexed room: ${record.name} (${event.rkey})`);
+      console.info(`Indexed room: ${record.name} (${event.rkey})`);
     },
 
     [NSID.Message]: async (event) => {
@@ -64,7 +64,7 @@ export function createHandlers(db: Sql, wss: WsServer) {
       // Content filter — skip indexing if blocked
       const filterResult = checkMessageContent(record.text);
       if (!filterResult.passed) {
-        console.log(`Message filtered from ${event.did}: ${filterResult.reason ?? 'blocked'}`);
+        console.info(`Message filtered from ${event.did}: ${filterResult.reason ?? 'blocked'}`);
         return;
       }
 
@@ -111,7 +111,7 @@ export function createHandlers(db: Sql, wss: WsServer) {
         action: 'ban',
         reason: record.reason,
       });
-      console.log(`Ban indexed: ${record.subject} from room ${extractRkey(record.room)}`);
+      console.info(`Ban indexed: ${record.subject} from room ${extractRkey(record.room)}`);
     },
 
     [NSID.Role]: async (event) => {
@@ -132,7 +132,7 @@ export function createHandlers(db: Sql, wss: WsServer) {
         uri: event.uri,
         createdAt: record.createdAt,
       });
-      console.log(
+      console.info(
         `Role indexed: ${record.subject} as ${record.role} in ${extractRkey(record.room)}`,
       );
     },
@@ -154,12 +154,12 @@ export function createHandlers(db: Sql, wss: WsServer) {
         }
       }
       await syncBuddyMembers(db, event.did, allMembers);
-      console.log(`Buddy list indexed for ${event.did}: ${allMembers.length} members`);
+      console.info(`Buddy list indexed for ${event.did}: ${allMembers.length} members`);
     },
 
     [NSID.Presence]: (event) => {
       // Log-only for MVP — in-memory tracker handles ephemeral presence state
-      console.log(`Presence record from ${event.did} (rkey: ${event.rkey})`);
+      console.info(`Presence record from ${event.did} (rkey: ${event.rkey})`);
       return Promise.resolve();
     },
   };

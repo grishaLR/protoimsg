@@ -17,7 +17,11 @@ export default tseslint.config(
         'error',
         { argsIgnorePattern: '^_', varsIgnorePattern: '^_' },
       ],
-      '@typescript-eslint/restrict-template-expressions': 'off',
+      '@typescript-eslint/restrict-template-expressions': [
+        'warn',
+        { allowNumber: true, allowBoolean: true },
+      ],
+      'no-console': ['warn', { allow: ['info', 'warn', 'error'] }],
     },
   },
   {
