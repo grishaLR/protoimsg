@@ -41,7 +41,11 @@ export class RoomSubscriptions {
     const message = JSON.stringify(data);
     for (const ws of subscribers) {
       if (ws !== exclude && ws.readyState === ws.OPEN) {
-        ws.send(message);
+        try {
+          ws.send(message);
+        } catch {
+          // Socket closed between readyState check and send — skip
+        }
       }
     }
   }

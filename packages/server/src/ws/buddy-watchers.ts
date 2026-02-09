@@ -64,11 +64,15 @@ export class BuddyWatchers {
       });
       for (const ws of set) {
         if (ws.readyState !== ws.OPEN) continue;
-        const watcherDid = this.socketDids.get(ws);
-        if (watcherDid && this.blockService.doesBlock(did, watcherDid)) {
-          ws.send(offlineMsg);
-        } else {
-          ws.send(realMsg);
+        try {
+          const watcherDid = this.socketDids.get(ws);
+          if (watcherDid && this.blockService.doesBlock(did, watcherDid)) {
+            ws.send(offlineMsg);
+          } else {
+            ws.send(realMsg);
+          }
+        } catch {
+          // Socket closed between readyState check and send — skip
         }
       }
       return;
@@ -91,33 +95,37 @@ export class BuddyWatchers {
       const watcherDid = this.socketDids.get(ws);
       if (!watcherDid) continue;
 
-      // If the buddy blocked this watcher, always show offline
-      if (this.blockService.doesBlock(did, watcherDid)) {
+      try {
+        // If the buddy blocked this watcher, always show offline
+        if (this.blockService.doesBlock(did, watcherDid)) {
+          ws.send(
+            JSON.stringify({
+              type: 'buddy_presence',
+              data: [{ did, status: 'offline' }],
+            }),
+          );
+          continue;
+        }
+
+        const isFriend =
+          visibility === 'close-friends' ? await isCloseFriend(this.sql, did, watcherDid) : false;
+
+        const effectiveStatus = resolveVisibleStatus(
+          visibility,
+          status as 'online' | 'away' | 'idle' | 'offline' | 'invisible',
+          isFriend,
+        );
+        const effectiveAway = effectiveStatus === 'offline' ? undefined : awayMessage;
+
         ws.send(
           JSON.stringify({
             type: 'buddy_presence',
-            data: [{ did, status: 'offline' }],
+            data: [{ did, status: effectiveStatus, awayMessage: effectiveAway }],
           }),
         );
-        continue;
+      } catch {
+        // Socket closed between readyState check and send — skip
       }
-
-      const isFriend =
-        visibility === 'close-friends' ? await isCloseFriend(this.sql, did, watcherDid) : false;
-
-      const effectiveStatus = resolveVisibleStatus(
-        visibility,
-        status as 'online' | 'away' | 'idle' | 'offline' | 'invisible',
-        isFriend,
-      );
-      const effectiveAway = effectiveStatus === 'offline' ? undefined : awayMessage;
-
-      ws.send(
-        JSON.stringify({
-          type: 'buddy_presence',
-          data: [{ did, status: effectiveStatus, awayMessage: effectiveAway }],
-        }),
-      );
     }
   }
 }
