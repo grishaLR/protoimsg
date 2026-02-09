@@ -35,7 +35,7 @@ function main() {
   console.log('WebSocket server attached');
 
   // Firehose consumer
-  // Jetstream consumer (ATProto event stream)
+  // Jetstream consumer (atproto event stream)
   const firehose = createFirehoseConsumer(config.JETSTREAM_URL, db, wss);
   firehose.start();
 

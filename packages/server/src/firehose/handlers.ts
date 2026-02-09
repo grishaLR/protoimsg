@@ -52,7 +52,7 @@ export function createHandlers(db: Sql, wss: WsServer) {
         return;
       }
 
-      // Ban check — skip broadcast if banned (still index, record exists on ATProto)
+      // Ban check — skip broadcast if banned (still index, record exists on atproto)
       const banned = await isUserBanned(db, roomId, event.did);
 
       await insertMessage(db, {

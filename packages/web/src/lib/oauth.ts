@@ -11,7 +11,7 @@ export function getOAuthClient(): BrowserOAuthClient {
     handleResolver: 'https://bsky.social',
     clientMetadata: {
       client_id: `http://localhost?redirect_uri=${encodeURIComponent(redirectUri)}&scope=${encodeURIComponent('atproto transition:generic')}`,
-      client_name: 'Chatmosphere (dev)',
+      client_name: 'chatmosphere (dev)',
       client_uri: window.location.origin,
       redirect_uris: [redirectUri],
       scope: 'atproto transition:generic',

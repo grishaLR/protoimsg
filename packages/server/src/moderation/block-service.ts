@@ -1,7 +1,7 @@
 /** How long to keep block lists for disconnected users (1 hour) */
 const STALE_THRESHOLD_MS = 60 * 60 * 1000;
 
-/** In-memory block list store. Clients sync their ATProto block lists here. */
+/** In-memory block list store. Clients sync their atproto block lists here. */
 export class BlockService {
   private blocks = new Map<string, Set<string>>();
   private lastSeen = new Map<string, number>();

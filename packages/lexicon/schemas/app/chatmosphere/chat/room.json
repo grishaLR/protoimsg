@@ -51,7 +51,7 @@
           "type": "integer",
           "minimum": 0,
           "default": 0,
-          "description": "Minimum ATProto account age in days to participate."
+          "description": "Minimum atproto account age in days to participate."
         },
         "slowModeSeconds": {
           "type": "integer",

@@ -1,4 +1,4 @@
--- Chatmosphere database schema
+-- chatmosphere database schema
 
 -- rooms: aggregated from firehose room records
 CREATE TABLE IF NOT EXISTS rooms (
@@ -47,7 +47,7 @@ CREATE TABLE IF NOT EXISTS mod_actions (
 CREATE INDEX IF NOT EXISTS idx_mod_actions_room ON mod_actions(room_id);
 CREATE INDEX IF NOT EXISTS idx_mod_actions_subject ON mod_actions(subject_did);
 
--- buddy_lists: indexed from ATProto buddylist records
+-- buddy_lists: indexed from atproto buddylist records
 CREATE TABLE IF NOT EXISTS buddy_lists (
   did         TEXT PRIMARY KEY,
   groups      JSONB NOT NULL DEFAULT '[]',
@@ -65,7 +65,7 @@ CREATE TABLE IF NOT EXISTS buddy_members (
 
 CREATE INDEX IF NOT EXISTS idx_buddy_members_buddy ON buddy_members(buddy_did);
 
--- room_roles: moderator/owner role assignments from ATProto role records
+-- room_roles: moderator/owner role assignments from atproto role records
 CREATE TABLE IF NOT EXISTS room_roles (
   id          SERIAL PRIMARY KEY,
   room_id     TEXT NOT NULL REFERENCES rooms(id),
@@ -86,7 +86,7 @@ CREATE TABLE IF NOT EXISTS firehose_cursor (
   updated_at  TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
--- dm_conversations: server-side DM conversations (never touch ATProto)
+-- dm_conversations: server-side DM conversations (never touch atproto)
 CREATE TABLE IF NOT EXISTS dm_conversations (
   id          TEXT PRIMARY KEY,
   did_1       TEXT NOT NULL,

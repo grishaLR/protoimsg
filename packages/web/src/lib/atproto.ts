@@ -19,7 +19,7 @@ const TID_CHARS = '234567abcdefghijklmnopqrstuvwxyz';
 let lastTimestamp = 0;
 let clockId = 0;
 
-/** Generate a TID (timestamp identifier) in ATProto format — base32-sortable, ~13 chars */
+/** Generate a TID (timestamp identifier) in atproto format — base32-sortable, ~13 chars */
 export function generateTid(): string {
   let now = Date.now() * 1000; // microseconds
   if (now <= lastTimestamp) {

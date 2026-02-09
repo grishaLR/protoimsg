@@ -26,10 +26,10 @@ export function LoginForm() {
   return (
     <>
       <form className={styles.form} onSubmit={handleSubmit}>
-        <h1 className={styles.title}>Chatmosphere</h1>
+        <h1 className={styles.title}>chatmosphere</h1>
         <p className={styles.subtitle}>AIM-inspired chat on the AT Protocol</p>
         <label className={styles.label} htmlFor="handle">
-          ATProto Handle
+          atproto handle
         </label>
         <input
           id="handle"
@@ -54,7 +54,7 @@ export function LoginForm() {
             setShowInfo(true);
           }}
         >
-          New to ATProto? Learn more
+          New to atproto? Learn more
         </button>
       </form>
       {showInfo && (

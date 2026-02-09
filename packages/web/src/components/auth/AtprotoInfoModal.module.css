@@ -50,6 +50,11 @@
   color: var(--color-base-content);
 }
 
+.link {
+  color: var(--color-primary);
+  text-decoration: underline;
+}
+
 .list {
   margin: 0;
   padding-left: var(--cm-space-6);

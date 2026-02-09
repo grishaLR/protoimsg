@@ -3,7 +3,7 @@ import { useAuth } from './useAuth';
 import { useWebSocket } from '../contexts/WebSocketContext';
 
 /**
- * Fetches the user's ATProto block list and syncs it to the server via WS.
+ * Fetches the user's atproto block list and syncs it to the server via WS.
  * Also exposes the set of blocked DIDs for client-side filtering.
  */
 export function useBlockSync() {
@@ -63,7 +63,7 @@ export function useBlockSync() {
   const blockedRef = useRef(blockedDids);
   blockedRef.current = blockedDids;
 
-  /** Immediately update the local set and sync to server (no ATProto roundtrip) */
+  /** Immediately update the local set and sync to server (no atproto roundtrip) */
   const toggleBlock = useCallback((targetDid: string) => {
     const prev = blockedRef.current;
     const next = new Set(prev);

@@ -1,5 +1,5 @@
 /*
- * Chatmosphere AIM Theme Tokens
+ * chatmosphere AIM Theme Tokens
  *
  * Authentic AIM/Windows 98 aesthetic: 3D beveled borders,
  * blue gradient title bars, silver chrome surfaces.
@@ -10,13 +10,13 @@
 
 @theme {
   /* AIM Surface Colors */
-  --color-base-100: #d6d6ce;        /* warm silver — main window surface */
-  --color-base-200: #c0c0c0;        /* silver — button face, panels */
-  --color-base-300: #a0a0a0;        /* medium gray — borders, dividers */
-  --color-base-content: #0c0c0c;    /* near-black — primary text */
+  --color-base-100: #d6d6ce; /* warm silver — main window surface */
+  --color-base-200: #c0c0c0; /* silver — button face, panels */
+  --color-base-300: #a0a0a0; /* medium gray — borders, dividers */
+  --color-base-content: #0c0c0c; /* near-black — primary text */
 
   /* AIM Blue Accent */
-  --color-primary: #0066cc;          /* AIM blue — links, own screenname */
+  --color-primary: #0066cc; /* AIM blue — links, own screenname */
   --color-primary-content: #ffffff;
 
   /* Secondary (amber — away status) */
@@ -32,9 +32,9 @@
   --color-neutral-content: #d6d6ce;
 
   /* Status Colors */
-  --color-success: #22c55e;           /* online */
-  --color-warning: #f59e0b;           /* away */
-  --color-error: #cc0000;             /* error/danger */
+  --color-success: #22c55e; /* online */
+  --color-warning: #f59e0b; /* away */
+  --color-error: #cc0000; /* error/danger */
   --color-success-content: #ffffff;
   --color-warning-content: #0c0c0c;
   --color-error-content: #ffffff;
@@ -54,9 +54,12 @@
    * AIM 3D Border Recipes (4-layer inset box-shadows)
    * Light source: top-left. Raised = highlight TL, shadow BR.
    */
-  --cm-raised: inset -1px -1px #0a0a0a, inset 1px 1px #fff, inset -2px -2px grey, inset 2px 2px #dfdfdf;
-  --cm-sunken: inset -1px -1px #fff, inset 1px 1px grey, inset -2px -2px #dfdfdf, inset 2px 2px #0a0a0a;
-  --cm-pressed: inset -1px -1px #fff, inset 1px 1px #0a0a0a, inset -2px -2px #dfdfdf, inset 2px 2px grey;
+  --cm-raised:
+    inset -1px -1px #0a0a0a, inset 1px 1px #fff, inset -2px -2px grey, inset 2px 2px #dfdfdf;
+  --cm-sunken:
+    inset -1px -1px #fff, inset 1px 1px grey, inset -2px -2px #dfdfdf, inset 2px 2px #0a0a0a;
+  --cm-pressed:
+    inset -1px -1px #fff, inset 1px 1px #0a0a0a, inset -2px -2px #dfdfdf, inset 2px 2px grey;
 
   /* AIM Window Chrome */
   --cm-window-shadow: 2px 2px 2px #424242;
@@ -89,14 +92,14 @@
   --cm-shadow-lg: 3px 3px 3px #424242;
 
   /* ── Font Sizes ──────────────────────────────────── */
-  --cm-text-2xs: 0.5625rem;   /* 9px — tiny timestamps */
-  --cm-text-xs: 0.625rem;     /* 10px — micro labels */
-  --cm-text-sm: 0.6875rem;    /* 11px — small labels, badges */
-  --cm-text-base: 0.75rem;    /* 12px — UI chrome, lists */
-  --cm-text-md: 0.8125rem;    /* 13px — body text, inputs, buttons */
-  --cm-text-lg: 0.875rem;     /* 14px — messages, form inputs */
-  --cm-text-xl: 1rem;         /* 16px — section titles */
-  --cm-text-2xl: 1.5rem;      /* 24px — page titles */
+  --cm-text-2xs: 0.5625rem; /* 9px — tiny timestamps */
+  --cm-text-xs: 0.625rem; /* 10px — micro labels */
+  --cm-text-sm: 0.6875rem; /* 11px — small labels, badges */
+  --cm-text-base: 0.75rem; /* 12px — UI chrome, lists */
+  --cm-text-md: 0.8125rem; /* 13px — body text, inputs, buttons */
+  --cm-text-lg: 0.875rem; /* 14px — messages, form inputs */
+  --cm-text-xl: 1rem; /* 16px — section titles */
+  --cm-text-2xl: 1.5rem; /* 24px — page titles */
 
   /* ── Spacing ─────────────────────────────────────── */
   --cm-space-0: 0px;

@@ -1,7 +1,7 @@
 /**
  * @chatmosphere/lexicon
  *
- * ATProto Lexicon schemas and generated types for Chatmosphere chat protocol.
+ * atproto Lexicon schemas and generated types for chatmosphere chat protocol.
  *
  * The Lexicon JSON schemas live in ./schemas/ and define the protocol.
  * Generated TypeScript types will be placed in ./generated/ via the codegen script.
@@ -119,7 +119,7 @@ export interface RoleRecord {
   createdAt: string;
 }
 
-/** Union of all Chatmosphere chat records */
+/** Union of all chatmosphere chat records */
 export type ChatRecord =
   | RoomRecord
   | MessageRecord

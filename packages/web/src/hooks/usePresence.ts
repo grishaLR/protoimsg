@@ -28,7 +28,7 @@ export function usePresence() {
         visibleTo: effectiveVisibleTo,
       });
 
-      // Fire-and-forget ATProto presence record write
+      // Fire-and-forget atproto presence record write
       if (agent) {
         void putPresenceRecord(agent, newStatus, {
           awayMessage: msg,

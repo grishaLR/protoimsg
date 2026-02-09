@@ -72,7 +72,7 @@ export function useBuddyList() {
           .flatMap((g) => g.members.map((m) => m.did)),
       );
 
-      // Fetch ATProto block records to restore blockRkey for unblock operations
+      // Fetch atproto block records to restore blockRkey for unblock operations
       const blockMap = new Map<string, string>(); // subject DID → rkey
       try {
         let blockCursor: string | undefined;
@@ -291,7 +291,7 @@ export function useBuddyList() {
       if (!buddy) return;
 
       if (isCurrentlyBlocked && buddy.blockRkey) {
-        // Delete the ATProto block record
+        // Delete the atproto block record
         await agent.com.atproto.repo.deleteRecord({
           repo: agent.assertDid,
           collection: 'app.bsky.graph.block',
@@ -299,7 +299,7 @@ export function useBuddyList() {
         });
         setBuddies((prev) => prev.map((b) => (b.did === did ? { ...b, blockRkey: undefined } : b)));
       } else {
-        // Create an ATProto block record
+        // Create an atproto block record
         const rkey = generateTid();
         await agent.com.atproto.repo.createRecord({
           repo: agent.assertDid,

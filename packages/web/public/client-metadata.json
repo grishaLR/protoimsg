@@ -1,6 +1,6 @@
 {
   "client_id": "https://chatmosphere.app/client-metadata.json",
-  "client_name": "Chatmosphere",
+  "client_name": "chatmosphere",
   "client_uri": "https://chatmosphere.app",
   "redirect_uris": ["https://chatmosphere.app/"],
   "scope": "atproto transition:generic",

@@ -1,4 +1,4 @@
-/** ATProto Lexicon NSIDs for Chatmosphere collections */
+/** atproto Lexicon NSIDs for chatmosphere collections */
 export const NSID = {
   Room: 'app.chatmosphere.chat.room',
   Message: 'app.chatmosphere.chat.message',
@@ -10,7 +10,7 @@ export const NSID = {
   Role: 'app.chatmosphere.chat.role',
 } as const;
 
-/** Namespace prefix for all Chatmosphere Lexicon records */
+/** Namespace prefix for all chatmosphere Lexicon records */
 export const NSID_PREFIX = 'app.chatmosphere.chat.';
 
 /** Default room settings */

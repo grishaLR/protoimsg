@@ -59,7 +59,7 @@ export const Conversation: Story = {
         yep whats up
       </ChatBubble>
       <ChatBubble position="start" timestamp="2:31 PM">
-        check out this room i made, its for the ATProto hackathon
+        check out this room i made, its for the atproto hackathon
       </ChatBubble>
       <ChatBubble position="end" timestamp="2:32 PM">
         oh sick, joining now

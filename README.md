@@ -1,8 +1,8 @@
-# Chatmosphere
+# chatmosphere
 
 UNDER CONSTRUCTION
 
-Group chat as an [ATProto Lexicon](https://atproto.com/guides/lexicon). Chat rooms, buddy lists, presence, away messages — all as user-owned records in the AT Protocol.
+Group chat as an [atproto Lexicon](https://atproto.com/guides/lexicon). Chat rooms, buddy lists, presence, away messages — all as user-owned records in the AT Protocol.
 
 ## Namespace
 
@@ -46,7 +46,7 @@ Declares a chat room. Created by whoever starts the room. Key: `tid`.
 | Field               | Type    | Default  | Description                                                                         |
 | ------------------- | ------- | -------- | ----------------------------------------------------------------------------------- |
 | `visibility`        | string  | `public` | `public` (listed in directory) \| `unlisted` (link only) \| `private` (invite only) |
-| `minAccountAgeDays` | integer | `0`      | Minimum ATProto account age in days to participate                                  |
+| `minAccountAgeDays` | integer | `0`      | Minimum atproto account age in days to participate                                  |
 | `slowModeSeconds`   | integer | `0`      | Minimum seconds between messages per user (0 = off)                                 |
 
 ---
@@ -262,4 +262,4 @@ The presence model has a close-friends design inspired by AIM's buddy list visib
 
 The away message follows the same visibility rules. If you can't see someone's status, you can't see their away message either.
 
-This keeps the close-friends list portable (it's a user-owned ATProto record) and the visibility logic simple enough for any implementing server to enforce.
+This keeps the close-friends list portable (it's a user-owned atproto record) and the visibility logic simple enough for any implementing server to enforce.

@@ -207,7 +207,7 @@ export function RoomDirectoryPage() {
               const isCurrentlyBlocked = blockedDids.has(did);
               toggleBlock(did); // immediate server sync
               blockBuddy(did, isCurrentlyBlocked).catch(() => {
-                toggleBlock(did); // rollback on ATProto failure
+                toggleBlock(did); // rollback on atproto failure
               });
             }}
             onSendIm={openDm}

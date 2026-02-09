@@ -25,7 +25,7 @@ type AnyFeature =
   | BskyLinkFeature
   | BskyTagFeature;
 
-/** Facet shape shared by both Chatmosphere and Bluesky records */
+/** Facet shape shared by both chatmosphere and Bluesky records */
 export interface GenericFacet {
   index: { byteStart: number; byteEnd: number };
   features: AnyFeature[];
@@ -106,9 +106,9 @@ function renderFeature(
 }
 
 /**
- * Renders text with ATProto facets (mentions, links, tags).
+ * Renders text with atproto facets (mentions, links, tags).
  * Uses TextEncoder/TextDecoder for correct UTF-8 byte offset → string conversion.
- * Supports both Chatmosphere and Bluesky facet shapes.
+ * Supports both chatmosphere and Bluesky facet shapes.
  */
 export function RichText({ text, facets, onMentionClick }: RichTextProps) {
   if (!facets || facets.length === 0) {

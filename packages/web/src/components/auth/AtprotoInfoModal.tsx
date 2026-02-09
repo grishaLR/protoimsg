@@ -62,15 +62,28 @@ export function AtprotoInfoModal({ onClose }: AtprotoInfoModalProps) {
 
   return (
     <dialog ref={dialogRef} className={styles.dialog} onClose={onClose}>
-      <div className={styles.titleBar}>What is ATProto?</div>
+      <div className={styles.titleBar}>What is atproto?</div>
       <div className={styles.content}>
         <section className={styles.section}>
           <h3 className={styles.heading}>The short version</h3>
           <p className={styles.text}>
-            The AT Protocol is an open standard for social networking. Instead of one company owning
-            your account and data, you choose a server (called a{' '}
-            <strong>Personal Data Server</strong>, or PDS) to host your identity. You can then use
-            that same account across any app built on the protocol — including Chatmosphere.
+            AT Protocol (or atproto) is a protocol for creating decentralized social apps like the
+            chatmosphere and many more. Instead of one company owning your account, you choose a
+            server (called a <strong>Personal Data Server</strong>, or PDS) to host your identity
+            and data. That same account works across any app built on the protocol.
+          </p>
+          <p className={styles.text}>
+            If you're coming from traditional social media, this is a fundamentally different
+            approach.{' '}
+            <a
+              className={styles.link}
+              href="https://bsky.social/about/blog/02-22-2024-open-social-web"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              This Bluesky blog post
+            </a>{' '}
+            explains how it works and why it matters.
           </p>
         </section>
 
@@ -82,8 +95,8 @@ export function AtprotoInfoModal({ onClose }: AtprotoInfoModalProps) {
               apps or servers anytime.
             </li>
             <li>
-              <strong>No lock-in.</strong> Apps built on ATProto can talk to each other. Your
-              Chatmosphere buddies are the same people you follow on Bluesky.
+              <strong>No lock-in.</strong> Apps built on atproto can talk to each other. Your
+              chatmosphere buddies are the same people you follow on Bluesky.
             </li>
             <li>
               <strong>Open source.</strong> Anyone can run a server or build an app. No gatekeepers.
@@ -94,23 +107,9 @@ export function AtprotoInfoModal({ onClose }: AtprotoInfoModalProps) {
         <section className={styles.section}>
           <h3 className={styles.heading}>Create an account</h3>
           <p className={styles.text}>
-            To use Chatmosphere, you need an ATProto account on any PDS. Some options:
+            To use chatmosphere, you need an atproto account on any PDS. Some options:
           </p>
         </section>
-
-        {/* <section className={styles.section}>
-          <h3 className={styles.heading}>Blacksky Community PDS</h3>
-          <a
-            className={styles.providerCard}
-            href={BLACKSKY_PDS.url}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <span className={styles.providerName}>{BLACKSKY_PDS.name}</span>
-            <span className={styles.providerDesc}>{BLACKSKY_PDS.description}</span>
-          </a>
-          <p className={styles.warning}>{BLACKSKY_PDS.warning}</p>
-        </section> */}
 
         <section className={styles.section}>
           <h3 className={styles.heading}>Community led PDSs</h3>
@@ -150,7 +149,7 @@ export function AtprotoInfoModal({ onClose }: AtprotoInfoModalProps) {
 
         <section className={styles.section}>
           <p className={styles.text}>
-            Chatmosphere is not affiliated with any PDS provider. We are a community-run project
+            chatmosphere is not affiliated with any PDS provider. We are a community-run project
             building on the AT Protocol.
           </p>
         </section>

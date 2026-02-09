@@ -15,7 +15,7 @@ export function Header({ onOpenSettings, onOpenProfile }: HeaderProps) {
 
   return (
     <header className={styles.header}>
-      <h1 className={styles.title}>Chatmosphere</h1>
+      <h1 className={styles.title}>chatmosphere</h1>
       <div className={styles.right}>
         {did && (
           <>
