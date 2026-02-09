@@ -48,6 +48,9 @@ jobs:
       - name: Build
         run: pnpm build
 
+      - name: Validate Lexicon codegen
+        run: pnpm validate:lexicon
+
       - name: Test
         run: pnpm test
         env:
