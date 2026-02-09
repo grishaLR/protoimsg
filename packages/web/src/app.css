@@ -3,7 +3,7 @@
 @plugin "daisyui" {
   themes: aim --default;
 }
-@import "@chatmosphere/ui/tokens";
+
 
 /* AIM Global Styles */
 
