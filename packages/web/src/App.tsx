@@ -23,6 +23,17 @@ const RoomDirectoryPage = lazy(() =>
 const ChatRoomPage = lazy(() =>
   import('./pages/ChatRoomPage').then((m) => ({ default: m.ChatRoomPage })),
 );
+const DmWindowPage = lazy(() =>
+  import('./pages/DmWindowPage').then((m) => ({ default: m.DmWindowPage })),
+);
+const RoomDirectoryWindowPage = lazy(() =>
+  import('./pages/RoomDirectoryWindowPage').then((m) => ({
+    default: m.RoomDirectoryWindowPage,
+  })),
+);
+const FeedWindowPage = lazy(() =>
+  import('./pages/FeedWindowPage').then((m) => ({ default: m.FeedWindowPage })),
+);
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -90,6 +101,30 @@ function AppRoutes() {
         element={
           <ProtectedRoute>
             <ChatRoomPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/dm/:conversationId"
+        element={
+          <ProtectedRoute>
+            <DmWindowPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/rooms-directory"
+        element={
+          <ProtectedRoute>
+            <RoomDirectoryWindowPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/feed"
+        element={
+          <ProtectedRoute>
+            <FeedWindowPage />
           </ProtectedRoute>
         }
       />

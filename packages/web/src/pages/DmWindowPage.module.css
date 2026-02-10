@@ -1,0 +1,93 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  background: var(--color-base-100);
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: var(--cm-space-3);
+  padding: 0 var(--cm-space-3);
+  height: var(--cm-header-h);
+  background: var(--cm-titlebar);
+  color: var(--cm-chrome-text);
+  flex-shrink: 0;
+}
+
+.headerTitle {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: var(--cm-text-base);
+  font-weight: 700;
+}
+
+.headerIdentity {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: var(--cm-text-base);
+  font-weight: 700;
+  /* Allow pointer events to pass through to the drag region parent.
+     The identity display in the DM header is not interactive. */
+  pointer-events: none;
+}
+
+.headerActions {
+  display: flex;
+  align-items: center;
+  gap: var(--cm-space-1);
+  flex-shrink: 0;
+}
+
+.headerBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--cm-icon-lg);
+  height: var(--cm-icon-lg);
+  padding: 0;
+  background: var(--cm-surface);
+  border: none;
+  border-radius: 0;
+  color: var(--color-base-content);
+  cursor: pointer;
+  font-size: var(--cm-text-base);
+  line-height: 1;
+  box-shadow: var(--cm-raised);
+}
+
+.headerBtn:hover {
+  background: var(--cm-button-hover);
+}
+
+.headerBtn:active {
+  box-shadow: var(--cm-pressed);
+}
+
+.persistActive {
+  box-shadow: var(--cm-pressed);
+  background: var(--color-base-100);
+}
+
+.body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+  color: var(--color-base-content);
+  font-size: var(--cm-text-base);
+}
