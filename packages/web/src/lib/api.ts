@@ -2,11 +2,20 @@ import type { RoomView, MessageView, DmConversationView, DmMessageView } from '.
 import { API_URL } from './config.js';
 
 // -- Token management --
+// Token is kept in-memory and also in localStorage so Tauri child windows
+// can read it on mount without an IPC handshake (shared origin = shared storage).
 
-let serverToken: string | null = null;
+const TOKEN_STORAGE_KEY = 'chatmosphere:server_token';
+
+let serverToken: string | null = localStorage.getItem(TOKEN_STORAGE_KEY);
 
 export function setServerToken(token: string | null): void {
   serverToken = token;
+  if (token) {
+    localStorage.setItem(TOKEN_STORAGE_KEY, token);
+  } else {
+    localStorage.removeItem(TOKEN_STORAGE_KEY);
+  }
 }
 
 export function getServerToken(): string | null {

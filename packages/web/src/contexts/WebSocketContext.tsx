@@ -11,7 +11,7 @@ import {
 import { createWsClient, type WsClient, type WsHandler } from '../lib/ws';
 import type { ClientMessage } from '@chatmosphere/shared';
 import { useAuth } from '../hooks/useAuth';
-import { API_URL } from '../lib/config';
+import { API_URL, IS_TAURI } from '../lib/config';
 
 interface WebSocketContextValue {
   send: (msg: ClientMessage) => void;
@@ -25,24 +25,64 @@ export function WebSocketProvider({ children }: { children: ReactNode }) {
   const { did, serverToken } = useAuth();
   const clientRef = useRef<WsClient | null>(null);
   const [connected, setConnected] = useState(false);
+  const relayCleanupRef = useRef<(() => void) | null>(null);
 
   useEffect(() => {
     if (!did || !serverToken) return;
 
-    const wsUrl = API_URL
-      ? `${API_URL.replace(/^http/, 'ws')}/ws`
-      : `${window.location.protocol === 'https:' ? 'wss:' : 'ws:'}//${window.location.host}/ws`;
-    const client = createWsClient(wsUrl, serverToken);
-    clientRef.current = client;
+    // Capture token value for use inside async closure (non-null after the guard above)
+    const token = serverToken;
+    let cancelled = false;
+
+    async function init() {
+      let client: WsClient;
+
+      if (IS_TAURI) {
+        const { isMainWindow } = await import('../lib/tauri-windows');
+
+        if (isMainWindow()) {
+          // Main window: create real WS + install IPC relay for child windows
+          const wsUrl = API_URL
+            ? `${API_URL.replace(/^http/, 'ws')}/ws`
+            : `${window.location.protocol === 'https:' ? 'wss:' : 'ws:'}//${window.location.host}/ws`;
+          client = createWsClient(wsUrl, token);
+
+          const { installRelay } = await import('../lib/ws-ipc-relay');
+          relayCleanupRef.current = installRelay(client);
+        } else {
+          // Child window: use virtual WsClient backed by IPC events
+          const { createIpcWsClient } = await import('../lib/ws-ipc-relay');
+          client = createIpcWsClient();
+        }
+      } else {
+        // Browser mode: normal WebSocket
+        const wsUrl = API_URL
+          ? `${API_URL.replace(/^http/, 'ws')}/ws`
+          : `${window.location.protocol === 'https:' ? 'wss:' : 'ws:'}//${window.location.host}/ws`;
+        client = createWsClient(wsUrl, token);
+      }
+
+      if (cancelled) {
+        client.close();
+        return;
+      }
+
+      clientRef.current = client;
+    }
+
+    void init();
 
     // Poll connection status
     const interval = setInterval(() => {
-      setConnected(client.isConnected());
+      setConnected(clientRef.current?.isConnected() ?? false);
     }, 1000);
 
     return () => {
+      cancelled = true;
       clearInterval(interval);
-      client.close();
+      relayCleanupRef.current?.();
+      relayCleanupRef.current = null;
+      clientRef.current?.close();
       clientRef.current = null;
       setConnected(false);
     };

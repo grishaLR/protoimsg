@@ -1,5 +1,6 @@
 import { useDm } from '../../contexts/DmContext';
 import { useAuth } from '../../hooks/useAuth';
+import { IS_TAURI } from '../../lib/config';
 import { DmPopover } from './DmPopover';
 import { DmNotificationBadge } from './DmNotificationBadge';
 import styles from './DmPopoverContainer.module.css';
@@ -19,6 +20,9 @@ export function DmPopoverContainer() {
   const { did } = useAuth();
 
   if (!did) return null;
+
+  // In Tauri mode, DMs open as separate OS windows — skip popover rendering
+  if (IS_TAURI) return null;
 
   return (
     <div className={styles.container}>

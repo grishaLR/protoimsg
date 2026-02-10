@@ -10,7 +10,13 @@ import {
 import { Agent } from '@atproto/api';
 import type { OAuthSession } from '@atproto/oauth-client-browser';
 import { getOAuthClient } from '../lib/oauth';
-import { createServerSession, deleteServerSession, setServerToken } from '../lib/api';
+import {
+  createServerSession,
+  deleteServerSession,
+  setServerToken,
+  getServerToken,
+} from '../lib/api';
+import { IS_TAURI } from '../lib/config';
 
 export type AuthPhase =
   | 'initializing'
@@ -66,58 +72,114 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (initCalled.current) return;
     initCalled.current = true;
 
-    const oauthClient = getOAuthClient();
-
-    oauthClient
-      .init()
-      .then(async (result) => {
-        if (result) {
-          sessionStorage.removeItem('chatmosphere:oauth_pending');
-          const { session: restoredSession } = result;
-          setAuthPhase('authenticating');
-          setSession(restoredSession);
-          const newAgent = new Agent(restoredSession);
-          setAgent(newAgent);
-          setDid(restoredSession.did);
-
-          // Resolve real handle via profile
-          try {
-            setAuthPhase('resolving');
-            const profile = await newAgent.getProfile({ actor: restoredSession.did });
-            const resolvedHandle = profile.data.handle;
-            setHandle(resolvedHandle);
-
-            // Create server session for API auth
-            setAuthPhase('connecting');
-            const serverSession = await createServerSession(restoredSession.did, resolvedHandle);
-            setServerToken(serverSession.token);
-            setServerTokenState(serverSession.token);
+    // Tauri child windows: restore auth from localStorage immediately (covers
+    // DM/room windows that only need server token), then try OAuth in the
+    // background to obtain the ATProto Agent (needed for feed/compose).
+    if (IS_TAURI) {
+      void import('../lib/tauri-windows').then(({ isMainWindow }) => {
+        if (!isMainWindow()) {
+          const storedToken = getServerToken();
+          const storedDid = localStorage.getItem('chatmosphere:did');
+          const storedHandle = localStorage.getItem('chatmosphere:handle');
+          if (storedToken && storedDid) {
+            setServerTokenState(storedToken);
+            setDid(storedDid);
+            setHandle(storedHandle ?? storedDid);
             setAuthPhase('ready');
-          } catch (err: unknown) {
-            console.error('Failed to create server session:', err);
-            setHandle(restoredSession.did);
-            setAuthError('Failed to connect to server. Please try again.');
-            setAuthPhase('ready');
+          } else {
+            setAuthPhase('idle');
           }
-        } else {
-          sessionStorage.removeItem('chatmosphere:oauth_pending');
-          setAuthPhase('idle');
-        }
-      })
-      .catch((err: unknown) => {
-        console.error('OAuth init failed:', err);
-        setAuthPhase('idle');
-      });
 
-    // Sync logout across tabs — fires when session is revoked anywhere
-    const onDeleted = () => {
-      void deleteServerSession();
-      clearAuth();
-    };
-    oauthClient.addEventListener('deleted', onDeleted);
-    return () => {
-      oauthClient.removeEventListener('deleted', onDeleted);
-    };
+          // Also try to restore OAuth session for the Agent.
+          // The main window has already authorized Keychain access, so
+          // this should succeed silently. If it fails, agent stays null
+          // (feed won't load, but DM/rooms still work fine).
+          tryRestoreAgent();
+        } else {
+          initOAuth();
+        }
+      });
+      return;
+    }
+
+    initOAuth();
+
+    // Lightweight Agent-only restore for Tauri child windows.
+    // Skips server session creation (already have server token from localStorage).
+    function tryRestoreAgent() {
+      try {
+        const oauthClient = getOAuthClient();
+        oauthClient
+          .init()
+          .then((result) => {
+            if (result) {
+              const newAgent = new Agent(result.session);
+              setAgent(newAgent);
+            }
+          })
+          .catch(() => {
+            // Silently fail — agent stays null, feed won't load but DMs work
+          });
+      } catch {
+        // getOAuthClient itself might fail in some Tauri contexts
+      }
+    }
+
+    function initOAuth() {
+      const oauthClient = getOAuthClient();
+
+      oauthClient
+        .init()
+        .then(async (result) => {
+          if (result) {
+            sessionStorage.removeItem('chatmosphere:oauth_pending');
+            const { session: restoredSession } = result;
+            setAuthPhase('authenticating');
+            setSession(restoredSession);
+            const newAgent = new Agent(restoredSession);
+            setAgent(newAgent);
+            setDid(restoredSession.did);
+
+            // Persist DID/handle for Tauri child windows
+            localStorage.setItem('chatmosphere:did', restoredSession.did);
+
+            // Resolve real handle via profile
+            try {
+              setAuthPhase('resolving');
+              const profile = await newAgent.getProfile({ actor: restoredSession.did });
+              const resolvedHandle = profile.data.handle;
+              setHandle(resolvedHandle);
+              localStorage.setItem('chatmosphere:handle', resolvedHandle);
+
+              // Create server session for API auth
+              setAuthPhase('connecting');
+              const serverSession = await createServerSession(restoredSession.did, resolvedHandle);
+              setServerToken(serverSession.token);
+              setServerTokenState(serverSession.token);
+              setAuthPhase('ready');
+            } catch (err: unknown) {
+              console.error('Failed to create server session:', err);
+              setHandle(restoredSession.did);
+              setAuthError('Failed to connect to server. Please try again.');
+              setAuthPhase('ready');
+            }
+          } else {
+            sessionStorage.removeItem('chatmosphere:oauth_pending');
+            setAuthPhase('idle');
+          }
+        })
+        .catch((err: unknown) => {
+          console.error('OAuth init failed:', err);
+          setAuthPhase('idle');
+        });
+
+      // Sync logout across tabs — fires when session is revoked anywhere
+      const onDeleted = () => {
+        void deleteServerSession();
+        clearAuth();
+      };
+      oauthClient.addEventListener('deleted', onDeleted);
+    }
   }, [clearAuth]);
 
   const login = useCallback(async (inputHandle: string) => {
@@ -135,6 +197,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const logout = useCallback(() => {
     const sub = did;
     void deleteServerSession();
+    localStorage.removeItem('chatmosphere:did');
+    localStorage.removeItem('chatmosphere:handle');
     clearAuth();
     if (sub) {
       const oauthClient = getOAuthClient();

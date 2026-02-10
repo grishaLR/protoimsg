@@ -7,7 +7,9 @@ export function getOAuthClient(): BrowserOAuthClient {
   if (client) return client;
 
   const origin = window.location.origin;
-  const isDev = origin.startsWith('http://localhost') || origin.startsWith('http://127.0.0.1');
+  const isTauri = '__TAURI_INTERNALS__' in window;
+  const isDev =
+    isTauri || origin.startsWith('http://localhost') || origin.startsWith('http://127.0.0.1');
 
   if (isDev) {
     // ATProto loopback client format (http://localhost?redirect_uri=...&scope=...).

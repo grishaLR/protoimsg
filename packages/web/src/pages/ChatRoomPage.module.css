@@ -8,11 +8,12 @@
 .header {
   display: flex;
   align-items: center;
-  gap: var(--cm-space-6);
-  padding: var(--cm-space-2) var(--cm-space-3);
-  background: var(--color-base-100);
-  border-bottom: var(--cm-space-0.5) solid var(--cm-border-dark);
-  border-top: var(--cm-space-0.5) solid var(--cm-border-light);
+  gap: var(--cm-space-3);
+  padding: 0 var(--cm-space-3);
+  height: var(--cm-header-h);
+  background: var(--cm-titlebar);
+  color: var(--cm-chrome-text);
+  flex-shrink: 0;
 }
 
 .back {

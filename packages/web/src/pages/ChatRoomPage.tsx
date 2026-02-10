@@ -1,11 +1,13 @@
 import { useMemo } from 'react';
 import { useParams, Link } from 'react-router-dom';
+import { IS_TAURI } from '../lib/config';
 import { useRoom } from '../hooks/useRoom';
 import { useMessages } from '../hooks/useMessages';
 import { useBlocks } from '../contexts/BlockContext';
 import { MessageList } from '../components/chat/MessageList';
 import { MessageInput } from '../components/chat/MessageInput';
 import { MemberList } from '../components/chat/MemberList';
+import { WindowControls } from '../components/layout/WindowControls';
 import styles from './ChatRoomPage.module.css';
 
 export function ChatRoomPage() {
@@ -41,12 +43,15 @@ function ChatRoomContent({ roomId }: { roomId: string }) {
 
   return (
     <div className={styles.page}>
-      <header className={styles.header}>
-        <Link to="/" className={styles.back}>
-          &larr; Rooms
-        </Link>
+      <header className={styles.header} data-tauri-drag-region="">
+        {!IS_TAURI && (
+          <Link to="/" className={styles.back}>
+            &larr; Rooms
+          </Link>
+        )}
         <h1 className={styles.roomName}>{room.name}</h1>
         {room.description && <span className={styles.description}>{room.description}</span>}
+        <WindowControls />
       </header>
       <div className={styles.content}>
         <div className={styles.chatArea}>
