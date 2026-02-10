@@ -11,6 +11,7 @@ import {
 import { useWebSocket } from './WebSocketContext';
 import { useAuth } from '../hooks/useAuth';
 import { playImNotify } from '../lib/sounds';
+import { IS_TAURI } from '../lib/config';
 import type { DmMessageView } from '../types';
 import type { ServerMessage } from '@chatmosphere/shared';
 
@@ -120,6 +121,11 @@ export function DmProvider({ children }: { children: ReactNode }) {
 
       send({ type: 'dm_close', conversationId });
       setConversations((prev) => prev.filter((c) => c.conversationId !== conversationId));
+      // Eagerly update ref so a subsequent openDm() in the same tick won't
+      // find the just-closed conversation and skip the server request.
+      conversationsRef.current = conversationsRef.current.filter(
+        (c) => c.conversationId !== conversationId,
+      );
     },
     [send],
   );
@@ -236,8 +242,8 @@ export function DmProvider({ children }: { children: ReactNode }) {
             };
 
             const updated = [...prev, newConvo];
-            // Auto-minimize oldest if over limit
-            if (updated.filter((c) => !c.minimized).length > MAX_OPEN_POPOVERS) {
+            // Auto-minimize oldest if over limit (browser popover mode only)
+            if (!IS_TAURI && updated.filter((c) => !c.minimized).length > MAX_OPEN_POPOVERS) {
               const expandedIdx = updated.findIndex((c) => !c.minimized);
               const toMinimize = updated[expandedIdx];
               if (expandedIdx !== -1 && toMinimize) {
@@ -246,6 +252,15 @@ export function DmProvider({ children }: { children: ReactNode }) {
             }
             return updated;
           });
+
+          // In Tauri mode, main window spawns a DM window (child windows skip this)
+          if (IS_TAURI && !shouldMinimize) {
+            void import('../lib/tauri-windows').then(({ openDmWindow, isMainWindow }) => {
+              if (isMainWindow()) {
+                void openDmWindow(conversationId, recipientDid);
+              }
+            });
+          }
           break;
         }
 
@@ -349,22 +364,33 @@ export function DmProvider({ children }: { children: ReactNode }) {
           );
           if (!alreadyOpen) {
             playImNotify();
-            setNotifications((n) => {
-              if (n.some((x) => x.conversationId === conversationId)) return n;
-              // L4: Cap notifications
-              const updated = [
-                ...n,
-                {
-                  conversationId,
-                  senderDid,
-                  preview,
-                  receivedAt: new Date().toISOString(),
-                },
-              ];
-              return updated.length > MAX_NOTIFICATIONS
-                ? updated.slice(-MAX_NOTIFICATIONS)
-                : updated;
-            });
+
+            if (IS_TAURI) {
+              // AIM behavior: auto-open a DM window for incoming messages.
+              // Sends dm_open → server responds dm_opened → window spawns.
+              void import('../lib/tauri-windows').then(({ isMainWindow }) => {
+                if (isMainWindow()) {
+                  send({ type: 'dm_open', recipientDid: senderDid });
+                }
+              });
+            } else {
+              setNotifications((n) => {
+                if (n.some((x) => x.conversationId === conversationId)) return n;
+                // L4: Cap notifications
+                const updated = [
+                  ...n,
+                  {
+                    conversationId,
+                    senderDid,
+                    preview,
+                    receivedAt: new Date().toISOString(),
+                  },
+                ];
+                return updated.length > MAX_NOTIFICATIONS
+                  ? updated.slice(-MAX_NOTIFICATIONS)
+                  : updated;
+              });
+            }
           }
           break;
         }
@@ -387,6 +413,33 @@ export function DmProvider({ children }: { children: ReactNode }) {
         clearTimeout(timer);
       }
       pendingTimers.current.clear();
+    };
+  }, []);
+
+  // Tauri: when a DM child window sends dm_close through the IPC relay,
+  // the main window's DmContext doesn't hear about it (only the child's
+  // DmContext called closeDm). The relay dispatches a DOM event so we can
+  // clean up the stale conversation entry here.
+  useEffect(() => {
+    if (!IS_TAURI) return;
+    const handler = (e: Event) => {
+      const { conversationId } = (e as CustomEvent<{ conversationId: string }>).detail;
+      // Clean up timers
+      const typingTimer = typingTimers.current.get(conversationId);
+      if (typingTimer) {
+        clearTimeout(typingTimer);
+        typingTimers.current.delete(conversationId);
+      }
+      lastTypingSent.current.delete(conversationId);
+      // Remove from state + eagerly update ref
+      setConversations((prev) => prev.filter((c) => c.conversationId !== conversationId));
+      conversationsRef.current = conversationsRef.current.filter(
+        (c) => c.conversationId !== conversationId,
+      );
+    };
+    window.addEventListener('dm-child-close', handler);
+    return () => {
+      window.removeEventListener('dm-child-close', handler);
     };
   }, []);
 
