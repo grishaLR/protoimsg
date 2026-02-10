@@ -23,7 +23,7 @@
           },
           "facets": {
             "type": "array",
-            "description": "Rich text annotations (mentions, links). Same format as Bluesky post facets.",
+            "description": "Rich text annotations (mentions, links, tags, formatting). Extends the Bluesky facet convention with additional formatting features.",
             "items": {
               "type": "ref",
               "ref": "#richTextFacet"
@@ -174,7 +174,7 @@
     },
     "richTextFacet": {
       "type": "object",
-      "description": "A rich text annotation on the message.",
+      "description": "Annotation of a sub-string within rich text.",
       "required": ["index", "features"],
       "properties": {
         "index": {
@@ -185,14 +185,24 @@
           "type": "array",
           "items": {
             "type": "union",
-            "refs": ["#mention", "#link"]
+            "refs": [
+              "#mention",
+              "#link",
+              "#tag",
+              "#bold",
+              "#italic",
+              "#strikethrough",
+              "#codeInline",
+              "#codeBlock",
+              "#blockquote"
+            ]
           }
         }
       }
     },
     "byteSlice": {
       "type": "object",
-      "description": "Byte range within the text.",
+      "description": "Specifies the sub-string range a facet feature applies to. Start index is inclusive, end index is exclusive. Indices are zero-indexed, counting bytes of the UTF-8 encoded text.",
       "required": ["byteStart", "byteEnd"],
       "properties": {
         "byteStart": {
@@ -207,7 +217,7 @@
     },
     "mention": {
       "type": "object",
-      "description": "A mention of another user.",
+      "description": "Facet feature for mention of another account. The text is usually a handle, including a '@' prefix, but the facet reference is a DID.",
       "required": ["did"],
       "properties": {
         "did": {
@@ -218,7 +228,7 @@
     },
     "link": {
       "type": "object",
-      "description": "A hyperlink.",
+      "description": "Facet feature for a URL. The text URL may have been simplified or truncated, but the facet reference should be a complete URL.",
       "required": ["uri"],
       "properties": {
         "uri": {
@@ -226,6 +236,49 @@
           "format": "uri"
         }
       }
+    },
+    "tag": {
+      "type": "object",
+      "description": "Facet feature for a hashtag. The text usually includes a '#' prefix, but the facet reference should not.",
+      "required": ["tag"],
+      "properties": {
+        "tag": {
+          "type": "string",
+          "maxLength": 640,
+          "maxGraphemes": 64
+        }
+      }
+    },
+    "bold": {
+      "type": "object",
+      "description": "Facet feature for bold text."
+    },
+    "italic": {
+      "type": "object",
+      "description": "Facet feature for italic text."
+    },
+    "strikethrough": {
+      "type": "object",
+      "description": "Facet feature for strikethrough text."
+    },
+    "codeInline": {
+      "type": "object",
+      "description": "Facet feature for inline code."
+    },
+    "codeBlock": {
+      "type": "object",
+      "description": "Facet feature for a code block. The text contains the code content.",
+      "properties": {
+        "lang": {
+          "type": "string",
+          "maxLength": 50,
+          "description": "Programming language for syntax highlighting."
+        }
+      }
+    },
+    "blockquote": {
+      "type": "object",
+      "description": "Facet feature for a block quotation."
     }
   }
 }
