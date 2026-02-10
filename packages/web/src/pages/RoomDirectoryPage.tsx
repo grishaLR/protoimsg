@@ -15,6 +15,7 @@ import { useBuddyList } from '../hooks/useBuddyList';
 import { useIsMobile } from '../hooks/useIsMobile';
 import { useDm } from '../contexts/DmContext';
 import { useBlocks } from '../contexts/BlockContext';
+import { IS_TAURI } from '../lib/config';
 import styles from './RoomDirectoryPage.module.css';
 
 type View = 'rooms' | 'feed' | 'buddies' | 'profile' | 'thread' | 'settings';
@@ -113,7 +114,17 @@ export function RoomDirectoryPage() {
     ? rooms.filter((r) => r.name.toLowerCase().includes(search.toLowerCase()))
     : rooms;
 
-  const showTabs = view === 'rooms' || view === 'feed';
+  const openTauriRoomDirectory = () => {
+    void import('../lib/tauri-windows').then(({ openRoomDirectoryWindow }) => {
+      void openRoomDirectoryWindow();
+    });
+  };
+
+  const openTauriFeed = () => {
+    void import('../lib/tauri-windows').then(({ openFeedWindow }) => {
+      void openFeedWindow();
+    });
+  };
 
   const buddyListProps = {
     buddies,
@@ -140,6 +151,16 @@ export function RoomDirectoryPage() {
     onRenameGroup: renameGroup,
     onDeleteGroup: deleteGroup,
     onMoveBuddy: moveBuddy,
+    onOpenChatRooms: IS_TAURI
+      ? openTauriRoomDirectory
+      : () => {
+          setView('rooms');
+        },
+    onOpenFeed: IS_TAURI
+      ? openTauriFeed
+      : () => {
+          setView('feed');
+        },
   };
 
   const mobileTab: MobileTab = view === 'buddies' ? 'buddies' : view === 'rooms' ? 'rooms' : 'feed';
@@ -148,32 +169,35 @@ export function RoomDirectoryPage() {
     setView(tab);
   };
 
+  // Tauri main window: buddy list is the entire window with action buttons at top
+  if (IS_TAURI) {
+    return (
+      <div className={styles.page}>
+        <Header onOpenSettings={navigateToSettings} />
+        <div className={styles.tauriBody}>
+          {view === 'profile' && profileTarget ? (
+            <ProfileView
+              actor={profileTarget}
+              onBack={backFromProfile}
+              onNavigateToProfile={navigateToProfile}
+              onReply={handleReply}
+              onOpenThread={openThread}
+            />
+          ) : view === 'settings' ? (
+            <SettingsView onBack={backFromSettings} />
+          ) : (
+            <BuddyListPanel {...buddyListProps} />
+          )}
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className={styles.page}>
-      <Header onOpenSettings={navigateToSettings} onOpenProfile={navigateToProfile} />
+      <Header onOpenSettings={navigateToSettings} />
       <div className={styles.body}>
         <main className={styles.main}>
-          {showTabs && (
-            <div className={styles.viewToggle}>
-              <button
-                className={`${styles.viewTab} ${view === 'rooms' ? styles.viewTabActive : ''}`}
-                onClick={() => {
-                  setView('rooms');
-                }}
-              >
-                Rooms
-              </button>
-              <button
-                className={`${styles.viewTab} ${view === 'feed' ? styles.viewTabActive : ''}`}
-                onClick={() => {
-                  setView('feed');
-                }}
-              >
-                Feed
-              </button>
-            </div>
-          )}
-
           {view === 'buddies' && isMobile && <BuddyListPanel {...buddyListProps} />}
 
           {view === 'rooms' && (

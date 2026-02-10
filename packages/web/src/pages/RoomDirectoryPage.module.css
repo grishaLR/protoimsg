@@ -74,34 +74,11 @@
   margin-bottom: var(--cm-space-8);
 }
 
-.viewToggle {
+.tauriBody {
+  flex: 1;
+  overflow: hidden;
   display: flex;
-  gap: var(--cm-space-1);
-  margin-bottom: var(--cm-space-4);
-}
-
-.viewTab {
-  padding: var(--cm-space-1) var(--cm-space-8);
-  background: var(--color-base-200);
-  color: var(--color-base-content);
-  border: none;
-  border-radius: var(--cm-radius-sm);
-  cursor: pointer;
-  font-size: var(--cm-text-md);
-  box-shadow: var(--cm-raised);
-}
-
-.viewTab:hover {
-  background: var(--cm-button-hover);
-}
-
-.viewTabActive {
-  box-shadow: var(--cm-pressed);
-  background: var(--cm-surface-content);
-}
-
-.viewTabActive:hover {
-  background: var(--cm-surface-content);
+  flex-direction: column;
 }
 
 @media (max-width: 767px) {
@@ -116,9 +93,5 @@
 
   .body {
     padding-bottom: var(--cm-tab-bar-h);
-  }
-
-  .viewToggle {
-    display: none;
   }
 }

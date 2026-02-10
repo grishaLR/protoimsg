@@ -27,6 +27,8 @@ interface BuddyListPanelProps {
   onRenameGroup: (oldName: string, newName: string) => Promise<void>;
   onDeleteGroup: (name: string) => Promise<void>;
   onMoveBuddy: (did: string, fromGroup: string, toGroup: string) => Promise<void>;
+  onOpenChatRooms?: () => void;
+  onOpenFeed?: () => void;
 }
 
 const OFFLINE_GROUP = 'Offline';
@@ -235,6 +237,8 @@ export function BuddyListPanel({
   onRenameGroup,
   onDeleteGroup,
   onMoveBuddy,
+  onOpenChatRooms,
+  onOpenFeed,
 }: BuddyListPanelProps) {
   const { blockedDids } = useBlocks();
   const { collapsed, toggle: toggleCollapse } = useCollapsedGroups();
@@ -405,8 +409,6 @@ export function BuddyListPanel({
 
   return (
     <div className={styles.panel}>
-      <h3 className={styles.title}>Buddy List</h3>
-
       <div className={styles.addSection}>
         <input
           className={styles.addInput}
@@ -619,6 +621,21 @@ export function BuddyListPanel({
         >
           + Create Group
         </button>
+      )}
+
+      {(onOpenChatRooms || onOpenFeed) && (
+        <div className={styles.footer}>
+          {onOpenChatRooms && (
+            <button className={styles.footerBtn} onClick={onOpenChatRooms}>
+              Chat Rooms
+            </button>
+          )}
+          {onOpenFeed && (
+            <button className={styles.footerBtn} onClick={onOpenFeed}>
+              Feed
+            </button>
+          )}
+        </div>
       )}
     </div>
   );
