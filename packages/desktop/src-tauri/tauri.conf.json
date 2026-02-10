@@ -1,0 +1,40 @@
+{
+  "$schema": "https://raw.githubusercontent.com/nicklasxyz/tauri-v2/main/core/tauri-config-schema/schema.json",
+  "productName": "Chatmosphere",
+  "version": "0.0.1",
+  "identifier": "chat.chatmosphere.desktop",
+  "build": {
+    "devUrl": "http://127.0.0.1:5173",
+    "frontendDist": "https://chatmosphere.chat",
+    "beforeDevCommand": "pnpm --filter @chatmosphere/web dev",
+    "beforeBuildCommand": ""
+  },
+  "app": {
+    "withGlobalTauri": true,
+    "windows": [
+      {
+        "label": "main",
+        "title": "Chatmosphere",
+        "width": 260,
+        "height": 560,
+        "minWidth": 220,
+        "minHeight": 400,
+        "resizable": true,
+        "center": true,
+        "decorations": false,
+        "transparent": false
+      }
+    ]
+  },
+  "bundle": {
+    "active": true,
+    "targets": "all",
+    "icon": [
+      "icons/32x32.png",
+      "icons/128x128.png",
+      "icons/128x128@2x.png",
+      "icons/icon.icns",
+      "icons/icon.ico"
+    ]
+  }
+}
