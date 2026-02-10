@@ -3,7 +3,8 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "turbo dev",
+    "dev": "turbo dev --filter=!@protoimsg/desktop",
+    "dev:up": "docker compose up -d --wait && pnpm --filter @protoimsg/server db:migrate && turbo dev --filter=!@protoimsg/desktop",
     "build": "turbo build",
     "lint": "turbo lint",
     "format": "prettier --write \"**/*.{ts,tsx,json,md}\"",
