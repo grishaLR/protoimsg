@@ -1,8 +1,8 @@
 {
-  "client_id": "https://chatmosphere.chat/client-metadata.json",
+  "client_id": "https://protoimsg.app/client-metadata.json",
   "client_name": "protoimsg",
-  "client_uri": "https://chatmosphere.chat",
-  "redirect_uris": ["https://chatmosphere.chat/"],
+  "client_uri": "https://protoimsg.app",
+  "redirect_uris": ["https://protoimsg.app/"],
   "scope": "atproto transition:generic",
   "grant_types": ["authorization_code", "refresh_token"],
   "response_types": ["code"],
