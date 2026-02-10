@@ -17,6 +17,11 @@
     },
     "test": {
       "dependsOn": ["^build"]
+    },
+    "desktop:build": {
+      "dependsOn": ["@chatmosphere/web#build"],
+      "outputs": ["src-tauri/target/release/bundle/**"],
+      "cache": false
     }
   }
 }

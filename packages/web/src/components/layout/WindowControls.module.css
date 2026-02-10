@@ -1,0 +1,39 @@
+.controls {
+  display: flex;
+  align-items: center;
+  gap: var(--cm-space-1);
+  flex-shrink: 0;
+  /* Keep controls above the drag region */
+  -webkit-app-region: no-drag;
+  app-region: no-drag;
+}
+
+.btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--cm-icon-lg);
+  height: var(--cm-icon-lg);
+  padding: 0;
+  background: var(--cm-surface);
+  border: none;
+  border-radius: 0;
+  color: var(--color-base-content);
+  cursor: pointer;
+  font-size: var(--cm-text-xs);
+  line-height: 1;
+  box-shadow: var(--cm-raised);
+}
+
+.btn:hover {
+  background: var(--cm-button-hover);
+}
+
+.btn:active {
+  box-shadow: var(--cm-pressed);
+}
+
+.closeBtn:hover {
+  background: var(--color-error);
+  color: var(--color-error-content);
+}
