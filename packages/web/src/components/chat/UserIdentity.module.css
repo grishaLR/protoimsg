@@ -6,7 +6,7 @@
 }
 
 .avatar {
-  border-radius: var(--cm-radius-sm);
+  border-radius: var(--cm-radius-avatar);
   flex-shrink: 0;
   object-fit: cover;
 }

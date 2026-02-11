@@ -5,7 +5,7 @@
   padding: var(--cm-space-3) var(--cm-space-4);
   background: var(--color-base-100);
   border: none;
-  border-radius: 0;
+  border-radius: var(--cm-radius-sm);
   box-shadow: var(--cm-raised), var(--cm-window-shadow);
   cursor: pointer;
   max-width: var(--cm-notification-max-w);
@@ -67,7 +67,7 @@
   padding: 0;
   background: var(--cm-surface);
   border: none;
-  border-radius: 0;
+  border-radius: var(--cm-radius-sm);
   cursor: pointer;
   color: var(--color-base-content);
   font-size: var(--cm-text-base);

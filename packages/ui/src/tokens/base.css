@@ -1,0 +1,82 @@
+/*
+ * Structural Tokens — shared across ALL themes
+ *
+ * Layout widths, panel widths, avatar/icon sizes, image constraints,
+ * blur, tab bar, focus offsets, spacing, and fixed dimensions.
+ * These never change between themes.
+ */
+
+:root {
+  /* ── Panel Widths ──────────────────────────────────── */
+  --cm-panel-width-buddy: 240px;
+  --cm-panel-width-sidebar: 200px;
+  --cm-panel-width-dm: 320px;
+
+  /* ── Spacing ─────────────────────────────────────── */
+  --cm-space-0: 0px;
+  --cm-space-0.5: 1px;
+  --cm-space-1: 2px;
+  --cm-space-1.5: 3px;
+  --cm-space-2: 4px;
+  --cm-space-3: 6px;
+  --cm-space-4: 8px;
+  --cm-space-5: 10px;
+  --cm-space-6: 12px;
+  --cm-space-8: 16px;
+  --cm-space-10: 20px;
+  --cm-space-12: 24px;
+  --cm-space-16: 32px;
+
+  /* ── Icon / Avatar / Dot Sizes ────────────────────── */
+  --cm-icon-sm: 12px;
+  --cm-icon-md: 16px;
+  --cm-icon-lg: 20px;
+  --cm-dot-sm: 8px;
+  --cm-dot-md: 10px;
+  --cm-avatar-xs: 14px;
+  --cm-avatar-sm: 20px;
+  --cm-avatar-md: 24px;
+  --cm-avatar-lg: 64px;
+
+  /* ── Image Constraints ─────────────────────────────── */
+  --cm-image-max-h: 300px;
+  --cm-link-thumb: 80px;
+
+  /* ── Layout Widths / Heights ───────────────────────── */
+  --cm-content-max-w: 600px;
+  --cm-content-wide-max-w: 800px;
+  --cm-banner-h: 120px;
+  --cm-titlebar-min-h: 36px;
+  --cm-modal-max-w: 28rem;
+  --cm-modal-max-w-sm: 420px;
+  --cm-modal-max-w-info: 460px;
+  --cm-connecting-w: 360px;
+  --cm-button-min-w: 80px;
+  --cm-dropdown-min-w: 170px;
+  --cm-dropdown-min-w-sm: 160px;
+  --cm-dropdown-min-w-md: 180px;
+  --cm-header-h: 28px;
+  --cm-header-h-app: 32px;
+  --cm-dm-popover-h: 400px;
+  --cm-dm-popover-offset-v: 60px;
+  --cm-tooltip-max-w: 200px;
+  --cm-form-max-w: 340px;
+  --cm-notification-max-w: 280px;
+  --cm-did-max-w: 160px;
+  --cm-button-min-h: 21px;
+  --cm-button-min-h-md: 23px;
+  --cm-unread-badge-size: 16px;
+  --cm-focus-outset: 2px;
+  --cm-focus-outset-lg: 4px;
+  --cm-focus-inset: -2px;
+  --cm-focus-inset-lg: -4px;
+
+  /* ── Filters ────────────────────────────────────────── */
+  --cm-blur-base: 4px;
+  --cm-blur-light: 2px;
+  --cm-focus-offset: 2px;
+
+  /* ── Mobile Tab Bar ─────────────────────────────────── */
+  --cm-tab-bar-h: 44px;
+  --cm-breakpoint-mobile: 768px; /* documentation only — CSS vars can't be used in @media */
+}

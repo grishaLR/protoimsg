@@ -2,6 +2,7 @@ import { lazy, Suspense } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { AuthProvider } from './contexts/AuthContext';
+import { ThemeProvider } from './contexts/ThemeContext';
 import { useAuth } from './hooks/useAuth';
 import { LoginPage } from './pages/LoginPage';
 import { ConnectingScreen } from './components/auth/ConnectingScreen';
@@ -135,13 +136,15 @@ function AppRoutes() {
 export function App() {
   return (
     <BrowserRouter>
-      <AppErrorBoundary>
-        <AuthProvider>
-          <QueryClientProvider client={queryClient}>
-            <AppRoutes />
-          </QueryClientProvider>
-        </AuthProvider>
-      </AppErrorBoundary>
+      <ThemeProvider>
+        <AppErrorBoundary>
+          <AuthProvider>
+            <QueryClientProvider client={queryClient}>
+              <AppRoutes />
+            </QueryClientProvider>
+          </AuthProvider>
+        </AppErrorBoundary>
+      </ThemeProvider>
     </BrowserRouter>
   );
 }

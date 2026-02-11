@@ -6,6 +6,7 @@
   max-width: var(--cm-form-max-w);
   padding: var(--cm-space-6);
   background: var(--color-base-100);
+  border-radius: var(--cm-radius-lg);
   box-shadow: var(--cm-raised), var(--cm-window-shadow);
 }
 
@@ -34,7 +35,7 @@
   background: var(--color-base-200);
   color: var(--color-base-content);
   border: none;
-  border-radius: 0;
+  border-radius: var(--cm-radius-sm);
   font-size: var(--cm-text-lg);
   font-weight: 700;
   cursor: pointer;
@@ -80,4 +81,18 @@
 
 .infoLink:hover {
   color: var(--color-base-content);
+}
+
+.themeSelect {
+  margin-top: var(--cm-space-1);
+  padding: var(--cm-space-1) var(--cm-space-3);
+  background: var(--cm-surface-content);
+  color: var(--color-base-content);
+  border: none;
+  border-radius: var(--cm-radius-sm);
+  font-size: var(--cm-text-xs);
+  font-family: inherit;
+  cursor: pointer;
+  box-shadow: var(--cm-sunken);
+  align-self: center;
 }

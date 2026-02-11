@@ -8,12 +8,17 @@
   width: 100%;
   padding: var(--cm-space-1) var(--cm-space-2);
   border: none;
-  border-radius: 0;
+  border-radius: var(--cm-radius-sm);
   font-size: var(--cm-text-base);
   min-width: 0;
   background: var(--cm-surface-content);
+  color: var(--color-base-content);
   box-shadow: var(--cm-sunken);
   box-sizing: border-box;
+}
+
+.inputCompact::placeholder {
+  color: var(--cm-chrome-text-muted);
 }
 
 .inputCompact:focus {
@@ -26,11 +31,16 @@
   padding-inline-start: var(--cm-space-4);
   padding-inline-end: var(--cm-space-4);
   border: none;
-  border-radius: 0;
+  border-radius: var(--cm-radius-sm);
   font-size: var(--cm-text-lg);
   background: var(--cm-surface-content);
+  color: var(--color-base-content);
   box-shadow: var(--cm-sunken);
   box-sizing: border-box;
+}
+
+.inputDefault::placeholder {
+  color: var(--cm-chrome-text-muted);
 }
 
 .inputDefault:focus {
@@ -46,8 +56,10 @@
   left: 0;
   right: 0;
   background: var(--color-base-100);
+  border-radius: var(--cm-radius-md);
   box-shadow: var(--cm-raised), var(--cm-window-shadow);
   z-index: 200;
+  overflow: hidden;
 }
 
 .status {
@@ -72,6 +84,7 @@
   padding: var(--cm-space-2) var(--cm-space-3);
   cursor: pointer;
   font-size: var(--cm-text-base);
+  color: var(--color-base-content);
 }
 
 .optionDefault {
@@ -81,6 +94,7 @@
   padding: var(--cm-space-3) var(--cm-space-4);
   cursor: pointer;
   font-size: var(--cm-text-md);
+  color: var(--color-base-content);
 }
 
 .optionCompact:hover,
@@ -106,6 +120,7 @@
 .avatarCompact {
   width: var(--cm-avatar-sm);
   height: var(--cm-avatar-sm);
+  border-radius: var(--cm-radius-avatar);
   flex-shrink: 0;
   object-fit: cover;
 }
@@ -113,6 +128,7 @@
 .avatarDefault {
   width: var(--cm-avatar-md);
   height: var(--cm-avatar-md);
+  border-radius: var(--cm-radius-avatar);
   flex-shrink: 0;
   object-fit: cover;
 }

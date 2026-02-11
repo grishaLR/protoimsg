@@ -1,0 +1,111 @@
+/*
+ * AIM Classic Theme
+ *
+ * Authentic AIM/Windows 98 aesthetic: 3D beveled borders,
+ * blue gradient title bars, silver chrome surfaces.
+ *
+ * Box-shadow recipes from 98.css — the 4-layer inset pattern
+ * simulates light hitting a raised or sunken surface.
+ */
+
+:root,
+[data-theme='aim'] {
+  /* ── Surface Colors ─────────────────────────────────── */
+  --color-base-100: #d6d6ce; /* warm silver — main window surface */
+  --color-base-200: #c0c0c0; /* silver — button face, panels */
+  --color-base-300: #a0a0a0; /* medium gray — borders, dividers */
+  --color-base-content: #0c0c0c; /* near-black — primary text */
+
+  /* ── AIM Blue Accent ────────────────────────────────── */
+  --color-primary: #0066cc;
+  --color-primary-content: #ffffff;
+
+  /* ── Secondary (amber — away status) ────────────────── */
+  --color-secondary: #f59e0b;
+  --color-secondary-content: #0c0c0c;
+
+  /* ── Accent (navy — title bars) ─────────────────────── */
+  --color-accent: #08216b;
+  --color-accent-content: #ffffff;
+
+  /* ── Neutral ────────────────────────────────────────── */
+  --color-neutral: #333333;
+  --color-neutral-content: #d6d6ce;
+
+  /* ── Status Colors ──────────────────────────────────── */
+  --color-success: #22c55e;
+  --color-warning: #f59e0b;
+  --color-error: #cc0000;
+  --color-success-content: #ffffff;
+  --color-warning-content: #0c0c0c;
+  --color-error-content: #ffffff;
+
+  /* ── Custom Status Tokens ───────────────────────────── */
+  --cm-status-idle: #9ca3af;
+  --cm-status-offline: #d1d5db;
+
+  /* ── 3D Border Recipes (4-layer inset box-shadows) ──── */
+  --cm-raised:
+    inset -1px -1px #0a0a0a, inset 1px 1px #fff, inset -2px -2px grey, inset 2px 2px #dfdfdf;
+  --cm-sunken:
+    inset -1px -1px #fff, inset 1px 1px grey, inset -2px -2px #dfdfdf, inset 2px 2px #0a0a0a;
+  --cm-pressed:
+    inset -1px -1px #fff, inset 1px 1px #0a0a0a, inset -2px -2px #dfdfdf, inset 2px 2px grey;
+
+  /* ── Window Chrome ──────────────────────────────────── */
+  --cm-window-shadow: 2px 2px 2px #424242;
+  --cm-window-header-shadow: 0 -2px 12px oklch(0 0 0 / 0.12);
+  --cm-titlebar: linear-gradient(to right, #08216b, #a5c6ef);
+  --cm-titlebar-inactive: linear-gradient(90deg, grey, #b5b5b5);
+
+  /* ── Border Colors ──────────────────────────────────── */
+  --cm-border-light: #f4f4f4;
+  --cm-border-dark: #848484;
+
+  /* ── Surface & Chrome Colors ────────────────────────── */
+  --cm-surface: #d6d6ce;
+  --cm-surface-content: #fff;
+  --cm-surface-button: silver;
+  --cm-button-hover: #dfdfdf;
+  --cm-chrome-text: #fff;
+  --cm-chrome-text-muted: rgba(255, 255, 255, 0.7);
+  --cm-chrome-hover: rgba(255, 255, 255, 0.3);
+  --cm-desktop: #008080;
+  --cm-primary-dark: #004499;
+  --cm-overlay: oklch(0 0 0 / 0.4);
+  --cm-focus: #000;
+
+  /* ── Selection ──────────────────────────────────────── */
+  --cm-selection: #0000a2;
+
+  /* ── Drop Shadows ───────────────────────────────────── */
+  --cm-shadow-sm: 1px 1px 1px #424242;
+  --cm-shadow-md: 2px 2px 2px #424242;
+  --cm-shadow-lg: 3px 3px 3px #424242;
+
+  /* ── Font Sizes ─────────────────────────────────────── */
+  --cm-text-2xs: 0.5625rem; /* 9px */
+  --cm-text-xs: 0.625rem; /* 10px */
+  --cm-text-sm: 0.6875rem; /* 11px */
+  --cm-text-base: 0.75rem; /* 12px */
+  --cm-text-md: 0.8125rem; /* 13px */
+  --cm-text-lg: 0.875rem; /* 14px */
+  --cm-text-xl: 1rem; /* 16px */
+  --cm-text-2xl: 1.5rem; /* 24px */
+
+  /* ── Border Radii — AIM uses sharp corners ──────────── */
+  --cm-radius-sm: 0px;
+  --cm-radius-md: 0px;
+  --cm-radius-lg: 0px;
+  --cm-radius-pill: 0px;
+  --cm-radius-avatar: 0px;
+
+  /* ── Font Family ────────────────────────────────────── */
+  --cm-font-family: inherit;
+
+  /* ── Scrollbar ──────────────────────────────────────── */
+  --cm-scrollbar-width: var(--cm-space-8);
+  --cm-scrollbar-track: var(--color-base-100);
+  --cm-scrollbar-thumb: var(--cm-button-hover);
+  --cm-scrollbar-thumb-shadow: var(--cm-raised);
+}

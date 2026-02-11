@@ -37,6 +37,8 @@
   background: var(--cm-surface-content);
   margin-bottom: var(--cm-space-4);
   flex-shrink: 0;
+  border-radius: var(--cm-radius-md);
+  overflow: hidden;
 }
 
 .banner {
@@ -62,7 +64,7 @@
 .profileAvatar {
   width: var(--cm-avatar-lg);
   height: var(--cm-avatar-lg);
-  border-radius: var(--cm-radius-sm);
+  border-radius: var(--cm-radius-avatar);
   object-fit: cover;
   box-shadow: var(--cm-raised);
   background: var(--color-base-200);

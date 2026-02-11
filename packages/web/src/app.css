@@ -4,29 +4,33 @@
   margin: 0;
 }
 
-/* AIM Global Styles */
+html, body {
+  font-family: var(--cm-font-family);
+  color: var(--color-base-content);
+}
 
 ::selection {
   background: var(--cm-selection);
   color: var(--cm-chrome-text);
 }
 
-/* Win98-style Scrollbars (WebKit/Blink) */
+/* Scrollbars (WebKit/Blink) */
 
 ::-webkit-scrollbar {
-  width: var(--cm-space-8);
-  height: var(--cm-space-8);
+  width: var(--cm-scrollbar-width);
+  height: var(--cm-scrollbar-width);
 }
 
 ::-webkit-scrollbar-track {
-  background: var(--color-base-100);
+  background: var(--cm-scrollbar-track);
 }
 
 ::-webkit-scrollbar-thumb {
-  background: var(--cm-button-hover);
-  box-shadow: var(--cm-raised);
+  background: var(--cm-scrollbar-thumb);
+  box-shadow: var(--cm-scrollbar-thumb-shadow);
+  border-radius: var(--cm-radius-pill);
 }
 
 ::-webkit-scrollbar-corner {
-  background: var(--cm-button-hover);
+  background: var(--cm-scrollbar-track);
 }

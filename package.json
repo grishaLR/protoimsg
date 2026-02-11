@@ -7,6 +7,7 @@
     "dev:up": "docker compose up -d --wait && pnpm --filter @protoimsg/server db:migrate && turbo dev --filter=!@protoimsg/desktop",
     "build": "turbo build",
     "lint": "turbo lint",
+    "lint:fix": "turbo run lint -- --fix",
     "format": "prettier --write \"**/*.{ts,tsx,json,md}\"",
     "format:check": "prettier --check \"**/*.{ts,tsx,json,md}\"",
     "typecheck": "turbo typecheck",

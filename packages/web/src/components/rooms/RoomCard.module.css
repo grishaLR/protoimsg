@@ -2,7 +2,7 @@
   display: block;
   padding: var(--cm-space-4);
   border: none;
-  border-radius: 0;
+  border-radius: var(--cm-radius-md);
   text-decoration: none;
   color: inherit;
   background: var(--color-base-100);
@@ -35,7 +35,7 @@
   font-size: var(--cm-text-sm);
   padding: var(--cm-space-0.5) var(--cm-space-2);
   background: var(--color-base-200);
-  border-radius: 0;
+  border-radius: var(--cm-radius-sm);
   color: var(--color-base-content);
 }
 

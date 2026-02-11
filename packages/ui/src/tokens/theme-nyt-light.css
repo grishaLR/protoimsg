@@ -1,0 +1,105 @@
+/*
+ * Minimal Light Theme
+ *
+ * Skyboard-inspired: Apple-esque light grays, white elevated cards,
+ * subtle 1px borders, soft hover shadows, generous radii, system sans-serif.
+ */
+
+[data-theme='nyt-light'] {
+  /* ── Surface Colors ─────────────────────────────────── */
+  --color-base-100: #f5f5f7; /* cool gray canvas (Apple-style) */
+  --color-base-200: #f0f0f3; /* column / panel background */
+  --color-base-300: #d2d2d7; /* standard border gray */
+  --color-base-content: #1d1d1f; /* near-black primary text */
+
+  /* ── Primary (modern blue) ──────────────────────────── */
+  --color-primary: #3b82f6;
+  --color-primary-content: #ffffff;
+
+  /* ── Secondary (amber — away status) ────────────────── */
+  --color-secondary: #f0ad4e;
+  --color-secondary-content: #1d1d1f;
+
+  /* ── Accent ─────────────────────────────────────────── */
+  --color-accent: #3b82f6;
+  --color-accent-content: #ffffff;
+
+  /* ── Neutral ────────────────────────────────────────── */
+  --color-neutral: #444444;
+  --color-neutral-content: #f5f5f7;
+
+  /* ── Status Colors ──────────────────────────────────── */
+  --color-success: #28a745;
+  --color-warning: #f0ad4e;
+  --color-error: #cc3333;
+  --color-success-content: #ffffff;
+  --color-warning-content: #1d1d1f;
+  --color-error-content: #ffffff;
+
+  /* ── Custom Status Tokens ───────────────────────────── */
+  --cm-status-idle: #9ca3af;
+  --cm-status-offline: #c8c8c4;
+
+  /* ── Borders & Shadows ──────────────────────────────── */
+  --cm-raised: 0 0 0 1px #e8e8ed, 0 1px 2px rgba(0, 0, 0, 0.04);
+  --cm-sunken: 0 0 0 1px #d2d2d7;
+  --cm-pressed: 0 0 0 1px #c8c8cd;
+
+  /* ── Window Chrome ──────────────────────────────────── */
+  --cm-window-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+  --cm-window-header-shadow: 0 1px 0 #e8e8ed;
+  --cm-titlebar: #ffffff;
+  --cm-titlebar-inactive: #f5f5f7;
+
+  /* ── Border Colors ──────────────────────────────────── */
+  --cm-border-light: #e8e8ed;
+  --cm-border-dark: #6e6e73;
+
+  /* ── Surface & Chrome Colors ────────────────────────── */
+  --cm-surface: #f5f5f7;
+  --cm-surface-content: #ffffff;
+  --cm-surface-button: #ffffff;
+  --cm-button-hover: #f0f0f3;
+  --cm-chrome-text: #1d1d1f;
+  --cm-chrome-text-muted: #6e6e73;
+  --cm-chrome-hover: rgba(0, 0, 0, 0.04);
+  --cm-desktop: #f5f5f7;
+  --cm-primary-dark: #2563eb;
+  --cm-overlay: rgba(0, 0, 0, 0.4);
+  --cm-focus: #3b82f6;
+
+  /* ── Selection ──────────────────────────────────────── */
+  --cm-selection: #bfdbfe;
+
+  /* ── Drop Shadows ───────────────────────────────────── */
+  --cm-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.06);
+  --cm-shadow-md: 0 2px 8px rgba(0, 0, 0, 0.08);
+  --cm-shadow-lg: 0 4px 16px rgba(0, 0, 0, 0.1);
+
+  /* ── Font Sizes (bumped up for readability) ─────────── */
+  --cm-text-2xs: 0.625rem; /* 10px */
+  --cm-text-xs: 0.6875rem; /* 11px */
+  --cm-text-sm: 0.75rem; /* 12px */
+  --cm-text-base: 0.8125rem; /* 13px */
+  --cm-text-md: 0.875rem; /* 14px */
+  --cm-text-lg: 0.9375rem; /* 15px */
+  --cm-text-xl: 1.0625rem; /* 17px */
+  --cm-text-2xl: 1.5rem; /* 24px */
+
+  /* ── Border Radii ───────────────────────────────────── */
+  --cm-radius-sm: 6px;
+  --cm-radius-md: 8px;
+  --cm-radius-lg: 12px;
+  --cm-radius-pill: 999px;
+  --cm-radius-avatar: 50%;
+
+  /* ── Font Family (system sans-serif) ────────────────── */
+  --cm-font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial,
+    sans-serif;
+
+  /* ── Scrollbar ──────────────────────────────────────── */
+  --cm-scrollbar-width: 6px;
+  --cm-scrollbar-track: transparent;
+  --cm-scrollbar-thumb: rgba(0, 0, 0, 0.12);
+  --cm-scrollbar-thumb-shadow: none;
+}

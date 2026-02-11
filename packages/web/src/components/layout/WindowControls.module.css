@@ -17,7 +17,7 @@
   padding: 0;
   background: var(--cm-surface);
   border: none;
-  border-radius: 0;
+  border-radius: var(--cm-radius-sm);
   color: var(--color-base-content);
   cursor: pointer;
   font-size: var(--cm-text-xs);

@@ -1,0 +1,105 @@
+/*
+ * Valentine Theme (light)
+ *
+ * Soft pinks and purples. Warm, playful palette
+ * based on the daisyUI Valentine theme.
+ */
+
+[data-theme='valentine'] {
+  /* ── Surface Colors ─────────────────────────────────── */
+  --color-base-100: #fae7f4; /* soft pink canvas */
+  --color-base-200: #e3d2de;
+  --color-base-300: #cdbdc8;
+  --color-base-content: #632c3b; /* deep rose text */
+
+  /* ── Primary (coral pink) ───────────────────────────── */
+  --color-primary: #e96d7b;
+  --color-primary-content: #ffffff;
+
+  /* ── Secondary (lavender) ───────────────────────────── */
+  --color-secondary: #a991f7;
+  --color-secondary-content: #0a0715;
+
+  /* ── Accent (teal) ──────────────────────────────────── */
+  --color-accent: #66b1b3;
+  --color-accent-content: #040c0c;
+
+  /* ── Neutral ────────────────────────────────────────── */
+  --color-neutral: #af4670;
+  --color-neutral-content: #f0d6e8;
+
+  /* ── Status Colors ──────────────────────────────────── */
+  --color-success: #16a34a;
+  --color-warning: #d97706;
+  --color-error: #ff675b;
+  --color-success-content: #ffffff;
+  --color-warning-content: #ffffff;
+  --color-error-content: #ffffff;
+
+  /* ── Custom Status Tokens ───────────────────────────── */
+  --cm-status-idle: #c4a0b4;
+  --cm-status-offline: #c0b0b8;
+
+  /* ── Borders & Shadows ──────────────────────────────── */
+  --cm-raised: 0 0 0 1px rgba(175, 70, 112, 0.12), 0 1px 2px rgba(175, 70, 112, 0.06);
+  --cm-sunken: 0 0 0 1px rgba(175, 70, 112, 0.15);
+  --cm-pressed: 0 0 0 1px rgba(175, 70, 112, 0.2);
+
+  /* ── Window Chrome ──────────────────────────────────── */
+  --cm-window-shadow: 0 4px 16px rgba(99, 44, 59, 0.12);
+  --cm-window-header-shadow: 0 1px 0 rgba(175, 70, 112, 0.1);
+  --cm-titlebar: #f0d6e8;
+  --cm-titlebar-inactive: #e3d2de;
+
+  /* ── Border Colors ──────────────────────────────────── */
+  --cm-border-light: rgba(175, 70, 112, 0.1);
+  --cm-border-dark: #8c5a6a;
+
+  /* ── Surface & Chrome Colors ────────────────────────── */
+  --cm-surface: #fae7f4;
+  --cm-surface-content: #ffffff;
+  --cm-surface-button: #f0d6e8;
+  --cm-button-hover: #e3d2de;
+  --cm-chrome-text: #632c3b;
+  --cm-chrome-text-muted: #8c5a6a;
+  --cm-chrome-hover: rgba(175, 70, 112, 0.06);
+  --cm-desktop: #fae7f4;
+  --cm-primary-dark: #d4505f;
+  --cm-overlay: rgba(99, 44, 59, 0.4);
+  --cm-focus: #e96d7b;
+
+  /* ── Selection ──────────────────────────────────────── */
+  --cm-selection: #f5c6d0;
+
+  /* ── Drop Shadows ───────────────────────────────────── */
+  --cm-shadow-sm: 0 1px 2px rgba(99, 44, 59, 0.06);
+  --cm-shadow-md: 0 2px 8px rgba(99, 44, 59, 0.08);
+  --cm-shadow-lg: 0 4px 16px rgba(99, 44, 59, 0.12);
+
+  /* ── Font Sizes (bumped up for readability) ─────────── */
+  --cm-text-2xs: 0.625rem;
+  --cm-text-xs: 0.6875rem;
+  --cm-text-sm: 0.75rem;
+  --cm-text-base: 0.8125rem;
+  --cm-text-md: 0.875rem;
+  --cm-text-lg: 0.9375rem;
+  --cm-text-xl: 1.0625rem;
+  --cm-text-2xl: 1.5rem;
+
+  /* ── Border Radii ───────────────────────────────────── */
+  --cm-radius-sm: 6px;
+  --cm-radius-md: 8px;
+  --cm-radius-lg: 12px;
+  --cm-radius-pill: 999px;
+  --cm-radius-avatar: 50%;
+
+  /* ── Font Family (system sans-serif) ────────────────── */
+  --cm-font-family:
+    -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+
+  /* ── Scrollbar ──────────────────────────────────────── */
+  --cm-scrollbar-width: 6px;
+  --cm-scrollbar-track: transparent;
+  --cm-scrollbar-thumb: rgba(175, 70, 112, 0.15);
+  --cm-scrollbar-thumb-shadow: none;
+}

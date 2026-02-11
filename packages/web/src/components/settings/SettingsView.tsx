@@ -1,6 +1,8 @@
 import { useRef, useCallback } from 'react';
 import { useAuth } from '../../hooks/useAuth';
 import { useProfileEditor } from '../../hooks/useProfileEditor';
+import { useTheme } from '../../hooks/useTheme';
+import { THEME_OPTIONS, type Theme } from '../../contexts/ThemeContext';
 import styles from './SettingsView.module.css';
 
 interface SettingsViewProps {
@@ -9,6 +11,7 @@ interface SettingsViewProps {
 
 export function SettingsView({ onBack }: SettingsViewProps) {
   const { did, handle, logout } = useAuth();
+  const { theme, setTheme } = useTheme();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const {
@@ -115,6 +118,26 @@ export function SettingsView({ onBack }: SettingsViewProps) {
                 </button>
               </>
             )}
+          </div>
+        </div>
+
+        {/* Appearance */}
+        <div className={styles.section}>
+          <div className={styles.sectionTitle}>Appearance</div>
+          <div className={styles.sectionBody}>
+            <select
+              className={styles.themeSelect}
+              value={theme}
+              onChange={(e) => {
+                setTheme(e.target.value as Theme);
+              }}
+            >
+              {THEME_OPTIONS.map((t) => (
+                <option key={t.id} value={t.id}>
+                  {t.label}
+                </option>
+              ))}
+            </select>
           </div>
         </div>
 

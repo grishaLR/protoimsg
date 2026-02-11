@@ -33,7 +33,7 @@
   flex: 1;
   padding: var(--cm-space-1.5) var(--cm-space-4);
   border: none;
-  border-radius: 0;
+  border-radius: var(--cm-radius-sm);
   font-size: var(--cm-text-md);
   background: var(--cm-surface-content);
   box-shadow: var(--cm-sunken);
@@ -49,7 +49,7 @@
   background: var(--color-base-200);
   color: var(--color-base-content);
   border: none;
-  border-radius: 0;
+  border-radius: var(--cm-radius-sm);
   cursor: pointer;
   font-size: var(--cm-text-md);
   white-space: nowrap;

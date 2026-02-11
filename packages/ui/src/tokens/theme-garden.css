@@ -1,0 +1,105 @@
+/*
+ * Garden Theme (light)
+ *
+ * Earthy neutrals with a vivid pink primary and mossy green accent.
+ * Based on the daisyUI Garden theme.
+ */
+
+[data-theme='garden'] {
+  /* ── Surface Colors ─────────────────────────────────── */
+  --color-base-100: #e9e7e7; /* warm gray canvas */
+  --color-base-200: #d4d2d2;
+  --color-base-300: #bfbdbd;
+  --color-base-content: #100f0f; /* near-black text */
+
+  /* ── Primary (hot pink) ─────────────────────────────── */
+  --color-primary: #fe0075;
+  --color-primary-content: #ffffff;
+
+  /* ── Secondary (dusty rose) ─────────────────────────── */
+  --color-secondary: #8e4162;
+  --color-secondary-content: #ead7de;
+
+  /* ── Accent (mossy green) ───────────────────────────── */
+  --color-accent: #5c7f67;
+  --color-accent-content: #ffffff;
+
+  /* ── Neutral ────────────────────────────────────────── */
+  --color-neutral: #291e00;
+  --color-neutral-content: #e9e7e7;
+
+  /* ── Status Colors ──────────────────────────────────── */
+  --color-success: #00a96e;
+  --color-warning: #ffbe00;
+  --color-error: #ff5861;
+  --color-success-content: #ffffff;
+  --color-warning-content: #100f0f;
+  --color-error-content: #ffffff;
+
+  /* ── Custom Status Tokens ───────────────────────────── */
+  --cm-status-idle: #a8a5a5;
+  --cm-status-offline: #bfbdbd;
+
+  /* ── Borders & Shadows ──────────────────────────────── */
+  --cm-raised: 0 0 0 1px rgba(41, 30, 0, 0.1), 0 1px 2px rgba(41, 30, 0, 0.05);
+  --cm-sunken: 0 0 0 1px rgba(41, 30, 0, 0.12);
+  --cm-pressed: 0 0 0 1px rgba(41, 30, 0, 0.18);
+
+  /* ── Window Chrome ──────────────────────────────────── */
+  --cm-window-shadow: 0 4px 16px rgba(41, 30, 0, 0.1);
+  --cm-window-header-shadow: 0 1px 0 rgba(41, 30, 0, 0.08);
+  --cm-titlebar: #d4d2d2;
+  --cm-titlebar-inactive: #bfbdbd;
+
+  /* ── Border Colors ──────────────────────────────────── */
+  --cm-border-light: rgba(41, 30, 0, 0.08);
+  --cm-border-dark: #706a6a;
+
+  /* ── Surface & Chrome Colors ────────────────────────── */
+  --cm-surface: #e9e7e7;
+  --cm-surface-content: #f5f3f3;
+  --cm-surface-button: #d4d2d2;
+  --cm-button-hover: #c8c5c5;
+  --cm-chrome-text: #100f0f;
+  --cm-chrome-text-muted: #706a6a;
+  --cm-chrome-hover: rgba(41, 30, 0, 0.05);
+  --cm-desktop: #e9e7e7;
+  --cm-primary-dark: #d60063;
+  --cm-overlay: rgba(16, 15, 15, 0.4);
+  --cm-focus: #fe0075;
+
+  /* ── Selection ──────────────────────────────────────── */
+  --cm-selection: #f5c6d8;
+
+  /* ── Drop Shadows ───────────────────────────────────── */
+  --cm-shadow-sm: 0 1px 2px rgba(41, 30, 0, 0.05);
+  --cm-shadow-md: 0 2px 8px rgba(41, 30, 0, 0.07);
+  --cm-shadow-lg: 0 4px 16px rgba(41, 30, 0, 0.1);
+
+  /* ── Font Sizes (bumped up for readability) ─────────── */
+  --cm-text-2xs: 0.625rem;
+  --cm-text-xs: 0.6875rem;
+  --cm-text-sm: 0.75rem;
+  --cm-text-base: 0.8125rem;
+  --cm-text-md: 0.875rem;
+  --cm-text-lg: 0.9375rem;
+  --cm-text-xl: 1.0625rem;
+  --cm-text-2xl: 1.5rem;
+
+  /* ── Border Radii ───────────────────────────────────── */
+  --cm-radius-sm: 6px;
+  --cm-radius-md: 8px;
+  --cm-radius-lg: 12px;
+  --cm-radius-pill: 999px;
+  --cm-radius-avatar: 50%;
+
+  /* ── Font Family (system sans-serif) ────────────────── */
+  --cm-font-family:
+    -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+
+  /* ── Scrollbar ──────────────────────────────────────── */
+  --cm-scrollbar-width: 6px;
+  --cm-scrollbar-track: transparent;
+  --cm-scrollbar-thumb: rgba(41, 30, 0, 0.12);
+  --cm-scrollbar-thumb-shadow: none;
+}

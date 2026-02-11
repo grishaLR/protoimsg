@@ -7,9 +7,9 @@
   flex-direction: column;
   background: var(--color-base-100);
   border: none;
-  border-radius: 0;
+  border-radius: var(--cm-radius-lg);
   box-shadow: var(--cm-raised), var(--cm-window-shadow);
-  overflow: hidden;
+  overflow: hidden; /* respects rounded corners on header */
 }
 
 .minimized {
@@ -55,7 +55,7 @@
   padding: 0;
   background: var(--cm-surface);
   border: none;
-  border-radius: 0;
+  border-radius: var(--cm-radius-sm);
   color: var(--color-base-content);
   cursor: pointer;
   font-size: var(--cm-text-base);
@@ -107,7 +107,7 @@
   padding: 0 var(--cm-space-2);
   background: var(--color-error);
   color: var(--color-error-content);
-  border-radius: 0;
+  border-radius: var(--cm-radius-sm);
   font-size: var(--cm-text-xs);
   font-weight: 700;
   line-height: 1;

@@ -1,0 +1,29 @@
+<svg width="1024" height="1024" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Circle 1 -->
+  <circle cx="38" cy="40" r="22" fill="#ff6b6b" opacity="0.7"/>
+  <!-- Circle 2 -->
+  <circle cx="62" cy="40" r="22" fill="#4ecdc4" opacity="0.7"/>
+  <!-- Circle 3 -->
+  <circle cx="50" cy="60" r="22" fill="#ffe66d" opacity="0.7"/>
+  <!-- Blend modes simulated with overlaps -->
+  <!-- 1+2 overlap -->
+  <clipPath id="clip12">
+    <circle cx="38" cy="40" r="22"/>
+  </clipPath>
+  <circle cx="62" cy="40" r="22" fill="#4ecdc4" opacity="0.3" clip-path="url(#clip12)"/>
+  <!-- 1+3 overlap -->
+  <clipPath id="clip13">
+    <circle cx="38" cy="40" r="22"/>
+  </clipPath>
+  <circle cx="50" cy="60" r="22" fill="#ffe66d" opacity="0.3" clip-path="url(#clip13)"/>
+  <!-- 2+3 overlap -->
+  <clipPath id="clip23">
+    <circle cx="62" cy="40" r="22"/>
+  </clipPath>
+  <circle cx="50" cy="60" r="22" fill="#ffe66d" opacity="0.3" clip-path="url(#clip23)"/>
+  <!-- Center  where all three meet -->
+  <circle cx="50" cy="47" r="8" fill="white" opacity="0.9"/>
+  <!-- Tiny chat icon in center -->
+  <rect x="46" y="44" width="8" height="5" rx="2" fill="#333" opacity="0.6"/>
+  <path d="M47 49 L46 52 L49 49 Z" fill="#333" opacity="0.6"/>
+</svg>

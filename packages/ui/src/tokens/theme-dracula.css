@@ -1,0 +1,105 @@
+/*
+ * Dracula Theme
+ *
+ * Based on the Dracula color specification (draculatheme.com).
+ * Purple-tinted dark bg, pink primary, green/cyan/orange accents.
+ */
+
+[data-theme='dracula'] {
+  /* ── Surface Colors ─────────────────────────────────── */
+  --color-base-100: #232530; /* inset surfaces — darker than cards */
+  --color-base-200: #343746; /* button face, panels */
+  --color-base-300: #414558; /* border, dividers */
+  --color-base-content: #f8f8f2; /* Dracula foreground */
+
+  /* ── Primary (Dracula Pink) ─────────────────────────── */
+  --color-primary: #ff79c6;
+  --color-primary-content: #160015;
+
+  /* ── Secondary (Dracula Purple) ─────────────────────── */
+  --color-secondary: #bd93f9;
+  --color-secondary-content: #0d0815;
+
+  /* ── Accent (Dracula Orange) ────────────────────────── */
+  --color-accent: #ffb86c;
+  --color-accent-content: #160c04;
+
+  /* ── Neutral ────────────────────────────────────────── */
+  --color-neutral: #6272a4; /* Dracula Comment */
+  --color-neutral-content: #f8f8f2;
+
+  /* ── Status Colors ──────────────────────────────────── */
+  --color-success: #50fa7b; /* Dracula Green */
+  --color-warning: #f1fa8c; /* Dracula Yellow */
+  --color-error: #ff5555; /* Dracula Red */
+  --color-success-content: #021505;
+  --color-warning-content: #141507;
+  --color-error-content: #ffffff;
+
+  /* ── Custom Status Tokens ───────────────────────────── */
+  --cm-status-idle: #6272a4;
+  --cm-status-offline: #44475a;
+
+  /* ── Borders & Shadows ──────────────────────────────── */
+  --cm-raised: 0 0 0 1px rgba(189, 147, 249, 0.1), 0 1px 3px rgba(0, 0, 0, 0.3);
+  --cm-sunken: 0 0 0 1px rgba(189, 147, 249, 0.15);
+  --cm-pressed: 0 0 0 1px rgba(189, 147, 249, 0.2);
+
+  /* ── Window Chrome ──────────────────────────────────── */
+  --cm-window-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+  --cm-window-header-shadow: 0 1px 0 rgba(189, 147, 249, 0.1);
+  --cm-titlebar: #282a36;
+  --cm-titlebar-inactive: #1f202a;
+
+  /* ── Border Colors ──────────────────────────────────── */
+  --cm-border-light: rgba(189, 147, 249, 0.12);
+  --cm-border-dark: #b0b4c8; /* muted text — readable on dark bg */
+
+  /* ── Surface & Chrome Colors ────────────────────────── */
+  --cm-surface: #1f202a; /* canvas — deepest layer */
+  --cm-surface-content: #282a36; /* card content — Dracula Background */
+  --cm-surface-button: #343746;
+  --cm-button-hover: #414558;
+  --cm-chrome-text: #f8f8f2;
+  --cm-chrome-text-muted: #b0b4c8;
+  --cm-chrome-hover: rgba(189, 147, 249, 0.1);
+  --cm-desktop: #1f202a;
+  --cm-primary-dark: #bd93f9;
+  --cm-overlay: rgba(15, 15, 25, 0.65);
+  --cm-focus: #bd93f9;
+
+  /* ── Selection ──────────────────────────────────────── */
+  --cm-selection: #44475a; /* Dracula Selection */
+
+  /* ── Drop Shadows ───────────────────────────────────── */
+  --cm-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+  --cm-shadow-md: 0 2px 8px rgba(0, 0, 0, 0.35);
+  --cm-shadow-lg: 0 4px 16px rgba(0, 0, 0, 0.45);
+
+  /* ── Font Sizes (bumped up for readability) ─────────── */
+  --cm-text-2xs: 0.625rem; /* 10px */
+  --cm-text-xs: 0.6875rem; /* 11px */
+  --cm-text-sm: 0.75rem; /* 12px */
+  --cm-text-base: 0.8125rem; /* 13px */
+  --cm-text-md: 0.875rem; /* 14px */
+  --cm-text-lg: 0.9375rem; /* 15px */
+  --cm-text-xl: 1.0625rem; /* 17px */
+  --cm-text-2xl: 1.5rem; /* 24px */
+
+  /* ── Border Radii ───────────────────────────────────── */
+  --cm-radius-sm: 6px;
+  --cm-radius-md: 8px;
+  --cm-radius-lg: 12px;
+  --cm-radius-pill: 999px;
+  --cm-radius-avatar: 50%;
+
+  /* ── Font Family (system sans-serif) ────────────────── */
+  --cm-font-family:
+    -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+
+  /* ── Scrollbar ──────────────────────────────────────── */
+  --cm-scrollbar-width: 6px;
+  --cm-scrollbar-track: transparent;
+  --cm-scrollbar-thumb: rgba(189, 147, 249, 0.18);
+  --cm-scrollbar-thumb-shadow: none;
+}

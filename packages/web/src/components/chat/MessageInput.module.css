@@ -10,7 +10,7 @@
   resize: none;
   padding: var(--cm-space-1.5) var(--cm-space-4);
   border: none;
-  border-radius: 0;
+  border-radius: var(--cm-radius-sm);
   font-family: inherit;
   font-size: var(--cm-text-lg);
   background: var(--cm-surface-content);
@@ -27,7 +27,7 @@
   background: var(--cm-surface-button);
   color: var(--color-base-content);
   border: none;
-  border-radius: 0;
+  border-radius: var(--cm-radius-sm);
   cursor: pointer;
   font-size: var(--cm-text-md);
   font-weight: 700;

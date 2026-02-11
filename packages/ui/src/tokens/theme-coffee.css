@@ -1,0 +1,105 @@
+/*
+ * Coffee Theme (dark)
+ *
+ * Rich, warm dark mode with amber/gold primary and plum undertones.
+ * Based on the daisyUI Coffee theme.
+ */
+
+[data-theme='coffee'] {
+  /* ── Surface Colors ─────────────────────────────────── */
+  --color-base-100: #1c131b; /* inset — darker than cards */
+  --color-base-200: #2a1f29; /* button face, panels */
+  --color-base-300: #382d37; /* border, dividers */
+  --color-base-content: #c59f60; /* warm gold text */
+
+  /* ── Primary (amber gold) ───────────────────────────── */
+  --color-primary: #db924b;
+  --color-primary-content: #110802;
+
+  /* ── Secondary (dark teal) ──────────────────────────── */
+  --color-secondary: #263e3f;
+  --color-secondary-content: #d0d5d5;
+
+  /* ── Accent (deep ocean) ────────────────────────────── */
+  --color-accent: #10576d;
+  --color-accent-content: #cfdce1;
+
+  /* ── Neutral ────────────────────────────────────────── */
+  --color-neutral: #120c12;
+  --color-neutral-content: #c9c7c9;
+
+  /* ── Status Colors ──────────────────────────────────── */
+  --color-success: #9db787;
+  --color-warning: #ffd25f;
+  --color-error: #fc9581;
+  --color-success-content: #090c06;
+  --color-warning-content: #161003;
+  --color-error-content: #160806;
+
+  /* ── Custom Status Tokens ───────────────────────────── */
+  --cm-status-idle: #7a6a58;
+  --cm-status-offline: #4a3a42;
+
+  /* ── Borders & Shadows ──────────────────────────────── */
+  --cm-raised: 0 0 0 1px rgba(197, 159, 96, 0.08), 0 1px 3px rgba(0, 0, 0, 0.35);
+  --cm-sunken: 0 0 0 1px rgba(197, 159, 96, 0.12);
+  --cm-pressed: 0 0 0 1px rgba(197, 159, 96, 0.16);
+
+  /* ── Window Chrome ──────────────────────────────────── */
+  --cm-window-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+  --cm-window-header-shadow: 0 1px 0 rgba(197, 159, 96, 0.08);
+  --cm-titlebar: #20161f;
+  --cm-titlebar-inactive: #1c131b;
+
+  /* ── Border Colors ──────────────────────────────────── */
+  --cm-border-light: rgba(197, 159, 96, 0.1);
+  --cm-border-dark: #a08a6a; /* warm muted gold — readable on dark bg */
+
+  /* ── Surface & Chrome Colors ────────────────────────── */
+  --cm-surface: #181017; /* canvas — deepest plum layer */
+  --cm-surface-content: #20161f; /* card content — Dracula Background */
+  --cm-surface-button: #2a1f29;
+  --cm-button-hover: #382d37;
+  --cm-chrome-text: #d4b896;
+  --cm-chrome-text-muted: #a08a6a;
+  --cm-chrome-hover: rgba(197, 159, 96, 0.08);
+  --cm-desktop: #181017;
+  --cm-primary-dark: #c47e38;
+  --cm-overlay: rgba(12, 8, 11, 0.65);
+  --cm-focus: #db924b;
+
+  /* ── Selection ──────────────────────────────────────── */
+  --cm-selection: #3a2a1e;
+
+  /* ── Drop Shadows ───────────────────────────────────── */
+  --cm-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.35);
+  --cm-shadow-md: 0 2px 8px rgba(0, 0, 0, 0.4);
+  --cm-shadow-lg: 0 4px 16px rgba(0, 0, 0, 0.5);
+
+  /* ── Font Sizes (bumped up for readability) ─────────── */
+  --cm-text-2xs: 0.625rem;
+  --cm-text-xs: 0.6875rem;
+  --cm-text-sm: 0.75rem;
+  --cm-text-base: 0.8125rem;
+  --cm-text-md: 0.875rem;
+  --cm-text-lg: 0.9375rem;
+  --cm-text-xl: 1.0625rem;
+  --cm-text-2xl: 1.5rem;
+
+  /* ── Border Radii ───────────────────────────────────── */
+  --cm-radius-sm: 6px;
+  --cm-radius-md: 8px;
+  --cm-radius-lg: 12px;
+  --cm-radius-pill: 999px;
+  --cm-radius-avatar: 50%;
+
+  /* ── Font Family (system sans-serif) ────────────────── */
+  --cm-font-family:
+    -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+
+  /* ── Scrollbar ──────────────────────────────────────── */
+  --cm-scrollbar-width: 6px;
+  --cm-scrollbar-track: transparent;
+  --cm-scrollbar-thumb: rgba(197, 159, 96, 0.18);
+  --cm-scrollbar-thumb-shadow: none;
+}

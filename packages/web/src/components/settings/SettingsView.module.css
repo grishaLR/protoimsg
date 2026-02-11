@@ -37,6 +37,8 @@
   margin-bottom: var(--cm-space-8);
   box-shadow: var(--cm-raised);
   background: var(--cm-surface-content);
+  border-radius: var(--cm-radius-md);
+  overflow: hidden;
 }
 
 .sectionTitle {
@@ -119,7 +121,7 @@
 .avatarPreview {
   width: var(--cm-avatar-lg);
   height: var(--cm-avatar-lg);
-  border-radius: var(--cm-radius-sm);
+  border-radius: var(--cm-radius-avatar);
   object-fit: cover;
   box-shadow: var(--cm-sunken);
 }
@@ -178,6 +180,18 @@
 .saveButton:disabled {
   opacity: 0.5;
   cursor: default;
+}
+
+.themeSelect {
+  padding: var(--cm-space-1.5) var(--cm-space-4);
+  background: var(--color-base-100);
+  color: var(--color-base-content);
+  border: none;
+  border-radius: var(--cm-radius-sm);
+  font-size: var(--cm-text-md);
+  font-family: inherit;
+  cursor: pointer;
+  box-shadow: var(--cm-sunken);
 }
 
 .signOutButton {

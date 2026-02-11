@@ -10,7 +10,7 @@
   flex: 1;
   resize: none;
   border: none;
-  border-radius: 0;
+  border-radius: var(--cm-radius-sm);
   padding: var(--cm-space-1.5) var(--cm-space-4);
   font-size: var(--cm-text-md);
   font-family: inherit;
@@ -32,7 +32,7 @@
   background: var(--cm-surface-button);
   color: var(--color-base-content);
   border: none;
-  border-radius: 0;
+  border-radius: var(--cm-radius-sm);
   font-size: var(--cm-text-sm);
   font-weight: 700;
   cursor: pointer;
