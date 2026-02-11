@@ -7,7 +7,12 @@ export type Theme =
   | 'dracula'
   | 'valentine'
   | 'garden'
-  | 'coffee';
+  | 'coffee'
+  | 'fantasy'
+  | 'nord'
+  | 'retro'
+  | 'black'
+  | 'wireframe';
 
 export const THEME_OPTIONS: { id: Theme; label: string }[] = [
   { id: 'aim', label: 'AIM Classic' },
@@ -17,6 +22,11 @@ export const THEME_OPTIONS: { id: Theme; label: string }[] = [
   { id: 'valentine', label: 'Valentine' },
   { id: 'garden', label: 'Garden' },
   { id: 'coffee', label: 'Coffee' },
+  { id: 'fantasy', label: 'Fantasy' },
+  { id: 'nord', label: 'Nord' },
+  { id: 'retro', label: 'Retro' },
+  { id: 'black', label: 'Black' },
+  { id: 'wireframe', label: 'Wireframe' },
 ];
 
 const VALID_THEMES = new Set<string>(THEME_OPTIONS.map((t) => t.id));
