@@ -1,0 +1,107 @@
+/*
+ * Retro Theme (light)
+ *
+ * Warm parchment/cream palette with salmon pink primary,
+ * mint green secondary, golden brown accent. Very tight radii
+ * give a vintage newspaper/print feel.
+ * Based on the daisyUI Retro theme.
+ */
+
+[data-theme='retro'] {
+  /* ── Surface Colors ─────────────────────────────────── */
+  --color-base-100: #ece3cd; /* warm cream / parchment */
+  --color-base-200: #e0d4b4; /* deeper cream */
+  --color-base-300: #d0c098; /* warm tan */
+  --color-base-content: #7a4822; /* dark warm brown */
+
+  /* ── Primary (soft salmon pink) ────────────────────── */
+  --color-primary: #eca8a0;
+  --color-primary-content: #7d2818;
+
+  /* ── Secondary (pastel mint green) ─────────────────── */
+  --color-secondary: #c0ecc8;
+  --color-secondary-content: #286540;
+
+  /* ── Accent (golden amber) ─────────────────────────── */
+  --color-accent: #b58424;
+  --color-accent-content: #7a4822;
+
+  /* ── Neutral (warm gray-brown) ─────────────────────── */
+  --color-neutral: #696460;
+  --color-neutral-content: #d4cec6;
+
+  /* ── Status Colors ──────────────────────────────────── */
+  --color-success: #2a7068;
+  --color-warning: #d45020;
+  --color-error: #e85540;
+  --color-success-content: #f0e4c8;
+  --color-warning-content: #f0e4c8;
+  --color-error-content: #7a3020;
+
+  /* ── Custom Status Tokens ───────────────────────────── */
+  --cm-status-idle: #b8aa90;
+  --cm-status-offline: #c8bca4;
+
+  /* ── Borders & Shadows ──────────────────────────────── */
+  --cm-raised: 0 0 0 1px rgba(122, 72, 34, 0.1), 0 1px 2px rgba(122, 72, 34, 0.06);
+  --cm-sunken: 0 0 0 1px rgba(122, 72, 34, 0.12);
+  --cm-pressed: 0 0 0 1px rgba(122, 72, 34, 0.18);
+
+  /* ── Window Chrome ──────────────────────────────────── */
+  --cm-window-shadow: 0 4px 16px rgba(122, 72, 34, 0.12);
+  --cm-window-header-shadow: 0 1px 0 rgba(122, 72, 34, 0.08);
+  --cm-titlebar: #e0d4b4;
+  --cm-titlebar-inactive: #d0c098;
+
+  /* ── Border Colors ──────────────────────────────────── */
+  --cm-border-light: rgba(122, 72, 34, 0.1);
+  --cm-border-dark: #8a7460;
+
+  /* ── Surface & Chrome Colors ────────────────────────── */
+  --cm-surface: #ece3cd;
+  --cm-surface-content: #f5efe0;
+  --cm-surface-button: #e0d4b4;
+  --cm-button-hover: #d4c8a8;
+  --cm-chrome-text: #7a4822;
+  --cm-chrome-text-muted: #8a7460;
+  --cm-chrome-hover: rgba(122, 72, 34, 0.05);
+  --cm-desktop: #ece3cd;
+  --cm-primary-dark: #c88880;
+  --cm-overlay: rgba(122, 72, 34, 0.4);
+  --cm-focus: #b58424;
+
+  /* ── Selection ──────────────────────────────────────── */
+  --cm-selection: #e8cca0;
+
+  /* ── Drop Shadows ───────────────────────────────────── */
+  --cm-shadow-sm: 0 1px 2px rgba(122, 72, 34, 0.06);
+  --cm-shadow-md: 0 2px 8px rgba(122, 72, 34, 0.08);
+  --cm-shadow-lg: 0 4px 16px rgba(122, 72, 34, 0.12);
+
+  /* ── Font Sizes (bumped up for readability) ─────────── */
+  --cm-text-2xs: 0.625rem;
+  --cm-text-xs: 0.6875rem;
+  --cm-text-sm: 0.75rem;
+  --cm-text-base: 0.8125rem;
+  --cm-text-md: 0.875rem;
+  --cm-text-lg: 0.9375rem;
+  --cm-text-xl: 1.0625rem;
+  --cm-text-2xl: 1.5rem;
+
+  /* ── Border Radii (tight — vintage print feel) ─────── */
+  --cm-radius-sm: 4px;
+  --cm-radius-md: 6px;
+  --cm-radius-lg: 8px;
+  --cm-radius-pill: 999px;
+  --cm-radius-avatar: 50%;
+
+  /* ── Font Family (system sans-serif) ───────────────── */
+  --cm-font-family:
+    -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+
+  /* ── Scrollbar ──────────────────────────────────────── */
+  --cm-scrollbar-width: 6px;
+  --cm-scrollbar-track: transparent;
+  --cm-scrollbar-thumb: rgba(122, 72, 34, 0.15);
+  --cm-scrollbar-thumb-shadow: none;
+}

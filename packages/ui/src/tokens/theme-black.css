@@ -1,0 +1,107 @@
+/*
+ * Black Theme (dark)
+ *
+ * Ultra-minimal monochrome dark theme with pure black background,
+ * zero border radii, and uniform gray accents. Vivid status colors
+ * provide the only pops of color.
+ * Based on the daisyUI Black theme.
+ */
+
+[data-theme='black'] {
+  /* ── Surface Colors ─────────────────────────────────── */
+  --color-base-100: #000000; /* pure black */
+  --color-base-200: #171717; /* very dark gray */
+  --color-base-300: #2a2a2a; /* dark gray */
+  --color-base-content: #d4d4d4; /* light gray text */
+
+  /* ── Primary (neutral gray) ──────────────────────────── */
+  --color-primary: #4a4a4a;
+  --color-primary-content: #ffffff;
+
+  /* ── Secondary (neutral gray) ────────────────────────── */
+  --color-secondary: #4a4a4a;
+  --color-secondary-content: #ffffff;
+
+  /* ── Accent (neutral gray) ───────────────────────────── */
+  --color-accent: #4a4a4a;
+  --color-accent-content: #ffffff;
+
+  /* ── Neutral ─────────────────────────────────────────── */
+  --color-neutral: #4a4a4a;
+  --color-neutral-content: #ffffff;
+
+  /* ── Status Colors ───────────────────────────────────── */
+  --color-success: #22c55e;
+  --color-warning: #eab308;
+  --color-error: #ef4444;
+  --color-success-content: #000000;
+  --color-warning-content: #000000;
+  --color-error-content: #000000;
+
+  /* ── Custom Status Tokens ────────────────────────────── */
+  --cm-status-idle: #525252;
+  --cm-status-offline: #333333;
+
+  /* ── Borders & Shadows ───────────────────────────────── */
+  --cm-raised: 0 0 0 1px rgba(255, 255, 255, 0.08), 0 1px 3px rgba(0, 0, 0, 0.5);
+  --cm-sunken: 0 0 0 1px rgba(255, 255, 255, 0.1);
+  --cm-pressed: 0 0 0 1px rgba(255, 255, 255, 0.14);
+
+  /* ── Window Chrome ───────────────────────────────────── */
+  --cm-window-shadow: 0 4px 20px rgba(0, 0, 0, 0.7);
+  --cm-window-header-shadow: 0 1px 0 rgba(255, 255, 255, 0.06);
+  --cm-titlebar: #0a0a0a;
+  --cm-titlebar-inactive: #050505;
+
+  /* ── Border Colors ───────────────────────────────────── */
+  --cm-border-light: rgba(255, 255, 255, 0.08);
+  --cm-border-dark: #737373;
+
+  /* ── Surface & Chrome Colors ─────────────────────────── */
+  --cm-surface: #000000;
+  --cm-surface-content: #0a0a0a;
+  --cm-surface-button: #1a1a1a;
+  --cm-button-hover: #2a2a2a;
+  --cm-chrome-text: #d4d4d4;
+  --cm-chrome-text-muted: #737373;
+  --cm-chrome-hover: rgba(255, 255, 255, 0.06);
+  --cm-desktop: #000000;
+  --cm-primary-dark: #3a3a3a;
+  --cm-overlay: rgba(0, 0, 0, 0.75);
+  --cm-focus: #525252;
+
+  /* ── Selection ───────────────────────────────────────── */
+  --cm-selection: #2a2a2a;
+
+  /* ── Drop Shadows ────────────────────────────────────── */
+  --cm-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.5);
+  --cm-shadow-md: 0 2px 8px rgba(0, 0, 0, 0.6);
+  --cm-shadow-lg: 0 4px 16px rgba(0, 0, 0, 0.7);
+
+  /* ── Font Sizes ──────────────────────────────────────── */
+  --cm-text-2xs: 0.625rem;
+  --cm-text-xs: 0.6875rem;
+  --cm-text-sm: 0.75rem;
+  --cm-text-base: 0.8125rem;
+  --cm-text-md: 0.875rem;
+  --cm-text-lg: 0.9375rem;
+  --cm-text-xl: 1.0625rem;
+  --cm-text-2xl: 1.5rem;
+
+  /* ── Border Radii (all zero — sharp corners) ─────────── */
+  --cm-radius-sm: 0px;
+  --cm-radius-md: 0px;
+  --cm-radius-lg: 0px;
+  --cm-radius-pill: 0px;
+  --cm-radius-avatar: 50%;
+
+  /* ── Font Family (system sans-serif) ─────────────────── */
+  --cm-font-family:
+    -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+
+  /* ── Scrollbar ───────────────────────────────────────── */
+  --cm-scrollbar-width: 6px;
+  --cm-scrollbar-track: transparent;
+  --cm-scrollbar-thumb: rgba(255, 255, 255, 0.12);
+  --cm-scrollbar-thumb-shadow: none;
+}

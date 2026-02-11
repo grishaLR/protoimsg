@@ -25,8 +25,8 @@
   --color-accent-content: #160c04;
 
   /* ── Neutral ────────────────────────────────────────── */
-  --color-neutral: #6272a4; /* Dracula Comment */
-  --color-neutral-content: #f8f8f2;
+  --color-neutral: #555168; /* dark purple-gray (daisyUI) */
+  --color-neutral-content: #d8d6de;
 
   /* ── Status Colors ──────────────────────────────────── */
   --color-success: #50fa7b; /* Dracula Green */
@@ -34,7 +34,7 @@
   --color-error: #ff5555; /* Dracula Red */
   --color-success-content: #021505;
   --color-warning-content: #141507;
-  --color-error-content: #ffffff;
+  --color-error-content: #1f0a0a;
 
   /* ── Custom Status Tokens ───────────────────────────── */
   --cm-status-idle: #6272a4;
@@ -86,10 +86,10 @@
   --cm-text-xl: 1.0625rem; /* 17px */
   --cm-text-2xl: 1.5rem; /* 24px */
 
-  /* ── Border Radii ───────────────────────────────────── */
-  --cm-radius-sm: 6px;
-  --cm-radius-md: 8px;
-  --cm-radius-lg: 12px;
+  /* ── Border Radii (modern — field: 0.5rem, box: 1rem) ── */
+  --cm-radius-sm: 8px;
+  --cm-radius-md: 12px;
+  --cm-radius-lg: 16px;
   --cm-radius-pill: 999px;
   --cm-radius-avatar: 50%;
 

@@ -1,80 +1,81 @@
 /*
  * Valentine Theme (light)
  *
- * Soft pinks and purples. Warm, playful palette
- * based on the daisyUI Valentine theme.
+ * Vivid pinks, purples, and sky blue. Playful palette with
+ * super-round pill buttons (radius-field: 2rem in daisyUI).
+ * Based on the daisyUI Valentine theme.
  */
 
 [data-theme='valentine'] {
   /* ── Surface Colors ─────────────────────────────────── */
-  --color-base-100: #fae7f4; /* soft pink canvas */
-  --color-base-200: #e3d2de;
-  --color-base-300: #cdbdc8;
-  --color-base-content: #632c3b; /* deep rose text */
+  --color-base-100: #fae9f3; /* lightest pink canvas */
+  --color-base-200: #efd2e4; /* light pink panels */
+  --color-base-300: #ddadcc; /* medium pink borders */
+  --color-base-content: #c41654; /* vivid deep rose text */
 
-  /* ── Primary (coral pink) ───────────────────────────── */
-  --color-primary: #e96d7b;
+  /* ── Primary (hot pink / magenta) ──────────────────── */
+  --color-primary: #e52b76;
   --color-primary-content: #ffffff;
 
-  /* ── Secondary (lavender) ───────────────────────────── */
-  --color-secondary: #a991f7;
-  --color-secondary-content: #0a0715;
+  /* ── Secondary (vivid purple) ──────────────────────── */
+  --color-secondary: #9545d4;
+  --color-secondary-content: #f5e8f7;
 
-  /* ── Accent (teal) ──────────────────────────────────── */
-  --color-accent: #66b1b3;
-  --color-accent-content: #040c0c;
+  /* ── Accent (sky blue) ─────────────────────────────── */
+  --color-accent: #7cc4dd;
+  --color-accent-content: #2d5f78;
 
-  /* ── Neutral ────────────────────────────────────────── */
-  --color-neutral: #af4670;
-  --color-neutral-content: #f0d6e8;
+  /* ── Neutral (wine / maroon) ───────────────────────── */
+  --color-neutral: #7a1d40;
+  --color-neutral-content: #ddadcc;
 
   /* ── Status Colors ──────────────────────────────────── */
-  --color-success: #16a34a;
-  --color-warning: #d97706;
-  --color-error: #ff675b;
-  --color-success-content: #ffffff;
-  --color-warning-content: #ffffff;
-  --color-error-content: #ffffff;
+  --color-success: #5ec8a0;
+  --color-warning: #d09030;
+  --color-error: #e03545;
+  --color-success-content: #1e4a38;
+  --color-warning-content: #3d2a10;
+  --color-error-content: #fae9f3;
 
   /* ── Custom Status Tokens ───────────────────────────── */
-  --cm-status-idle: #c4a0b4;
-  --cm-status-offline: #c0b0b8;
+  --cm-status-idle: #c4a0b8;
+  --cm-status-offline: #d0b8c6;
 
   /* ── Borders & Shadows ──────────────────────────────── */
-  --cm-raised: 0 0 0 1px rgba(175, 70, 112, 0.12), 0 1px 2px rgba(175, 70, 112, 0.06);
-  --cm-sunken: 0 0 0 1px rgba(175, 70, 112, 0.15);
-  --cm-pressed: 0 0 0 1px rgba(175, 70, 112, 0.2);
+  --cm-raised: 0 0 0 1px rgba(122, 29, 64, 0.1), 0 1px 2px rgba(122, 29, 64, 0.05);
+  --cm-sunken: 0 0 0 1px rgba(122, 29, 64, 0.12);
+  --cm-pressed: 0 0 0 1px rgba(122, 29, 64, 0.18);
 
   /* ── Window Chrome ──────────────────────────────────── */
-  --cm-window-shadow: 0 4px 16px rgba(99, 44, 59, 0.12);
-  --cm-window-header-shadow: 0 1px 0 rgba(175, 70, 112, 0.1);
-  --cm-titlebar: #f0d6e8;
-  --cm-titlebar-inactive: #e3d2de;
+  --cm-window-shadow: 0 4px 16px rgba(122, 29, 64, 0.12);
+  --cm-window-header-shadow: 0 1px 0 rgba(122, 29, 64, 0.08);
+  --cm-titlebar: #efd2e4;
+  --cm-titlebar-inactive: #ddadcc;
 
   /* ── Border Colors ──────────────────────────────────── */
-  --cm-border-light: rgba(175, 70, 112, 0.1);
-  --cm-border-dark: #8c5a6a;
+  --cm-border-light: rgba(122, 29, 64, 0.08);
+  --cm-border-dark: #a85578;
 
   /* ── Surface & Chrome Colors ────────────────────────── */
-  --cm-surface: #fae7f4;
+  --cm-surface: #fae9f3;
   --cm-surface-content: #ffffff;
-  --cm-surface-button: #f0d6e8;
-  --cm-button-hover: #e3d2de;
-  --cm-chrome-text: #632c3b;
-  --cm-chrome-text-muted: #8c5a6a;
-  --cm-chrome-hover: rgba(175, 70, 112, 0.06);
-  --cm-desktop: #fae7f4;
-  --cm-primary-dark: #d4505f;
-  --cm-overlay: rgba(99, 44, 59, 0.4);
-  --cm-focus: #e96d7b;
+  --cm-surface-button: #efd2e4;
+  --cm-button-hover: #ddadcc;
+  --cm-chrome-text: #c41654;
+  --cm-chrome-text-muted: #a85578;
+  --cm-chrome-hover: rgba(122, 29, 64, 0.05);
+  --cm-desktop: #fae9f3;
+  --cm-primary-dark: #c41654;
+  --cm-overlay: rgba(122, 29, 64, 0.4);
+  --cm-focus: #e52b76;
 
   /* ── Selection ──────────────────────────────────────── */
-  --cm-selection: #f5c6d0;
+  --cm-selection: #f0c0d8;
 
   /* ── Drop Shadows ───────────────────────────────────── */
-  --cm-shadow-sm: 0 1px 2px rgba(99, 44, 59, 0.06);
-  --cm-shadow-md: 0 2px 8px rgba(99, 44, 59, 0.08);
-  --cm-shadow-lg: 0 4px 16px rgba(99, 44, 59, 0.12);
+  --cm-shadow-sm: 0 1px 2px rgba(122, 29, 64, 0.05);
+  --cm-shadow-md: 0 2px 8px rgba(122, 29, 64, 0.07);
+  --cm-shadow-lg: 0 4px 16px rgba(122, 29, 64, 0.12);
 
   /* ── Font Sizes (bumped up for readability) ─────────── */
   --cm-text-2xs: 0.625rem;
@@ -86,20 +87,20 @@
   --cm-text-xl: 1.0625rem;
   --cm-text-2xl: 1.5rem;
 
-  /* ── Border Radii ───────────────────────────────────── */
-  --cm-radius-sm: 6px;
-  --cm-radius-md: 8px;
-  --cm-radius-lg: 12px;
+  /* ── Border Radii (bubbly / pill — daisyUI field: 2rem) ── */
+  --cm-radius-sm: 12px;
+  --cm-radius-md: 16px;
+  --cm-radius-lg: 32px;
   --cm-radius-pill: 999px;
   --cm-radius-avatar: 50%;
 
-  /* ── Font Family (system sans-serif) ────────────────── */
+  /* ── Font Family (system sans-serif) ───────────────── */
   --cm-font-family:
     -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
 
   /* ── Scrollbar ──────────────────────────────────────── */
   --cm-scrollbar-width: 6px;
   --cm-scrollbar-track: transparent;
-  --cm-scrollbar-thumb: rgba(175, 70, 112, 0.15);
+  --cm-scrollbar-thumb: rgba(122, 29, 64, 0.15);
   --cm-scrollbar-thumb-shadow: none;
 }
