@@ -55,9 +55,34 @@ jobs:
           DATABASE_URL: postgres://protoimsg:localdev@localhost:5432/protoimsg
           NODE_ENV: test
 
-  deploy-server:
+  changes:
     needs: ci
     if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    outputs:
+      server: ${{ steps.filter.outputs.server }}
+      web: ${{ steps.filter.outputs.web }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            server:
+              - 'packages/server/**'
+              - 'packages/shared/**'
+              - 'packages/lexicon/**'
+              - 'fly.toml'
+              - 'fly.staging.toml'
+            web:
+              - 'packages/web/**'
+              - 'packages/ui/**'
+              - 'packages/shared/**'
+              - 'packages/lexicon/**'
+
+  deploy-server:
+    needs: changes
+    if: needs.changes.outputs.server == 'true'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -75,8 +100,8 @@ jobs:
           FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
 
   deploy-web:
-    needs: ci
-    if: github.event_name == 'push'
+    needs: changes
+    if: needs.changes.outputs.web == 'true'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
