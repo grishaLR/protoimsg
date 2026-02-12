@@ -49,6 +49,35 @@ export class SessionStore {
     this.sessions.delete(token);
   }
 
+  /** Check if any active session exists for a DID. */
+  hasDid(did: string): boolean {
+    for (const session of this.sessions.values()) {
+      if (session.did === did) return true;
+    }
+    return false;
+  }
+
+  /** Update handle for all sessions belonging to a DID (e.g. after identity event). */
+  updateHandle(did: string, newHandle: string): void {
+    for (const session of this.sessions.values()) {
+      if (session.did === did) {
+        session.handle = newHandle;
+      }
+    }
+  }
+
+  /** Revoke all sessions for a DID. Returns true if any were revoked. */
+  revokeByDid(did: string): boolean {
+    let revoked = false;
+    for (const [token, session] of this.sessions) {
+      if (session.did === did) {
+        this.sessions.delete(token);
+        revoked = true;
+      }
+    }
+    return revoked;
+  }
+
   prune(): number {
     const now = Date.now();
     let pruned = 0;

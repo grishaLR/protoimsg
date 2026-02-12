@@ -4,8 +4,10 @@ import type { Sql, JsonValue } from '../db/client.js';
 import { getCursor, saveCursor } from './cursor.js';
 import { createHandlers, type FirehoseEvent } from './handlers.js';
 import type { WsServer } from '../ws/server.js';
+import type { PresenceService } from '../presence/service.js';
+import type { SessionStore } from '../auth/session.js';
 
-/** Jetstream event structure */
+/** Jetstream event structures */
 interface JetstreamCommitEvent {
   did: string;
   time_us: number;
@@ -24,12 +26,25 @@ interface JetstreamIdentityEvent {
   did: string;
   time_us: number;
   kind: 'identity';
+  identity: {
+    did: string;
+    handle?: string;
+    seq: number;
+    time: string;
+  };
 }
 
 interface JetstreamAccountEvent {
   did: string;
   time_us: number;
   kind: 'account';
+  account: {
+    active: boolean;
+    did: string;
+    seq: number;
+    time: string;
+    status?: string;
+  };
 }
 
 type JetstreamEvent = JetstreamCommitEvent | JetstreamIdentityEvent | JetstreamAccountEvent;
@@ -46,6 +61,8 @@ export function createFirehoseConsumer(
   jetstreamUrl: string,
   db: Sql,
   wss: WsServer,
+  presenceService: PresenceService,
+  sessions: SessionStore,
 ): FirehoseConsumer {
   const handlers = createHandlers(db, wss);
   let ws: WebSocket | null = null;
@@ -72,7 +89,31 @@ export function createFirehoseConsumer(
         const event = JSON.parse(raw.toString('utf-8')) as JetstreamEvent;
         lastCursor = event.time_us;
 
-        if (event.kind !== 'commit') return;
+        if (event.kind === 'identity') {
+          const newHandle = event.identity.handle;
+          if (newHandle && newHandle !== 'handle.invalid') {
+            // Only act + log for DIDs with active sessions in our app
+            if (sessions.hasDid(event.did)) {
+              sessions.updateHandle(event.did, newHandle);
+              console.info(`Identity update: ${event.did} → ${newHandle}`);
+            }
+          }
+          return;
+        }
+
+        if (event.kind === 'account') {
+          if (!event.account.active) {
+            // Only act + log for DIDs with active sessions or presence
+            const hadSession = sessions.revokeByDid(event.did);
+            presenceService.handleUserDisconnect(event.did);
+            if (hadSession) {
+              console.info(
+                `Account ${event.account.status ?? 'deactivated'}: ${event.did} — sessions revoked`,
+              );
+            }
+          }
+          return;
+        }
 
         const { commit } = event;
         const handler = handlers[commit.collection];
