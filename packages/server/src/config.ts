@@ -9,7 +9,7 @@ const envSchema = z.object({
   PUBLIC_API_URL: z.string().url().default('https://public.api.bsky.app'),
   OAUTH_CLIENT_ID: z.string().optional(),
   OAUTH_REDIRECT_URI: z.string().url().optional(),
-  REDIS_URL: z.string().url().optional(),
+  REDIS_URL: z.string().startsWith('redis://').optional(),
   CORS_ORIGIN: z.string().default('http://localhost:5173'),
   DB_POOL_MAX: z.coerce.number().int().min(1).default(20),
   DB_IDLE_TIMEOUT: z.coerce.number().int().min(0).default(20),
