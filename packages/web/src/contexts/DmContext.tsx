@@ -66,9 +66,18 @@ export function DmProvider({ children }: { children: ReactNode }) {
   const typingTimers = useRef<Map<string, ReturnType<typeof setTimeout>>>(new Map());
   const lastTypingSent = useRef<Map<string, number>>(new Map());
   const pendingTimers = useRef<Map<string, ReturnType<typeof setTimeout>>>(new Map());
+
+  // M24: pendingMinimized — ref to track "open minimized" intent across async boundary.
+  // When openDmMinimized(recipientDid) is called before the server responds, we can't
+  // add the conversation to state yet. We store recipientDid here; when dm_opened
+  // arrives, we read it and set minimized: true on the new conversation.
   const pendingMinimized = useRef<Set<string>>(new Set());
 
-  // Ref for reading current conversations without adding to deps (fixes H1 stale closure)
+  // M24: conversationsRef — ref mirror of conversations state. Callbacks like openDm,
+  // openDmMinimized, and the dm_incoming handler need the latest conversations
+  // without being recreated when conversations changes (which would cause stale
+  // closures in subscriptions). We read conversationsRef.current inside callbacks
+  // instead of closing over conversations.
   const conversationsRef = useRef(conversations);
   conversationsRef.current = conversations;
 

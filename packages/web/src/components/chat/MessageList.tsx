@@ -1,4 +1,4 @@
-import { useEffect, useRef, useCallback } from 'react';
+import { useEffect, useRef, useCallback, useMemo } from 'react';
 import { useVirtualList } from 'virtualized-ui';
 import { MessageItem } from './MessageItem';
 import { UserIdentity } from './UserIdentity';
@@ -9,12 +9,25 @@ interface MessageListProps {
   messages: MessageView[];
   loading: boolean;
   typingUsers?: string[];
+  /** Reply counts keyed by root message URI */
+  replyCounts?: Record<string, number>;
+  /** Called when user clicks Reply or reply count — opens thread sidebar */
+  onOpenThread?: (rootUri: string) => void;
 }
 
 const SCROLL_THRESHOLD = 80;
 
-export function MessageList({ messages, loading, typingUsers = [] }: MessageListProps) {
+export function MessageList({
+  messages,
+  loading,
+  typingUsers = [],
+  replyCounts,
+  onOpenThread,
+}: MessageListProps) {
   const isNearBottomRef = useRef(true);
+
+  // Main timeline only shows root messages (not replies)
+  const rootMessages = useMemo(() => messages.filter((m) => !m.reply_root), [messages]);
 
   const {
     virtualItems,
@@ -25,7 +38,7 @@ export function MessageList({ messages, loading, typingUsers = [] }: MessageList
     scrollToIndex,
     data,
   } = useVirtualList({
-    data: messages,
+    data: rootMessages,
     getItemId: (msg) => msg.id,
     estimatedItemHeight: 40,
   });
@@ -37,15 +50,15 @@ export function MessageList({ messages, loading, typingUsers = [] }: MessageList
   }, [handleScroll, containerRef]);
 
   useEffect(() => {
-    if (isNearBottomRef.current && messages.length > 0) {
-      scrollToIndex(messages.length - 1);
+    if (isNearBottomRef.current && rootMessages.length > 0) {
+      scrollToIndex(rootMessages.length - 1);
     }
-  }, [messages.length, scrollToIndex]);
+  }, [rootMessages.length, scrollToIndex]);
 
   return (
     <div className={styles.container} ref={containerRef} onScroll={onScroll}>
       {loading && <p className={styles.loading}>Loading messages...</p>}
-      {!loading && messages.length === 0 && (
+      {!loading && rootMessages.length === 0 && (
         <p className={styles.empty}>No messages yet. Start the conversation!</p>
       )}
       <div className={styles.spacer} style={{ height: totalSize }}>
@@ -57,7 +70,11 @@ export function MessageList({ messages, loading, typingUsers = [] }: MessageList
             className={styles.virtualItem}
             style={{ transform: `translateY(${vi.start}px)` }}
           >
-            <MessageItem message={data[vi.index] as MessageView} />
+            <MessageItem
+              message={data[vi.index] as MessageView}
+              replyCount={replyCounts?.[(data[vi.index] as MessageView).uri]}
+              onOpenThread={onOpenThread}
+            />
           </div>
         ))}
       </div>

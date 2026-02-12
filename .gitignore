@@ -8,6 +8,13 @@ dist/
 .env
 .env.local
 .env.*.local
+.env.production
+
+# Secrets / certificates
+*.pem
+*.key
+*.crt
+*.p12
 
 # IDE
 .vscode/
@@ -15,6 +22,10 @@ dist/
 *.swp
 *.swo
 *~
+.project
+.classpath
+*.sublime-project
+*.sublime-workspace
 
 # OS
 .DS_Store

@@ -21,7 +21,12 @@ import {
   roleRecordSchema,
   communityRecordSchema,
   allowlistRecordSchema,
+  presenceRecordSchema,
 } from './record-schemas.js';
+import type { PresenceService } from '../presence/service.js';
+import { createLogger } from '../logger.js';
+
+const log = createLogger('firehose');
 
 export interface FirehoseEvent {
   did: string;
@@ -46,20 +51,20 @@ function isSlowModeViolation(roomId: string, did: string, slowModeSeconds: numbe
   return false;
 }
 
-export function createHandlers(db: Sql, wss: WsServer) {
+export function createHandlers(db: Sql, wss: WsServer, presenceService: PresenceService) {
   const handlers: Record<string, (event: FirehoseEvent) => Promise<void>> = {
     [NSID.Room]: async (event) => {
       if (event.operation === 'delete') {
         await deleteRoom(db, event.uri);
-        console.info(`Room deleted: ${event.rkey}`);
+        log.info({ rkey: event.rkey }, 'Room deleted');
         return;
       }
 
       const parsed = roomRecordSchema.safeParse(event.record);
       if (!parsed.success) {
-        console.warn(
-          `Invalid room record from ${event.did} (${event.rkey}):`,
-          parsed.error.message,
+        log.warn(
+          { did: event.did, rkey: event.rkey, error: parsed.error.message },
+          'Invalid room record',
         );
         return;
       }
@@ -79,21 +84,21 @@ export function createHandlers(db: Sql, wss: WsServer) {
         allowlistEnabled: record.settings?.allowlistEnabled ?? false,
         createdAt: record.createdAt,
       });
-      console.info(`Indexed room: ${record.name} (${event.rkey})`);
+      log.info({ rkey: event.rkey, name: record.name }, 'Room indexed');
     },
 
     [NSID.Message]: async (event) => {
       if (event.operation === 'delete') {
         await deleteMessage(db, event.uri);
-        console.info(`Message deleted: ${event.rkey}`);
+        log.info({ rkey: event.rkey }, 'Message deleted');
         return;
       }
 
       const parsed = messageRecordSchema.safeParse(event.record);
       if (!parsed.success) {
-        console.warn(
-          `Invalid message record from ${event.did} (${event.rkey}):`,
-          parsed.error.message,
+        log.warn(
+          { did: event.did, rkey: event.rkey, error: parsed.error.message },
+          'Invalid message record',
         );
         return;
       }
@@ -103,12 +108,9 @@ export function createHandlers(db: Sql, wss: WsServer) {
       // Content filter — skip indexing if blocked
       const filterResult = checkMessageContent(record.text);
       if (!filterResult.passed) {
-        console.info(`Message filtered from ${event.did}: ${filterResult.reason ?? 'blocked'}`);
+        log.info({ did: event.did, reason: filterResult.reason ?? 'blocked' }, 'Message filtered');
         return;
       }
-
-      // Ban check — skip broadcast if banned (still index, record exists on atproto)
-      const banned = await isUserBanned(db, roomId, event.did);
 
       // Slow mode — skip broadcast if posting too fast (still index)
       const room = await getRoomById(db, roomId);
@@ -129,6 +131,11 @@ export function createHandlers(db: Sql, wss: WsServer) {
         embed: record.embed,
         createdAt: record.createdAt,
       });
+
+      // Ban check AFTER insert — if a ban and message arrive in the same
+      // Jetstream batch, the ban handler may still be mid-index when the
+      // pre-insert check runs. Re-checking here gives the ban time to land.
+      const banned = await isUserBanned(db, roomId, event.did);
 
       if (!banned && !slowModeViolation) {
         wss.broadcastToRoom(roomId, {
@@ -151,13 +158,16 @@ export function createHandlers(db: Sql, wss: WsServer) {
     [NSID.Ban]: async (event) => {
       if (event.operation === 'delete') {
         await deleteModActionByUri(db, event.uri);
-        console.info(`Ban deleted: ${event.rkey}`);
+        log.info({ rkey: event.rkey }, 'Ban deleted');
         return;
       }
 
       const parsed = banRecordSchema.safeParse(event.record);
       if (!parsed.success) {
-        console.warn(`Invalid ban record from ${event.did} (${event.rkey}):`, parsed.error.message);
+        log.warn(
+          { did: event.did, rkey: event.rkey, error: parsed.error.message },
+          'Invalid ban record',
+        );
         return;
       }
       const record = parsed.data;
@@ -166,11 +176,11 @@ export function createHandlers(db: Sql, wss: WsServer) {
       // Auth: only room creator or moderator can issue bans
       const room = await getRoomById(db, roomId);
       if (!room) {
-        console.warn(`Ban for unknown room ${roomId} from ${event.did}`);
+        log.warn({ roomId, did: event.did }, 'Ban for unknown room');
         return;
       }
       if (room.did !== event.did && !(await isUserModerator(db, roomId, event.did))) {
-        console.warn(`Unauthorized ban from ${event.did} in room ${roomId} — skipping`);
+        log.warn({ did: event.did, roomId }, 'Unauthorized ban — skipping');
         return;
       }
 
@@ -182,21 +192,21 @@ export function createHandlers(db: Sql, wss: WsServer) {
         action: 'ban',
         reason: record.reason,
       });
-      console.info(`Ban indexed: ${record.subject} from room ${roomId}`);
+      log.info({ subject: record.subject, roomId }, 'Ban indexed');
     },
 
     [NSID.Role]: async (event) => {
       if (event.operation === 'delete') {
         await deleteRoomRoleByUri(db, event.uri);
-        console.info(`Role deleted: ${event.rkey}`);
+        log.info({ rkey: event.rkey }, 'Role deleted');
         return;
       }
 
       const parsed = roleRecordSchema.safeParse(event.record);
       if (!parsed.success) {
-        console.warn(
-          `Invalid role record from ${event.did} (${event.rkey}):`,
-          parsed.error.message,
+        log.warn(
+          { did: event.did, rkey: event.rkey, error: parsed.error.message },
+          'Invalid role record',
         );
         return;
       }
@@ -206,11 +216,11 @@ export function createHandlers(db: Sql, wss: WsServer) {
       // Auth: only room creator can assign roles
       const room = await getRoomById(db, roomId);
       if (!room) {
-        console.warn(`Role for unknown room ${roomId} from ${event.did}`);
+        log.warn({ roomId, did: event.did }, 'Role for unknown room');
         return;
       }
       if (room.did !== event.did) {
-        console.warn(`Unauthorized role assignment from ${event.did} in room ${roomId} — skipping`);
+        log.warn({ did: event.did, roomId }, 'Unauthorized role assignment — skipping');
         return;
       }
 
@@ -223,20 +233,20 @@ export function createHandlers(db: Sql, wss: WsServer) {
         cid: event.cid,
         createdAt: record.createdAt,
       });
-      console.info(`Role indexed: ${record.subject} as ${record.role} in ${roomId}`);
+      log.info({ subject: record.subject, role: record.role, roomId }, 'Role indexed');
     },
 
     [NSID.Community]: async (event) => {
       if (event.operation === 'delete') {
         // Community record deleted — clear the member list for this DID
         await syncCommunityMembers(db, event.did, []);
-        console.info(`Community list cleared for ${event.did}`);
+        log.info({ did: event.did }, 'Community list cleared');
         return;
       }
 
       const parsed = communityRecordSchema.safeParse(event.record);
       if (!parsed.success) {
-        console.warn(`Invalid community record from ${event.did}:`, parsed.error.message);
+        log.warn({ did: event.did, error: parsed.error.message }, 'Invalid community record');
         return;
       }
       const record = parsed.data;
@@ -250,21 +260,21 @@ export function createHandlers(db: Sql, wss: WsServer) {
         }
       }
       await syncCommunityMembers(db, event.did, allMembers);
-      console.info(`Community list indexed for ${event.did}: ${allMembers.length} members`);
+      log.info({ did: event.did, memberCount: allMembers.length }, 'Community list indexed');
     },
 
     [NSID.Allowlist]: async (event) => {
       if (event.operation === 'delete') {
         await db`DELETE FROM room_allowlist WHERE uri = ${event.uri}`;
-        console.info(`Allowlist entry deleted: ${event.rkey}`);
+        log.info({ rkey: event.rkey }, 'Allowlist entry deleted');
         return;
       }
 
       const parsed = allowlistRecordSchema.safeParse(event.record);
       if (!parsed.success) {
-        console.warn(
-          `Invalid allowlist record from ${event.did} (${event.rkey}):`,
-          parsed.error.message,
+        log.warn(
+          { did: event.did, rkey: event.rkey, error: parsed.error.message },
+          'Invalid allowlist record',
         );
         return;
       }
@@ -274,11 +284,11 @@ export function createHandlers(db: Sql, wss: WsServer) {
       // Auth: only room creator or moderator can manage allowlist
       const room = await getRoomById(db, roomId);
       if (!room) {
-        console.warn(`Allowlist for unknown room ${roomId} from ${event.did}`);
+        log.warn({ roomId, did: event.did }, 'Allowlist for unknown room');
         return;
       }
       if (room.did !== event.did && !(await isUserModerator(db, roomId, event.did))) {
-        console.warn(`Unauthorized allowlist entry from ${event.did} in room ${roomId} — skipping`);
+        log.warn({ did: event.did, roomId }, 'Unauthorized allowlist entry — skipping');
         return;
       }
 
@@ -289,13 +299,48 @@ export function createHandlers(db: Sql, wss: WsServer) {
           cid = EXCLUDED.cid,
           indexed_at = NOW()
       `;
-      console.info(`Allowlist entry indexed: ${record.subject} in room ${roomId}`);
+      log.info({ subject: record.subject, roomId }, 'Allowlist entry indexed');
     },
 
-    [NSID.Presence]: (event) => {
-      // Log-only for MVP — in-memory tracker handles ephemeral presence state
-      console.info(`Presence record from ${event.did} (rkey: ${event.rkey})`);
-      return Promise.resolve();
+    [NSID.Presence]: async (event) => {
+      if (event.operation === 'delete') {
+        // Presence record deleted — clear persisted prefs
+        await db`DELETE FROM user_presence WHERE did = ${event.did}`;
+        log.info({ did: event.did }, 'Presence record deleted');
+        return;
+      }
+
+      const parsed = presenceRecordSchema.safeParse(event.record);
+      if (!parsed.success) {
+        log.warn({ did: event.did, error: parsed.error.message }, 'Invalid presence record');
+        return;
+      }
+      const record = parsed.data;
+
+      // Persist to DB so visibility prefs survive server restarts
+      await db`
+        INSERT INTO user_presence (did, status, visible_to, away_message, updated_at, indexed_at)
+        VALUES (${event.did}, ${record.status}, ${record.visibleTo}, ${record.awayMessage ?? null}, ${record.updatedAt}, NOW())
+        ON CONFLICT (did) DO UPDATE SET
+          status = EXCLUDED.status,
+          visible_to = EXCLUDED.visible_to,
+          away_message = EXCLUDED.away_message,
+          updated_at = EXCLUDED.updated_at,
+          indexed_at = NOW()
+      `;
+
+      // Hydrate tracker if user is currently connected
+      await presenceService.handleStatusChange(
+        event.did,
+        record.status as 'online' | 'away' | 'idle' | 'offline' | 'invisible',
+        record.awayMessage,
+        record.visibleTo as 'everyone' | 'community' | 'inner-circle' | 'no-one',
+      );
+
+      log.info(
+        { did: event.did, status: record.status, visibleTo: record.visibleTo },
+        'Presence indexed',
+      );
     },
   };
 

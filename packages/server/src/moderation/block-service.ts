@@ -1,5 +1,8 @@
-/** How long to keep block lists for disconnected users (1 hour) */
-const STALE_THRESHOLD_MS = 60 * 60 * 1000;
+/** How long to keep block lists for disconnected users (10 minutes) */
+const STALE_THRESHOLD_MS = 10 * 60 * 1000;
+
+/** How often to run the sweep (5 minutes) */
+const SWEEP_INTERVAL_MS = 5 * 60 * 1000;
 
 /** In-memory block list store. Clients sync their atproto block lists here. */
 export class BlockService {
@@ -53,7 +56,7 @@ export class BlockService {
           this.lastSeen.delete(did);
         }
       }
-    }, STALE_THRESHOLD_MS);
+    }, SWEEP_INTERVAL_MS);
   }
 
   /** Stop the sweep timer (for graceful shutdown) */

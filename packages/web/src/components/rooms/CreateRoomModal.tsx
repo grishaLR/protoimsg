@@ -1,4 +1,4 @@
-import { useRef, useEffect, useState } from 'react';
+import { useRef, useEffect, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { LIMITS } from '@protoimsg/shared';
 import type { RoomPurpose, RoomVisibility } from '@protoimsg/shared';
@@ -23,10 +23,19 @@ export function CreateRoomModal({ onClose, onCreated }: CreateRoomModalProps) {
   const [visibility, setVisibility] = useState<RoomVisibility>('public');
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const previousActiveRef = useRef<HTMLElement | null>(null);
 
   useEffect(() => {
-    dialogRef.current?.showModal();
+    const el = dialogRef.current;
+    if (!el) return;
+    previousActiveRef.current = document.activeElement as HTMLElement | null;
+    el.showModal();
   }, []);
+
+  const handleClose = useCallback(() => {
+    previousActiveRef.current?.focus();
+    onClose();
+  }, [onClose]);
 
   function handleSubmit(e: React.SyntheticEvent) {
     e.preventDefault();
@@ -53,7 +62,7 @@ export function CreateRoomModal({ onClose, onCreated }: CreateRoomModalProps) {
   }
 
   return (
-    <dialog ref={dialogRef} className={styles.dialog} onClose={onClose}>
+    <dialog ref={dialogRef} className={styles.dialog} onClose={handleClose}>
       <form className={styles.form} onSubmit={handleSubmit}>
         <h2 className={styles.title}>Create Room</h2>
 

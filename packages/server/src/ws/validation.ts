@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { DM_LIMITS, LIMITS } from '@protoimsg/shared';
 
 const MAX_BLOCK_LIST_SIZE = 10_000;
 
@@ -17,7 +18,7 @@ const leaveRoom = z.object({
 const statusChange = z.object({
   type: z.literal('status_change'),
   status: z.enum(['online', 'away', 'idle']),
-  awayMessage: z.string().max(200).optional(),
+  awayMessage: z.string().max(LIMITS.maxAwayMessageLength).optional(),
   visibleTo: z.enum(['everyone', 'community', 'inner-circle', 'no-one']).optional(),
 });
 
@@ -52,10 +53,10 @@ const syncCommunity = z.object({
               addedAt: z.string(),
             }),
           )
-          .max(100),
+          .max(LIMITS.maxGroupMembers),
       }),
     )
-    .max(20),
+    .max(LIMITS.maxBuddyGroups),
 });
 
 const dmOpen = z.object({
@@ -71,7 +72,7 @@ const dmClose = z.object({
 const dmSend = z.object({
   type: z.literal('dm_send'),
   conversationId: z.string().min(1),
-  text: z.string().min(1),
+  text: z.string().min(1).max(DM_LIMITS.maxMessageLength),
 });
 
 const dmTyping = z.object({

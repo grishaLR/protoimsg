@@ -33,11 +33,13 @@ export async function deleteModActionByUri(sql: Sql, uri: string): Promise<void>
 }
 
 export async function isUserBanned(sql: Sql, roomId: string, did: string): Promise<boolean> {
-  const rows = await sql<{ count: string }[]>`
-    SELECT COUNT(*) as count FROM mod_actions
-    WHERE room_id = ${roomId} AND subject_did = ${did} AND action = 'ban'
+  const rows = await sql<{ exists: boolean }[]>`
+    SELECT EXISTS(
+      SELECT 1 FROM mod_actions
+      WHERE room_id = ${roomId} AND subject_did = ${did} AND action = 'ban'
+    ) as exists
   `;
-  return Number(rows[0]?.count) > 0;
+  return rows[0]?.exists ?? false;
 }
 
 export async function getModActions(

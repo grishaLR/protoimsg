@@ -1,4 +1,5 @@
-const DID_RE = /^did:(plc|web):[a-zA-Z0-9._:%-]+$/;
+// DID Core: did:method:method-specific-id — allow any method (plc, web, key, etc.)
+const DID_RE = /^did:[a-z0-9]+:[a-zA-Z0-9._:%-]+$/;
 
 export function isValidDid(did: string): boolean {
   return DID_RE.test(did);

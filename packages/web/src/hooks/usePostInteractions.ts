@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import type { AppBskyFeedDefs } from '@atproto/api';
 import { useAuth } from './useAuth';
 import { generateTid, extractRkey } from '../lib/atproto';
@@ -20,6 +20,14 @@ export function usePostInteractions(post: AppBskyFeedDefs.PostView): PostInterac
   const [repostUri, setRepostUri] = useState<string | undefined>(post.viewer?.repost);
   const [likeCount, setLikeCount] = useState(post.likeCount ?? 0);
   const [repostCount, setRepostCount] = useState(post.repostCount ?? 0);
+
+  // Reset state when post changes (e.g. carousel, feed refresh)
+  useEffect(() => {
+    setLikeUri(post.viewer?.like);
+    setRepostUri(post.viewer?.repost);
+    setLikeCount(post.likeCount ?? 0);
+    setRepostCount(post.repostCount ?? 0);
+  }, [post.uri]);
 
   const toggleLike = useCallback(() => {
     if (!agent) return;

@@ -17,6 +17,7 @@
     "@protoimsg/lexicon": "workspace:*",
     "@protoimsg/shared": "workspace:*",
     "@protoimsg/ui": "workspace:^",
+    "@sentry/react": "^10.38.0",
     "@tailwindcss/vite": "^4.1.18",
     "@tanstack/react-query": "^5.90.20",
     "@tanstack/react-table": "^8.21.3",
@@ -29,6 +30,7 @@
     "virtualized-ui": "^0.4.1"
   },
   "devDependencies": {
+    "@sentry/vite-plugin": "^4.9.1",
     "@tauri-apps/api": "^2.0.0",
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",

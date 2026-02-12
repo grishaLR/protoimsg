@@ -60,6 +60,9 @@ export async function deleteMessage(sql: Sql, uri: string): Promise<void> {
   await sql`DELETE FROM messages WHERE uri = ${uri}`;
 }
 
+/** ISO 8601 datetime (basic validation to prevent SQL injection / garbage input) */
+const ISO_DATETIME_RE = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/;
+
 export async function getMessagesByRoom(
   sql: Sql,
   roomId: string,
@@ -68,6 +71,9 @@ export async function getMessagesByRoom(
   const { limit = 50, before } = options;
 
   if (before) {
+    if (!ISO_DATETIME_RE.test(before)) {
+      throw new Error('Invalid "before" cursor: expected ISO 8601 timestamp');
+    }
     return sql<MessageRow[]>`
       SELECT * FROM messages
       WHERE room_id = ${roomId} AND created_at < ${before}
@@ -84,15 +90,67 @@ export async function getMessagesByRoom(
   `;
 }
 
-/** Delete room messages older than retentionDays. Returns count of deleted rows. */
-export async function pruneOldMessages(sql: Sql, retentionDays: number): Promise<number> {
-  const result = await sql<{ count: string }[]>`
-    WITH deleted AS (
-      DELETE FROM messages
-      WHERE created_at < NOW() - MAKE_INTERVAL(days => ${retentionDays})
-      RETURNING 1
-    )
-    SELECT COUNT(*) as count FROM deleted
+/** Get all messages in a thread (root + replies), ordered chronologically. */
+export async function getThreadMessages(
+  sql: Sql,
+  roomId: string,
+  rootUri: string,
+  options: { limit?: number } = {},
+): Promise<MessageRow[]> {
+  const { limit = 200 } = options;
+
+  return sql<MessageRow[]>`
+    SELECT * FROM messages
+    WHERE room_id = ${roomId}
+      AND (uri = ${rootUri} OR reply_root = ${rootUri})
+    ORDER BY created_at ASC
+    LIMIT ${limit}
   `;
-  return Number(result[0]?.count ?? 0);
+}
+
+/** Reply count per root URI. Only counts direct children of the thread root. */
+export interface ReplyCount {
+  reply_root: string;
+  count: string;
+}
+
+/** Get reply counts for root messages in a room. Accepts the URIs of messages to check. */
+export async function getReplyCountsByRootUris(
+  sql: Sql,
+  rootUris: string[],
+): Promise<ReplyCount[]> {
+  if (rootUris.length === 0) return [];
+
+  return sql<ReplyCount[]>`
+    SELECT reply_root, COUNT(*)::text as count
+    FROM messages
+    WHERE reply_root IN ${sql(rootUris)}
+    GROUP BY reply_root
+  `;
+}
+
+const PRUNE_BATCH_SIZE = 1000;
+
+/** Delete room messages older than retentionDays in batches. Returns total count of deleted rows. */
+export async function pruneOldMessages(sql: Sql, retentionDays: number): Promise<number> {
+  let totalDeleted = 0;
+
+  for (;;) {
+    const result = await sql<{ count: string }[]>`
+      WITH to_delete AS (
+        SELECT id FROM messages
+        WHERE created_at < NOW() - MAKE_INTERVAL(days => ${retentionDays})
+        LIMIT ${PRUNE_BATCH_SIZE}
+      ),
+      deleted AS (
+        DELETE FROM messages WHERE id IN (SELECT id FROM to_delete) RETURNING 1
+      )
+      SELECT COUNT(*)::text as count FROM deleted
+    `;
+    const batchCount = Number(result[0]?.count ?? 0);
+    totalDeleted += batchCount;
+    if (batchCount < PRUNE_BATCH_SIZE) break;
+  }
+
+  return totalDeleted;
 }

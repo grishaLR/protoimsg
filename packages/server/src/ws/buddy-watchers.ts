@@ -15,6 +15,8 @@ export class CommunityWatchers {
   private watchers = new Map<string, Set<WebSocket>>();
   /** socket → ownerDid (the DID that authenticated this socket) */
   private socketDids = new Map<WebSocket, string>();
+  /** did → queued promise chain to serialize notifications per-DID */
+  private notifyQueues = new Map<string, Promise<void>>();
 
   constructor(
     private sql: Sql,
@@ -45,7 +47,11 @@ export class CommunityWatchers {
     }
   }
 
-  /** Notify all sockets watching a specific DID, respecting visibility */
+  /**
+   * Notify all sockets watching a specific DID, respecting visibility.
+   * Notifications for the same DID are serialized via a per-DID queue so
+   * rapid status changes don't deliver updates out of order.
+   */
   async notify(
     did: string,
     status: string,
@@ -55,6 +61,20 @@ export class CommunityWatchers {
     const set = this.watchers.get(did);
     if (!set) return;
 
+    // Chain onto the per-DID queue to prevent out-of-order delivery
+    const prev = this.notifyQueues.get(did) ?? Promise.resolve();
+    const next = prev.then(() => this.doNotify(did, status, awayMessage, visibleTo, set));
+    this.notifyQueues.set(did, next);
+    await next;
+  }
+
+  private async doNotify(
+    did: string,
+    status: string,
+    awayMessage: string | undefined,
+    visibleTo: PresenceVisibility | undefined,
+    set: Set<WebSocket>,
+  ): Promise<void> {
     const visibility = visibleTo ?? 'no-one';
 
     // Fast path: everyone can see — but still check blocks per-watcher

@@ -11,7 +11,7 @@
   background: transparent;
   border: none;
   cursor: pointer;
-  transition: background-color 0.15s ease;
+  transition: background-color var(--cm-duration-normal) ease;
 }
 
 .trigger:hover {
@@ -21,7 +21,7 @@
 .chevron {
   width: var(--cm-space-6);
   height: var(--cm-space-6);
-  transition: transform 0.15s ease;
+  transition: transform var(--cm-duration-normal) ease;
   flex-shrink: 0;
 }
 

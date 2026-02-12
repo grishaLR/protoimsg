@@ -11,6 +11,9 @@ const SCROLL_BOTTOM_THRESHOLD = 200;
 const SCROLL_DOWN_THRESHOLD = 300;
 const IDLE_SHOW_DELAY_MS = 8000;
 
+/** Module-level cache: feed URI → scrollTop. Survives component unmount/remount. */
+const scrollPositionCache = new Map<string, number>();
+
 interface FeedViewProps {
   onNavigateToProfile?: (did: string) => void;
   onReply?: (post: AppBskyFeedDefs.PostView) => void;
@@ -71,11 +74,33 @@ export function FeedView({
     }
   }, [hasMore, loadingMore, loadMore]);
 
+  // Restore scroll position when feed changes or component remounts
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (!el || !activeUri) return;
+    const saved = scrollPositionCache.get(activeUri);
+    if (saved) {
+      el.scrollTop = saved;
+    }
+  }, [activeUri, posts.length]); // posts.length ensures DOM is populated before restore
+
+  // Save scroll position on unmount or feed change
+  useEffect(() => {
+    const currentUri = activeUri;
+    return () => {
+      const el = scrollRef.current;
+      if (el && currentUri) {
+        scrollPositionCache.set(currentUri, el.scrollTop);
+      }
+    };
+  }, [activeUri]);
+
   const handleRefreshClick = useCallback(() => {
     setShowRefresh(false);
     refresh();
     scrollRef.current?.scrollTo({ top: 0 });
-  }, [refresh]);
+    if (activeUri) scrollPositionCache.delete(activeUri);
+  }, [refresh, activeUri]);
 
   return (
     <div className={styles.feedView}>
@@ -92,15 +117,22 @@ export function FeedView({
       ) : (
         <>
           <div className={styles.container} ref={scrollRef} onScroll={onScroll}>
-            {posts.map((item) => (
-              <FeedPost
-                key={item.post.uri}
-                item={item}
-                onNavigateToProfile={onNavigateToProfile}
-                onReply={onReply}
-                onOpenThread={onOpenThread}
-              />
-            ))}
+            {posts.map((item, index) => {
+              const isRepost = item.reason?.$type === 'app.bsky.feed.defs#reasonRepost';
+              const reposterDid = isRepost
+                ? (item.reason as AppBskyFeedDefs.ReasonRepost).by.did
+                : '';
+              const key = `${item.post.uri}-${reposterDid || 'orig'}-${index}`;
+              return (
+                <FeedPost
+                  key={key}
+                  item={item}
+                  onNavigateToProfile={onNavigateToProfile}
+                  onReply={onReply}
+                  onOpenThread={onOpenThread}
+                />
+              );
+            })}
             {loadingMore && <div className={styles.loadingMore}>Loading more...</div>}
           </div>
 

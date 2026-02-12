@@ -12,7 +12,7 @@
     height: var(--cm-tab-bar-h);
     background: var(--color-base-200);
     box-shadow: var(--cm-raised);
-    z-index: 900;
+    z-index: var(--cm-z-tab);
   }
 
   .tab {

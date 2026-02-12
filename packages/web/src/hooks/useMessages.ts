@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { fetchMessages } from '../lib/api';
-import { createMessageRecord, type CreateMessageInput } from '../lib/atproto';
+import { NSID } from '@protoimsg/shared';
+import { createMessageRecord, generateTid, type CreateMessageInput } from '../lib/atproto';
 import { useWebSocket } from '../contexts/WebSocketContext';
 import { useAuth } from './useAuth';
 import type { MessageView } from '../types';
@@ -9,6 +10,7 @@ const MAX_MESSAGES = 500;
 
 export function useMessages(roomId: string) {
   const [messages, setMessages] = useState<MessageView[]>([]);
+  const [replyCounts, setReplyCounts] = useState<Record<string, number>>({});
   const [loading, setLoading] = useState(true);
   const [typingUsers, setTypingUsers] = useState<string[]>([]);
   const { send, subscribe } = useWebSocket();
@@ -18,25 +20,26 @@ export function useMessages(roomId: string) {
 
   // Load message history
   useEffect(() => {
-    let cancelled = false;
+    const ac = new AbortController();
 
     async function load() {
       try {
-        const data = await fetchMessages(roomId);
-        if (!cancelled) {
-          // API returns newest-first, reverse for chronological display
-          setMessages(data.reverse());
+        const result = await fetchMessages(roomId, { signal: ac.signal });
+        if (!ac.signal.aborted) {
+          setMessages(result.messages.reverse());
+          setReplyCounts(result.replyCounts);
         }
       } catch (err) {
+        if (err instanceof Error && err.name === 'AbortError') return;
         console.error('Failed to load messages:', err);
       } finally {
-        if (!cancelled) setLoading(false);
+        if (!ac.signal.aborted) setLoading(false);
       }
     }
 
     void load();
     return () => {
-      cancelled = true;
+      ac.abort();
     };
   }, [roomId]);
 
@@ -53,6 +56,15 @@ export function useMessages(roomId: string) {
         if (senderTimer) {
           clearTimeout(senderTimer);
           typingTimers.current.delete(event.data.did);
+        }
+
+        // If this is a reply, increment the reply count for its root
+        const replyRoot = event.data.reply?.root;
+        if (replyRoot) {
+          setReplyCounts((prev) => ({
+            ...prev,
+            [replyRoot]: (prev[replyRoot] ?? 0) + 1,
+          }));
         }
 
         setMessages((prev) => {
@@ -121,31 +133,37 @@ export function useMessages(roomId: string) {
 
   // Send a message with optimistic update
   const sendMessage = useCallback(
-    async (text: string, roomUri: string) => {
+    async (text: string, roomUri: string, reply?: { root: string; parent: string }) => {
       if (!agent || !did) return;
 
-      const input: CreateMessageInput = { roomUri, text };
+      // Pre-generate rkey so we can add the optimistic message immediately
+      const rkey = generateTid();
+      const uri = `at://${did}/${NSID.Message}/${rkey}`;
+
+      // Optimistic: add pending message BEFORE the API call
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: rkey,
+          uri,
+          did,
+          room_id: roomId,
+          text,
+          reply_parent: reply?.parent ?? null,
+          reply_root: reply?.root ?? null,
+          created_at: new Date().toISOString(),
+          indexed_at: new Date().toISOString(),
+          pending: true,
+        },
+      ]);
+
+      const input: CreateMessageInput = { roomUri, text, reply };
 
       try {
-        const result = await createMessageRecord(agent, input);
-
-        // Optimistic: add pending message immediately using rkey as id
-        setMessages((prev) => [
-          ...prev,
-          {
-            id: result.rkey,
-            uri: result.uri,
-            did,
-            room_id: roomId,
-            text,
-            reply_parent: null,
-            reply_root: null,
-            created_at: new Date().toISOString(),
-            indexed_at: new Date().toISOString(),
-            pending: true,
-          },
-        ]);
+        await createMessageRecord(agent, input, rkey);
       } catch (err) {
+        // Rollback optimistic message on failure
+        setMessages((prev) => prev.filter((m) => m.id !== rkey));
         console.error('Failed to send message:', err);
         throw err;
       }
@@ -160,5 +178,5 @@ export function useMessages(roomId: string) {
     send({ type: 'room_typing', roomId });
   }, [send, roomId]);
 
-  return { messages, loading, typingUsers, sendMessage, sendTyping };
+  return { messages, replyCounts, loading, typingUsers, sendMessage, sendTyping };
 }

@@ -5,12 +5,12 @@
   line-height: 1.5;
   color: var(--color-base-content);
   background: var(--color-base-100);
-  border: 1px solid var(--color-base-300);
+  border: var(--cm-space-0.5) solid var(--color-base-300);
   border-radius: var(--cm-radius-md);
 }
 
 .input:focus {
-  outline: 2px solid var(--cm-focus);
+  outline: var(--cm-focus-thin) solid var(--cm-focus);
   outline-offset: var(--cm-focus-offset);
 }
 

@@ -1,8 +1,10 @@
-import { useState, useRef, useEffect, useMemo, useCallback } from 'react';
+import { useState, useMemo, useCallback } from 'react';
 import { useVirtualList } from 'virtualized-ui';
 import type { CommunityGroup } from '@protoimsg/lexicon';
 import { StatusIndicator } from './StatusIndicator';
 import { UserIdentity } from './UserIdentity';
+import { BuddyMenu } from './BuddyMenu';
+import { GroupHeaderRow } from './GroupHeaderRow';
 import { ActorSearch, type ActorSearchResult } from '../shared/ActorSearch';
 import { useBlocks } from '../../contexts/BlockContext';
 import { useCollapsedGroups } from '../../hooks/useCollapsedGroups';
@@ -15,6 +17,7 @@ interface BuddyListPanelProps {
   groups: CommunityGroup[];
   doorEvents?: Record<string, DoorEvent>;
   loading: boolean;
+  error?: Error | null;
   onAddBuddy: (did: string) => Promise<void>;
   onRemoveBuddy: (did: string) => Promise<void>;
   onToggleInnerCircle: (did: string) => Promise<void>;
@@ -39,186 +42,6 @@ const STATUS_ORDER: Record<string, number> = {
   idle: 2,
 };
 
-function BuddyMenu({
-  buddy,
-  groupName,
-  allGroups,
-  isBlocked,
-  onRemove,
-  onToggleInnerCircle,
-  onBlock,
-  onSendIm,
-  onMoveBuddy,
-}: {
-  buddy: MemberWithPresence;
-  groupName: string;
-  allGroups: CommunityGroup[];
-  isBlocked: boolean;
-  onRemove: () => void;
-  onToggleInnerCircle: () => void;
-  onBlock: () => void;
-  onSendIm?: () => void;
-  onMoveBuddy: (fromGroup: string, toGroup: string) => void;
-}) {
-  const [open, setOpen] = useState(false);
-  const [moveOpen, setMoveOpen] = useState(false);
-  const menuRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    if (!open) return;
-    function handleClick(e: MouseEvent) {
-      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
-        setOpen(false);
-        setMoveOpen(false);
-      }
-    }
-    document.addEventListener('mousedown', handleClick);
-    return () => {
-      document.removeEventListener('mousedown', handleClick);
-    };
-  }, [open]);
-
-  const moveTargets = allGroups.filter(
-    (g) => g.name !== groupName && g.name !== OFFLINE_GROUP && g.name !== BLOCKED_GROUP,
-  );
-
-  return (
-    <div className={styles.menuWrap} ref={menuRef}>
-      <button
-        className={styles.menuBtn}
-        onClick={() => {
-          setOpen(!open);
-        }}
-        title="Options"
-      >
-        <span className={styles.menuIcon} />
-      </button>
-      {open && (
-        <div className={styles.menuDropdown}>
-          {onSendIm && (
-            <button
-              className={styles.menuItem}
-              onClick={() => {
-                onSendIm();
-                setOpen(false);
-              }}
-            >
-              Send IM
-            </button>
-          )}
-          <button
-            className={styles.menuItem}
-            onClick={() => {
-              onToggleInnerCircle();
-              setOpen(false);
-            }}
-          >
-            {buddy.isInnerCircle ? 'Remove from Inner Circle' : 'Add to Inner Circle'}
-          </button>
-          {groupName !== OFFLINE_GROUP && moveTargets.length > 0 && (
-            <div className={styles.moveSubmenu}>
-              <button
-                className={styles.menuItem}
-                onClick={() => {
-                  setMoveOpen(!moveOpen);
-                }}
-              >
-                <span>Move to...</span>{' '}
-                <span className={styles.moveCaret}>{moveOpen ? '\u25B2' : '\u25BC'}</span>
-              </button>
-              {moveOpen &&
-                moveTargets.map((g) => (
-                  <button
-                    key={g.name}
-                    className={styles.moveTarget}
-                    onClick={() => {
-                      onMoveBuddy(groupName, g.name);
-                      setOpen(false);
-                      setMoveOpen(false);
-                    }}
-                  >
-                    {g.name}
-                  </button>
-                ))}
-            </div>
-          )}
-          <button
-            className={styles.menuItem}
-            onClick={() => {
-              onBlock();
-              setOpen(false);
-            }}
-          >
-            {isBlocked ? 'Unblock' : 'Block'}
-          </button>
-          <button
-            className={`${styles.menuItem} ${styles.menuItemDanger}`}
-            onClick={() => {
-              onRemove();
-              setOpen(false);
-            }}
-          >
-            Remove
-          </button>
-        </div>
-      )}
-    </div>
-  );
-}
-
-function GroupHeaderRow({
-  groupName,
-  onlineCount,
-  totalCount,
-  isCollapsed,
-  onToggleCollapse,
-  isProtected,
-  onRename,
-  onDelete,
-}: {
-  groupName: string;
-  onlineCount: number;
-  totalCount: number;
-  isCollapsed: boolean;
-  onToggleCollapse: () => void;
-  isProtected: boolean;
-  onRename?: () => void;
-  onDelete?: () => void;
-}) {
-  const isSynthetic = groupName === OFFLINE_GROUP;
-
-  return (
-    <div className={styles.groupHeader} onClick={onToggleCollapse}>
-      <button className={styles.collapseBtn} aria-label={isCollapsed ? 'Expand' : 'Collapse'}>
-        {isCollapsed ? '\u25B6' : '\u25BC'}
-      </button>
-      <span className={styles.groupName}>{groupName}</span>
-      {!isSynthetic && !isProtected && (
-        <span
-          className={styles.groupHeaderActions}
-          onClick={(e) => {
-            e.stopPropagation();
-          }}
-        >
-          {onRename && (
-            <button className={styles.groupActionBtn} onClick={onRename} title="Rename group">
-              &#9998;
-            </button>
-          )}
-          {onDelete && (
-            <button className={styles.groupActionBtn} onClick={onDelete} title="Delete group">
-              &times;
-            </button>
-          )}
-        </span>
-      )}
-      <span className={styles.groupCount}>
-        ({onlineCount}/{totalCount})
-      </span>
-    </div>
-  );
-}
-
 export function BuddyListPanel({
   buddies,
   groups,
@@ -236,6 +59,7 @@ export function BuddyListPanel({
   onMoveBuddy,
   onOpenChatRooms,
   onOpenFeed,
+  error,
 }: BuddyListPanelProps) {
   const { blockedDids } = useBlocks();
   const { collapsed, toggle: toggleCollapse } = useCollapsedGroups();
@@ -407,6 +231,10 @@ export function BuddyListPanel({
 
       {loading ? (
         <p className={styles.empty}>Loading...</p>
+      ) : error ? (
+        <p className={styles.empty} role="alert">
+          {error.message}
+        </p>
       ) : !hasAnyRows ? (
         <p className={styles.empty}>No buddies yet</p>
       ) : (

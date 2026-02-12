@@ -1,3 +1,5 @@
+import type { RateLimiterStore } from './rate-limiter-store.js';
+
 interface WindowEntry {
   timestamps: number[];
 }
@@ -5,7 +7,7 @@ interface WindowEntry {
 const DEFAULT_WINDOW_MS = 60_000;
 const DEFAULT_MAX_REQUESTS = 60;
 
-export class RateLimiter {
+export class InMemoryRateLimiter implements RateLimiterStore {
   private windows = new Map<string, WindowEntry>();
   private windowMs: number;
   private maxRequests: number;
@@ -15,7 +17,7 @@ export class RateLimiter {
     this.maxRequests = opts?.maxRequests ?? DEFAULT_MAX_REQUESTS;
   }
 
-  check(key: string): boolean {
+  check(key: string): Promise<boolean> {
     const now = Date.now();
     const cutoff = now - this.windowMs;
 
@@ -29,14 +31,14 @@ export class RateLimiter {
     entry.timestamps = entry.timestamps.filter((t) => t > cutoff);
 
     if (entry.timestamps.length >= this.maxRequests) {
-      return false;
+      return Promise.resolve(false);
     }
 
     entry.timestamps.push(now);
-    return true;
+    return Promise.resolve(true);
   }
 
-  prune(): number {
+  prune(): Promise<number> {
     const now = Date.now();
     const cutoff = now - this.windowMs;
     let pruned = 0;
@@ -47,6 +49,6 @@ export class RateLimiter {
         pruned++;
       }
     }
-    return pruned;
+    return Promise.resolve(pruned);
   }
 }

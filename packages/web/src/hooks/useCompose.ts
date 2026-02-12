@@ -7,6 +7,9 @@ import { generateTid } from '../lib/atproto';
 const MAX_GRAPHEMES = 300;
 const MAX_IMAGES = 4;
 
+/** Cached at module level — Intl.Segmenter is expensive to construct */
+const graphemeSegmenter = new Intl.Segmenter(undefined, { granularity: 'grapheme' });
+
 interface UseComposeResult {
   text: string;
   setText: (text: string) => void;
@@ -24,9 +27,8 @@ interface UseComposeResult {
 }
 
 function countGraphemes(text: string): number {
-  const segmenter = new Intl.Segmenter(undefined, { granularity: 'grapheme' });
   let count = 0;
-  for (const _ of segmenter.segment(text)) {
+  for (const _ of graphemeSegmenter.segment(text)) {
     void _;
     count++;
   }

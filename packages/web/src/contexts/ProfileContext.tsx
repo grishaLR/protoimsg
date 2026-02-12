@@ -5,7 +5,7 @@ import {
   useEffect,
   useMemo,
   useRef,
-  useState,
+  useSyncExternalStore,
   type ReactNode,
 } from 'react';
 import { fetchProfiles, type ProfileInfo } from '../lib/profiles';
@@ -13,6 +13,8 @@ import { fetchProfiles, type ProfileInfo } from '../lib/profiles';
 interface ProfileContextValue {
   getProfile: (did: string) => ProfileInfo | undefined;
   requestProfile: (did: string) => void;
+  subscribe: (cb: () => void) => () => void;
+  getVersion: () => number;
 }
 
 const ProfileContext = createContext<ProfileContextValue | null>(null);
@@ -23,7 +25,13 @@ export function ProfileProvider({ children }: { children: ReactNode }) {
   const cacheRef = useRef<Map<string, ProfileInfo>>(new Map());
   const pendingRef = useRef<Set<string>>(new Set());
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const [profileVersion, setVersion] = useState(0);
+  const versionRef = useRef(0);
+  const listenersRef = useRef<Set<() => void>>(new Set());
+
+  const notify = useCallback(() => {
+    versionRef.current++;
+    for (const cb of listenersRef.current) cb();
+  }, []);
 
   const flush = useCallback(async () => {
     const dids = Array.from(pendingRef.current);
@@ -35,11 +43,11 @@ export function ProfileProvider({ children }: { children: ReactNode }) {
       for (const profile of profiles) {
         cacheRef.current.set(profile.did, profile);
       }
-      setVersion((v) => v + 1);
+      notify();
     } catch (err) {
       console.error('Profile fetch failed:', err);
     }
-  }, []);
+  }, [notify]);
 
   const requestProfile = useCallback(
     (did: string) => {
@@ -58,9 +66,18 @@ export function ProfileProvider({ children }: { children: ReactNode }) {
     return cacheRef.current.get(did);
   }, []);
 
+  const subscribe = useCallback((cb: () => void) => {
+    listenersRef.current.add(cb);
+    return () => {
+      listenersRef.current.delete(cb);
+    };
+  }, []);
+
+  const getVersion = useCallback(() => versionRef.current, []);
+
   const value = useMemo<ProfileContextValue>(
-    () => ({ getProfile, requestProfile }),
-    [getProfile, requestProfile, profileVersion],
+    () => ({ getProfile, requestProfile, subscribe, getVersion }),
+    [getProfile, requestProfile, subscribe, getVersion],
   );
 
   return <ProfileContext.Provider value={value}>{children}</ProfileContext.Provider>;
@@ -70,6 +87,9 @@ export function useProfile(did: string | null | undefined): ProfileInfo | undefi
   const ctx = useContext(ProfileContext);
   if (!ctx) throw new Error('useProfile must be used within ProfileProvider');
 
+  // Re-render when cache updates, but context value itself stays stable
+  useSyncExternalStore(ctx.subscribe, ctx.getVersion);
+
   const profile = did ? ctx.getProfile(did) : undefined;
 
   // Request fetch when not cached — useEffect avoids a side effect during render
@@ -77,7 +97,7 @@ export function useProfile(did: string | null | undefined): ProfileInfo | undefi
     if (did && !ctx.getProfile(did)) {
       ctx.requestProfile(did);
     }
-  }, [did, ctx]);
+  }, [did, ctx.getProfile, ctx.requestProfile]);
 
   return profile;
 }

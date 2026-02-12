@@ -24,8 +24,8 @@
 }
 
 .textarea:focus {
-  outline: var(--cm-space-0.5) solid var(--cm-focus);
-  outline-offset: var(--cm-focus-inset-lg);
+  outline: var(--cm-focus-thin) solid var(--cm-focus);
+  outline-offset: var(--cm-focus-offset);
 }
 
 .sendBtn {

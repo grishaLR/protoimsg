@@ -2,9 +2,10 @@ import { Router } from 'express';
 import { z } from 'zod';
 import { recordModAction } from './queries.js';
 import type { Sql } from '../db/client.js';
+import { isValidDid } from '../auth/verify.js';
 
 const reportBodySchema = z.object({
-  subjectDid: z.string(),
+  subjectDid: z.string().refine(isValidDid, 'Invalid DID format'),
   reason: z.string().optional(),
 });
 

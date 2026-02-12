@@ -1,58 +1,36 @@
-import { Component, type ErrorInfo, type ReactNode } from 'react';
+import type { ReactNode } from 'react';
+import { Sentry } from '../sentry';
 
-interface Props {
-  children: ReactNode;
+function Fallback({ error, resetError }: { error: unknown; resetError: () => void }) {
+  const message = error instanceof Error ? error.message : 'An unexpected error occurred';
+  // Inline styles intentional — CSS modules may not be loaded in error state.
+  return (
+    <div
+      style={{
+        minHeight: '100vh',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: '2rem',
+        background: 'var(--cm-desktop)',
+        color: 'var(--cm-surface-content)',
+        textAlign: 'center',
+      }}
+    >
+      <h1 style={{ fontSize: 'var(--cm-text-xl)', marginBottom: '1rem' }}>Something went wrong</h1>
+      <p style={{ marginBottom: '1rem' }}>{message}</p>
+      <button
+        type="button"
+        onClick={resetError}
+        style={{ padding: '0.5rem 1rem', cursor: 'pointer' }}
+      >
+        Try again
+      </button>
+    </div>
+  );
 }
 
-interface State {
-  hasError: boolean;
-  error: Error | null;
-}
-
-export class AppErrorBoundary extends Component<Props, State> {
-  state: State = { hasError: false, error: null };
-
-  static getDerivedStateFromError(error: Error): State {
-    return { hasError: true, error };
-  }
-
-  componentDidCatch(error: Error, info: ErrorInfo): void {
-    console.error('App error boundary caught:', error, info.componentStack);
-  }
-
-  render(): ReactNode {
-    if (this.state.hasError && this.state.error) {
-      // Inline styles intentional — CSS modules may not be loaded in error state.
-      return (
-        <div
-          style={{
-            minHeight: '100vh',
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            justifyContent: 'center',
-            padding: '2rem',
-            background: 'var(--cm-desktop)',
-            color: 'var(--cm-surface-content)',
-            textAlign: 'center',
-          }}
-        >
-          <h1 style={{ fontSize: 'var(--cm-text-xl)', marginBottom: '1rem' }}>
-            Something went wrong
-          </h1>
-          <p style={{ marginBottom: '1rem' }}>{this.state.error.message}</p>
-          <button
-            type="button"
-            onClick={() => {
-              this.setState({ hasError: false, error: null });
-            }}
-            style={{ padding: '0.5rem 1rem', cursor: 'pointer' }}
-          >
-            Try again
-          </button>
-        </div>
-      );
-    }
-    return this.props.children;
-  }
+export function AppErrorBoundary({ children }: { children: ReactNode }) {
+  return <Sentry.ErrorBoundary fallback={Fallback}>{children}</Sentry.ErrorBoundary>;
 }

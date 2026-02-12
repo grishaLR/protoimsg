@@ -33,7 +33,13 @@
     "*.{ts,tsx}": [
       "eslint --fix",
       "prettier --write"
-    ]
+    ],
+    "*.{json,md}": "prettier --write"
+  },
+  "pnpm": {
+    "overrides": {
+      "typescript": "$typescript"
+    }
   },
   "packageManager": "pnpm@9.15.4",
   "engines": {

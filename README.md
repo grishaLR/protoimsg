@@ -98,14 +98,14 @@ A chat message. Lives in the sender's repo, points to a room. Key: `tid`.
 }
 ```
 
-| Field       | Type                                     | Required | Description                                                                  |
-| ----------- | ---------------------------------------- | -------- | ---------------------------------------------------------------------------- |
-| `room`      | at-uri                                   | yes      | AT-URI of the room record                                                    |
-| `text`      | string (max 3000 bytes / 1000 graphemes) | yes      | Message content                                                              |
-| `facets`    | richTextFacet[]                          | no       | Rich text annotations (mentions, links) — same format as Bluesky post facets |
-| `reply`     | replyRef                                 | no       | Structured thread reference (root + parent)                                  |
-| `embed`     | imageEmbed \| videoEmbed \| externalEmbed | no      | Embedded media or link card                                                  |
-| `createdAt` | datetime                                 | yes      | Timestamp of message creation                                                |
+| Field       | Type                                      | Required | Description                                                                  |
+| ----------- | ----------------------------------------- | -------- | ---------------------------------------------------------------------------- |
+| `room`      | at-uri                                    | yes      | AT-URI of the room record                                                    |
+| `text`      | string (max 3000 bytes / 1000 graphemes)  | yes      | Message content                                                              |
+| `facets`    | richTextFacet[]                           | no       | Rich text annotations (mentions, links) — same format as Bluesky post facets |
+| `reply`     | replyRef                                  | no       | Structured thread reference (root + parent)                                  |
+| `embed`     | imageEmbed \| videoEmbed \| externalEmbed | no       | Embedded media or link card                                                  |
+| `createdAt` | datetime                                  | yes      | Timestamp of message creation                                                |
 
 **Rich text facets** follow the same `byteSlice` + features model as `app.bsky.feed.post`. Each facet targets a byte range and annotates it as a `#mention` (with `did`) or `#link` (with `uri`).
 
@@ -140,17 +140,17 @@ The user's community list. Portable across any app implementing the Lexicon. Key
 }
 ```
 
-| Field    | Type                        | Required | Description                                            |
-| -------- | --------------------------- | -------- | ------------------------------------------------------ |
-| `groups` | communityGroup[] (max 50)   | yes      | Named groups of community members                      |
+| Field    | Type                      | Required | Description                       |
+| -------- | ------------------------- | -------- | --------------------------------- |
+| `groups` | communityGroup[] (max 50) | yes      | Named groups of community members |
 
 **`communityGroup` object:**
 
-| Field           | Type                         | Required             | Description                                                     |
-| --------------- | ---------------------------- | -------------------- | --------------------------------------------------------------- |
-| `name`          | string (max 100)             | yes                  | Group label                                                     |
-| `isInnerCircle` | boolean                      | no (default `false`) | Whether members of this group can see your real presence status |
-| `members`       | communityMember[] (max 500)  | yes                  | DIDs of group members                                           |
+| Field           | Type                        | Required             | Description                                                     |
+| --------------- | --------------------------- | -------------------- | --------------------------------------------------------------- |
+| `name`          | string (max 100)            | yes                  | Group label                                                     |
+| `isInnerCircle` | boolean                     | no (default `false`) | Whether members of this group can see your real presence status |
+| `members`       | communityMember[] (max 500) | yes                  | DIDs of group members                                           |
 
 **`communityMember` object:**
 
@@ -175,12 +175,12 @@ User's current presence status. Lives in their repo, updated by their client. Ke
 }
 ```
 
-| Field         | Type             | Required | Description                                                            |
-| ------------- | ---------------- | -------- | ---------------------------------------------------------------------- |
-| `status`      | string           | yes      | `online` \| `away` \| `idle` \| `offline` \| `invisible`              |
-| `visibleTo`   | string           | yes      | `everyone` \| `community` \| `inner-circle` \| `no-one`               |
-| `awayMessage` | string (max 300) | no       | Custom status text (the AIM away message)                              |
-| `updatedAt`   | datetime         | yes      | When presence was last updated                                         |
+| Field         | Type             | Required | Description                                              |
+| ------------- | ---------------- | -------- | -------------------------------------------------------- |
+| `status`      | string           | yes      | `online` \| `away` \| `idle` \| `offline` \| `invisible` |
+| `visibleTo`   | string           | yes      | `everyone` \| `community` \| `inner-circle` \| `no-one`  |
+| `awayMessage` | string (max 300) | no       | Custom status text (the AIM away message)                |
+| `updatedAt`   | datetime         | yes      | When presence was last updated                           |
 
 See [Presence Visibility](#presence-visibility) for how `visibleTo` interacts with the community list.
 
@@ -293,11 +293,11 @@ An allowlist entry for a room. When a room has `allowlistEnabled: true`, only al
 }
 ```
 
-| Field       | Type     | Required | Description                                    |
-| ----------- | -------- | -------- | ---------------------------------------------- |
-| `room`      | at-uri   | yes      | AT-URI of the room the allowlist applies to     |
-| `subject`   | did      | yes      | DID of the allowlisted user                     |
-| `createdAt` | datetime | yes      | Timestamp of allowlist entry creation            |
+| Field       | Type     | Required | Description                                 |
+| ----------- | -------- | -------- | ------------------------------------------- |
+| `room`      | at-uri   | yes      | AT-URI of the room the allowlist applies to |
+| `subject`   | did      | yes      | DID of the allowlisted user                 |
+| `createdAt` | datetime | yes      | Timestamp of allowlist entry creation       |
 
 ---
 

@@ -1,8 +1,46 @@
 .container {
   display: flex;
-  gap: var(--cm-space-2);
+  flex-direction: column;
   padding: var(--cm-space-2);
   background: var(--color-base-100);
+}
+
+.replyBar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--cm-space-1) var(--cm-space-4);
+  margin-bottom: var(--cm-space-1);
+  background: var(--cm-surface-content);
+  border-radius: var(--cm-radius-sm) var(--cm-radius-sm) 0 0;
+  border-left: var(--cm-space-1) solid var(--color-primary);
+  font-size: var(--cm-text-sm);
+  color: var(--cm-border-dark);
+}
+
+.replyContext {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--cm-space-1);
+}
+
+.replyCancelBtn {
+  background: none;
+  border: none;
+  color: var(--cm-border-dark);
+  font-size: var(--cm-text-lg);
+  cursor: pointer;
+  padding: 0 var(--cm-space-1);
+  line-height: 1;
+}
+
+.replyCancelBtn:hover {
+  color: var(--color-error);
+}
+
+.inputRow {
+  display: flex;
+  gap: var(--cm-space-2);
 }
 
 .textarea {
@@ -19,8 +57,8 @@
 }
 
 .textarea:focus {
-  outline: var(--cm-space-0.5) solid var(--cm-focus);
-  outline-offset: var(--cm-focus-inset-lg);
+  outline: var(--cm-focus-thin) solid var(--cm-focus);
+  outline-offset: var(--cm-focus-offset);
 }
 
 .sendButton {

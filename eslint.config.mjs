@@ -25,6 +25,18 @@ export default tseslint.config(
     },
   },
   {
+    files: ['packages/server/src/**/*.ts'],
+    rules: {
+      'no-console': 'error',
+    },
+  },
+  {
+    files: ['packages/server/src/config.ts'],
+    rules: {
+      'no-console': ['error', { allow: ['error'] }],
+    },
+  },
+  {
     ignores: [
       '**/dist/**',
       '**/generated/**',

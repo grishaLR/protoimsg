@@ -30,7 +30,7 @@
 .blurred {
   filter: blur(var(--cm-blur-base));
   cursor: pointer;
-  transition: filter 0.2s;
+  transition: filter var(--cm-duration-slow);
 }
 
 .blurred:hover {

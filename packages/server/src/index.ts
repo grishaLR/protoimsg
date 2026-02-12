@@ -1,30 +1,52 @@
 import { createServer } from 'http';
 import { createApp } from './app.js';
 import { loadConfig } from './config.js';
+import { initSentry } from './sentry.js';
+import { initLogger, createLogger } from './logger.js';
 import { createDb } from './db/client.js';
 import { createFirehoseConsumer } from './firehose/consumer.js';
 import { createWsServer } from './ws/server.js';
-import { PresenceTracker } from './presence/tracker.js';
+import { InMemoryPresenceTracker } from './presence/tracker.js';
+import { RedisPresenceTracker } from './presence/tracker-redis.js';
 import { createPresenceService } from './presence/service.js';
-import { SessionStore } from './auth/session.js';
-import { RateLimiter } from './moderation/rate-limiter.js';
+import { InMemorySessionStore } from './auth/session.js';
+import { RedisSessionStore } from './auth/session-redis.js';
+import { createRedisClient } from './redis/client.js';
+import { InMemoryRateLimiter } from './moderation/rate-limiter.js';
+import { RedisRateLimiter } from './moderation/rate-limiter-redis.js';
 import { BlockService } from './moderation/block-service.js';
 import { createDmService } from './dms/service.js';
 import { LIMITS } from '@protoimsg/shared';
 import { pruneOldMessages } from './messages/queries.js';
 
-function main() {
+async function main() {
   const config = loadConfig();
-  const db = createDb(config.DATABASE_URL);
+  initSentry(config);
+  initLogger(config);
+  const log = createLogger('server');
+
+  const db = createDb(config.DATABASE_URL, {
+    max: config.DB_POOL_MAX,
+    idleTimeout: config.DB_IDLE_TIMEOUT,
+    connectTimeout: config.DB_CONNECT_TIMEOUT,
+  });
+
+  // Redis client (optional — falls back to in-memory stores when absent)
+  const redis = config.REDIS_URL ? createRedisClient(config.REDIS_URL) : null;
+  if (redis) await redis.connect();
 
   // Shared presence tracker + service (used by both HTTP routes and WS)
-  const tracker = new PresenceTracker();
+  const tracker = redis ? new RedisPresenceTracker(redis) : new InMemoryPresenceTracker();
   const presenceService = createPresenceService(tracker);
 
   // Auth sessions + rate limiters (stricter for auth by IP)
-  const sessions = new SessionStore(config.SESSION_TTL_MS);
-  const rateLimiter = new RateLimiter();
-  const authRateLimiter = new RateLimiter({ windowMs: 60_000, maxRequests: 10 });
+  const sessions = redis
+    ? new RedisSessionStore(redis, config.SESSION_TTL_MS)
+    : new InMemorySessionStore(config.SESSION_TTL_MS);
+  const rateLimiter = redis ? new RedisRateLimiter(redis) : new InMemoryRateLimiter();
+  const authRateLimiter = redis
+    ? new RedisRateLimiter(redis, { windowMs: 60_000, maxRequests: 10 })
+    : new InMemoryRateLimiter({ windowMs: 60_000, maxRequests: 10 });
 
   // DM service + block service (shared by HTTP presence route and WS)
   const dmService = createDmService(db);
@@ -51,7 +73,7 @@ function main() {
     dmService,
     blockService,
   );
-  console.info('WebSocket server attached');
+  log.info('WebSocket server attached');
 
   // Firehose consumer
   // Jetstream consumer (atproto event stream)
@@ -60,35 +82,44 @@ function main() {
 
   // Periodic cleanup (every 60s for sessions/rate limiter, message retention checked each cycle)
   const pruneInterval = setInterval(() => {
-    sessions.prune();
-    rateLimiter.prune();
+    void sessions.prune();
+    void rateLimiter.prune();
     void dmService.pruneExpired();
     void pruneOldMessages(db, LIMITS.defaultRetentionDays).then((count) => {
-      if (count > 0) console.info(`Pruned ${String(count)} old room messages`);
+      if (count > 0) log.info({ count }, 'Pruned old room messages');
     });
   }, 60_000);
 
   httpServer.listen(config.PORT, config.HOST, () => {
-    console.info(`Server listening on http://${config.HOST}:${config.PORT}`);
-    console.info(`Environment: ${config.NODE_ENV}`);
+    log.info({ host: config.HOST, port: config.PORT }, 'Server listening');
+    log.info({ env: config.NODE_ENV }, 'Environment');
   });
 
   // Graceful shutdown
   const shutdown = async () => {
-    console.info('Shutting down...');
+    log.info('Shutting down...');
     clearInterval(pruneInterval);
     await firehose.stop();
-    wss.close();
-    httpServer.close(() => {
-      void db.end().then(() => {
-        console.info('Shutdown complete');
-        process.exit(0);
+
+    // Close WS server and wait for all close handlers to drain.
+    // WS close handlers contain async work (DM cleanup, presence
+    // notifications) that needs the DB — must finish before db.end().
+    await wss.close();
+
+    await new Promise<void>((resolve) => {
+      httpServer.close(() => {
+        resolve();
       });
     });
+
+    await db.end();
+    if (redis) await redis.quit();
+    log.info('Shutdown complete');
+    process.exit(0);
   };
 
   process.on('SIGTERM', () => void shutdown());
   process.on('SIGINT', () => void shutdown());
 }
 
-main();
+void main();

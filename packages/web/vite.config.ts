@@ -1,5 +1,6 @@
 import { defineConfig, type Plugin } from 'vite';
 import react from '@vitejs/plugin-react';
+import { sentryVitePlugin } from '@sentry/vite-plugin';
 
 /**
  * Generate and serve client-metadata.json for ATProto OAuth PDS discovery.
@@ -50,7 +51,16 @@ function oauthMetadataPlugin(): Plugin {
 }
 
 export default defineConfig({
-  plugins: [react(), oauthMetadataPlugin()],
+  build: {
+    sourcemap: true,
+  },
+  plugins: [
+    react(),
+    oauthMetadataPlugin(),
+    ...(process.env.SENTRY_AUTH_TOKEN
+      ? [sentryVitePlugin({ org: 'protoimsg', project: 'protoimsg-web' })]
+      : []),
+  ],
   server: {
     port: 5173,
     strictPort: true,

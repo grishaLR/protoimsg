@@ -1,1 +1,27 @@
-{"default":{"identifier":"default","description":"Capability for the main and child windows","local":true,"windows":["main","room-*","dm-*","rooms-directory","feed"],"permissions":["core:default","core:window:allow-create","core:window:allow-close","core:window:allow-set-size","core:window:allow-set-title","core:window:allow-set-focus","core:window:allow-center","core:window:allow-show","core:window:allow-hide","core:window:allow-minimize","core:window:allow-start-dragging","core:webview:allow-create-webview-window","core:webview:allow-create-webview","core:event:default","core:event:allow-emit","core:event:allow-listen","shell:allow-open"]}}
+{
+  "default": {
+    "identifier": "default",
+    "description": "Capability for the main and child windows",
+    "local": true,
+    "windows": ["main", "room-*", "dm-*", "rooms-directory", "feed"],
+    "permissions": [
+      "core:default",
+      "core:window:allow-create",
+      "core:window:allow-close",
+      "core:window:allow-set-size",
+      "core:window:allow-set-title",
+      "core:window:allow-set-focus",
+      "core:window:allow-center",
+      "core:window:allow-show",
+      "core:window:allow-hide",
+      "core:window:allow-minimize",
+      "core:window:allow-start-dragging",
+      "core:webview:allow-create-webview-window",
+      "core:webview:allow-create-webview",
+      "core:event:default",
+      "core:event:allow-emit",
+      "core:event:allow-listen",
+      "shell:allow-open"
+    ]
+  }
+}

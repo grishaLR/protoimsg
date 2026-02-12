@@ -1,5 +1,5 @@
 .dialog {
-  border: 1px solid var(--color-base-300);
+  border: var(--cm-space-0.5) solid var(--color-base-300);
   border-radius: var(--cm-radius-lg);
   padding: 0;
   max-width: var(--cm-modal-max-w);

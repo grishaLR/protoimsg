@@ -1,10 +1,13 @@
 import { Router } from 'express';
 import { z } from 'zod';
-import type { SessionStore } from './session.js';
+import type { SessionStore } from './session-store.js';
 import type { ChallengeStore } from './challenge.js';
 import { verifyDidHandle, verifyAuthRecord } from './verify.js';
 import { createRequireAuth } from './middleware.js';
 import type { Config } from '../config.js';
+import { createLogger } from '../logger.js';
+
+const log = createLogger('auth');
 
 const challengeBodySchema = z.object({
   did: z.string(),
@@ -54,6 +57,7 @@ export function authRouter(
 
       // Step 1: Consume nonce — rejects if not found, expired, or already used
       if (!challenges.consume(did, nonce)) {
+        log.warn({ did, handle }, 'auth/session failed: invalid challenge');
         res.status(401).json({ error: 'Invalid or expired challenge' });
         return;
       }
@@ -61,6 +65,7 @@ export function authRouter(
       // Step 2: Verify handle → DID resolution (public identity check)
       const verified = await verifyDidHandle(did, handle, config.PUBLIC_API_URL);
       if (!verified) {
+        log.warn({ did, handle }, 'auth/session failed: handle mismatch');
         res.status(401).json({ error: 'Handle does not resolve to provided DID' });
         return;
       }
@@ -68,13 +73,15 @@ export function authRouter(
       // Step 3: Verify the auth record on the user's PDS proves write access
       const recordValid = await verifyAuthRecord(did, nonce, rkey);
       if (!recordValid) {
+        log.warn({ did, handle }, 'auth/session failed: record verification');
         res
           .status(401)
           .json({ error: 'Auth verification failed — record not found or nonce mismatch' });
         return;
       }
 
-      const token = sessions.create(did, handle, config.SESSION_TTL_MS);
+      const token = await sessions.create(did, handle, config.SESSION_TTL_MS);
+      log.info({ did, handle }, 'auth/session created');
       res.status(201).json({ token, did, handle });
     } catch (err) {
       next(err);
@@ -87,10 +94,19 @@ export function authRouter(
   });
 
   // DELETE /api/auth/session — logout
-  router.delete('/session', requireAuth, (req, res) => {
+  router.delete('/session', requireAuth, (req, res, next) => {
     const token = req.headers.authorization?.slice(7);
-    if (token) sessions.delete(token);
-    res.status(204).end();
+    if (token) {
+      sessions
+        .delete(token)
+        .then(() => {
+          log.info({ did: req.did ?? 'unknown' }, 'auth/session deleted');
+          res.status(204).end();
+        })
+        .catch(next);
+    } else {
+      res.status(204).end();
+    }
   });
 
   return router;

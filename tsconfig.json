@@ -1,0 +1,8 @@
+{
+  "files": [],
+  "references": [
+    { "path": "packages/lexicon" },
+    { "path": "packages/shared" },
+    { "path": "packages/server" }
+  ]
+}

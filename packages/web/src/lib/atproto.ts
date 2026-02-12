@@ -101,8 +101,9 @@ export interface CreateMessageResult {
 export async function createMessageRecord(
   agent: Agent,
   input: CreateMessageInput,
+  existingRkey?: string,
 ): Promise<CreateMessageResult> {
-  const rkey = generateTid();
+  const rkey = existingRkey ?? generateTid();
 
   const response = await agent.com.atproto.repo.createRecord({
     repo: agent.assertDid,

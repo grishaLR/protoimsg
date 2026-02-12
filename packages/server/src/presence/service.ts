@@ -1,77 +1,81 @@
 import type { PresenceStatus, PresenceVisibility } from '@protoimsg/shared';
-import type { PresenceTracker } from './tracker.js';
+import type { PresenceTrackerStore } from './tracker-store.js';
 
 export interface PresenceService {
-  handleUserConnect(did: string): void;
-  handleUserDisconnect(did: string): void;
+  handleUserConnect(did: string): Promise<void>;
+  handleUserDisconnect(did: string): Promise<void>;
   handleStatusChange(
     did: string,
     status: PresenceStatus,
     awayMessage?: string,
     visibleTo?: PresenceVisibility,
-  ): void;
-  handleJoinRoom(did: string, roomId: string): void;
-  handleLeaveRoom(did: string, roomId: string): void;
-  getUserStatus(did: string): PresenceStatus;
-  getPresence(did: string): { status: PresenceStatus; awayMessage?: string };
-  getVisibleTo(did: string): PresenceVisibility;
-  getRoomPresence(roomId: string): string[];
-  getBulkPresence(dids: string[]): Array<{ did: string; status: string; awayMessage?: string }>;
-  getUserRooms(did: string): Set<string>;
+  ): Promise<void>;
+  handleJoinRoom(did: string, roomId: string): Promise<void>;
+  handleLeaveRoom(did: string, roomId: string): Promise<void>;
+  getUserStatus(did: string): Promise<PresenceStatus>;
+  getPresence(did: string): Promise<{ status: PresenceStatus; awayMessage?: string }>;
+  getVisibleTo(did: string): Promise<PresenceVisibility>;
+  getRoomPresence(roomId: string): Promise<string[]>;
+  getBulkPresence(
+    dids: string[],
+  ): Promise<Array<{ did: string; status: string; awayMessage?: string }>>;
+  getUserRooms(did: string): Promise<Set<string>>;
 }
 
-export function createPresenceService(tracker: PresenceTracker): PresenceService {
+export function createPresenceService(tracker: PresenceTrackerStore): PresenceService {
   return {
-    handleUserConnect(did: string): void {
-      tracker.setOnline(did);
+    async handleUserConnect(did: string): Promise<void> {
+      await tracker.setOnline(did);
     },
 
-    handleUserDisconnect(did: string): void {
-      tracker.setOffline(did);
+    async handleUserDisconnect(did: string): Promise<void> {
+      await tracker.setOffline(did);
     },
 
-    handleStatusChange(
+    async handleStatusChange(
       did: string,
       status: PresenceStatus,
       awayMessage?: string,
       visibleTo?: PresenceVisibility,
-    ): void {
-      tracker.setStatus(did, status, awayMessage, visibleTo);
+    ): Promise<void> {
+      await tracker.setStatus(did, status, awayMessage, visibleTo);
     },
 
-    handleJoinRoom(did: string, roomId: string): void {
-      tracker.joinRoom(did, roomId);
+    async handleJoinRoom(did: string, roomId: string): Promise<void> {
+      await tracker.joinRoom(did, roomId);
     },
 
-    handleLeaveRoom(did: string, roomId: string): void {
-      tracker.leaveRoom(did, roomId);
+    async handleLeaveRoom(did: string, roomId: string): Promise<void> {
+      await tracker.leaveRoom(did, roomId);
     },
 
-    getUserStatus(did: string): PresenceStatus {
+    async getUserStatus(did: string): Promise<PresenceStatus> {
       return tracker.getStatus(did);
     },
 
-    getPresence(did: string): { status: PresenceStatus; awayMessage?: string } {
+    async getPresence(did: string): Promise<{ status: PresenceStatus; awayMessage?: string }> {
       return tracker.getPresence(did);
     },
 
-    getVisibleTo(did: string): PresenceVisibility {
+    async getVisibleTo(did: string): Promise<PresenceVisibility> {
       return tracker.getVisibleTo(did);
     },
 
-    getRoomPresence(roomId: string): string[] {
+    async getRoomPresence(roomId: string): Promise<string[]> {
       return tracker.getRoomMembers(roomId);
     },
 
-    getBulkPresence(dids: string[]): Array<{ did: string; status: string; awayMessage?: string }> {
-      const presenceMap = tracker.getPresenceBulk(dids);
+    async getBulkPresence(
+      dids: string[],
+    ): Promise<Array<{ did: string; status: string; awayMessage?: string }>> {
+      const presenceMap = await tracker.getPresenceBulk(dids);
       return dids.map((did) => {
         const p = presenceMap.get(did) ?? { status: 'offline' };
         return { did, status: p.status, awayMessage: p.awayMessage };
       });
     },
 
-    getUserRooms(did: string): Set<string> {
+    async getUserRooms(did: string): Promise<Set<string>> {
       return tracker.getUserRooms(did);
     },
   };

@@ -1,6 +1,11 @@
 .item {
   padding: var(--cm-space-1) var(--cm-space-2) var(--cm-space-1) var(--cm-space-3);
   line-height: 1.4;
+  position: relative;
+}
+
+.item:hover .actions {
+  opacity: 1;
 }
 
 .pending {
@@ -48,4 +53,47 @@
 
 .revealBtn:hover {
   color: var(--cm-primary-dark);
+}
+
+/* ── Actions bar (reply button + thread count) ── */
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: var(--cm-space-3);
+  margin-top: var(--cm-space-1);
+  opacity: 0;
+  transition: opacity var(--cm-duration-fast);
+}
+
+.threadBtn {
+  background: none;
+  border: none;
+  color: var(--color-primary);
+  font-size: var(--cm-text-sm);
+  font-weight: 700;
+  cursor: pointer;
+  padding: 0;
+}
+
+.threadBtn:hover {
+  text-decoration: underline;
+}
+
+.replyBtn {
+  background: none;
+  border: none;
+  color: var(--cm-border-dark);
+  font-size: var(--cm-text-sm);
+  cursor: pointer;
+  padding: 0;
+}
+
+.replyBtn:hover {
+  color: var(--color-primary);
+}
+
+/* Always show actions if there are thread replies (they have the count badge) */
+.item:has(.threadBtn) .actions {
+  opacity: 1;
 }

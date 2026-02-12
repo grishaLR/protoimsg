@@ -22,8 +22,8 @@
 }
 
 .inputCompact:focus {
-  outline: var(--cm-space-0.5) solid var(--cm-focus);
-  outline-offset: var(--cm-focus-inset-lg);
+  outline: var(--cm-focus-thin) solid var(--cm-focus);
+  outline-offset: var(--cm-focus-offset);
 }
 
 .inputDefault {
@@ -45,8 +45,8 @@
 }
 
 .inputDefault:focus {
-  outline: var(--cm-space-0\.5) dotted var(--cm-focus);
-  outline-offset: var(--cm-focus-inset);
+  outline: var(--cm-focus-thin) dotted var(--cm-focus);
+  outline-offset: var(--cm-focus-offset);
 }
 
 /* ---- Dropdown ---- */
@@ -59,7 +59,7 @@
   background: var(--color-base-100);
   border-radius: var(--cm-radius-md);
   box-shadow: var(--cm-raised), var(--cm-window-shadow);
-  z-index: 200;
+  z-index: var(--cm-z-popover);
   overflow: hidden;
 }
 

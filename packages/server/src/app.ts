@@ -2,7 +2,7 @@ import express, { type Express } from 'express';
 import helmet from 'helmet';
 import { corsMiddleware } from './middleware/cors.js';
 import { createErrorHandler } from './middleware/error.js';
-import { requestLogger } from './middleware/logger.js';
+import { createRequestLogger } from './middleware/logger.js';
 import { createRateLimitMiddleware } from './middleware/rate-limit.js';
 import { roomsRouter } from './rooms/router.js';
 import { messagesRouter } from './messages/router.js';
@@ -16,8 +16,8 @@ import { dmRouter } from './dms/router.js';
 import type { Config } from './config.js';
 import type { Sql } from './db/client.js';
 import type { PresenceService } from './presence/service.js';
-import type { SessionStore } from './auth/session.js';
-import type { RateLimiter } from './moderation/rate-limiter.js';
+import type { SessionStore } from './auth/session-store.js';
+import type { RateLimiterStore } from './moderation/rate-limiter-store.js';
 import type { BlockService } from './moderation/block-service.js';
 
 export function createApp(
@@ -25,8 +25,8 @@ export function createApp(
   sql: Sql,
   presenceService: PresenceService,
   sessions: SessionStore,
-  rateLimiter: RateLimiter,
-  authRateLimiter: RateLimiter,
+  rateLimiter: RateLimiterStore,
+  authRateLimiter: RateLimiterStore,
   blockService: BlockService,
 ): Express {
   const app = express();
@@ -34,9 +34,9 @@ export function createApp(
 
   // Middleware
   app.use(helmet());
-  app.use(express.json());
+  app.use(express.json({ limit: '100kb' }));
   app.use(corsMiddleware(config));
-  app.use(requestLogger);
+  app.use(createRequestLogger());
 
   // Health check (unprotected)
   app.get('/health', (_req, res) => {

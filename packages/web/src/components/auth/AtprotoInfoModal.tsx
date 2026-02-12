@@ -1,4 +1,4 @@
-import { useRef, useEffect } from 'react';
+import { useRef, useEffect, useCallback } from 'react';
 import styles from './AtprotoInfoModal.module.css';
 
 interface AtprotoInfoModalProps {
@@ -55,13 +55,22 @@ const COMMUNITY_PDS_PROVIDERS = [
 
 export function AtprotoInfoModal({ onClose }: AtprotoInfoModalProps) {
   const dialogRef = useRef<HTMLDialogElement>(null);
+  const previousActiveRef = useRef<HTMLElement | null>(null);
 
   useEffect(() => {
-    dialogRef.current?.showModal();
+    const el = dialogRef.current;
+    if (!el) return;
+    previousActiveRef.current = document.activeElement as HTMLElement | null;
+    el.showModal();
   }, []);
 
+  const handleClose = useCallback(() => {
+    previousActiveRef.current?.focus();
+    onClose();
+  }, [onClose]);
+
   return (
-    <dialog ref={dialogRef} className={styles.dialog} onClose={onClose}>
+    <dialog ref={dialogRef} className={styles.dialog} onClose={handleClose}>
       <div className={styles.titleBar}>What is atproto?</div>
       <div className={styles.content}>
         <section className={styles.section}>

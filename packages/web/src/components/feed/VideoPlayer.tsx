@@ -49,12 +49,23 @@ export function VideoPlayer({ playlist, thumbnail }: VideoPlayerProps) {
     return (
       <div
         className={styles.poster}
+        role="button"
+        tabIndex={0}
+        aria-label="Play video"
         onClick={() => {
           setPlaying(true);
         }}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            setPlaying(true);
+          }
+        }}
       >
         {thumbnail && <img className={styles.posterImg} src={thumbnail} alt="" loading="lazy" />}
-        <span className={styles.playIcon}>&#9654;</span>
+        <span className={styles.playIcon} aria-hidden="true">
+          &#9654;
+        </span>
       </div>
     );
   }

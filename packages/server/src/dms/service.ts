@@ -2,6 +2,9 @@ import { randomUUID } from 'node:crypto';
 import { DM_LIMITS } from '@protoimsg/shared';
 import { filterText } from '../moderation/filter.js';
 import type { Sql } from '../db/client.js';
+import { createLogger } from '../logger.js';
+
+const log = createLogger('dms');
 import {
   computeConversationId,
   sortDids,
@@ -107,7 +110,7 @@ export function createDmService(sql: Sql): DmService {
       if (deleted > 0) {
         const pruned = await pruneEmptyConversations(sql);
         if (pruned > 0) {
-          console.info(`Pruned ${String(pruned)} empty DM conversations`);
+          log.info({ count: pruned }, 'Pruned empty DM conversations');
         }
       }
     },

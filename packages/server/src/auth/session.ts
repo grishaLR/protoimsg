@@ -1,29 +1,20 @@
 import { randomUUID } from 'crypto';
-
-/**
- * MVP limitation: Sessions are in-memory only. They are lost on server restart
- * and cannot be shared across multiple instances. For production, persist
- * sessions to Redis or Postgres.
- */
-
-export interface Session {
-  did: string;
-  handle: string;
-  createdAt: number;
-  expiresAt: number;
-}
+import type { Session, SessionStore } from './session-store.js';
 
 const DEFAULT_TTL_MS = 8 * 60 * 60 * 1000; // 8 hours
 
-export class SessionStore {
+export class InMemorySessionStore implements SessionStore {
   private sessions = new Map<string, Session>();
   private ttlMs: number;
 
   constructor(ttlMs = DEFAULT_TTL_MS) {
+    if (ttlMs <= 0) {
+      throw new Error('Session TTL must be greater than 0');
+    }
     this.ttlMs = ttlMs;
   }
 
-  create(did: string, handle: string, ttlMs?: number): string {
+  create(did: string, handle: string, ttlMs?: number): Promise<string> {
     const token = randomUUID();
     const now = Date.now();
     this.sessions.set(token, {
@@ -32,42 +23,41 @@ export class SessionStore {
       createdAt: now,
       expiresAt: now + (ttlMs ?? this.ttlMs),
     });
-    return token;
+    return Promise.resolve(token);
   }
 
-  get(token: string): Session | undefined {
+  get(token: string): Promise<Session | undefined> {
     const session = this.sessions.get(token);
-    if (!session) return undefined;
+    if (!session) return Promise.resolve(undefined);
     if (Date.now() >= session.expiresAt) {
       this.sessions.delete(token);
-      return undefined;
+      return Promise.resolve(undefined);
     }
-    return session;
+    return Promise.resolve(session);
   }
 
-  delete(token: string): void {
+  delete(token: string): Promise<void> {
     this.sessions.delete(token);
+    return Promise.resolve();
   }
 
-  /** Check if any active session exists for a DID. */
-  hasDid(did: string): boolean {
+  hasDid(did: string): Promise<boolean> {
     for (const session of this.sessions.values()) {
-      if (session.did === did) return true;
+      if (session.did === did) return Promise.resolve(true);
     }
-    return false;
+    return Promise.resolve(false);
   }
 
-  /** Update handle for all sessions belonging to a DID (e.g. after identity event). */
-  updateHandle(did: string, newHandle: string): void {
+  updateHandle(did: string, newHandle: string): Promise<void> {
     for (const session of this.sessions.values()) {
       if (session.did === did) {
         session.handle = newHandle;
       }
     }
+    return Promise.resolve();
   }
 
-  /** Revoke all sessions for a DID. Returns true if any were revoked. */
-  revokeByDid(did: string): boolean {
+  revokeByDid(did: string): Promise<boolean> {
     let revoked = false;
     for (const [token, session] of this.sessions) {
       if (session.did === did) {
@@ -75,10 +65,10 @@ export class SessionStore {
         revoked = true;
       }
     }
-    return revoked;
+    return Promise.resolve(revoked);
   }
 
-  prune(): number {
+  prune(): Promise<number> {
     const now = Date.now();
     let pruned = 0;
     for (const [token, session] of this.sessions) {
@@ -87,6 +77,6 @@ export class SessionStore {
         pruned++;
       }
     }
-    return pruned;
+    return Promise.resolve(pruned);
   }
 }

@@ -4,7 +4,7 @@
   "defs": {
     "main": {
       "type": "record",
-      "description": "A poll within a chat room. Lives in the creator's repo.",
+      "description": "A poll within a chat room. Lives in the creator's repo. Schema defined for future use — polls not yet implemented in the protoimsg server.",
       "key": "tid",
       "record": {
         "type": "object",

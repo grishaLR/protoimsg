@@ -89,7 +89,7 @@
   border-radius: var(--cm-radius-md);
   box-shadow: var(--cm-raised), var(--cm-window-shadow);
   min-width: var(--cm-dropdown-min-w-md);
-  z-index: 100;
+  z-index: var(--cm-z-sticky);
   padding: var(--cm-space-1);
 }
 
@@ -162,8 +162,8 @@
 }
 
 .awayInput:focus {
-  outline: var(--cm-space-0.5) solid var(--cm-focus);
-  outline-offset: var(--cm-focus-inset-lg);
+  outline: var(--cm-focus-thin) solid var(--cm-focus);
+  outline-offset: var(--cm-focus-offset);
 }
 
 /* Visibility section (inside dropdown) */

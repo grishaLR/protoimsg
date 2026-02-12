@@ -106,6 +106,16 @@ function renderFeature(
   }
 }
 
+/** Basic structural check — skip facets that would crash the renderer */
+function isValidFacet(facet: GenericFacet | RichTextFacet, byteLen: number): boolean {
+  const { index, features } = facet;
+  if (index.byteStart < 0 || index.byteEnd < 0) return false;
+  if (index.byteStart >= index.byteEnd) return false;
+  if (index.byteEnd > byteLen) return false;
+  if (!Array.isArray(features) || features.length === 0) return false;
+  return true;
+}
+
 /**
  * Renders text with atproto facets (mentions, links, tags).
  * Uses TextEncoder/TextDecoder for correct UTF-8 byte offset → string conversion.
@@ -120,14 +130,19 @@ export function RichText({ text, facets, onMentionClick }: RichTextProps) {
   const bytes = encoder.encode(text);
   const decoder = new TextDecoder();
 
-  // Sort facets by byte start position
-  const sorted = [...facets].sort((a, b) => a.index.byteStart - b.index.byteStart);
+  // Filter out malformed facets, then sort by byte start position
+  const sorted = [...facets]
+    .filter((f) => isValidFacet(f, bytes.length))
+    .sort((a, b) => a.index.byteStart - b.index.byteStart);
 
   const segments: ReactNode[] = [];
   let lastByteEnd = 0;
 
   for (const facet of sorted) {
     const { byteStart, byteEnd } = facet.index;
+
+    // Skip overlapping facets
+    if (byteStart < lastByteEnd) continue;
 
     // Text before this facet
     if (byteStart > lastByteEnd) {

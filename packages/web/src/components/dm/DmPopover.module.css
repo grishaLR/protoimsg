@@ -72,8 +72,8 @@
 }
 
 .headerBtn:focus-visible {
-  outline: var(--cm-space-0.5) dotted var(--cm-focus);
-  outline-offset: var(--cm-focus-inset);
+  outline: var(--cm-focus-thin) dotted var(--cm-focus);
+  outline-offset: var(--cm-focus-offset);
 }
 
 .persistBtn {

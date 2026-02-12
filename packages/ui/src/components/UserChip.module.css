@@ -24,7 +24,7 @@
 .avatarBlurred {
   filter: blur(var(--cm-blur-base));
   cursor: pointer;
-  transition: filter 0.15s ease;
+  transition: filter var(--cm-duration-normal) ease;
 }
 
 .avatarBlurred:hover {

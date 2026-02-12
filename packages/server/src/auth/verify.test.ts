@@ -14,8 +14,8 @@ describe('isValidDid', () => {
     expect(isValidDid('plc:abcdef')).toBe(false);
   });
 
-  it('rejects unknown method', () => {
-    expect(isValidDid('did:key:z6Mk')).toBe(false);
+  it('accepts did:key (any DID method per DID Core)', () => {
+    expect(isValidDid('did:key:z6Mk')).toBe(true);
   });
 
   it('rejects empty string', () => {

@@ -23,9 +23,14 @@ export function useBuddyList() {
   const [buddies, setBuddies] = useState<MemberWithPresence[]>([]);
   const [doorEvents, setDoorEvents] = useState<Record<string, DoorEvent>>({});
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<Error | null>(null);
   const [groups, setGroups] = useState<CommunityGroup[]>([]);
   const prevStatusRef = useRef<Map<string, string>>(new Map());
-  const doorTimersRef = useRef<ReturnType<typeof setTimeout>[]>([]);
+  const doorTimersRef = useRef<Set<ReturnType<typeof setTimeout>>>(new Set());
+
+  // M46: ref for callbacks to read latest groups — avoids stale closure when rapid ops occur
+  const groupsRef = useRef(groups);
+  groupsRef.current = groups;
 
   // Derive inner-circle DIDs from groups (memoized to avoid recomputing on every render)
   const innerCircleDids = useMemo(
@@ -45,117 +50,124 @@ export function useBuddyList() {
     cancelledRef.current = false;
     const currentAgent = agent;
 
+    setError(null);
     async function load() {
-      const pdsGroups = await getCommunityListRecord(currentAgent);
-      if (cancelledRef.current) return;
+      try {
+        const pdsGroups = await getCommunityListRecord(currentAgent);
+        if (cancelledRef.current) return;
 
-      // Migrate legacy "Buddies" → "Community", "Close Friends" → "Inner Circle"
-      let seeded = pdsGroups.map((g) => {
-        if (g.name === 'Buddies') return { ...g, name: DEFAULT_GROUP };
-        if (g.name === 'Close Friends')
-          return { ...g, name: INNER_CIRCLE_GROUP, isInnerCircle: true };
-        return g;
-      });
+        // Migrate legacy "Buddies" → "Community", "Close Friends" → "Inner Circle"
+        let seeded = pdsGroups.map((g) => {
+          if (g.name === 'Buddies') return { ...g, name: DEFAULT_GROUP };
+          if (g.name === 'Close Friends')
+            return { ...g, name: INNER_CIRCLE_GROUP, isInnerCircle: true };
+          return g;
+        });
 
-      // Deduplicate: merge members of groups with the same name
-      const groupMap = new Map<string, CommunityGroup>();
-      for (const g of seeded) {
-        const existing = groupMap.get(g.name);
-        if (existing) {
-          const existingDids = new Set(existing.members.map((m) => m.did));
-          const merged = [
-            ...existing.members,
-            ...g.members.filter((m) => !existingDids.has(m.did)),
-          ];
-          groupMap.set(g.name, { ...existing, members: merged });
-        } else {
-          groupMap.set(g.name, g);
-        }
-      }
-      seeded = [...groupMap.values()];
-
-      // Ensure the two default groups always exist (even if empty)
-      const hasDefault = seeded.some((g) => g.name === DEFAULT_GROUP);
-      const hasInnerCircle = seeded.some((g) => g.name === INNER_CIRCLE_GROUP);
-      if (!hasDefault) seeded = [{ name: DEFAULT_GROUP, members: [] }, ...seeded];
-      if (!hasInnerCircle)
-        seeded = [...seeded, { name: INNER_CIRCLE_GROUP, isInnerCircle: true, members: [] }];
-
-      // Persist if anything changed
-      if (JSON.stringify(seeded) !== JSON.stringify(pdsGroups)) {
-        await putCommunityListRecord(currentAgent, seeded);
-      }
-      setGroups(seeded);
-
-      // Flatten all DIDs (deduplicated)
-      const addedAtMap = new Map<string, string>();
-      for (const g of pdsGroups) {
-        for (const m of g.members) {
-          if (!addedAtMap.has(m.did)) {
-            addedAtMap.set(m.did, m.addedAt);
+        // Deduplicate: merge members of groups with the same name
+        const groupMap = new Map<string, CommunityGroup>();
+        for (const g of seeded) {
+          const existing = groupMap.get(g.name);
+          if (existing) {
+            const existingDids = new Set(existing.members.map((m) => m.did));
+            const merged = [
+              ...existing.members,
+              ...g.members.filter((m) => !existingDids.has(m.did)),
+            ];
+            groupMap.set(g.name, { ...existing, members: merged });
+          } else {
+            groupMap.set(g.name, g);
           }
         }
-      }
-      const allDids = [...addedAtMap.keys()];
+        seeded = [...groupMap.values()];
 
-      if (allDids.length === 0) {
-        setBuddies([]);
-        setLoading(false);
-        return;
-      }
+        // Ensure the two default groups always exist (even if empty)
+        const hasDefault = seeded.some((g) => g.name === DEFAULT_GROUP);
+        const hasInnerCircle = seeded.some((g) => g.name === INNER_CIRCLE_GROUP);
+        if (!hasDefault) seeded = [{ name: DEFAULT_GROUP, members: [] }, ...seeded];
+        if (!hasInnerCircle)
+          seeded = [...seeded, { name: INNER_CIRCLE_GROUP, isInnerCircle: true, members: [] }];
 
-      const cfDids = new Set(
-        pdsGroups
-          .filter((g) => g.isInnerCircle === true)
-          .flatMap((g) => g.members.map((m) => m.did)),
-      );
+        // Persist if anything changed
+        if (JSON.stringify(seeded) !== JSON.stringify(pdsGroups)) {
+          await putCommunityListRecord(currentAgent, seeded);
+        }
+        setGroups(seeded);
 
-      // Fetch atproto block records to restore blockRkey for unblock operations
-      const blockMap = new Map<string, string>(); // subject DID → rkey
-      try {
-        let blockCursor: string | undefined;
-        do {
-          const res = await currentAgent.com.atproto.repo.listRecords({
-            repo: currentAgent.assertDid,
-            collection: 'app.bsky.graph.block',
-            limit: 100,
-            cursor: blockCursor,
-          });
-          for (const rec of res.data.records) {
-            const subject = (rec.value as { subject?: string }).subject;
-            if (subject) {
-              const rkey = rec.uri.split('/').pop();
-              if (rkey) blockMap.set(subject, rkey);
+        // Flatten all DIDs (deduplicated)
+        const addedAtMap = new Map<string, string>();
+        for (const g of pdsGroups) {
+          for (const m of g.members) {
+            if (!addedAtMap.has(m.did)) {
+              addedAtMap.set(m.did, m.addedAt);
             }
           }
-          blockCursor = res.data.cursor;
-        } while (blockCursor);
-      } catch {
-        // Non-critical — block state just won't be restored
+        }
+        const allDids = [...addedAtMap.keys()];
+
+        if (allDids.length === 0) {
+          setBuddies([]);
+          setLoading(false);
+          return;
+        }
+
+        const cfDids = new Set(
+          pdsGroups
+            .filter((g) => g.isInnerCircle === true)
+            .flatMap((g) => g.members.map((m) => m.did)),
+        );
+
+        // Fetch atproto block records to restore blockRkey for unblock operations
+        const blockMap = new Map<string, string>(); // subject DID → rkey
+        try {
+          let blockCursor: string | undefined;
+          do {
+            const res = await currentAgent.com.atproto.repo.listRecords({
+              repo: currentAgent.assertDid,
+              collection: 'app.bsky.graph.block',
+              limit: 100,
+              cursor: blockCursor,
+            });
+            for (const rec of res.data.records) {
+              const subject = (rec.value as { subject?: string }).subject;
+              if (subject) {
+                const rkey = rec.uri.split('/').pop();
+                if (rkey) blockMap.set(subject, rkey);
+              }
+            }
+            blockCursor = res.data.cursor;
+          } while (blockCursor);
+        } catch {
+          // Non-critical — block state just won't be restored
+        }
+
+        // Default all buddies to offline — WS request_community_presence
+        // will deliver block-filtered presence shortly after
+        setBuddies(
+          allDids.map((did) => ({
+            did,
+            status: 'offline',
+            addedAt: addedAtMap.get(did) ?? new Date().toISOString(),
+            isInnerCircle: cfDids.has(did),
+            blockRkey: blockMap.get(did),
+          })),
+        );
+        setLoading(false);
+
+        // Sync community data to server so visibility checks work
+        send({ type: 'sync_community', groups: seeded });
+        // Re-broadcast visibility now that community data is synced.
+        // The server queues messages, so sync_community's DB writes complete
+        // before this status_change triggers communityWatchers.notify.
+        const cachedVis = getCachedVisibility();
+        send({ type: 'status_change', status: 'online', visibleTo: cachedVis });
+        // Request block-filtered presence via WS
+        send({ type: 'request_community_presence', dids: allDids });
+      } catch (err) {
+        if (cancelledRef.current) return;
+        setError(err instanceof Error ? err : new Error(String(err)));
+        setLoading(false);
       }
-
-      // Default all buddies to offline — WS request_community_presence
-      // will deliver block-filtered presence shortly after
-      setBuddies(
-        allDids.map((did) => ({
-          did,
-          status: 'offline',
-          addedAt: addedAtMap.get(did) ?? new Date().toISOString(),
-          isInnerCircle: cfDids.has(did),
-          blockRkey: blockMap.get(did),
-        })),
-      );
-      setLoading(false);
-
-      // Sync community data to server so visibility checks work
-      send({ type: 'sync_community', groups: seeded });
-      // Re-broadcast visibility now that community data is synced.
-      // The server queues messages, so sync_community's DB writes complete
-      // before this status_change triggers communityWatchers.notify.
-      const cachedVis = getCachedVisibility();
-      send({ type: 'status_change', status: 'online', visibleTo: cachedVis });
-      // Request block-filtered presence via WS
-      send({ type: 'request_community_presence', dids: allDids });
     }
 
     void load();
@@ -170,12 +182,13 @@ export function useBuddyList() {
 
     setDoorEvents((prev) => ({ ...prev, [did]: event }));
     const t = setTimeout(() => {
+      doorTimersRef.current.delete(t);
       setDoorEvents((prev) => {
         const { [did]: _, ...rest } = prev;
         return rest;
       });
     }, DOOR_LINGER_MS);
-    doorTimersRef.current.push(t);
+    doorTimersRef.current.add(t);
   }, []);
 
   const checkTransition = useCallback(
@@ -227,19 +240,20 @@ export function useBuddyList() {
     async (did: string) => {
       if (!agent) return;
 
+      const currentGroups = groupsRef.current;
       const now = new Date().toISOString();
       const newMember = { did, addedAt: now };
 
       // Update local groups
       let updatedGroups: CommunityGroup[];
-      const defaultGroup = groups.find((g) => g.name === DEFAULT_GROUP);
+      const defaultGroup = currentGroups.find((g) => g.name === DEFAULT_GROUP);
       if (defaultGroup) {
         if (defaultGroup.members.some((m) => m.did === did)) return; // already exists
-        updatedGroups = groups.map((g) =>
+        updatedGroups = currentGroups.map((g) =>
           g.name === DEFAULT_GROUP ? { ...g, members: [...g.members, newMember] } : g,
         );
       } else {
-        updatedGroups = [...groups, { name: DEFAULT_GROUP, members: [newMember] }];
+        updatedGroups = [...currentGroups, { name: DEFAULT_GROUP, members: [newMember] }];
       }
 
       setGroups(updatedGroups);
@@ -261,14 +275,14 @@ export function useBuddyList() {
         );
       }
     },
-    [agent, groups, send],
+    [agent, send],
   );
 
   const removeBuddy = useCallback(
     async (did: string) => {
       if (!agent) return;
 
-      const updatedGroups = groups.map((g) => ({
+      const updatedGroups = groupsRef.current.map((g) => ({
         ...g,
         members: g.members.filter((m) => m.did !== did),
       }));
@@ -279,14 +293,15 @@ export function useBuddyList() {
       await putCommunityListRecord(agent, updatedGroups);
       send({ type: 'sync_community', groups: updatedGroups });
     },
-    [agent, groups, send],
+    [agent, send],
   );
 
   const toggleInnerCircle = useCallback(
     async (did: string) => {
       if (!agent) return;
 
-      let cfGroup = groups.find((g) => g.name === INNER_CIRCLE_GROUP);
+      const currentGroups = groupsRef.current;
+      let cfGroup = currentGroups.find((g) => g.name === INNER_CIRCLE_GROUP);
       let updatedGroups: CommunityGroup[];
 
       if (!cfGroup) {
@@ -296,19 +311,19 @@ export function useBuddyList() {
           isInnerCircle: true,
           members: [{ did, addedAt: new Date().toISOString() }],
         };
-        updatedGroups = [...groups, cfGroup];
+        updatedGroups = [...currentGroups, cfGroup];
       } else {
         const alreadyIn = cfGroup.members.some((m) => m.did === did);
         if (alreadyIn) {
           // Remove from close friends
-          updatedGroups = groups.map((g) =>
+          updatedGroups = currentGroups.map((g) =>
             g.name === INNER_CIRCLE_GROUP
               ? { ...g, members: g.members.filter((m) => m.did !== did) }
               : g,
           );
         } else {
           // Add to close friends
-          updatedGroups = groups.map((g) =>
+          updatedGroups = currentGroups.map((g) =>
             g.name === INNER_CIRCLE_GROUP
               ? { ...g, members: [...g.members, { did, addedAt: new Date().toISOString() }] }
               : g,
@@ -328,7 +343,7 @@ export function useBuddyList() {
       await putCommunityListRecord(agent, updatedGroups);
       send({ type: 'sync_community', groups: updatedGroups });
     },
-    [agent, groups, send],
+    [agent, send],
   );
 
   const blockBuddy = useCallback(
@@ -370,15 +385,16 @@ export function useBuddyList() {
       if (!agent) return;
       const trimmed = name.trim();
       if (!trimmed) return;
-      if (groups.some((g) => g.name === trimmed)) return;
-      if (groups.length >= MAX_GROUPS) return;
+      const currentGroups = groupsRef.current;
+      if (currentGroups.some((g) => g.name === trimmed)) return;
+      if (currentGroups.length >= MAX_GROUPS) return;
 
-      const updatedGroups = [...groups, { name: trimmed, members: [] }];
+      const updatedGroups = [...currentGroups, { name: trimmed, members: [] }];
       setGroups(updatedGroups);
       await putCommunityListRecord(agent, updatedGroups);
       send({ type: 'sync_community', groups: updatedGroups });
     },
-    [agent, groups, send],
+    [agent, send],
   );
 
   const renameGroup = useCallback(
@@ -386,36 +402,40 @@ export function useBuddyList() {
       if (!agent) return;
       const trimmed = newName.trim();
       if (!trimmed || trimmed === oldName) return;
-      if (groups.some((g) => g.name === trimmed)) return;
+      const currentGroups = groupsRef.current;
+      if (currentGroups.some((g) => g.name === trimmed)) return;
 
-      const updatedGroups = groups.map((g) => (g.name === oldName ? { ...g, name: trimmed } : g));
+      const updatedGroups = currentGroups.map((g) =>
+        g.name === oldName ? { ...g, name: trimmed } : g,
+      );
       setGroups(updatedGroups);
       await putCommunityListRecord(agent, updatedGroups);
       send({ type: 'sync_community', groups: updatedGroups });
     },
-    [agent, groups, send],
+    [agent, send],
   );
 
   const deleteGroup = useCallback(
     async (name: string) => {
       if (!agent) return;
       if (PROTECTED_GROUPS.has(name)) return;
-      const group = groups.find((g) => g.name === name);
+      const currentGroups = groupsRef.current;
+      const group = currentGroups.find((g) => g.name === name);
       if (!group || group.members.length > 0) return;
 
-      const updatedGroups = groups.filter((g) => g.name !== name);
+      const updatedGroups = currentGroups.filter((g) => g.name !== name);
       setGroups(updatedGroups);
       await putCommunityListRecord(agent, updatedGroups);
       send({ type: 'sync_community', groups: updatedGroups });
     },
-    [agent, groups, send],
+    [agent, send],
   );
 
   const moveBuddy = useCallback(
     async (did: string, fromGroup: string, toGroup: string) => {
       if (!agent || fromGroup === toGroup) return;
 
-      const updatedGroups = groups.map((g) => {
+      const updatedGroups = groupsRef.current.map((g) => {
         if (g.name === fromGroup) {
           return { ...g, members: g.members.filter((m) => m.did !== did) };
         }
@@ -430,14 +450,14 @@ export function useBuddyList() {
       await putCommunityListRecord(agent, updatedGroups);
       send({ type: 'sync_community', groups: updatedGroups });
     },
-    [agent, groups, send],
+    [agent, send],
   );
 
   // Cleanup door timers on unmount
   useEffect(() => {
-    const timers = doorTimersRef.current;
     return () => {
-      timers.forEach(clearTimeout);
+      for (const t of doorTimersRef.current) clearTimeout(t);
+      doorTimersRef.current.clear();
     };
   }, []);
 
@@ -446,6 +466,7 @@ export function useBuddyList() {
     groups,
     doorEvents,
     loading,
+    error,
     addBuddy,
     removeBuddy,
     toggleInnerCircle,

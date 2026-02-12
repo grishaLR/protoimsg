@@ -2,11 +2,12 @@ import { describe, it, expect, afterEach } from 'vitest';
 import { createServer } from 'http';
 import WebSocket from 'ws';
 import { createWsServer } from './server.js';
-import { SessionStore } from '../auth/session.js';
-import { RateLimiter } from '../moderation/rate-limiter.js';
+import { InMemorySessionStore } from '../auth/session.js';
+import type { SessionStore } from '../auth/session-store.js';
+import { InMemoryRateLimiter } from '../moderation/rate-limiter.js';
 import { BlockService } from '../moderation/block-service.js';
 import { createPresenceService } from '../presence/service.js';
-import { PresenceTracker } from '../presence/tracker.js';
+import { InMemoryPresenceTracker } from '../presence/tracker.js';
 import type { DmService } from '../dms/service.js';
 
 // Minimal mock for Sql — ws server only passes it through
@@ -25,9 +26,9 @@ const mockDmService = {
 
 function setup() {
   const httpServer = createServer();
-  const sessions = new SessionStore();
-  const rateLimiter = new RateLimiter();
-  const tracker = new PresenceTracker();
+  const sessions = new InMemorySessionStore();
+  const rateLimiter = new InMemoryRateLimiter();
+  const tracker = new InMemoryPresenceTracker();
   const service = createPresenceService(tracker);
   const blockService = new BlockService();
   const wss = createWsServer(
@@ -55,13 +56,14 @@ function setup() {
         sessions,
         wss,
         url: `ws://127.0.0.1:${String(port)}/ws`,
-        cleanup: () =>
-          new Promise<void>((done) => {
-            wss.close();
+        cleanup: async () => {
+          await wss.close();
+          await new Promise<void>((done) => {
             httpServer.close(() => {
               done();
             });
-          }),
+          });
+        },
       });
     });
   });
@@ -78,7 +80,7 @@ describe('WS token auth', () => {
   it('authenticates with valid token', async () => {
     const ctx = await setup();
     cleanup = ctx.cleanup;
-    const token = ctx.sessions.create('did:plc:test', 'test.bsky.social');
+    const token = await ctx.sessions.create('did:plc:test', 'test.bsky.social');
 
     const ws = new WebSocket(ctx.url);
     const messages: string[] = [];

@@ -6,7 +6,7 @@
   flex-direction: row-reverse;
   align-items: flex-start;
   gap: var(--cm-space-2);
-  z-index: 1000;
+  z-index: var(--cm-z-dm);
   pointer-events: none;
   max-width: calc(100vw - var(--cm-space-16));
   flex-wrap: wrap-reverse;
