@@ -2,7 +2,7 @@ import express, { type Express } from 'express';
 import helmet from 'helmet';
 import { corsMiddleware } from './middleware/cors.js';
 import { createErrorHandler } from './middleware/error.js';
-import { requestLogger } from './middleware/logger.js';
+import { createRequestLogger } from './middleware/logger.js';
 import { createRateLimitMiddleware } from './middleware/rate-limit.js';
 import { roomsRouter } from './rooms/router.js';
 import { messagesRouter } from './messages/router.js';
@@ -36,7 +36,7 @@ export function createApp(
   app.use(helmet());
   app.use(express.json({ limit: '100kb' }));
   app.use(corsMiddleware(config));
-  app.use(requestLogger);
+  app.use(createRequestLogger());
 
   // Health check (unprotected)
   app.get('/health', (_req, res) => {

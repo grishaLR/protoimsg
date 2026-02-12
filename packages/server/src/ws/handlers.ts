@@ -13,6 +13,7 @@ import type { Sql } from '../db/client.js';
 import type { RateLimiterStore } from '../moderation/rate-limiter-store.js';
 import { checkUserAccess } from '../moderation/service.js';
 import type { BlockService } from '../moderation/block-service.js';
+import { createLogger } from '../logger.js';
 import {
   syncCommunityMembers,
   upsertCommunityList,
@@ -25,6 +26,7 @@ import { resolveVisibleStatus } from '../presence/visibility.js';
  * Per-user-per-room typing throttle. Prevents a single client from flooding
  * a room with typing indicators. Key: "roomId:did", value: last broadcast timestamp.
  */
+const log = createLogger('ws');
 const TYPING_THROTTLE_MS = 3000;
 const typingThrottle = new Map<string, number>();
 
@@ -167,7 +169,7 @@ export async function handleClientMessage(
     }
 
     case 'sync_blocks': {
-      console.info(`[audit] sync_blocks — did=${did} count=${String(data.blockedDids.length)}`);
+      log.info({ did, count: data.blockedDids.length }, 'sync_blocks');
       blockService.sync(did, data.blockedDids);
       // Re-notify all watchers with block-filtered presence
       // (newly blocked get offline, newly unblocked get real status)

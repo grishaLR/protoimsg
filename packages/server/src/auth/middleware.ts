@@ -1,5 +1,8 @@
 import type { Request, Response, NextFunction } from 'express';
 import type { SessionStore } from './session-store.js';
+import { createLogger } from '../logger.js';
+
+const log = createLogger('auth');
 
 declare global {
   // eslint-disable-next-line @typescript-eslint/no-namespace
@@ -17,7 +20,7 @@ export function createRequireAuth(
   return (req: Request, res: Response, next: NextFunction): void => {
     const authHeader = req.headers.authorization;
     if (!authHeader?.startsWith('Bearer ')) {
-      console.warn(`[audit] auth rejected: missing header — ${req.method} ${req.path}`);
+      log.warn({ method: req.method, path: req.path }, 'Auth rejected: missing header');
       res.status(401).json({ error: 'Missing authorization header' });
       return;
     }
@@ -27,7 +30,7 @@ export function createRequireAuth(
       .get(token)
       .then((session) => {
         if (!session) {
-          console.warn(`[audit] auth rejected: invalid/expired token — ${req.method} ${req.path}`);
+          log.warn({ method: req.method, path: req.path }, 'Auth rejected: invalid/expired token');
           res.status(401).json({ error: 'Invalid or expired session' });
           return;
         }

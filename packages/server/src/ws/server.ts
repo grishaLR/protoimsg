@@ -14,7 +14,9 @@ import type { Sql } from '../db/client.js';
 import type { SessionStore } from '../auth/session-store.js';
 import type { RateLimiterStore } from '../moderation/rate-limiter-store.js';
 import { BlockService } from '../moderation/block-service.js';
+import { createLogger } from '../logger.js';
 
+const log = createLogger('ws');
 const AUTH_TIMEOUT_MS = 5000;
 const MAX_WS_CONNECTIONS_PER_IP = 20;
 
@@ -161,7 +163,7 @@ export function createWsServer(
             // would leak presence to users outside the visibility scope.
             cleanupHeartbeat = attachHeartbeat(ws);
             ws.send(JSON.stringify({ type: 'auth_success' }));
-            console.info(`WS authenticated: ${did}`);
+            log.info({ did }, 'WS authenticated');
           })
           .catch(() => {
             ws.close(4001, 'Auth error');
@@ -200,7 +202,7 @@ export function createWsServer(
           ),
         )
         .catch((err: unknown) => {
-          console.error('Message handler error:', err);
+          log.error({ err }, 'Message handler error');
         });
     });
 
@@ -244,12 +246,12 @@ export function createWsServer(
 
         // Keep block list across reconnections — it will be overwritten by
         // the next sync_blocks message, avoiding a flash of real presence.
-        console.info(`WS disconnected: ${did} (${String(remaining.size)} sessions remain)`);
+        log.info({ did, remaining: remaining.size }, 'WS disconnected');
       }
     });
 
     ws.on('error', (err) => {
-      console.error('WebSocket error:', err);
+      log.error({ err }, 'WebSocket error');
     });
   });
 

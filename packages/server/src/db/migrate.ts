@@ -2,6 +2,7 @@ import { readFileSync, readdirSync } from 'fs';
 import { dirname, join } from 'path';
 import { fileURLToPath } from 'url';
 import { loadConfig } from '../config.js';
+import { initLogger, createLogger } from '../logger.js';
 import { createDb } from './client.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -9,9 +10,11 @@ const MIGRATIONS_DIR = join(__dirname, 'migrations');
 
 async function migrate() {
   const config = loadConfig();
+  initLogger(config);
+  const log = createLogger('migrate');
   const sql = createDb(config.DATABASE_URL);
 
-  console.info('Running migrations...');
+  log.info('Running migrations...');
 
   // Bootstrap: ensure schema_migrations exists (idempotent)
   await sql.unsafe(`
@@ -30,7 +33,7 @@ async function migrate() {
       SELECT 1 FROM schema_migrations WHERE name = ${name}
     `;
     if (applied.length > 0) {
-      console.info(`  Skip ${name} (already applied)`);
+      log.info({ migration: name }, 'Skip (already applied)');
       continue;
     }
 
@@ -38,10 +41,10 @@ async function migrate() {
     const body = readFileSync(path, 'utf-8');
     await sql.unsafe(body);
     await sql`INSERT INTO schema_migrations (name) VALUES (${name})`;
-    console.info(`  Applied ${name}`);
+    log.info({ migration: name }, 'Applied');
   }
 
-  console.info('Migrations complete');
+  log.info('Migrations complete');
   await sql.end();
 }
 

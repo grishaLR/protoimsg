@@ -4,6 +4,7 @@
  * Run after migrations: pnpm --filter @protoimsg/server db:migrate && pnpm --filter @protoimsg/server db:seed
  */
 import { loadConfig } from '../config.js';
+import { initLogger, createLogger } from '../logger.js';
 import { createDb } from './client.js';
 import { createRoom } from '../rooms/queries.js';
 import { insertMessage } from '../messages/queries.js';
@@ -46,7 +47,7 @@ const SAMPLE_ROOMS = [
 
 const SAMPLE_MESSAGES: Record<string, string[]> = {
   'seed-general': [
-    'Welcome to protoimsg! 👋',
+    'Welcome to protoimsg! \ud83d\udc4b',
     'This is a sample room. The seed script populated this for local development.',
     'Feel free to explore, create rooms, and chat. Your data is local to your dev DB.',
   ],
@@ -58,7 +59,7 @@ const SAMPLE_MESSAGES: Record<string, string[]> = {
   'seed-offtopic': ['Off-topic chatter goes here!', 'What are you building today?'],
 };
 
-async function seedRooms(sql: Sql): Promise<void> {
+async function seedRooms(sql: Sql, log: ReturnType<typeof createLogger>): Promise<void> {
   const now = new Date().toISOString();
   for (const room of SAMPLE_ROOMS) {
     await createRoom(sql, {
@@ -77,10 +78,10 @@ async function seedRooms(sql: Sql): Promise<void> {
       createdAt: now,
     });
   }
-  console.info(`  Seeded ${SAMPLE_ROOMS.length} rooms`);
+  log.info({ count: SAMPLE_ROOMS.length }, 'Seeded rooms');
 }
 
-async function seedMessages(sql: Sql): Promise<void> {
+async function seedMessages(sql: Sql, log: ReturnType<typeof createLogger>): Promise<void> {
   let count = 0;
   const baseTime = Date.now() - 60 * 60 * 1000; // 1 hour ago
   for (const [roomId, texts] of Object.entries(SAMPLE_MESSAGES)) {
@@ -99,19 +100,21 @@ async function seedMessages(sql: Sql): Promise<void> {
       count++;
     }
   }
-  console.info(`  Seeded ${count} messages`);
+  log.info({ count }, 'Seeded messages');
 }
 
 async function seed(): Promise<void> {
   const config = loadConfig();
+  initLogger(config);
+  const log = createLogger('seed');
   const sql = createDb(config.DATABASE_URL);
 
-  console.info('Seeding development database...');
+  log.info('Seeding development database...');
 
-  await seedRooms(sql);
-  await seedMessages(sql);
+  await seedRooms(sql, log);
+  await seedMessages(sql, log);
 
-  console.info('Seed complete');
+  log.info('Seed complete');
   await sql.end();
 }
 

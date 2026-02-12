@@ -1,6 +1,7 @@
 import { createServer } from 'http';
 import { createApp } from './app.js';
 import { loadConfig } from './config.js';
+import { initLogger, createLogger } from './logger.js';
 import { createDb } from './db/client.js';
 import { createFirehoseConsumer } from './firehose/consumer.js';
 import { createWsServer } from './ws/server.js';
@@ -19,6 +20,9 @@ import { pruneOldMessages } from './messages/queries.js';
 
 async function main() {
   const config = loadConfig();
+  initLogger(config);
+  const log = createLogger('server');
+
   const db = createDb(config.DATABASE_URL, {
     max: config.DB_POOL_MAX,
     idleTimeout: config.DB_IDLE_TIMEOUT,
@@ -67,7 +71,7 @@ async function main() {
     dmService,
     blockService,
   );
-  console.info('WebSocket server attached');
+  log.info('WebSocket server attached');
 
   // Firehose consumer
   // Jetstream consumer (atproto event stream)
@@ -80,18 +84,18 @@ async function main() {
     void rateLimiter.prune();
     void dmService.pruneExpired();
     void pruneOldMessages(db, LIMITS.defaultRetentionDays).then((count) => {
-      if (count > 0) console.info(`Pruned ${String(count)} old room messages`);
+      if (count > 0) log.info({ count }, 'Pruned old room messages');
     });
   }, 60_000);
 
   httpServer.listen(config.PORT, config.HOST, () => {
-    console.info(`Server listening on http://${config.HOST}:${config.PORT}`);
-    console.info(`Environment: ${config.NODE_ENV}`);
+    log.info({ host: config.HOST, port: config.PORT }, 'Server listening');
+    log.info({ env: config.NODE_ENV }, 'Environment');
   });
 
   // Graceful shutdown
   const shutdown = async () => {
-    console.info('Shutting down...');
+    log.info('Shutting down...');
     clearInterval(pruneInterval);
     await firehose.stop();
 
@@ -108,7 +112,7 @@ async function main() {
 
     await db.end();
     if (redis) await redis.quit();
-    console.info('Shutdown complete');
+    log.info('Shutdown complete');
     process.exit(0);
   };
 

@@ -6,6 +6,9 @@ import { createHandlers, type FirehoseEvent } from './handlers.js';
 import type { WsServer } from '../ws/server.js';
 import type { PresenceService } from '../presence/service.js';
 import type { SessionStore } from '../auth/session-store.js';
+import { createLogger } from '../logger.js';
+
+const log = createLogger('firehose');
 
 /** Jetstream event structures */
 interface JetstreamCommitEvent {
@@ -79,8 +82,9 @@ export function createFirehoseConsumer(
       const ageUs = nowUs - cursor;
       if (ageUs > CURSOR_STALENESS_THRESHOLD_US) {
         const ageHours = Math.round(ageUs / 3_600_000_000);
-        console.warn(
-          `⚠ Jetstream cursor is ${String(ageHours)}h old (retention ~72h). Events may have been lost. Consider a backfill.`,
+        log.warn(
+          { ageHours },
+          'Jetstream cursor is stale (retention ~72h) — events may have been lost',
         );
       }
     }
@@ -91,11 +95,11 @@ export function createFirehoseConsumer(
       url.searchParams.set('cursor', String(cursor));
     }
 
-    console.info(`Connecting to Jetstream: ${url.toString()}`);
+    log.info({ url: url.toString() }, 'Connecting to Jetstream');
     ws = new WebSocket(url.toString());
 
     ws.on('open', () => {
-      console.info('Jetstream connected');
+      log.info('Jetstream connected');
     });
 
     ws.on('message', (raw: Buffer) => {
@@ -110,10 +114,10 @@ export function createFirehoseConsumer(
               // Only act + log for DIDs with active sessions in our app
               if (await sessions.hasDid(event.did)) {
                 await sessions.updateHandle(event.did, newHandle);
-                console.info(`Identity update: ${event.did} → ${newHandle}`);
+                log.info({ did: event.did, handle: newHandle }, 'Identity update');
               }
             })().catch((err: unknown) => {
-              console.error('Error handling identity event:', err);
+              log.error({ err }, 'Error handling identity event');
             });
           }
           return;
@@ -126,12 +130,13 @@ export function createFirehoseConsumer(
               const hadSession = await sessions.revokeByDid(event.did);
               await presenceService.handleUserDisconnect(event.did);
               if (hadSession) {
-                console.info(
-                  `Account ${event.account.status ?? 'deactivated'}: ${event.did} — sessions revoked`,
+                log.info(
+                  { did: event.did, status: event.account.status ?? 'deactivated' },
+                  'Account deactivated — sessions revoked',
                 );
               }
             })().catch((err: unknown) => {
-              console.error('Error handling account event:', err);
+              log.error({ err }, 'Error handling account event');
             });
           }
           return;
@@ -182,22 +187,22 @@ export function createFirehoseConsumer(
             await saveCursor(db, event.time_us);
           }
         })().catch((err: unknown) => {
-          console.error(`Error handling ${commit.collection} event:`, err);
+          log.error({ err, collection: commit.collection }, 'Error handling commit event');
         });
       } catch (err) {
-        console.error('Error parsing Jetstream event:', err);
+        log.error({ err }, 'Error parsing Jetstream event');
       }
     });
 
     ws.on('close', () => {
-      console.info('Jetstream disconnected');
+      log.info('Jetstream disconnected');
       ws = null;
       if (shouldReconnect) {
         // Save cursor before reconnect
         if (lastCursor !== undefined) {
           void saveCursor(db, lastCursor);
         }
-        console.info(`Reconnecting in ${String(RECONNECT_DELAY_MS)}ms...`);
+        log.info({ delayMs: RECONNECT_DELAY_MS }, 'Reconnecting...');
         setTimeout(() => {
           connect(lastCursor);
         }, RECONNECT_DELAY_MS);
@@ -205,7 +210,7 @@ export function createFirehoseConsumer(
     });
 
     ws.on('error', (err) => {
-      console.error('Jetstream error:', err);
+      log.error({ err }, 'Jetstream error');
     });
   }
 
@@ -226,7 +231,7 @@ export function createFirehoseConsumer(
         ws.close();
         ws = null;
       }
-      console.info('Jetstream consumer stopped');
+      log.info('Jetstream consumer stopped');
     },
   };
 }

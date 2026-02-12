@@ -1,4 +1,7 @@
 import postgres from 'postgres';
+import { createLogger } from '../logger.js';
+
+const log = createLogger('db');
 
 export type Sql = postgres.Sql;
 export type JsonValue = postgres.JSONValue;
@@ -21,10 +24,7 @@ export function createDb(connectionString: string, options: DbPoolOptions = {}):
     },
   });
 
-  // Log pool config at startup for observability
-  console.info(
-    `[db] Pool created: max=${String(max)} idle_timeout=${String(idleTimeout)}s connect_timeout=${String(connectTimeout)}s`,
-  );
+  log.info({ max, idleTimeout, connectTimeout }, 'Pool created');
 
   return sql;
 }

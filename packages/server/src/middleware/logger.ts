@@ -1,20 +1,19 @@
+import { pinoHttp } from 'pino-http';
 import { randomUUID } from 'crypto';
-import type { Request, Response, NextFunction } from 'express';
+import { getLogger } from '../logger.js';
+import type { IncomingMessage, ServerResponse } from 'http';
 
-export function requestLogger(req: Request, res: Response, next: NextFunction): void {
-  const requestId =
-    (req.headers['x-request-id'] as string) ||
-    (req.headers['x-correlation-id'] as string) ||
-    randomUUID();
-  (req as Request & { id?: string }).id = requestId;
-  res.setHeader('X-Request-ID', requestId);
-
-  const start = Date.now();
-  res.on('finish', () => {
-    const duration = Date.now() - start;
-    console.info(
-      `[${requestId}] ${req.method} ${req.path} ${String(res.statusCode)} ${String(duration)}ms`,
-    );
+export function createRequestLogger() {
+  return pinoHttp({
+    logger: getLogger(),
+    genReqId: (req: IncomingMessage, _res: ServerResponse) => {
+      const requestId = req.headers['x-request-id'] ?? req.headers['x-correlation-id'];
+      return (Array.isArray(requestId) ? requestId[0] : requestId) ?? randomUUID();
+    },
+    customLogLevel: (_req: IncomingMessage, res: ServerResponse, err?: Error) => {
+      if (err ?? res.statusCode >= 500) return 'error';
+      if (res.statusCode >= 400) return 'warn';
+      return 'info';
+    },
   });
-  next();
 }
