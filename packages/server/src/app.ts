@@ -16,8 +16,8 @@ import { dmRouter } from './dms/router.js';
 import type { Config } from './config.js';
 import type { Sql } from './db/client.js';
 import type { PresenceService } from './presence/service.js';
-import type { SessionStore } from './auth/session.js';
-import type { RateLimiter } from './moderation/rate-limiter.js';
+import type { SessionStore } from './auth/session-store.js';
+import type { RateLimiterStore } from './moderation/rate-limiter-store.js';
 import type { BlockService } from './moderation/block-service.js';
 
 export function createApp(
@@ -25,8 +25,8 @@ export function createApp(
   sql: Sql,
   presenceService: PresenceService,
   sessions: SessionStore,
-  rateLimiter: RateLimiter,
-  authRateLimiter: RateLimiter,
+  rateLimiter: RateLimiterStore,
+  authRateLimiter: RateLimiterStore,
   blockService: BlockService,
 ): Express {
   const app = express();

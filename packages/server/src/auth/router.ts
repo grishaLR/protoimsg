@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { z } from 'zod';
-import type { SessionStore } from './session.js';
+import type { SessionStore } from './session-store.js';
 import type { ChallengeStore } from './challenge.js';
 import { verifyDidHandle, verifyAuthRecord } from './verify.js';
 import { createRequireAuth } from './middleware.js';
@@ -81,7 +81,7 @@ export function authRouter(
         return;
       }
 
-      const token = sessions.create(did, handle, config.SESSION_TTL_MS);
+      const token = await sessions.create(did, handle, config.SESSION_TTL_MS);
       console.info(`[audit] auth/session created — did=${did} handle=${handle}`);
       res.status(201).json({ token, did, handle });
     } catch (err) {
@@ -95,11 +95,19 @@ export function authRouter(
   });
 
   // DELETE /api/auth/session — logout
-  router.delete('/session', requireAuth, (req, res) => {
+  router.delete('/session', requireAuth, (req, res, next) => {
     const token = req.headers.authorization?.slice(7);
-    if (token) sessions.delete(token);
-    console.info(`[audit] auth/session deleted — did=${req.did ?? 'unknown'}`);
-    res.status(204).end();
+    if (token) {
+      sessions
+        .delete(token)
+        .then(() => {
+          console.info(`[audit] auth/session deleted — did=${req.did ?? 'unknown'}`);
+          res.status(204).end();
+        })
+        .catch(next);
+    } else {
+      res.status(204).end();
+    }
   });
 
   return router;

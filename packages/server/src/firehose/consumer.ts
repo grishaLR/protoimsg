@@ -5,7 +5,7 @@ import { getCursor, saveCursor } from './cursor.js';
 import { createHandlers, type FirehoseEvent } from './handlers.js';
 import type { WsServer } from '../ws/server.js';
 import type { PresenceService } from '../presence/service.js';
-import type { SessionStore } from '../auth/session.js';
+import type { SessionStore } from '../auth/session-store.js';
 
 /** Jetstream event structures */
 interface JetstreamCommitEvent {
@@ -106,25 +106,33 @@ export function createFirehoseConsumer(
         if (event.kind === 'identity') {
           const newHandle = event.identity.handle;
           if (newHandle && newHandle !== 'handle.invalid') {
-            // Only act + log for DIDs with active sessions in our app
-            if (sessions.hasDid(event.did)) {
-              sessions.updateHandle(event.did, newHandle);
-              console.info(`Identity update: ${event.did} → ${newHandle}`);
-            }
+            void (async () => {
+              // Only act + log for DIDs with active sessions in our app
+              if (await sessions.hasDid(event.did)) {
+                await sessions.updateHandle(event.did, newHandle);
+                console.info(`Identity update: ${event.did} → ${newHandle}`);
+              }
+            })().catch((err: unknown) => {
+              console.error('Error handling identity event:', err);
+            });
           }
           return;
         }
 
         if (event.kind === 'account') {
           if (!event.account.active) {
-            // Only act + log for DIDs with active sessions or presence
-            const hadSession = sessions.revokeByDid(event.did);
-            presenceService.handleUserDisconnect(event.did);
-            if (hadSession) {
-              console.info(
-                `Account ${event.account.status ?? 'deactivated'}: ${event.did} — sessions revoked`,
-              );
-            }
+            void (async () => {
+              // Only act + log for DIDs with active sessions or presence
+              const hadSession = await sessions.revokeByDid(event.did);
+              await presenceService.handleUserDisconnect(event.did);
+              if (hadSession) {
+                console.info(
+                  `Account ${event.account.status ?? 'deactivated'}: ${event.did} — sessions revoked`,
+                );
+              }
+            })().catch((err: unknown) => {
+              console.error('Error handling account event:', err);
+            });
           }
           return;
         }

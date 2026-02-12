@@ -1,5 +1,5 @@
 import type { Request, Response, NextFunction } from 'express';
-import type { SessionStore } from './session.js';
+import type { SessionStore } from './session-store.js';
 
 declare global {
   // eslint-disable-next-line @typescript-eslint/no-namespace
@@ -23,15 +23,19 @@ export function createRequireAuth(
     }
 
     const token = authHeader.slice(7);
-    const session = sessions.get(token);
-    if (!session) {
-      console.warn(`[audit] auth rejected: invalid/expired token — ${req.method} ${req.path}`);
-      res.status(401).json({ error: 'Invalid or expired session' });
-      return;
-    }
+    sessions
+      .get(token)
+      .then((session) => {
+        if (!session) {
+          console.warn(`[audit] auth rejected: invalid/expired token — ${req.method} ${req.path}`);
+          res.status(401).json({ error: 'Invalid or expired session' });
+          return;
+        }
 
-    req.did = session.did;
-    req.handle = session.handle;
-    next();
+        req.did = session.did;
+        req.handle = session.handle;
+        next();
+      })
+      .catch(next);
   };
 }

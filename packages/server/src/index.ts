@@ -4,16 +4,20 @@ import { loadConfig } from './config.js';
 import { createDb } from './db/client.js';
 import { createFirehoseConsumer } from './firehose/consumer.js';
 import { createWsServer } from './ws/server.js';
-import { PresenceTracker } from './presence/tracker.js';
+import { InMemoryPresenceTracker } from './presence/tracker.js';
+import { RedisPresenceTracker } from './presence/tracker-redis.js';
 import { createPresenceService } from './presence/service.js';
-import { SessionStore } from './auth/session.js';
-import { RateLimiter } from './moderation/rate-limiter.js';
+import { InMemorySessionStore } from './auth/session.js';
+import { RedisSessionStore } from './auth/session-redis.js';
+import { createRedisClient } from './redis/client.js';
+import { InMemoryRateLimiter } from './moderation/rate-limiter.js';
+import { RedisRateLimiter } from './moderation/rate-limiter-redis.js';
 import { BlockService } from './moderation/block-service.js';
 import { createDmService } from './dms/service.js';
 import { LIMITS } from '@protoimsg/shared';
 import { pruneOldMessages } from './messages/queries.js';
 
-function main() {
+async function main() {
   const config = loadConfig();
   const db = createDb(config.DATABASE_URL, {
     max: config.DB_POOL_MAX,
@@ -21,14 +25,22 @@ function main() {
     connectTimeout: config.DB_CONNECT_TIMEOUT,
   });
 
+  // Redis client (optional — falls back to in-memory stores when absent)
+  const redis = config.REDIS_URL ? createRedisClient(config.REDIS_URL) : null;
+  if (redis) await redis.connect();
+
   // Shared presence tracker + service (used by both HTTP routes and WS)
-  const tracker = new PresenceTracker();
+  const tracker = redis ? new RedisPresenceTracker(redis) : new InMemoryPresenceTracker();
   const presenceService = createPresenceService(tracker);
 
   // Auth sessions + rate limiters (stricter for auth by IP)
-  const sessions = new SessionStore(config.SESSION_TTL_MS);
-  const rateLimiter = new RateLimiter();
-  const authRateLimiter = new RateLimiter({ windowMs: 60_000, maxRequests: 10 });
+  const sessions = redis
+    ? new RedisSessionStore(redis, config.SESSION_TTL_MS)
+    : new InMemorySessionStore(config.SESSION_TTL_MS);
+  const rateLimiter = redis ? new RedisRateLimiter(redis) : new InMemoryRateLimiter();
+  const authRateLimiter = redis
+    ? new RedisRateLimiter(redis, { windowMs: 60_000, maxRequests: 10 })
+    : new InMemoryRateLimiter({ windowMs: 60_000, maxRequests: 10 });
 
   // DM service + block service (shared by HTTP presence route and WS)
   const dmService = createDmService(db);
@@ -64,8 +76,8 @@ function main() {
 
   // Periodic cleanup (every 60s for sessions/rate limiter, message retention checked each cycle)
   const pruneInterval = setInterval(() => {
-    sessions.prune();
-    rateLimiter.prune();
+    void sessions.prune();
+    void rateLimiter.prune();
     void dmService.pruneExpired();
     void pruneOldMessages(db, LIMITS.defaultRetentionDays).then((count) => {
       if (count > 0) console.info(`Pruned ${String(count)} old room messages`);
@@ -95,6 +107,7 @@ function main() {
     });
 
     await db.end();
+    if (redis) await redis.quit();
     console.info('Shutdown complete');
     process.exit(0);
   };
@@ -103,4 +116,4 @@ function main() {
   process.on('SIGINT', () => void shutdown());
 }
 
-main();
+void main();

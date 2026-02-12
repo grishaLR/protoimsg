@@ -13,7 +13,7 @@ export function presenceRouter(
   const router = Router();
 
   // GET /api/presence?dids=did1,did2,... — block + visibility filtered
-  router.get('/', (req, res) => {
+  router.get('/', (req, res, next) => {
     const didsParam = typeof req.query.dids === 'string' ? req.query.dids : '';
     if (!didsParam) {
       res.status(400).json({ error: 'Missing dids query parameter' });
@@ -22,40 +22,43 @@ export function presenceRouter(
 
     const requesterDid = req.did ?? '';
     const dids = didsParam.split(',').filter(Boolean).slice(0, 100);
-    const rawPresence = service.getBulkPresence(dids);
 
-    void Promise.all(
-      rawPresence.map(async (p) => {
-        // Block filter
-        if (blockService.doesBlock(requesterDid, p.did)) {
-          return { did: p.did, status: 'offline' as const };
-        }
-        // Visibility filter — same logic as WS request_community_presence
-        const visibility = service.getVisibleTo(p.did);
-        if (visibility === 'everyone') return p;
+    void (async () => {
+      const rawPresence = await service.getBulkPresence(dids);
 
-        const member =
-          visibility === 'community' || visibility === 'inner-circle'
-            ? await isCommunityMember(sql, p.did, requesterDid)
-            : false;
-        const friend =
-          visibility === 'inner-circle' ? await isInnerCircle(sql, p.did, requesterDid) : false;
+      const presence = await Promise.all(
+        rawPresence.map(async (p) => {
+          // Block filter
+          if (blockService.doesBlock(requesterDid, p.did)) {
+            return { did: p.did, status: 'offline' as const };
+          }
+          // Visibility filter — same logic as WS request_community_presence
+          const visibility = await service.getVisibleTo(p.did);
+          if (visibility === 'everyone') return p;
 
-        const effectiveStatus = resolveVisibleStatus(
-          visibility,
-          p.status as 'online' | 'away' | 'idle' | 'offline',
-          member,
-          friend,
-        );
-        return {
-          did: p.did,
-          status: effectiveStatus,
-          awayMessage: effectiveStatus === 'offline' ? undefined : p.awayMessage,
-        };
-      }),
-    ).then((presence) => {
+          const member =
+            visibility === 'community' || visibility === 'inner-circle'
+              ? await isCommunityMember(sql, p.did, requesterDid)
+              : false;
+          const friend =
+            visibility === 'inner-circle' ? await isInnerCircle(sql, p.did, requesterDid) : false;
+
+          const effectiveStatus = resolveVisibleStatus(
+            visibility,
+            p.status as 'online' | 'away' | 'idle' | 'offline',
+            member,
+            friend,
+          );
+          return {
+            did: p.did,
+            status: effectiveStatus,
+            awayMessage: effectiveStatus === 'offline' ? undefined : p.awayMessage,
+          };
+        }),
+      );
+
       res.json({ presence });
-    });
+    })().catch(next);
   });
 
   return router;

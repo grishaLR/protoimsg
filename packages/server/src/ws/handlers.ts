@@ -10,7 +10,7 @@ import type { PresenceService } from '../presence/service.js';
 import type { DmService } from '../dms/service.js';
 import type { PresenceVisibility } from '@protoimsg/shared';
 import type { Sql } from '../db/client.js';
-import type { RateLimiter } from '../moderation/rate-limiter.js';
+import type { RateLimiterStore } from '../moderation/rate-limiter-store.js';
 import { checkUserAccess } from '../moderation/service.js';
 import type { BlockService } from '../moderation/block-service.js';
 import {
@@ -36,7 +36,7 @@ export async function handleClientMessage(
   communityWatchers: CommunityWatchers,
   service: PresenceService,
   sql: Sql,
-  rateLimiter: RateLimiter,
+  rateLimiter: RateLimiterStore,
   dmSubs: DmSubscriptions,
   userSockets: UserSockets,
   dmService: DmService,
@@ -44,7 +44,7 @@ export async function handleClientMessage(
 ): Promise<void> {
   // Rate limit per-socket so multi-tab users get separate quotas
   const socketId = (ws as WebSocket & { socketId?: string }).socketId ?? did;
-  if (!rateLimiter.check(`ws:socket:${socketId}`)) {
+  if (!(await rateLimiter.check(`ws:socket:${socketId}`))) {
     ws.send(JSON.stringify({ type: 'error', message: 'Rate limited' }));
     return;
   }
@@ -58,8 +58,8 @@ export async function handleClientMessage(
       }
 
       roomSubs.subscribe(data.roomId, ws);
-      service.handleJoinRoom(did, data.roomId);
-      const members = service.getRoomPresence(data.roomId);
+      await service.handleJoinRoom(did, data.roomId);
+      const members = await service.getRoomPresence(data.roomId);
       ws.send(
         JSON.stringify({
           type: 'room_joined',
@@ -70,7 +70,7 @@ export async function handleClientMessage(
       // Notify room of new member (include awayMessage if present).
       // Visibility is NOT applied here — rooms are public spaces. If you join,
       // you're visible. The visibleTo setting only governs buddy-list presence.
-      const presence = service.getPresence(did);
+      const presence = await service.getPresence(did);
       roomSubs.broadcast(data.roomId, {
         type: 'presence',
         data: { did, status: presence.status, awayMessage: presence.awayMessage },
@@ -80,7 +80,7 @@ export async function handleClientMessage(
 
     case 'leave_room': {
       roomSubs.unsubscribe(data.roomId, ws);
-      service.handleLeaveRoom(did, data.roomId);
+      await service.handleLeaveRoom(did, data.roomId);
       roomSubs.broadcast(data.roomId, {
         type: 'presence',
         data: { did, status: 'offline' },
@@ -90,10 +90,10 @@ export async function handleClientMessage(
 
     case 'status_change': {
       const visibleTo = data.visibleTo as PresenceVisibility | undefined;
-      service.handleStatusChange(did, data.status, data.awayMessage, visibleTo);
+      await service.handleStatusChange(did, data.status, data.awayMessage, visibleTo);
       // Broadcast real status to all rooms — rooms are public spaces (like going
       // outside). Visibility only controls buddy-list presence, not room presence.
-      const rooms = service.getUserRooms(did);
+      const rooms = await service.getUserRooms(did);
       for (const roomId of rooms) {
         roomSubs.broadcast(roomId, {
           type: 'presence',
@@ -106,13 +106,13 @@ export async function handleClientMessage(
     }
 
     case 'request_community_presence': {
-      const rawPresence = service.getBulkPresence(data.dids);
+      const rawPresence = await service.getBulkPresence(data.dids);
       const presenceList = await Promise.all(
         rawPresence.map(async (p) => {
           if (blockService.doesBlock(p.did, did)) {
             return { did: p.did, status: 'offline' as const };
           }
-          const visibility = service.getVisibleTo(p.did);
+          const visibility = await service.getVisibleTo(p.did);
           if (visibility === 'everyone') return p;
 
           const member =
@@ -171,9 +171,14 @@ export async function handleClientMessage(
       blockService.sync(did, data.blockedDids);
       // Re-notify all watchers with block-filtered presence
       // (newly blocked get offline, newly unblocked get real status)
-      const presence = service.getPresence(did);
-      const blockVisibleTo = service.getVisibleTo(did);
-      await communityWatchers.notify(did, presence.status, presence.awayMessage, blockVisibleTo);
+      const blockPresence = await service.getPresence(did);
+      const blockVisibleTo = await service.getVisibleTo(did);
+      await communityWatchers.notify(
+        did,
+        blockPresence.status,
+        blockPresence.awayMessage,
+        blockVisibleTo,
+      );
       break;
     }
 

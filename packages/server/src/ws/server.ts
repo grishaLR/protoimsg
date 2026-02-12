@@ -11,8 +11,8 @@ import type { DmService } from '../dms/service.js';
 import type { ServerMessage } from './types.js';
 import { parseClientMessage } from './validation.js';
 import type { Sql } from '../db/client.js';
-import type { SessionStore } from '../auth/session.js';
-import type { RateLimiter } from '../moderation/rate-limiter.js';
+import type { SessionStore } from '../auth/session-store.js';
+import type { RateLimiterStore } from '../moderation/rate-limiter-store.js';
 import { BlockService } from '../moderation/block-service.js';
 
 const AUTH_TIMEOUT_MS = 5000;
@@ -77,7 +77,7 @@ export function createWsServer(
   sql: Sql,
   service: PresenceService,
   sessions: SessionStore,
-  rateLimiter: RateLimiter,
+  rateLimiter: RateLimiterStore,
   dmService: DmService,
   blockService: BlockService,
 ): WsServer {
@@ -102,6 +102,7 @@ export function createWsServer(
   const userSockets = new UserSockets();
   blockService.startSweep();
   const communityWatchers = new CommunityWatchers(sql, blockService);
+  const pendingCleanup = new Set<Promise<void>>();
 
   wss.on('connection', (ws: WebSocket, req: IncomingMessage) => {
     const remoteIp = (req as IncomingMessage & { _wsRemoteIp?: string })._wsRemoteIp ?? 'unknown';
@@ -139,26 +140,32 @@ export function createWsServer(
           return;
         }
 
-        const session = sessions.get(msg.token);
-        if (!session) {
-          ws.send(JSON.stringify({ type: 'error', message: 'Invalid or expired token' }));
-          ws.close(4001, 'Invalid token');
-          return;
-        }
+        sessions
+          .get(msg.token)
+          .then(async (session) => {
+            if (!session) {
+              ws.send(JSON.stringify({ type: 'error', message: 'Invalid or expired token' }));
+              ws.close(4001, 'Invalid token');
+              return;
+            }
 
-        clearTimeout(authTimer);
-        authenticated = true;
-        did = session.did;
-        service.handleUserConnect(did);
-        userSockets.add(did, ws);
-        blockService.touch(did);
-        // Don't notify community watchers here — visibility hasn't been
-        // restored yet (client sends status_change with saved visibility
-        // immediately after auth). Notifying here with default 'everyone'
-        // would leak presence to users outside the visibility scope.
-        cleanupHeartbeat = attachHeartbeat(ws);
-        ws.send(JSON.stringify({ type: 'auth_success' }));
-        console.info(`WS authenticated: ${did}`);
+            clearTimeout(authTimer);
+            authenticated = true;
+            did = session.did;
+            await service.handleUserConnect(did);
+            userSockets.add(did, ws);
+            blockService.touch(did);
+            // Don't notify community watchers here — visibility hasn't been
+            // restored yet (client sends status_change with saved visibility
+            // immediately after auth). Notifying here with default 'everyone'
+            // would leak presence to users outside the visibility scope.
+            cleanupHeartbeat = attachHeartbeat(ws);
+            ws.send(JSON.stringify({ type: 'auth_success' }));
+            console.info(`WS authenticated: ${did}`);
+          })
+          .catch(() => {
+            ws.close(4001, 'Auth error');
+          });
         return;
       }
 
@@ -216,16 +223,23 @@ export function createWsServer(
         // Only tear down presence if this was the user's last connection
         const remaining = userSockets.get(did);
         if (remaining.size === 0) {
-          const rooms = service.getUserRooms(did);
-          for (const roomId of rooms) {
-            service.handleLeaveRoom(did, roomId);
-            roomSubs.broadcast(roomId, {
-              type: 'presence',
-              data: { did, status: 'offline' },
-            });
-          }
-          void communityWatchers.notify(did, 'offline', undefined, 'everyone');
-          service.handleUserDisconnect(did);
+          const closeDid = did;
+          const cleanup = (async () => {
+            const rooms = await service.getUserRooms(closeDid);
+            for (const roomId of rooms) {
+              await service.handleLeaveRoom(closeDid, roomId);
+              roomSubs.broadcast(roomId, {
+                type: 'presence',
+                data: { did: closeDid, status: 'offline' },
+              });
+            }
+            await communityWatchers.notify(closeDid, 'offline', undefined, 'everyone');
+            await service.handleUserDisconnect(closeDid);
+          })();
+          pendingCleanup.add(cleanup);
+          void cleanup.finally(() => {
+            pendingCleanup.delete(cleanup);
+          });
         }
 
         // Keep block list across reconnections — it will be overwritten by
@@ -243,13 +257,15 @@ export function createWsServer(
     broadcastToRoom: (roomId: string, message: ServerMessage) => {
       roomSubs.broadcast(roomId, message);
     },
-    close: () => {
+    close: async () => {
       blockService.stopSweep();
-      return new Promise<void>((resolve, reject) => {
-        // Close all client sockets first so their 'close' handlers fire
-        for (const client of wss.clients) {
-          client.close(1001, 'Server shutting down');
-        }
+      // Close all client sockets first so their 'close' handlers fire
+      for (const client of wss.clients) {
+        client.close(1001, 'Server shutting down');
+      }
+      // Wait for all async close handlers to complete (presence cleanup, notifications)
+      await Promise.all(pendingCleanup);
+      await new Promise<void>((resolve, reject) => {
         wss.close((err) => {
           if (err) reject(err);
           else resolve();

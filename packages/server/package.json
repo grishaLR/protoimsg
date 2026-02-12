@@ -21,14 +21,16 @@
     "@protoimsg/shared": "workspace:*",
     "cors": "^2.8.5",
     "express": "^4.21.2",
-    "postgres": "^3.4.5",
     "helmet": "^8.0.0",
+    "ioredis": "^5.9.3",
+    "postgres": "^3.4.5",
     "ws": "^8.18.0",
     "zod": "^3.24.1"
   },
   "devDependencies": {
     "@types/cors": "^2.8.17",
     "@types/express": "^5.0.0",
+    "@types/ioredis": "^5.0.0",
     "@types/ws": "^8.5.14",
     "@vitest/coverage-v8": "^4.0.18",
     "tsx": "^4.19.2",

@@ -323,8 +323,8 @@ export function createHandlers(db: Sql, wss: WsServer, presenceService: Presence
           indexed_at = NOW()
       `;
 
-      // Hydrate in-memory tracker if user is currently connected
-      presenceService.handleStatusChange(
+      // Hydrate tracker if user is currently connected
+      await presenceService.handleStatusChange(
         event.did,
         record.status as 'online' | 'away' | 'idle' | 'offline' | 'invisible',
         record.awayMessage,
