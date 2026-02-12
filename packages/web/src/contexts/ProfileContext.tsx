@@ -1,4 +1,13 @@
-import { createContext, useContext, useCallback, useRef, useState, type ReactNode } from 'react';
+import {
+  createContext,
+  useContext,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type ReactNode,
+} from 'react';
 import { fetchProfiles, type ProfileInfo } from '../lib/profiles';
 
 interface ProfileContextValue {
@@ -14,7 +23,7 @@ export function ProfileProvider({ children }: { children: ReactNode }) {
   const cacheRef = useRef<Map<string, ProfileInfo>>(new Map());
   const pendingRef = useRef<Set<string>>(new Set());
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const [, setVersion] = useState(0);
+  const [profileVersion, setVersion] = useState(0);
 
   const flush = useCallback(async () => {
     const dids = Array.from(pendingRef.current);
@@ -49,11 +58,12 @@ export function ProfileProvider({ children }: { children: ReactNode }) {
     return cacheRef.current.get(did);
   }, []);
 
-  return (
-    <ProfileContext.Provider value={{ getProfile, requestProfile }}>
-      {children}
-    </ProfileContext.Provider>
+  const value = useMemo<ProfileContextValue>(
+    () => ({ getProfile, requestProfile }),
+    [getProfile, requestProfile, profileVersion],
   );
+
+  return <ProfileContext.Provider value={value}>{children}</ProfileContext.Provider>;
 }
 
 export function useProfile(did: string | null | undefined): ProfileInfo | undefined {
@@ -62,10 +72,12 @@ export function useProfile(did: string | null | undefined): ProfileInfo | undefi
 
   const profile = did ? ctx.getProfile(did) : undefined;
 
-  // Request fetch on first call if not cached
-  if (did && !profile) {
-    ctx.requestProfile(did);
-  }
+  // Request fetch when not cached — useEffect avoids a side effect during render
+  useEffect(() => {
+    if (did && !ctx.getProfile(did)) {
+      ctx.requestProfile(did);
+    }
+  }, [did, ctx]);
 
   return profile;
 }

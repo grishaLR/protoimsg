@@ -45,7 +45,7 @@ export function WebSocketProvider({ children }: { children: ReactNode }) {
           const wsUrl = API_URL
             ? `${API_URL.replace(/^http/, 'ws')}/ws`
             : `${window.location.protocol === 'https:' ? 'wss:' : 'ws:'}//${window.location.host}/ws`;
-          client = createWsClient(wsUrl, token);
+          client = createWsClient(wsUrl, token, { onStatusChange: setConnected });
 
           const { installRelay } = await import('../lib/ws-ipc-relay');
           relayCleanupRef.current = installRelay(client);
@@ -53,13 +53,14 @@ export function WebSocketProvider({ children }: { children: ReactNode }) {
           // Child window: use virtual WsClient backed by IPC events
           const { createIpcWsClient } = await import('../lib/ws-ipc-relay');
           client = createIpcWsClient();
+          setConnected(true);
         }
       } else {
         // Browser mode: normal WebSocket
         const wsUrl = API_URL
           ? `${API_URL.replace(/^http/, 'ws')}/ws`
           : `${window.location.protocol === 'https:' ? 'wss:' : 'ws:'}//${window.location.host}/ws`;
-        client = createWsClient(wsUrl, token);
+        client = createWsClient(wsUrl, token, { onStatusChange: setConnected });
       }
 
       if (cancelled) {
@@ -72,14 +73,8 @@ export function WebSocketProvider({ children }: { children: ReactNode }) {
 
     void init();
 
-    // Poll connection status
-    const interval = setInterval(() => {
-      setConnected(clientRef.current?.isConnected() ?? false);
-    }, 1000);
-
     return () => {
       cancelled = true;
-      clearInterval(interval);
       relayCleanupRef.current?.();
       relayCleanupRef.current = null;
       clientRef.current?.close();

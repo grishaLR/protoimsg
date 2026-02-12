@@ -1,4 +1,4 @@
-import { createContext, useContext, type ReactNode } from 'react';
+import { createContext, useContext, useMemo, type ReactNode } from 'react';
 import { useBlockSync } from '../hooks/useBlockSync';
 
 interface BlockContextValue {
@@ -12,11 +12,12 @@ const BlockContext = createContext<BlockContextValue | null>(null);
 export function BlockProvider({ children }: { children: ReactNode }) {
   const { blockedDids, resync, toggleBlock } = useBlockSync();
 
-  return (
-    <BlockContext.Provider value={{ blockedDids, resync, toggleBlock }}>
-      {children}
-    </BlockContext.Provider>
+  const value = useMemo<BlockContextValue>(
+    () => ({ blockedDids, resync, toggleBlock }),
+    [blockedDids, resync, toggleBlock],
   );
+
+  return <BlockContext.Provider value={value}>{children}</BlockContext.Provider>;
 }
 
 export function useBlocks(): BlockContextValue {

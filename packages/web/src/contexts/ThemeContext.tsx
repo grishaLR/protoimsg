@@ -1,4 +1,4 @@
-import { createContext, useState, useEffect, useCallback, type ReactNode } from 'react';
+import { createContext, useState, useEffect, useCallback, useMemo, type ReactNode } from 'react';
 
 export type Theme =
   | 'aim'
@@ -57,5 +57,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     setThemeState(t);
   }, []);
 
-  return <ThemeContext.Provider value={{ theme, setTheme }}>{children}</ThemeContext.Provider>;
+  const value = useMemo<ThemeContextValue>(() => ({ theme, setTheme }), [theme, setTheme]);
+
+  return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>;
 }
