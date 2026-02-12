@@ -1,9 +1,17 @@
 import { NSID } from '@protoimsg/shared';
 import type { Sql } from '../db/client.js';
-import { createRoom } from '../rooms/queries.js';
-import { insertMessage } from '../messages/queries.js';
-import { recordModAction, isUserBanned, upsertRoomRole } from '../moderation/queries.js';
+import { createRoom, deleteRoom } from '../rooms/queries.js';
+import { insertMessage, deleteMessage } from '../messages/queries.js';
+import {
+  recordModAction,
+  deleteModActionByUri,
+  isUserBanned,
+  isUserModerator,
+  upsertRoomRole,
+  deleteRoomRoleByUri,
+} from '../moderation/queries.js';
 import { upsertCommunityList, syncCommunityMembers } from '../community/queries.js';
+import { getRoomById } from '../rooms/queries.js';
 import { checkMessageContent } from '../moderation/service.js';
 import type { WsServer } from '../ws/server.js';
 import {
@@ -19,13 +27,21 @@ export interface FirehoseEvent {
   did: string;
   collection: string;
   rkey: string;
-  record: unknown;
+  record: unknown; // null for deletes
   uri: string;
+  cid: string | null;
+  operation: 'create' | 'update' | 'delete';
 }
 
 export function createHandlers(db: Sql, wss: WsServer) {
   const handlers: Record<string, (event: FirehoseEvent) => Promise<void>> = {
     [NSID.Room]: async (event) => {
+      if (event.operation === 'delete') {
+        await deleteRoom(db, event.uri);
+        console.info(`Room deleted: ${event.rkey}`);
+        return;
+      }
+
       const parsed = roomRecordSchema.safeParse(event.record);
       if (!parsed.success) {
         console.warn(
@@ -39,6 +55,7 @@ export function createHandlers(db: Sql, wss: WsServer) {
         id: event.rkey,
         uri: event.uri,
         did: event.did,
+        cid: event.cid,
         name: record.name,
         topic: record.topic,
         description: record.description,
@@ -53,6 +70,12 @@ export function createHandlers(db: Sql, wss: WsServer) {
     },
 
     [NSID.Message]: async (event) => {
+      if (event.operation === 'delete') {
+        await deleteMessage(db, event.uri);
+        console.info(`Message deleted: ${event.rkey}`);
+        return;
+      }
+
       const parsed = messageRecordSchema.safeParse(event.record);
       if (!parsed.success) {
         console.warn(
@@ -78,6 +101,7 @@ export function createHandlers(db: Sql, wss: WsServer) {
         id: event.rkey,
         uri: event.uri,
         did: event.did,
+        cid: event.cid,
         roomId,
         text: record.text,
         replyRoot: record.reply?.root,
@@ -106,23 +130,49 @@ export function createHandlers(db: Sql, wss: WsServer) {
     },
 
     [NSID.Ban]: async (event) => {
+      if (event.operation === 'delete') {
+        await deleteModActionByUri(db, event.uri);
+        console.info(`Ban deleted: ${event.rkey}`);
+        return;
+      }
+
       const parsed = banRecordSchema.safeParse(event.record);
       if (!parsed.success) {
         console.warn(`Invalid ban record from ${event.did} (${event.rkey}):`, parsed.error.message);
         return;
       }
       const record = parsed.data;
+      const roomId = extractRkey(record.room);
+
+      // Auth: only room creator or moderator can issue bans
+      const room = await getRoomById(db, roomId);
+      if (!room) {
+        console.warn(`Ban for unknown room ${roomId} from ${event.did}`);
+        return;
+      }
+      if (room.did !== event.did && !(await isUserModerator(db, roomId, event.did))) {
+        console.warn(`Unauthorized ban from ${event.did} in room ${roomId} — skipping`);
+        return;
+      }
+
       await recordModAction(db, {
-        roomId: extractRkey(record.room),
+        uri: event.uri,
+        roomId,
         actorDid: event.did,
         subjectDid: record.subject,
         action: 'ban',
         reason: record.reason,
       });
-      console.info(`Ban indexed: ${record.subject} from room ${extractRkey(record.room)}`);
+      console.info(`Ban indexed: ${record.subject} from room ${roomId}`);
     },
 
     [NSID.Role]: async (event) => {
+      if (event.operation === 'delete') {
+        await deleteRoomRoleByUri(db, event.uri);
+        console.info(`Role deleted: ${event.rkey}`);
+        return;
+      }
+
       const parsed = roleRecordSchema.safeParse(event.record);
       if (!parsed.success) {
         console.warn(
@@ -132,20 +182,39 @@ export function createHandlers(db: Sql, wss: WsServer) {
         return;
       }
       const record = parsed.data;
+      const roomId = extractRkey(record.room);
+
+      // Auth: only room creator can assign roles
+      const room = await getRoomById(db, roomId);
+      if (!room) {
+        console.warn(`Role for unknown room ${roomId} from ${event.did}`);
+        return;
+      }
+      if (room.did !== event.did) {
+        console.warn(`Unauthorized role assignment from ${event.did} in room ${roomId} — skipping`);
+        return;
+      }
+
       await upsertRoomRole(db, {
-        roomId: extractRkey(record.room),
+        roomId,
         subjectDid: record.subject,
         role: record.role,
         grantedBy: event.did,
         uri: event.uri,
+        cid: event.cid,
         createdAt: record.createdAt,
       });
-      console.info(
-        `Role indexed: ${record.subject} as ${record.role} in ${extractRkey(record.room)}`,
-      );
+      console.info(`Role indexed: ${record.subject} as ${record.role} in ${roomId}`);
     },
 
     [NSID.Community]: async (event) => {
+      if (event.operation === 'delete') {
+        // Community record deleted — clear the member list for this DID
+        await syncCommunityMembers(db, event.did, []);
+        console.info(`Community list cleared for ${event.did}`);
+        return;
+      }
+
       const parsed = communityRecordSchema.safeParse(event.record);
       if (!parsed.success) {
         console.warn(`Invalid community record from ${event.did}:`, parsed.error.message);
@@ -166,6 +235,12 @@ export function createHandlers(db: Sql, wss: WsServer) {
     },
 
     [NSID.Allowlist]: async (event) => {
+      if (event.operation === 'delete') {
+        await db`DELETE FROM room_allowlist WHERE uri = ${event.uri}`;
+        console.info(`Allowlist entry deleted: ${event.rkey}`);
+        return;
+      }
+
       const parsed = allowlistRecordSchema.safeParse(event.record);
       if (!parsed.success) {
         console.warn(
@@ -176,10 +251,24 @@ export function createHandlers(db: Sql, wss: WsServer) {
       }
       const record = parsed.data;
       const roomId = extractRkey(record.room);
+
+      // Auth: only room creator or moderator can manage allowlist
+      const room = await getRoomById(db, roomId);
+      if (!room) {
+        console.warn(`Allowlist for unknown room ${roomId} from ${event.did}`);
+        return;
+      }
+      if (room.did !== event.did && !(await isUserModerator(db, roomId, event.did))) {
+        console.warn(`Unauthorized allowlist entry from ${event.did} in room ${roomId} — skipping`);
+        return;
+      }
+
       await db`
-        INSERT INTO room_allowlist (id, room_id, subject_did, uri, created_at)
-        VALUES (${event.rkey}, ${roomId}, ${record.subject}, ${event.uri}, ${record.createdAt})
-        ON CONFLICT (id) DO NOTHING
+        INSERT INTO room_allowlist (id, room_id, subject_did, uri, cid, created_at)
+        VALUES (${event.rkey}, ${roomId}, ${record.subject}, ${event.uri}, ${event.cid}, ${record.createdAt})
+        ON CONFLICT (id) DO UPDATE SET
+          cid = EXCLUDED.cid,
+          indexed_at = NOW()
       `;
       console.info(`Allowlist entry indexed: ${record.subject} in room ${roomId}`);
     },
