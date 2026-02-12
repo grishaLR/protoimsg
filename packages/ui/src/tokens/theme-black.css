@@ -14,20 +14,20 @@
   --color-base-300: #2a2a2a; /* dark gray */
   --color-base-content: #d4d4d4; /* light gray text */
 
-  /* ── Primary (neutral gray) ──────────────────────────── */
-  --color-primary: #4a4a4a;
+  /* ── Primary (neutral gray — min 4.5:1 on #000) ────────── */
+  --color-primary: #787878;
   --color-primary-content: #ffffff;
 
   /* ── Secondary (neutral gray) ────────────────────────── */
-  --color-secondary: #4a4a4a;
+  --color-secondary: #787878;
   --color-secondary-content: #ffffff;
 
   /* ── Accent (neutral gray) ───────────────────────────── */
-  --color-accent: #4a4a4a;
+  --color-accent: #787878;
   --color-accent-content: #ffffff;
 
   /* ── Neutral ─────────────────────────────────────────── */
-  --color-neutral: #4a4a4a;
+  --color-neutral: #787878;
   --color-neutral-content: #ffffff;
 
   /* ── Status Colors ───────────────────────────────────── */
@@ -39,8 +39,8 @@
   --color-error-content: #000000;
 
   /* ── Custom Status Tokens ────────────────────────────── */
-  --cm-status-idle: #525252;
-  --cm-status-offline: #333333;
+  --cm-status-idle: #787878;
+  --cm-status-offline: #525252;
 
   /* ── Borders & Shadows ───────────────────────────────── */
   --cm-raised: 0 0 0 1px rgba(255, 255, 255, 0.08), 0 1px 3px rgba(0, 0, 0, 0.5);
@@ -66,9 +66,9 @@
   --cm-chrome-text-muted: #737373;
   --cm-chrome-hover: rgba(255, 255, 255, 0.06);
   --cm-desktop: #000000;
-  --cm-primary-dark: #3a3a3a;
+  --cm-primary-dark: #5a5a5a;
   --cm-overlay: rgba(0, 0, 0, 0.75);
-  --cm-focus: #525252;
+  --cm-focus: #888888;
 
   /* ── Selection ───────────────────────────────────────── */
   --cm-selection: #2a2a2a;

@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef, useEffect } from 'react';
+import { useState, useCallback, useRef, useEffect, useMemo } from 'react';
 import type { AppBskyFeedDefs } from '@atproto/api';
 import { useCompose } from '../../hooks/useCompose';
 import styles from './FeedComposer.module.css';
@@ -27,6 +27,16 @@ export function FeedComposer({ replyTo, onClearReply, onPostSuccess }: FeedCompo
     submit,
     clear,
   } = useCompose(onPostSuccess);
+
+  // Create stable blob URLs for image previews and revoke on change/unmount
+  const imageUrls = useMemo(() => images.map((f) => URL.createObjectURL(f)), [images]);
+  useEffect(() => {
+    return () => {
+      imageUrls.forEach((url) => {
+        URL.revokeObjectURL(url);
+      });
+    };
+  }, [imageUrls]);
 
   // Sync external replyTo into compose state
   useEffect(() => {
@@ -105,8 +115,8 @@ export function FeedComposer({ replyTo, onClearReply, onPostSuccess }: FeedCompo
       {images.length > 0 && (
         <div className={styles.imagePreviews}>
           {images.map((file, i) => (
-            <div key={i} className={styles.imagePreview}>
-              <img src={URL.createObjectURL(file)} alt="" />
+            <div key={`${file.name}${String(file.lastModified)}`} className={styles.imagePreview}>
+              <img src={imageUrls[i]} alt="" />
               <button
                 className={styles.removeImage}
                 onClick={() => {

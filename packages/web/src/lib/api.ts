@@ -144,7 +144,7 @@ export interface BuddyListResponse {
 }
 
 export async function fetchBuddyList(did: string): Promise<BuddyListResponse> {
-  const res = await authFetch(`/api/buddylist/${encodeURIComponent(did)}`);
+  const res = await authFetch(`/api/community/${encodeURIComponent(did)}`);
   if (!res.ok) throw new Error(`Failed to fetch buddy list: ${res.status}`);
   return (await res.json()) as BuddyListResponse;
 }
