@@ -1,6 +1,7 @@
 {
   "name": "protoimsg",
   "private": true,
+  "license": "MIT",
   "type": "module",
   "scripts": {
     "dev": "turbo dev --filter=!@protoimsg/desktop",

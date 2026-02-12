@@ -20,6 +20,7 @@ export interface CreateRoomInput {
   id: string;
   uri: string;
   did: string;
+  cid: string | null;
   name: string;
   topic: string;
   description?: string;
@@ -33,11 +34,12 @@ export interface CreateRoomInput {
 
 export async function createRoom(sql: Sql, input: CreateRoomInput): Promise<void> {
   await sql`
-    INSERT INTO rooms (id, uri, did, name, topic, description, purpose, visibility, min_account_age_days, slow_mode_seconds, allowlist_enabled, created_at)
+    INSERT INTO rooms (id, uri, did, cid, name, topic, description, purpose, visibility, min_account_age_days, slow_mode_seconds, allowlist_enabled, created_at)
     VALUES (
       ${input.id},
       ${input.uri},
       ${input.did},
+      ${input.cid},
       ${input.name},
       ${input.topic},
       ${input.description ?? null},
@@ -49,6 +51,7 @@ export async function createRoom(sql: Sql, input: CreateRoomInput): Promise<void
       ${input.createdAt}
     )
     ON CONFLICT (id) DO UPDATE SET
+      cid = EXCLUDED.cid,
       name = EXCLUDED.name,
       topic = EXCLUDED.topic,
       description = EXCLUDED.description,
@@ -59,6 +62,11 @@ export async function createRoom(sql: Sql, input: CreateRoomInput): Promise<void
       allowlist_enabled = EXCLUDED.allowlist_enabled,
       indexed_at = NOW()
   `;
+}
+
+/** Hard-delete a room by its AT-URI. */
+export async function deleteRoom(sql: Sql, uri: string): Promise<void> {
+  await sql`DELETE FROM rooms WHERE uri = ${uri}`;
 }
 
 export async function listRooms(

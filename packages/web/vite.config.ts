@@ -1,39 +1,50 @@
 import { defineConfig, type Plugin } from 'vite';
 import react from '@vitejs/plugin-react';
-import { readFileSync } from 'fs';
-import { resolve } from 'path';
 
 /**
- * Serve production client-metadata.json at root URL (required by ATProto OAuth PDS discovery).
- * Source of truth lives in src/lib/client-metadata.prod.json; this plugin serves it in dev
- * and copies to dist/ at build time. Dev uses the ATProto loopback client format (no file needed).
+ * Generate and serve client-metadata.json for ATProto OAuth PDS discovery.
+ * Uses VITE_SITE_URL env var to produce correct URLs per deployment environment
+ * (production, staging, preview). Dev uses the ATProto loopback client format instead.
  */
 function oauthMetadataPlugin(): Plugin {
-  const metaFiles: Record<string, string> = {
-    '/client-metadata.json': 'src/lib/client-metadata.prod.json',
-  };
+  function buildMetadataJson(): string {
+    const siteUrl = process.env.VITE_SITE_URL ?? 'https://protoimsg.app';
+    return JSON.stringify(
+      {
+        client_id: `${siteUrl}/client-metadata.json`,
+        client_name: 'proto instant messenger',
+        client_uri: siteUrl,
+        redirect_uris: [`${siteUrl}/`],
+        scope: 'atproto transition:generic',
+        grant_types: ['authorization_code', 'refresh_token'],
+        response_types: ['code'],
+        token_endpoint_auth_method: 'none',
+        application_type: 'web',
+        dpop_bound_access_tokens: true,
+      },
+      null,
+      2,
+    );
+  }
 
   return {
     name: 'oauth-metadata',
     configureServer(server) {
       server.middlewares.use((req, res, next) => {
-        const file = metaFiles[req.url ?? ''];
-        if (file) {
+        if (req.url === '/client-metadata.json') {
           res.setHeader('Content-Type', 'application/json');
-          res.end(readFileSync(resolve(__dirname, file), 'utf-8'));
+          res.end(buildMetadataJson());
           return;
         }
         next();
       });
     },
     generateBundle() {
-      for (const [urlPath, filePath] of Object.entries(metaFiles)) {
-        this.emitFile({
-          type: 'asset',
-          fileName: urlPath.slice(1),
-          source: readFileSync(resolve(__dirname, filePath), 'utf-8'),
-        });
-      }
+      this.emitFile({
+        type: 'asset',
+        fileName: 'client-metadata.json',
+        source: buildMetadataJson(),
+      });
     },
   };
 }

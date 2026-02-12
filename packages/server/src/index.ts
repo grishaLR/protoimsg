@@ -55,7 +55,7 @@ function main() {
 
   // Firehose consumer
   // Jetstream consumer (atproto event stream)
-  const firehose = createFirehoseConsumer(config.JETSTREAM_URL, db, wss);
+  const firehose = createFirehoseConsumer(config.JETSTREAM_URL, db, wss, presenceService, sessions);
   firehose.start();
 
   // Periodic cleanup (every 60s for sessions/rate limiter, message retention checked each cycle)

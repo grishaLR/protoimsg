@@ -206,6 +206,10 @@ export interface DmIncomingEvent extends WsMessageBase {
   };
 }
 
+export interface AuthSuccessEvent extends WsMessageBase {
+  type: 'auth_success';
+}
+
 export interface RoomTypingEvent extends WsMessageBase {
   type: 'room_typing';
   data: {
@@ -215,6 +219,7 @@ export interface RoomTypingEvent extends WsMessageBase {
 }
 
 export type ServerMessage =
+  | AuthSuccessEvent
   | NewMessageEvent
   | PresenceUpdateEvent
   | CommunityPresenceEvent

@@ -121,6 +121,7 @@ export function createWsServer(
         // immediately after auth). Notifying here with default 'everyone'
         // would leak presence to users outside the visibility scope.
         cleanupHeartbeat = attachHeartbeat(ws);
+        ws.send(JSON.stringify({ type: 'auth_success' }));
         console.info(`WS authenticated: ${did}`);
         return;
       }

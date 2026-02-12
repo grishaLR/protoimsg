@@ -64,13 +64,7 @@ function LinkCardEmbed({ embed }: { embed: AppBskyEmbedExternal.View }) {
   if (!isSafeUrl(ext.uri)) return null;
 
   return (
-    <a
-      className={styles.linkCard}
-      href={ext.uri}
-      target="_blank"
-      rel="noopener noreferrer"
-      style={{ textDecoration: 'none', color: 'inherit' }}
-    >
+    <a className={styles.linkCard} href={ext.uri} target="_blank" rel="noopener noreferrer">
       {ext.thumb && <img className={styles.linkCardThumb} src={ext.thumb} alt="" loading="lazy" />}
       <div className={styles.linkCardBody}>
         <div className={styles.linkCardTitle}>{ext.title}</div>
@@ -192,7 +186,6 @@ export function FeedPost({ item, onNavigateToProfile, onReply, onOpenThread }: F
             onClick={() => {
               goToProfile(post.author.did);
             }}
-            style={{ cursor: 'pointer' }}
           />
         )}
         <span

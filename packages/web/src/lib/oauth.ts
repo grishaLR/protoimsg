@@ -1,7 +1,24 @@
 import { BrowserOAuthClient, type OAuthClientMetadata } from '@atproto/oauth-client-browser';
-import prodMeta from './client-metadata.prod.json';
 
 let client: BrowserOAuthClient | null = null;
+
+/** Build OAuth client metadata from a given origin URL. */
+function buildMetadata(origin: string): OAuthClientMetadata {
+  // Cast required: ATProto types use strict URL template literals that can't
+  // be satisfied by dynamic string concatenation at compile time.
+  return {
+    client_id: `${origin}/client-metadata.json`,
+    client_name: 'proto instant messenger',
+    client_uri: origin,
+    redirect_uris: [`${origin}/`],
+    scope: 'atproto transition:generic',
+    grant_types: ['authorization_code', 'refresh_token'],
+    response_types: ['code'],
+    token_endpoint_auth_method: 'none',
+    application_type: 'web',
+    dpop_bound_access_tokens: true,
+  } as unknown as OAuthClientMetadata;
+}
 
 export function getOAuthClient(): BrowserOAuthClient {
   if (client) return client;
@@ -31,12 +48,12 @@ export function getOAuthClient(): BrowserOAuthClient {
       },
     });
   } else {
-    // Production: client_id is URL to hosted metadata. JSON file in src/lib/ is the
-    // single source of truth — Vite plugin serves it at root and copies to dist/.
-    const metadata = prodMeta as unknown as OAuthClientMetadata;
+    // Deployed: derive metadata from current origin so staging/production/preview
+    // deployments all get correct redirect URIs automatically. The Vite plugin
+    // generates a matching client-metadata.json at build time via VITE_SITE_URL.
     client = new BrowserOAuthClient({
       handleResolver: 'https://bsky.social',
-      clientMetadata: metadata,
+      clientMetadata: buildMetadata(origin),
     });
   }
 

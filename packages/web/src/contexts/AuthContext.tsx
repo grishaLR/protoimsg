@@ -11,6 +11,7 @@ import { Agent } from '@atproto/api';
 import type { OAuthSession } from '@atproto/oauth-client-browser';
 import { getOAuthClient } from '../lib/oauth';
 import {
+  fetchChallenge,
   createServerSession,
   deleteServerSession,
   setServerToken,
@@ -151,12 +152,37 @@ export function AuthProvider({ children }: { children: ReactNode }) {
               setHandle(resolvedHandle);
               localStorage.setItem('protoimsg:handle', resolvedHandle);
 
-              // Create server session for API auth
+              // Create server session via challenge-response proof
               setAuthPhase('connecting');
-              const serverSession = await createServerSession(restoredSession.did, resolvedHandle);
-              setServerToken(serverSession.token);
-              setServerTokenState(serverSession.token);
-              setAuthPhase('ready');
+              const { nonce } = await fetchChallenge(restoredSession.did);
+
+              // Write nonce to ATProto repo — proves we have OAuth write access
+              const authResult = await newAgent.com.atproto.repo.createRecord({
+                repo: restoredSession.did,
+                collection: 'app.protoimsg.chat.authVerify',
+                record: { nonce, createdAt: new Date().toISOString() },
+              });
+              const rkey = authResult.data.uri.split('/').pop();
+              if (!rkey) throw new Error('Invalid AT-URI from createRecord');
+
+              try {
+                const serverSession = await createServerSession(
+                  restoredSession.did,
+                  resolvedHandle,
+                  nonce,
+                  rkey,
+                );
+                setServerToken(serverSession.token);
+                setServerTokenState(serverSession.token);
+                setAuthPhase('ready');
+              } finally {
+                // Clean up the verification record regardless of outcome
+                void newAgent.com.atproto.repo.deleteRecord({
+                  repo: restoredSession.did,
+                  collection: 'app.protoimsg.chat.authVerify',
+                  rkey,
+                });
+              }
             } catch (err: unknown) {
               console.error('Failed to create server session:', err);
               setHandle(restoredSession.did);
@@ -206,22 +232,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, [did, clearAuth]);
 
-  return (
-    <AuthContext.Provider
-      value={{
-        session,
-        agent,
-        did,
-        handle,
-        serverToken,
-        isLoading,
-        authPhase,
-        authError,
-        login,
-        logout,
-      }}
-    >
-      {children}
-    </AuthContext.Provider>
+  const value = useMemo<AuthContextValue>(
+    () => ({
+      session,
+      agent,
+      did,
+      handle,
+      serverToken,
+      isLoading,
+      authPhase,
+      authError,
+      login,
+      logout,
+    }),
+    [session, agent, did, handle, serverToken, isLoading, authPhase, authError, login, logout],
   );
+
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }

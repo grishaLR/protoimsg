@@ -18,7 +18,7 @@ const statusChange = z.object({
   type: z.literal('status_change'),
   status: z.enum(['online', 'away', 'idle']),
   awayMessage: z.string().max(200).optional(),
-  visibleTo: z.string().optional(),
+  visibleTo: z.enum(['everyone', 'community', 'inner-circle', 'no-one']).optional(),
 });
 
 const ping = z.object({ type: z.literal('ping') });

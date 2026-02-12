@@ -18,6 +18,7 @@ export interface InsertMessageInput {
   id: string;
   uri: string;
   did: string;
+  cid: string | null;
   roomId: string;
   text: string;
   replyRoot?: string;
@@ -29,11 +30,12 @@ export interface InsertMessageInput {
 
 export async function insertMessage(sql: Sql, input: InsertMessageInput): Promise<void> {
   await sql`
-    INSERT INTO messages (id, uri, did, room_id, text, reply_parent, reply_root, facets, embed, created_at)
+    INSERT INTO messages (id, uri, did, cid, room_id, text, reply_parent, reply_root, facets, embed, created_at)
     VALUES (
       ${input.id},
       ${input.uri},
       ${input.did},
+      ${input.cid},
       ${input.roomId},
       ${input.text},
       ${input.replyParent ?? null},
@@ -42,8 +44,20 @@ export async function insertMessage(sql: Sql, input: InsertMessageInput): Promis
       ${input.embed ? sql.json(input.embed as JsonValue) : null},
       ${input.createdAt}
     )
-    ON CONFLICT (id) DO NOTHING
+    ON CONFLICT (id) DO UPDATE SET
+      cid = EXCLUDED.cid,
+      text = EXCLUDED.text,
+      reply_parent = EXCLUDED.reply_parent,
+      reply_root = EXCLUDED.reply_root,
+      facets = EXCLUDED.facets,
+      embed = EXCLUDED.embed,
+      indexed_at = NOW()
   `;
+}
+
+/** Hard-delete a message by its AT-URI. */
+export async function deleteMessage(sql: Sql, uri: string): Promise<void> {
+  await sql`DELETE FROM messages WHERE uri = ${uri}`;
 }
 
 export async function getMessagesByRoom(
