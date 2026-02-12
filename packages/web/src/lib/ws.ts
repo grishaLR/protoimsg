@@ -14,6 +14,10 @@ export interface WsClientOptions {
   onStatusChange?: (connected: boolean) => void;
 }
 
+const RECONNECT_BASE_MS = 1000;
+const RECONNECT_MAX_MS = 30_000;
+const RECONNECT_JITTER = 0.3;
+
 export function createWsClient(url: string, token: string, opts?: WsClientOptions): WsClient {
   let ws: WebSocket | null = null;
   let handlers = new Set<WsHandler>();
@@ -21,6 +25,7 @@ export function createWsClient(url: string, token: string, opts?: WsClientOption
   let closed = false;
   let authFailed = false;
   let authenticated = false;
+  let reconnectAttempt = 0;
   const pendingQueue: ClientMessage[] = [];
 
   function setAuthenticated(value: boolean) {
@@ -41,6 +46,7 @@ export function createWsClient(url: string, token: string, opts?: WsClientOption
     ws = new WebSocket(url);
 
     ws.onopen = () => {
+      reconnectAttempt = 0; // Reset on successful connect
       // Send auth token as first message
       ws?.send(JSON.stringify({ type: 'auth', token }));
     };
@@ -71,7 +77,11 @@ export function createWsClient(url: string, token: string, opts?: WsClientOption
         return;
       }
       if (!closed) {
-        reconnectTimer = setTimeout(connect, 3000);
+        const base = Math.min(RECONNECT_MAX_MS, RECONNECT_BASE_MS * 2 ** reconnectAttempt);
+        const jitter = base * RECONNECT_JITTER * (Math.random() * 2 - 1);
+        const delay = Math.max(0, Math.round(base + jitter));
+        reconnectAttempt++;
+        reconnectTimer = setTimeout(connect, delay);
       }
     };
 

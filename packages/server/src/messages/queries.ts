@@ -84,15 +84,28 @@ export async function getMessagesByRoom(
   `;
 }
 
-/** Delete room messages older than retentionDays. Returns count of deleted rows. */
+const PRUNE_BATCH_SIZE = 1000;
+
+/** Delete room messages older than retentionDays in batches. Returns total count of deleted rows. */
 export async function pruneOldMessages(sql: Sql, retentionDays: number): Promise<number> {
-  const result = await sql<{ count: string }[]>`
-    WITH deleted AS (
-      DELETE FROM messages
-      WHERE created_at < NOW() - MAKE_INTERVAL(days => ${retentionDays})
-      RETURNING 1
-    )
-    SELECT COUNT(*) as count FROM deleted
-  `;
-  return Number(result[0]?.count ?? 0);
+  let totalDeleted = 0;
+
+  for (;;) {
+    const result = await sql<{ count: string }[]>`
+      WITH to_delete AS (
+        SELECT id FROM messages
+        WHERE created_at < NOW() - MAKE_INTERVAL(days => ${retentionDays})
+        LIMIT ${PRUNE_BATCH_SIZE}
+      ),
+      deleted AS (
+        DELETE FROM messages WHERE id IN (SELECT id FROM to_delete) RETURNING 1
+      )
+      SELECT COUNT(*)::text as count FROM deleted
+    `;
+    const batchCount = Number(result[0]?.count ?? 0);
+    totalDeleted += batchCount;
+    if (batchCount < PRUNE_BATCH_SIZE) break;
+  }
+
+  return totalDeleted;
 }

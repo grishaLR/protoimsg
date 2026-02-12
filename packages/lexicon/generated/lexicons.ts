@@ -448,7 +448,8 @@ export const schemaDict = {
     defs: {
       main: {
         type: 'record',
-        description: "A poll within a chat room. Lives in the creator's repo.",
+        description:
+          "A poll within a chat room. Lives in the creator's repo. Schema defined for future use — polls not yet implemented in the protoimsg server.",
         key: 'tid',
         record: {
           type: 'object',
@@ -650,7 +651,8 @@ export const schemaDict = {
     defs: {
       main: {
         type: 'record',
-        description: "A vote on a poll. Lives in the voter's repo.",
+        description:
+          "A vote on a poll. Lives in the voter's repo. Schema defined for future use — polls/votes not yet implemented in the protoimsg server.",
         key: 'tid',
         record: {
           type: 'object',
