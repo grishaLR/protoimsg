@@ -68,18 +68,21 @@ Common prefixes: `feat`, `fix`, `chore`, `refactor`, `docs`, `test`, `style`.
 ## Code Style
 
 ### TypeScript
+
 - Strict mode, no `any`
 - ESM modules throughout
 - Express routers use factory functions
 - DB queries use postgres.js tagged templates (no ORM, no raw SQL strings)
 
 ### CSS
+
 - **CSS Modules only** — no Tailwind in TSX, no inline style objects for layout
 - **Always use design tokens** — never hardcode `px`, `rem`, hex colors, or `rgb()` values
 - Tokens live in `packages/ui/src/tokens/index.css` (`var(--cm-*)`, `var(--color-*)`)
 - If a token doesn't exist for the value you need, add it to the tokens file first
 
 ### ATProto / Lexicon
+
 - Lexicon schemas are in `packages/lexicon/schemas/`
 - After modifying schemas, run `pnpm --filter @protoimsg/lexicon codegen` to regenerate types
 - `knownValues` fields are open sets — don't use strict enums for these in firehose validation
@@ -97,6 +100,7 @@ Integration tests (`*.integration.test.ts`) require a running Postgres instance 
 ## Reporting Issues
 
 Open an issue on GitHub. Include:
+
 - What you expected vs what happened
 - Steps to reproduce
 - Browser/OS if it's a frontend issue

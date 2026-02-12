@@ -40,6 +40,7 @@ export function MessageInput({ onSend, onTyping }: MessageInputProps) {
         onKeyDown={handleKeyDown}
         placeholder="Type a message... (Enter to send, Shift+Enter for newline)"
         rows={2}
+        aria-label="Type a message"
       />
       <button className={styles.sendButton} onClick={send} disabled={!text.trim()}>
         Send

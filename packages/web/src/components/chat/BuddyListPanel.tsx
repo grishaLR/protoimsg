@@ -90,6 +90,7 @@ function BuddyMenu({
           setOpen(!open);
         }}
         title="Options"
+        aria-label="Buddy options"
       >
         <span className={styles.menuIcon} />
       </button>
