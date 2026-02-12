@@ -28,7 +28,11 @@ const byteSliceSchema = z.object({
   byteEnd: z.number().int().min(0),
 });
 
-const facetFeatureSchema = z.object({}).passthrough();
+/**
+ * Facet features must carry a `$type` discriminator per ATProto union convention.
+ * We validate its presence but passthrough the rest for forward compatibility.
+ */
+const facetFeatureSchema = z.object({ $type: z.string() }).passthrough();
 
 const richTextFacetSchema = z.object({
   index: byteSliceSchema,
@@ -149,6 +153,15 @@ export const allowlistRecordSchema = z.object({
   createdAt: datetime,
 });
 
+// -- Presence --
+
+export const presenceRecordSchema = z.object({
+  status: z.string(), // knownValues: online, away, idle, offline, invisible
+  visibleTo: z.string(), // knownValues: everyone, community, inner-circle, no-one
+  awayMessage: z.string().max(300).optional(),
+  updatedAt: datetime,
+});
+
 // -- Inferred types --
 
 export type RoomRecordParsed = z.infer<typeof roomRecordSchema>;
@@ -157,3 +170,4 @@ export type BanRecordParsed = z.infer<typeof banRecordSchema>;
 export type RoleRecordParsed = z.infer<typeof roleRecordSchema>;
 export type CommunityRecordParsed = z.infer<typeof communityRecordSchema>;
 export type AllowlistRecordParsed = z.infer<typeof allowlistRecordSchema>;
+export type PresenceRecordParsed = z.infer<typeof presenceRecordSchema>;

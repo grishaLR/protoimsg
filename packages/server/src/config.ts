@@ -10,6 +10,9 @@ const envSchema = z.object({
   OAUTH_CLIENT_ID: z.string().optional(),
   OAUTH_REDIRECT_URI: z.string().url().optional(),
   CORS_ORIGIN: z.string().default('http://localhost:5173'),
+  DB_POOL_MAX: z.coerce.number().int().min(1).default(20),
+  DB_IDLE_TIMEOUT: z.coerce.number().int().min(0).default(20),
+  DB_CONNECT_TIMEOUT: z.coerce.number().int().min(1).default(10),
   SESSION_TTL_MS: z.coerce
     .number()
     .default(8 * 60 * 60 * 1000)

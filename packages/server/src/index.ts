@@ -15,7 +15,11 @@ import { pruneOldMessages } from './messages/queries.js';
 
 function main() {
   const config = loadConfig();
-  const db = createDb(config.DATABASE_URL);
+  const db = createDb(config.DATABASE_URL, {
+    max: config.DB_POOL_MAX,
+    idleTimeout: config.DB_IDLE_TIMEOUT,
+    connectTimeout: config.DB_CONNECT_TIMEOUT,
+  });
 
   // Shared presence tracker + service (used by both HTTP routes and WS)
   const tracker = new PresenceTracker();

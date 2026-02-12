@@ -21,7 +21,9 @@ import {
   roleRecordSchema,
   communityRecordSchema,
   allowlistRecordSchema,
+  presenceRecordSchema,
 } from './record-schemas.js';
+import type { PresenceService } from '../presence/service.js';
 
 export interface FirehoseEvent {
   did: string;
@@ -46,7 +48,7 @@ function isSlowModeViolation(roomId: string, did: string, slowModeSeconds: numbe
   return false;
 }
 
-export function createHandlers(db: Sql, wss: WsServer) {
+export function createHandlers(db: Sql, wss: WsServer, presenceService: PresenceService) {
   const handlers: Record<string, (event: FirehoseEvent) => Promise<void>> = {
     [NSID.Room]: async (event) => {
       if (event.operation === 'delete') {
@@ -107,9 +109,6 @@ export function createHandlers(db: Sql, wss: WsServer) {
         return;
       }
 
-      // Ban check — skip broadcast if banned (still index, record exists on atproto)
-      const banned = await isUserBanned(db, roomId, event.did);
-
       // Slow mode — skip broadcast if posting too fast (still index)
       const room = await getRoomById(db, roomId);
       const slowModeViolation = room
@@ -129,6 +128,11 @@ export function createHandlers(db: Sql, wss: WsServer) {
         embed: record.embed,
         createdAt: record.createdAt,
       });
+
+      // Ban check AFTER insert — if a ban and message arrive in the same
+      // Jetstream batch, the ban handler may still be mid-index when the
+      // pre-insert check runs. Re-checking here gives the ban time to land.
+      const banned = await isUserBanned(db, roomId, event.did);
 
       if (!banned && !slowModeViolation) {
         wss.broadcastToRoom(roomId, {
@@ -292,10 +296,44 @@ export function createHandlers(db: Sql, wss: WsServer) {
       console.info(`Allowlist entry indexed: ${record.subject} in room ${roomId}`);
     },
 
-    [NSID.Presence]: (event) => {
-      // Log-only for MVP — in-memory tracker handles ephemeral presence state
-      console.info(`Presence record from ${event.did} (rkey: ${event.rkey})`);
-      return Promise.resolve();
+    [NSID.Presence]: async (event) => {
+      if (event.operation === 'delete') {
+        // Presence record deleted — clear persisted prefs
+        await db`DELETE FROM user_presence WHERE did = ${event.did}`;
+        console.info(`Presence record deleted for ${event.did}`);
+        return;
+      }
+
+      const parsed = presenceRecordSchema.safeParse(event.record);
+      if (!parsed.success) {
+        console.warn(`Invalid presence record from ${event.did}:`, parsed.error.message);
+        return;
+      }
+      const record = parsed.data;
+
+      // Persist to DB so visibility prefs survive server restarts
+      await db`
+        INSERT INTO user_presence (did, status, visible_to, away_message, updated_at, indexed_at)
+        VALUES (${event.did}, ${record.status}, ${record.visibleTo}, ${record.awayMessage ?? null}, ${record.updatedAt}, NOW())
+        ON CONFLICT (did) DO UPDATE SET
+          status = EXCLUDED.status,
+          visible_to = EXCLUDED.visible_to,
+          away_message = EXCLUDED.away_message,
+          updated_at = EXCLUDED.updated_at,
+          indexed_at = NOW()
+      `;
+
+      // Hydrate in-memory tracker if user is currently connected
+      presenceService.handleStatusChange(
+        event.did,
+        record.status as 'online' | 'away' | 'idle' | 'offline' | 'invisible',
+        record.awayMessage,
+        record.visibleTo as 'everyone' | 'community' | 'inner-circle' | 'no-one',
+      );
+
+      console.info(
+        `Presence indexed for ${event.did}: ${record.status} (visible: ${record.visibleTo})`,
+      );
     },
   };
 

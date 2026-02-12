@@ -66,7 +66,7 @@ export function createFirehoseConsumer(
   presenceService: PresenceService,
   sessions: SessionStore,
 ): FirehoseConsumer {
-  const handlers = createHandlers(db, wss);
+  const handlers = createHandlers(db, wss, presenceService);
   let ws: WebSocket | null = null;
   let shouldReconnect = true;
   let eventCount = 0;
