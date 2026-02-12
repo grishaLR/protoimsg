@@ -86,10 +86,10 @@
   --cm-text-xl: 1.0625rem;
   --cm-text-2xl: 1.5rem;
 
-  /* ── Border Radii ───────────────────────────────────── */
-  --cm-radius-sm: 6px;
-  --cm-radius-md: 8px;
-  --cm-radius-lg: 12px;
+  /* ── Border Radii (field: 0.5rem, box: 1rem) ────────── */
+  --cm-radius-sm: 8px;
+  --cm-radius-md: 12px;
+  --cm-radius-lg: 16px;
   --cm-radius-pill: 999px;
   --cm-radius-avatar: 50%;
 

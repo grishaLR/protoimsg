@@ -1,0 +1,106 @@
+/*
+ * Nord Theme (light)
+ *
+ * Clean, restrained Scandinavian palette — muted steel blues,
+ * cool gray surfaces, subtle teal accent. Tight radii, flat depth.
+ * Based on the Nord color scheme (nordtheme.com) via daisyUI.
+ */
+
+[data-theme='nord'] {
+  /* ── Surface Colors ─────────────────────────────────── */
+  --color-base-100: #eceff4; /* nord6 — lightest snow storm */
+  --color-base-200: #e5e9f0; /* nord5 */
+  --color-base-300: #d8dee9; /* nord4 */
+  --color-base-content: #3b4252; /* nord1 — polar night */
+
+  /* ── Primary (steel blue) ──────────────────────────── */
+  --color-primary: #5e81ac; /* nord10 */
+  --color-primary-content: #eceff4;
+
+  /* ── Secondary (muted blue) ────────────────────────── */
+  --color-secondary: #81a1c1; /* nord9 */
+  --color-secondary-content: #eceff4;
+
+  /* ── Accent (frost teal) ───────────────────────────── */
+  --color-accent: #8fbcbb; /* nord7 */
+  --color-accent-content: #2e3440;
+
+  /* ── Neutral ────────────────────────────────────────── */
+  --color-neutral: #4c566a; /* nord3 */
+  --color-neutral-content: #d8dee9;
+
+  /* ── Status Colors (Nord Aurora) ───────────────────── */
+  --color-success: #a3be8c; /* nord14 — sage green */
+  --color-warning: #ebcb8b; /* nord13 — golden */
+  --color-error: #bf616a; /* nord11 — dusty rose */
+  --color-success-content: #2e3440;
+  --color-warning-content: #2e3440;
+  --color-error-content: #eceff4;
+
+  /* ── Custom Status Tokens ───────────────────────────── */
+  --cm-status-idle: #9ba4b4;
+  --cm-status-offline: #b8bfcc;
+
+  /* ── Borders & Shadows (flat — restrained depth) ───── */
+  --cm-raised: 0 0 0 1px rgba(76, 86, 106, 0.08), 0 1px 2px rgba(76, 86, 106, 0.04);
+  --cm-sunken: 0 0 0 1px rgba(76, 86, 106, 0.1);
+  --cm-pressed: 0 0 0 1px rgba(76, 86, 106, 0.14);
+
+  /* ── Window Chrome ──────────────────────────────────── */
+  --cm-window-shadow: 0 4px 16px rgba(46, 52, 64, 0.1);
+  --cm-window-header-shadow: 0 1px 0 rgba(76, 86, 106, 0.08);
+  --cm-titlebar: #e5e9f0;
+  --cm-titlebar-inactive: #d8dee9;
+
+  /* ── Border Colors ──────────────────────────────────── */
+  --cm-border-light: rgba(76, 86, 106, 0.1);
+  --cm-border-dark: #7b8394;
+
+  /* ── Surface & Chrome Colors ────────────────────────── */
+  --cm-surface: #eceff4;
+  --cm-surface-content: #f8f9fc;
+  --cm-surface-button: #e5e9f0;
+  --cm-button-hover: #d8dee9;
+  --cm-chrome-text: #3b4252;
+  --cm-chrome-text-muted: #7b8394;
+  --cm-chrome-hover: rgba(59, 66, 82, 0.05);
+  --cm-desktop: #eceff4;
+  --cm-primary-dark: #4c6d91;
+  --cm-overlay: rgba(46, 52, 64, 0.45);
+  --cm-focus: #5e81ac;
+
+  /* ── Selection ──────────────────────────────────────── */
+  --cm-selection: #b8cade;
+
+  /* ── Drop Shadows (very subtle — Scandinavian flat) ── */
+  --cm-shadow-sm: 0 1px 2px rgba(46, 52, 64, 0.05);
+  --cm-shadow-md: 0 2px 6px rgba(46, 52, 64, 0.07);
+  --cm-shadow-lg: 0 4px 14px rgba(46, 52, 64, 0.1);
+
+  /* ── Font Sizes (bumped up for readability) ─────────── */
+  --cm-text-2xs: 0.625rem;
+  --cm-text-xs: 0.6875rem;
+  --cm-text-sm: 0.75rem;
+  --cm-text-base: 0.8125rem;
+  --cm-text-md: 0.875rem;
+  --cm-text-lg: 0.9375rem;
+  --cm-text-xl: 1.0625rem;
+  --cm-text-2xl: 1.5rem;
+
+  /* ── Border Radii (tight — Scandinavian restraint) ─── */
+  --cm-radius-sm: 4px;
+  --cm-radius-md: 6px;
+  --cm-radius-lg: 8px;
+  --cm-radius-pill: 999px;
+  --cm-radius-avatar: 50%;
+
+  /* ── Font Family (system sans-serif) ───────────────── */
+  --cm-font-family:
+    -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+
+  /* ── Scrollbar ──────────────────────────────────────── */
+  --cm-scrollbar-width: 6px;
+  --cm-scrollbar-track: transparent;
+  --cm-scrollbar-thumb: rgba(76, 86, 106, 0.12);
+  --cm-scrollbar-thumb-shadow: none;
+}

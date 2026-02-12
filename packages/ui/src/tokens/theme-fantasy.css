@@ -1,0 +1,113 @@
+/*
+ * Fantasy Theme (light)
+ *
+ * Rich, theatrical palette with deep purple primary and orange accent.
+ * Depth Effect enabled — inputs and selectors have subtle 3D appearance.
+ * Serif font family for a storybook feel.
+ * Based on the daisyUI Fantasy theme.
+ */
+
+[data-theme='fantasy'] {
+  /* ── Surface Colors ─────────────────────────────────── */
+  --color-base-100: #ffffff; /* white canvas */
+  --color-base-200: #ebebeb; /* light gray panels */
+  --color-base-300: #d5d5d5; /* border, dividers */
+  --color-base-content: #2b3440; /* dark blue-gray text */
+
+  /* ── Primary (deep purple-magenta) ─────────────────── */
+  --color-primary: #6e0b75;
+  --color-primary-content: #e0c8e5;
+
+  /* ── Secondary (medium blue) ───────────────────────── */
+  --color-secondary: #1a5fb4;
+  --color-secondary-content: #daeaf8;
+
+  /* ── Accent (warm orange) ──────────────────────────── */
+  --color-accent: #e4a020;
+  --color-accent-content: #1c1408;
+
+  /* ── Neutral ────────────────────────────────────────── */
+  --color-neutral: #2b3440;
+  --color-neutral-content: #d5d6db;
+
+  /* ── Status Colors ──────────────────────────────────── */
+  --color-success: #22c55e;
+  --color-warning: #eab308;
+  --color-error: #ef4444;
+  --color-success-content: #000000;
+  --color-warning-content: #000000;
+  --color-error-content: #ffffff;
+
+  /* ── Custom Status Tokens ───────────────────────────── */
+  --cm-status-idle: #a8a8b0;
+  --cm-status-offline: #c8c8cc;
+
+  /* ── Borders & Shadows (depth ON — 3D inset on inputs) ── */
+  --cm-raised:
+    0 0 0 1px rgba(43, 52, 64, 0.1),
+    0 1px 3px rgba(43, 52, 64, 0.1),
+    0 2px 8px rgba(43, 52, 64, 0.05);
+  --cm-sunken:
+    inset 0 1px 2px rgba(43, 52, 64, 0.12),
+    0 0 0 1px rgba(43, 52, 64, 0.1);
+  --cm-pressed:
+    inset 0 1px 3px rgba(43, 52, 64, 0.18),
+    0 0 0 1px rgba(43, 52, 64, 0.12);
+
+  /* ── Window Chrome ──────────────────────────────────── */
+  --cm-window-shadow: 0 4px 24px rgba(43, 52, 64, 0.18);
+  --cm-window-header-shadow: 0 1px 0 rgba(43, 52, 64, 0.08);
+  --cm-titlebar: #ebebeb;
+  --cm-titlebar-inactive: #d5d5d5;
+
+  /* ── Border Colors ──────────────────────────────────── */
+  --cm-border-light: rgba(43, 52, 64, 0.08);
+  --cm-border-dark: #6b6b78;
+
+  /* ── Surface & Chrome Colors ────────────────────────── */
+  --cm-surface: #f5f5f5;
+  --cm-surface-content: #ffffff;
+  --cm-surface-button: #ebebeb;
+  --cm-button-hover: #dfdfdf;
+  --cm-chrome-text: #2b3440;
+  --cm-chrome-text-muted: #6b6b78;
+  --cm-chrome-hover: rgba(43, 52, 64, 0.05);
+  --cm-desktop: #f5f5f5;
+  --cm-primary-dark: #5a0860;
+  --cm-overlay: rgba(43, 52, 64, 0.45);
+  --cm-focus: #6e0b75;
+
+  /* ── Selection ──────────────────────────────────────── */
+  --cm-selection: #e0d0f0;
+
+  /* ── Drop Shadows (slightly heavier — depth enabled) ── */
+  --cm-shadow-sm: 0 1px 2px rgba(43, 52, 64, 0.08);
+  --cm-shadow-md: 0 2px 8px rgba(43, 52, 64, 0.12);
+  --cm-shadow-lg: 0 4px 20px rgba(43, 52, 64, 0.18);
+
+  /* ── Font Sizes (bumped up for readability) ─────────── */
+  --cm-text-2xs: 0.625rem;
+  --cm-text-xs: 0.6875rem;
+  --cm-text-sm: 0.75rem;
+  --cm-text-base: 0.8125rem;
+  --cm-text-md: 0.875rem;
+  --cm-text-lg: 0.9375rem;
+  --cm-text-xl: 1.0625rem;
+  --cm-text-2xl: 1.5rem;
+
+  /* ── Border Radii (moderate — theatrical, not bubbly) ── */
+  --cm-radius-sm: 8px;
+  --cm-radius-md: 12px;
+  --cm-radius-lg: 16px;
+  --cm-radius-pill: 999px;
+  --cm-radius-avatar: 50%;
+
+  /* ── Font Family (serif — storybook feel) ──────────── */
+  --cm-font-family: Georgia, 'Times New Roman', Times, serif;
+
+  /* ── Scrollbar ──────────────────────────────────────── */
+  --cm-scrollbar-width: 6px;
+  --cm-scrollbar-track: transparent;
+  --cm-scrollbar-thumb: rgba(110, 11, 117, 0.15);
+  --cm-scrollbar-thumb-shadow: none;
+}
