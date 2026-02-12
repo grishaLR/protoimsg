@@ -13,6 +13,17 @@ export interface AccessResult {
   reason?: string;
 }
 
+/** Check if a DID is on the room's allowlist. */
+async function isUserAllowlisted(sql: Sql, roomId: string, did: string): Promise<boolean> {
+  const rows = await sql<Array<{ found: boolean }>>`
+    SELECT EXISTS (
+      SELECT 1 FROM room_allowlist
+      WHERE room_id = ${roomId} AND subject_did = ${did}
+    ) AS found
+  `;
+  return rows[0]?.found ?? false;
+}
+
 export async function checkUserAccess(
   sql: Sql,
   roomId: string,
@@ -26,6 +37,14 @@ export async function checkUserAccess(
   const room = await getRoomById(sql, roomId);
   if (!room) {
     return { allowed: false, reason: 'Room not found' };
+  }
+
+  // Allowlist gate — room creator is always allowed
+  if (room.allowlist_enabled && room.did !== did) {
+    const allowed = await isUserAllowlisted(sql, roomId, did);
+    if (!allowed) {
+      return { allowed: false, reason: 'This room requires an invite to join' };
+    }
   }
 
   // Account age gate — fail closed if we can't verify (e.g. did:web)

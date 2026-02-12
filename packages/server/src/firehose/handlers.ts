@@ -33,6 +33,19 @@ export interface FirehoseEvent {
   operation: 'create' | 'update' | 'delete';
 }
 
+/** Tracks last message timestamp per user per room for slow mode enforcement. */
+const slowModeTracker = new Map<string, number>();
+
+function isSlowModeViolation(roomId: string, did: string, slowModeSeconds: number): boolean {
+  if (slowModeSeconds <= 0) return false;
+  const key = `${roomId}:${did}`;
+  const last = slowModeTracker.get(key);
+  const now = Date.now();
+  if (last && now - last < slowModeSeconds * 1000) return true;
+  slowModeTracker.set(key, now);
+  return false;
+}
+
 export function createHandlers(db: Sql, wss: WsServer) {
   const handlers: Record<string, (event: FirehoseEvent) => Promise<void>> = {
     [NSID.Room]: async (event) => {
@@ -97,6 +110,12 @@ export function createHandlers(db: Sql, wss: WsServer) {
       // Ban check — skip broadcast if banned (still index, record exists on atproto)
       const banned = await isUserBanned(db, roomId, event.did);
 
+      // Slow mode — skip broadcast if posting too fast (still index)
+      const room = await getRoomById(db, roomId);
+      const slowModeViolation = room
+        ? isSlowModeViolation(roomId, event.did, room.slow_mode_seconds)
+        : false;
+
       await insertMessage(db, {
         id: event.rkey,
         uri: event.uri,
@@ -111,7 +130,7 @@ export function createHandlers(db: Sql, wss: WsServer) {
         createdAt: record.createdAt,
       });
 
-      if (!banned) {
+      if (!banned && !slowModeViolation) {
         wss.broadcastToRoom(roomId, {
           type: 'message',
           data: {

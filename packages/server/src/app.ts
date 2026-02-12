@@ -49,7 +49,7 @@ export function createApp(
   app.use('/api/rooms', requireAuth, createRateLimitMiddleware(rateLimiter), roomsRouter(sql));
   app.use('/api/rooms', requireAuth, createRateLimitMiddleware(rateLimiter), messagesRouter(sql));
   app.use('/api/rooms', requireAuth, createRateLimitMiddleware(rateLimiter), moderationRouter(sql));
-  app.use('/api/presence', requireAuth, presenceRouter(presenceService, blockService));
+  app.use('/api/presence', requireAuth, presenceRouter(presenceService, blockService, sql));
   app.use('/api/community', requireAuth, communityRouter(sql));
   app.use('/api/dms', requireAuth, createRateLimitMiddleware(rateLimiter), dmRouter(sql));
 
