@@ -17,32 +17,41 @@ export function useRoom(roomId: string) {
   const knownDidsRef = useRef<Set<string>>(new Set());
 
   // Fetch room details with retry for newly created rooms
-  const loadRoom = useCallback(async () => {
-    let retries = 0;
-    const maxRetries = 5;
+  const loadRoom = useCallback(
+    async (signal?: AbortSignal) => {
+      let retries = 0;
+      const maxRetries = 5;
 
-    while (retries < maxRetries) {
-      try {
-        const data = await fetchRoom(roomId);
-        setRoom(data);
-        setError(null);
-        setLoading(false);
-        return;
-      } catch (err) {
-        if (err instanceof NotFoundError && retries < maxRetries - 1) {
-          retries++;
-          await new Promise((resolve) => setTimeout(resolve, 2000));
-          continue;
+      while (retries < maxRetries) {
+        try {
+          const data = await fetchRoom(roomId, { signal });
+          if (signal?.aborted) return;
+          setRoom(data);
+          setError(null);
+          setLoading(false);
+          return;
+        } catch (err) {
+          if (signal?.aborted) return;
+          if (err instanceof NotFoundError && retries < maxRetries - 1) {
+            retries++;
+            await new Promise((resolve) => setTimeout(resolve, 2000));
+            continue;
+          }
+          setError(err instanceof Error ? err.message : 'Failed to load room');
+          setLoading(false);
+          return;
         }
-        setError(err instanceof Error ? err.message : 'Failed to load room');
-        setLoading(false);
-        return;
       }
-    }
-  }, [roomId]);
+    },
+    [roomId],
+  );
 
   useEffect(() => {
-    void loadRoom();
+    const ac = new AbortController();
+    void loadRoom(ac.signal);
+    return () => {
+      ac.abort();
+    };
   }, [loadRoom]);
 
   // Join room via WS and listen for member updates

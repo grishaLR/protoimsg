@@ -18,25 +18,25 @@ export function useMessages(roomId: string) {
 
   // Load message history
   useEffect(() => {
-    let cancelled = false;
+    const ac = new AbortController();
 
     async function load() {
       try {
-        const data = await fetchMessages(roomId);
-        if (!cancelled) {
-          // API returns newest-first, reverse for chronological display
+        const data = await fetchMessages(roomId, { signal: ac.signal });
+        if (!ac.signal.aborted) {
           setMessages(data.reverse());
         }
       } catch (err) {
+        if (err instanceof Error && err.name === 'AbortError') return;
         console.error('Failed to load messages:', err);
       } finally {
-        if (!cancelled) setLoading(false);
+        if (!ac.signal.aborted) setLoading(false);
       }
     }
 
     void load();
     return () => {
-      cancelled = true;
+      ac.abort();
     };
   }, [roomId]);
 

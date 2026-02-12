@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import type {
   AppBskyFeedDefs,
   AppBskyEmbedImages,
@@ -126,7 +127,12 @@ function PostEmbed({ embed }: { embed: AppBskyFeedDefs.FeedViewPost['post']['emb
   }
 }
 
-export function FeedPost({ item, onNavigateToProfile, onReply, onOpenThread }: FeedPostProps) {
+export const FeedPost = memo(function FeedPost({
+  item,
+  onNavigateToProfile,
+  onReply,
+  onOpenThread,
+}: FeedPostProps) {
   const { post, reason, reply } = item;
   const record = post.record as Record<string, unknown>;
   const text = (record.text as string) || '';
@@ -162,8 +168,16 @@ export function FeedPost({ item, onNavigateToProfile, onReply, onOpenThread }: F
           &#x21BB; Reposted by{' '}
           <span
             className={styles.handle}
+            role="button"
+            tabIndex={0}
             onClick={() => {
               goToProfile(repostAuthor.did);
+            }}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                goToProfile(repostAuthor.did);
+              }
             }}
           >
             @{repostAuthor.handle}
@@ -183,30 +197,66 @@ export function FeedPost({ item, onNavigateToProfile, onReply, onOpenThread }: F
             className={styles.avatar}
             src={post.author.avatar}
             alt=""
+            role="button"
+            tabIndex={0}
             onClick={() => {
               goToProfile(post.author.did);
+            }}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                goToProfile(post.author.did);
+              }
             }}
           />
         )}
         <span
           className={styles.displayName}
+          role="button"
+          tabIndex={0}
           onClick={() => {
             goToProfile(post.author.did);
+          }}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              e.preventDefault();
+              goToProfile(post.author.did);
+            }
           }}
         >
           {post.author.displayName || post.author.handle}
         </span>
         <span
           className={styles.handle}
+          role="button"
+          tabIndex={0}
           onClick={() => {
             goToProfile(post.author.did);
+          }}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              e.preventDefault();
+              goToProfile(post.author.did);
+            }
           }}
         >
           @{post.author.handle}
         </span>
         <span
           className={`${styles.timestamp} ${onOpenThread ? styles.clickableBody : ''}`}
+          role={onOpenThread ? 'button' : undefined}
+          tabIndex={onOpenThread ? 0 : undefined}
           onClick={handleBodyClick}
+          onKeyDown={
+            onOpenThread
+              ? (e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    handleBodyClick();
+                  }
+                }
+              : undefined
+          }
         >
           {relativeTime(post.indexedAt)}
         </span>
@@ -215,7 +265,19 @@ export function FeedPost({ item, onNavigateToProfile, onReply, onOpenThread }: F
       {text && (
         <div
           className={`${styles.body} ${onOpenThread ? styles.clickableBody : ''}`}
+          role={onOpenThread ? 'button' : undefined}
+          tabIndex={onOpenThread ? 0 : undefined}
           onClick={handleBodyClick}
+          onKeyDown={
+            onOpenThread
+              ? (e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    handleBodyClick();
+                  }
+                }
+              : undefined
+          }
         >
           <RichText text={text} facets={facets} onMentionClick={onNavigateToProfile} />
         </div>
@@ -250,4 +312,4 @@ export function FeedPost({ item, onNavigateToProfile, onReply, onOpenThread }: F
       </div>
     </div>
   );
-}
+});

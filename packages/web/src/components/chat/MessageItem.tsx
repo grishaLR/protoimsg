@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, memo } from 'react';
 import type { MessageView } from '../../types';
 import { useModeration } from '../../hooks/useModeration';
 import { RichText } from './RichText';
@@ -14,7 +14,7 @@ function formatTime(dateStr: string): string {
   return date.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' });
 }
 
-export function MessageItem({ message }: MessageItemProps) {
+export const MessageItem = memo(function MessageItem({ message }: MessageItemProps) {
   const moderation = useModeration(message.did);
   const [revealed, setRevealed] = useState(false);
 
@@ -49,4 +49,4 @@ export function MessageItem({ message }: MessageItemProps) {
       )}
     </div>
   );
-}
+});

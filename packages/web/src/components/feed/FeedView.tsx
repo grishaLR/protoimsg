@@ -92,15 +92,22 @@ export function FeedView({
       ) : (
         <>
           <div className={styles.container} ref={scrollRef} onScroll={onScroll}>
-            {posts.map((item) => (
-              <FeedPost
-                key={item.post.uri}
-                item={item}
-                onNavigateToProfile={onNavigateToProfile}
-                onReply={onReply}
-                onOpenThread={onOpenThread}
-              />
-            ))}
+            {posts.map((item, index) => {
+              const isRepost = item.reason?.$type === 'app.bsky.feed.defs#reasonRepost';
+              const reposterDid = isRepost
+                ? (item.reason as AppBskyFeedDefs.ReasonRepost).by.did
+                : '';
+              const key = `${item.post.uri}-${reposterDid || 'orig'}-${index}`;
+              return (
+                <FeedPost
+                  key={key}
+                  item={item}
+                  onNavigateToProfile={onNavigateToProfile}
+                  onReply={onReply}
+                  onOpenThread={onOpenThread}
+                />
+              );
+            })}
             {loadingMore && <div className={styles.loadingMore}>Loading more...</div>}
           </div>
 

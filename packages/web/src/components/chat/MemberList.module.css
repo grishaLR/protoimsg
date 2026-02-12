@@ -53,6 +53,12 @@
   animation: doorPop 0.3s ease-out;
 }
 
+@media (prefers-reduced-motion: reduce) {
+  .doorEmoji {
+    animation: none;
+  }
+}
+
 .leaving {
   opacity: 0.5;
 }

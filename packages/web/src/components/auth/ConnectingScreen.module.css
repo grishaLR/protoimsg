@@ -94,6 +94,12 @@
   animation: fillProgress 2.5s ease-in-out infinite;
 }
 
+@media (prefers-reduced-motion: reduce) {
+  .progressFill {
+    animation: none;
+  }
+}
+
 @keyframes fillProgress {
   0% {
     width: 0%;

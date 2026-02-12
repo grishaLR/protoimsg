@@ -83,6 +83,7 @@ export async function fetchRooms(opts?: {
   visibility?: string;
   limit?: number;
   offset?: number;
+  signal?: AbortSignal;
 }): Promise<RoomView[]> {
   const params = new URLSearchParams();
   if (opts?.visibility) params.set('visibility', opts.visibility);
@@ -90,15 +91,15 @@ export async function fetchRooms(opts?: {
   if (opts?.offset) params.set('offset', String(opts.offset));
 
   const qs = params.toString();
-  const res = await authFetch(`/api/rooms${qs ? `?${qs}` : ''}`);
+  const res = await authFetch(`/api/rooms${qs ? `?${qs}` : ''}`, { signal: opts?.signal });
   if (!res.ok) throw new Error(`Failed to fetch rooms: ${res.status}`);
 
   const data = (await res.json()) as { rooms: RoomView[] };
   return data.rooms;
 }
 
-export async function fetchRoom(id: string): Promise<RoomView> {
-  const res = await authFetch(`/api/rooms/${encodeURIComponent(id)}`);
+export async function fetchRoom(id: string, opts?: { signal?: AbortSignal }): Promise<RoomView> {
+  const res = await authFetch(`/api/rooms/${encodeURIComponent(id)}`, { signal: opts?.signal });
   if (!res.ok) {
     if (res.status === 404) throw new NotFoundError('Room not found');
     throw new Error(`Failed to fetch room: ${res.status}`);
@@ -110,7 +111,7 @@ export async function fetchRoom(id: string): Promise<RoomView> {
 
 export async function fetchMessages(
   roomId: string,
-  opts?: { limit?: number; before?: string },
+  opts?: { limit?: number; before?: string; signal?: AbortSignal },
 ): Promise<MessageView[]> {
   const params = new URLSearchParams();
   if (opts?.limit) params.set('limit', String(opts.limit));
@@ -119,6 +120,7 @@ export async function fetchMessages(
   const qs = params.toString();
   const res = await authFetch(
     `/api/rooms/${encodeURIComponent(roomId)}/messages${qs ? `?${qs}` : ''}`,
+    { signal: opts?.signal },
   );
   if (!res.ok) throw new Error(`Failed to fetch messages: ${res.status}`);
 
@@ -141,9 +143,14 @@ export interface PresenceInfo {
   awayMessage?: string;
 }
 
-export async function fetchPresence(dids: string[]): Promise<PresenceInfo[]> {
+export async function fetchPresence(
+  dids: string[],
+  opts?: { signal?: AbortSignal },
+): Promise<PresenceInfo[]> {
   if (dids.length === 0) return [];
-  const res = await authFetch(`/api/presence?dids=${encodeURIComponent(dids.join(','))}`);
+  const res = await authFetch(`/api/presence?dids=${encodeURIComponent(dids.join(','))}`, {
+    signal: opts?.signal,
+  });
   if (!res.ok) throw new Error(`Failed to fetch presence: ${res.status}`);
   const data = (await res.json()) as { presence: PresenceInfo[] };
   return data.presence;
@@ -159,8 +166,13 @@ export interface BuddyListResponse {
   }>;
 }
 
-export async function fetchBuddyList(did: string): Promise<BuddyListResponse> {
-  const res = await authFetch(`/api/community/${encodeURIComponent(did)}`);
+export async function fetchBuddyList(
+  did: string,
+  opts?: { signal?: AbortSignal },
+): Promise<BuddyListResponse> {
+  const res = await authFetch(`/api/community/${encodeURIComponent(did)}`, {
+    signal: opts?.signal,
+  });
   if (!res.ok) throw new Error(`Failed to fetch buddy list: ${res.status}`);
   return (await res.json()) as BuddyListResponse;
 }
@@ -170,13 +182,14 @@ export async function fetchBuddyList(did: string): Promise<BuddyListResponse> {
 export async function fetchDmConversations(opts?: {
   limit?: number;
   offset?: number;
+  signal?: AbortSignal;
 }): Promise<DmConversationView[]> {
   const params = new URLSearchParams();
   if (opts?.limit) params.set('limit', String(opts.limit));
   if (opts?.offset) params.set('offset', String(opts.offset));
 
   const qs = params.toString();
-  const res = await authFetch(`/api/dms${qs ? `?${qs}` : ''}`);
+  const res = await authFetch(`/api/dms${qs ? `?${qs}` : ''}`, { signal: opts?.signal });
   if (!res.ok) throw new Error(`Failed to fetch DM conversations: ${res.status}`);
 
   const data = (await res.json()) as { conversations: DmConversationView[] };
@@ -185,7 +198,7 @@ export async function fetchDmConversations(opts?: {
 
 export async function fetchDmMessages(
   conversationId: string,
-  opts?: { limit?: number; before?: string },
+  opts?: { limit?: number; before?: string; signal?: AbortSignal },
 ): Promise<DmMessageView[]> {
   const params = new URLSearchParams();
   if (opts?.limit) params.set('limit', String(opts.limit));
@@ -194,6 +207,7 @@ export async function fetchDmMessages(
   const qs = params.toString();
   const res = await authFetch(
     `/api/dms/${encodeURIComponent(conversationId)}/messages${qs ? `?${qs}` : ''}`,
+    { signal: opts?.signal },
   );
   if (!res.ok) throw new Error(`Failed to fetch DM messages: ${res.status}`);
 
