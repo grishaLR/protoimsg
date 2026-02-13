@@ -5,6 +5,7 @@ import type { ChallengeStore } from './challenge.js';
 import { verifyDidHandle, verifyAuthRecord } from './verify.js';
 import { createRequireAuth } from './middleware.js';
 import type { Config } from '../config.js';
+import type { GlobalBanService } from '../moderation/global-ban-service.js';
 import { createLogger } from '../logger.js';
 
 const log = createLogger('auth');
@@ -24,9 +25,41 @@ export function authRouter(
   sessions: SessionStore,
   config: Config,
   challenges: ChallengeStore,
+  globalBans: GlobalBanService,
 ): Router {
   const router = Router();
   const requireAuth = createRequireAuth(sessions);
+
+  // GET /api/auth/preflight?handle=<handle> — pre-OAuth ban check
+  router.get('/preflight', async (req, res, next) => {
+    try {
+      const handle = req.query.handle;
+      if (typeof handle !== 'string' || !handle) {
+        res.status(400).json({ error: 'Missing handle query parameter' });
+        return;
+      }
+
+      // Resolve handle → DID via public ATProto API
+      const url = `${config.PUBLIC_API_URL}/xrpc/com.atproto.identity.resolveHandle?handle=${encodeURIComponent(handle)}`;
+      const resolveRes = await fetch(url);
+      if (!resolveRes.ok) {
+        // Can't resolve handle — let OAuth handle the error naturally
+        res.json({ allowed: true });
+        return;
+      }
+
+      const data = (await resolveRes.json()) as { did: string };
+      if (globalBans.isBanned(data.did)) {
+        log.warn({ did: data.did, handle }, 'auth/preflight rejected: globally banned');
+        res.status(403).json({ error: 'This account is not permitted to use this service.' });
+        return;
+      }
+
+      res.json({ allowed: true });
+    } catch (err) {
+      next(err);
+    }
+  });
 
   // POST /api/auth/challenge — issue a nonce for auth verification
   router.post('/challenge', (req, res, next) => {
@@ -34,6 +67,12 @@ export function authRouter(
       const parsed = challengeBodySchema.safeParse(req.body);
       if (!parsed.success) {
         res.status(400).json({ error: 'Invalid request body', details: parsed.error.issues });
+        return;
+      }
+
+      if (globalBans.isBanned(parsed.data.did)) {
+        log.warn({ did: parsed.data.did }, 'auth/challenge rejected: globally banned');
+        res.status(403).json({ error: 'This account is not permitted to use this service.' });
         return;
       }
 
@@ -54,6 +93,12 @@ export function authRouter(
       }
 
       const { did, handle, nonce, rkey } = parsed.data;
+
+      if (globalBans.isBanned(did)) {
+        log.warn({ did, handle }, 'auth/session rejected: globally banned');
+        res.status(403).json({ error: 'This account is not permitted to use this service.' });
+        return;
+      }
 
       // Step 1: Consume nonce — rejects if not found, expired, or already used
       if (!challenges.consume(did, nonce)) {

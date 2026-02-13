@@ -112,11 +112,20 @@ export function createHandlers(db: Sql, wss: WsServer, presenceService: Presence
         return;
       }
 
-      // Slow mode — skip broadcast if posting too fast (still index)
+      // Room must exist before we can index a message (FK constraint).
+      // Jetstream doesn't guarantee ordering across collections, so a message
+      // can arrive before its room is indexed. Skip it — the PDS still has it.
       const room = await getRoomById(db, roomId);
-      const slowModeViolation = room
-        ? isSlowModeViolation(roomId, event.did, room.slow_mode_seconds)
-        : false;
+      if (!room) {
+        log.warn(
+          { roomId, did: event.did, rkey: event.rkey },
+          'Message for unknown room — skipping',
+        );
+        return;
+      }
+
+      // Slow mode — skip broadcast if posting too fast (still index)
+      const slowModeViolation = isSlowModeViolation(roomId, event.did, room.slow_mode_seconds);
 
       await insertMessage(db, {
         id: event.rkey,

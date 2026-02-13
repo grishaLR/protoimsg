@@ -28,12 +28,32 @@ interface ChallengeResponse {
   nonce: string;
 }
 
+export class AccountBannedError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = 'AccountBannedError';
+  }
+}
+
+/** Pre-OAuth ban check — throws AccountBannedError if the handle is banned. */
+export async function preflightCheck(handle: string): Promise<void> {
+  const res = await fetch(`${API_URL}/api/auth/preflight?handle=${encodeURIComponent(handle)}`);
+  if (res.status === 403) {
+    const data = (await res.json()) as { error: string };
+    throw new AccountBannedError(data.error);
+  }
+}
+
 export async function fetchChallenge(did: string): Promise<ChallengeResponse> {
   const res = await fetch(`${API_URL}/api/auth/challenge`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ did }),
   });
+  if (res.status === 403) {
+    const data = (await res.json()) as { error: string };
+    throw new AccountBannedError(data.error);
+  }
   if (!res.ok) throw new Error(`Failed to get auth challenge: ${res.status}`);
   return (await res.json()) as ChallengeResponse;
 }

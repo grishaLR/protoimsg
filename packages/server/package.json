@@ -12,7 +12,8 @@
     "typecheck": "tsc --noEmit",
     "db:migrate": "tsx --env-file=.env src/db/migrate.ts",
     "test": "vitest run --coverage",
-    "db:seed": "tsx --env-file=.env src/db/seed.ts"
+    "db:seed": "tsx --env-file=.env src/db/seed.ts",
+    "db:seed-bans": "tsx --env-file=.env src/db/seed-global-bans.ts"
   },
   "dependencies": {
     "@atproto/api": "^0.13.0",

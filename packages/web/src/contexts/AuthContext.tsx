@@ -11,6 +11,8 @@ import { Agent } from '@atproto/api';
 import type { OAuthSession } from '@atproto/oauth-client-browser';
 import { getOAuthClient } from '../lib/oauth';
 import {
+  AccountBannedError,
+  preflightCheck,
   fetchChallenge,
   createServerSession,
   deleteServerSession,
@@ -184,6 +186,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                 });
               }
             } catch (err: unknown) {
+              if (err instanceof AccountBannedError) {
+                // Account is globally banned — revoke OAuth so it doesn't auto-restore
+                const oauthClient = getOAuthClient();
+                void oauthClient.revoke(restoredSession.did);
+                setAuthError(err.message);
+                setAuthPhase('idle');
+                return;
+              }
               console.error('Failed to create server session:', err);
               setHandle(restoredSession.did);
               setAuthError('Failed to connect to server. Please try again.');
@@ -209,6 +219,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [clearAuth]);
 
   const login = useCallback(async (inputHandle: string) => {
+    setAuthError(null);
+
+    // Pre-OAuth ban check — throws AccountBannedError if banned.
+    // Let it propagate so the caller (LoginForm) can show a proper banned screen.
+    // Non-ban errors (network, etc.) are swallowed — let OAuth proceed normally.
+    try {
+      await preflightCheck(inputHandle);
+    } catch (err: unknown) {
+      if (err instanceof AccountBannedError) throw err;
+    }
+
     // Flag that an OAuth redirect is in progress — checked on return to
     // decide whether to show the full ConnectingScreen or a quick restore.
     sessionStorage.setItem('protoimsg:oauth_pending', '1');

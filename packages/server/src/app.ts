@@ -19,6 +19,7 @@ import type { PresenceService } from './presence/service.js';
 import type { SessionStore } from './auth/session-store.js';
 import type { RateLimiterStore } from './moderation/rate-limiter-store.js';
 import type { BlockService } from './moderation/block-service.js';
+import type { GlobalBanService } from './moderation/global-ban-service.js';
 
 export function createApp(
   config: Config,
@@ -28,6 +29,7 @@ export function createApp(
   rateLimiter: RateLimiterStore,
   authRateLimiter: RateLimiterStore,
   blockService: BlockService,
+  globalBans: GlobalBanService,
 ): Express {
   const app = express();
   const requireAuth = createRequireAuth(sessions);
@@ -48,7 +50,7 @@ export function createApp(
   app.use(
     '/api/auth',
     createRateLimitMiddleware(authRateLimiter),
-    authRouter(sessions, config, challenges),
+    authRouter(sessions, config, challenges, globalBans),
   );
 
   // Protected API routes
