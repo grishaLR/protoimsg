@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useAuth } from '../../hooks/useAuth';
 import { useTheme } from '../../hooks/useTheme';
 import { THEME_OPTIONS, type Theme } from '../../contexts/ThemeContext';
+import { AccountBannedError } from '../../lib/api';
 import { ActorSearch, type ActorSearchResult } from '../shared/ActorSearch';
 import { AtprotoInfoModal } from './AtprotoInfoModal';
 import styles from './LoginForm.module.css';
@@ -11,6 +12,7 @@ export function LoginForm() {
   const { theme, setTheme } = useTheme();
   const [handle, setHandle] = useState('');
   const [error, setError] = useState<string | null>(null);
+  const [banned, setBanned] = useState(false);
   const [loading, setLoading] = useState(false);
   const [showInfo, setShowInfo] = useState(false);
 
@@ -20,15 +22,32 @@ export function LoginForm() {
     if (!trimmed) return;
 
     setError(null);
+    setBanned(false);
     setLoading(true);
     login(trimmed).catch((err: unknown) => {
-      setError(err instanceof Error ? err.message : 'Login failed');
+      if (err instanceof AccountBannedError) {
+        setBanned(true);
+      } else {
+        setError(err instanceof Error ? err.message : 'Login failed');
+      }
       setLoading(false);
     });
   }
 
   function handleActorSelect(actor: ActorSearchResult) {
     setHandle(actor.handle);
+  }
+
+  if (banned) {
+    return (
+      <div className={styles.form}>
+        <h1 className={styles.title}>proto instant messenger</h1>
+        <div className={styles.bannedBox}>
+          <p className={styles.bannedHandle}>{handle}</p>
+          <p className={styles.bannedMessage}>This account is not permitted to use this service.</p>
+        </div>
+      </div>
+    );
   }
 
   return (

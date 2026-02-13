@@ -9,7 +9,10 @@ export function createErrorHandler(
   config: Config,
 ): (err: unknown, req: Request, res: Response, next: NextFunction) => void {
   return (err: unknown, _req: Request, res: Response, _next: NextFunction): void => {
-    Sentry.captureException(err);
+    Sentry.withScope((scope) => {
+      if (_req.did) scope.setUser({ id: _req.did, username: _req.handle ?? undefined });
+      Sentry.captureException(err);
+    });
     log.error({ err }, 'Unhandled error');
 
     const message =

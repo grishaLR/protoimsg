@@ -118,7 +118,10 @@ export function createFirehoseConsumer(
                 log.info({ did: event.did, handle: newHandle }, 'Identity update');
               }
             })().catch((err: unknown) => {
-              Sentry.captureException(err);
+              Sentry.withScope((scope) => {
+                scope.setUser({ id: event.did });
+                Sentry.captureException(err);
+              });
               log.error({ err }, 'Error handling identity event');
             });
           }
@@ -138,7 +141,10 @@ export function createFirehoseConsumer(
                 );
               }
             })().catch((err: unknown) => {
-              Sentry.captureException(err);
+              Sentry.withScope((scope) => {
+                scope.setUser({ id: event.did });
+                Sentry.captureException(err);
+              });
               log.error({ err }, 'Error handling account event');
             });
           }
@@ -190,7 +196,11 @@ export function createFirehoseConsumer(
             await saveCursor(db, event.time_us);
           }
         })().catch((err: unknown) => {
-          Sentry.captureException(err);
+          Sentry.withScope((scope) => {
+            scope.setUser({ id: event.did });
+            scope.setTag('collection', commit.collection);
+            Sentry.captureException(err);
+          });
           log.error({ err, collection: commit.collection }, 'Error handling commit event');
         });
       } catch (err) {

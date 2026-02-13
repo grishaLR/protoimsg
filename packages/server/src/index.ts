@@ -15,6 +15,7 @@ import { createRedisClient } from './redis/client.js';
 import { InMemoryRateLimiter } from './moderation/rate-limiter.js';
 import { RedisRateLimiter } from './moderation/rate-limiter-redis.js';
 import { BlockService } from './moderation/block-service.js';
+import { GlobalBanService } from './moderation/global-ban-service.js';
 import { createDmService } from './dms/service.js';
 import { LIMITS } from '@protoimsg/shared';
 import { pruneOldMessages } from './messages/queries.js';
@@ -52,6 +53,10 @@ async function main() {
   const dmService = createDmService(db);
   const blockService = new BlockService();
 
+  // Global account bans — load into memory for O(1) checks
+  const globalBans = new GlobalBanService();
+  await globalBans.load(db);
+
   const app = createApp(
     config,
     db,
@@ -60,6 +65,7 @@ async function main() {
     rateLimiter,
     authRateLimiter,
     blockService,
+    globalBans,
   );
   const httpServer = createServer(app);
 
@@ -72,6 +78,7 @@ async function main() {
     rateLimiter,
     dmService,
     blockService,
+    globalBans,
   );
   log.info('WebSocket server attached');
 

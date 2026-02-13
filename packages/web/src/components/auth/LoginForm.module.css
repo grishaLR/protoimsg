@@ -61,6 +61,26 @@
   outline-offset: var(--cm-focus-offset);
 }
 
+.bannedBox {
+  padding: var(--cm-space-6) var(--cm-space-4);
+  text-align: center;
+}
+
+.bannedHandle {
+  font-size: var(--cm-text-md);
+  color: var(--color-base-content);
+  margin: 0 0 var(--cm-space-3) 0;
+  word-break: break-all;
+}
+
+.bannedMessage {
+  color: var(--color-error);
+  font-size: var(--cm-text-lg);
+  font-weight: 700;
+  margin: 0;
+  line-height: 1.4;
+}
+
 .error {
   color: var(--color-error);
   font-size: var(--cm-text-md);

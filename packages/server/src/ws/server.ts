@@ -14,6 +14,7 @@ import type { Sql } from '../db/client.js';
 import type { SessionStore } from '../auth/session-store.js';
 import type { RateLimiterStore } from '../moderation/rate-limiter-store.js';
 import { BlockService } from '../moderation/block-service.js';
+import type { GlobalBanService } from '../moderation/global-ban-service.js';
 import { createLogger } from '../logger.js';
 import { Sentry } from '../sentry.js';
 
@@ -83,6 +84,7 @@ export function createWsServer(
   rateLimiter: RateLimiterStore,
   dmService: DmService,
   blockService: BlockService,
+  globalBans: GlobalBanService,
 ): WsServer {
   const connectionTracker = new WsConnectionTracker();
 
@@ -152,6 +154,13 @@ export function createWsServer(
               return;
             }
 
+            if (globalBans.isBanned(session.did)) {
+              log.warn({ did: session.did }, 'WS rejected: globally banned');
+              void sessions.revokeByDid(session.did);
+              ws.close(4003, 'Account banned');
+              return;
+            }
+
             clearTimeout(authTimer);
             authenticated = true;
             did = session.did;
@@ -167,7 +176,10 @@ export function createWsServer(
             log.info({ did }, 'WS authenticated');
           })
           .catch((err: unknown) => {
-            Sentry.captureException(err);
+            Sentry.withScope((scope) => {
+              if (did) scope.setUser({ id: did });
+              Sentry.captureException(err);
+            });
             ws.close(4001, 'Auth error');
           });
         return;
@@ -204,7 +216,10 @@ export function createWsServer(
           ),
         )
         .catch((err: unknown) => {
-          Sentry.captureException(err);
+          Sentry.withScope((scope) => {
+            scope.setUser({ id: authedDid });
+            Sentry.captureException(err);
+          });
           log.error({ err }, 'Message handler error');
         });
     });
@@ -254,7 +269,10 @@ export function createWsServer(
     });
 
     ws.on('error', (err) => {
-      Sentry.captureException(err);
+      Sentry.withScope((scope) => {
+        if (did) scope.setUser({ id: did });
+        Sentry.captureException(err);
+      });
       log.error({ err }, 'WebSocket error');
     });
   });
