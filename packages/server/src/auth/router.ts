@@ -7,6 +7,7 @@ import { createRequireAuth } from './middleware.js';
 import type { Config } from '../config.js';
 import type { GlobalBanService } from '../moderation/global-ban-service.js';
 import { ERROR_CODES } from '@protoimsg/shared';
+
 import { createLogger } from '../logger.js';
 
 const log = createLogger('auth');
@@ -54,10 +55,12 @@ export function authRouter(
       const data = (await resolveRes.json()) as { did: string };
       if (globalBans.isBanned(data.did)) {
         log.warn({ did: data.did, handle }, 'auth/preflight rejected: globally banned');
+
         res.status(403).json({
           error: 'This account is not permitted to use this service.',
           errorCode: ERROR_CODES.BANNED,
         });
+
         return;
       }
 
@@ -89,6 +92,12 @@ export function authRouter(
         return;
       }
 
+      if (globalBans.isBanned(parsed.data.did)) {
+        log.warn({ did: parsed.data.did }, 'auth/challenge rejected: globally banned');
+        res.status(403).json({ error: 'This account is not permitted to use this service.' });
+        return;
+      }
+
       const nonce = challenges.create(parsed.data.did);
       res.json({ nonce });
     } catch (err) {
@@ -113,10 +122,12 @@ export function authRouter(
 
       if (globalBans.isBanned(did)) {
         log.warn({ did, handle }, 'auth/session rejected: globally banned');
+
         res.status(403).json({
           error: 'This account is not permitted to use this service.',
           errorCode: ERROR_CODES.BANNED,
         });
+
         return;
       }
 
