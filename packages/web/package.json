@@ -23,8 +23,12 @@
     "@tanstack/react-table": "^8.21.3",
     "daisyui": "^5.5.18",
     "hls.js": "^1.6.15",
+    "i18next": "^25.8.7",
+    "i18next-browser-languagedetector": "^8.2.1",
+    "i18next-http-backend": "^3.0.2",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
+    "react-i18next": "^16.5.4",
     "react-router-dom": "^7.1.0",
     "tailwindcss": "^4.1.18",
     "virtualized-ui": "^0.4.1"

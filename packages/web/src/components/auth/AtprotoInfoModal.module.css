@@ -58,7 +58,7 @@
 
 .list {
   margin: 0;
-  padding-left: var(--cm-space-6);
+  padding-inline-start: var(--cm-space-6);
   font-size: var(--cm-text-sm);
   line-height: 1.5;
   color: var(--color-base-content);

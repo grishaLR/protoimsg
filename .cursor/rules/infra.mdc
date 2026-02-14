@@ -1,0 +1,49 @@
+---
+description: "Infrastructure and DX: build system, CI, testing, deployment, dev workflow"
+alwaysApply: false
+globs: ["turbo.json", "docker-compose.yml", "fly*.toml", "vercel.json", "Dockerfile", ".github/**", "**/*.test.ts", "**/*.test.tsx", "**/vitest.config.*"]
+---
+
+# Infra & DX — Standards
+
+## Monorepo
+
+pnpm 9 workspaces + Turborepo. Build order: `shared` → `lexicon` → `server` | `web` | `ui`. Desktop depends on web build. All tasks (`lint`, `typecheck`, `test`) depend on `^build` of their dependencies.
+
+When adding a new package: add to `packages/`, add `package.json` with `"type": "module"`, extend `tsconfig.base.json`, and Turborepo picks it up automatically.
+
+## Testing
+
+Vitest 4, colocated test files (`*.test.ts` next to source). Never a separate `__tests__/` directory.
+
+- Mock with `vi.fn()`, `vi.spyOn()`, never jest globals
+- Async: use `await tick()` helpers to flush microtask queues
+- Integration tests: `*.integration.test.ts`, skip gracefully if `DATABASE_URL` unset
+- Server coverage target: 50% (goal: 70%). Web: no coverage threshold yet.
+- Always clean up: `vi.restoreAllMocks()` in `afterEach`
+
+## CI Pipeline (GitHub Actions)
+
+On push to `main`/`staging` or PR to `main`:
+1. Install (`--frozen-lockfile`) → Lint → Format check → Typecheck → Build → Validate lexicon codegen → Test
+2. Conditional deploy: path-filter detects which packages changed, only deploys affected services
+3. Desktop excluded from CI typecheck (`--filter='!@protoimto/desktop'`)
+
+## Deployment
+
+- **Server:** Fly.io. Production (`fly.toml`) min 1 machine, staging (`fly.staging.toml`) scales to zero. Release command runs migrations before app starts. Health: `GET /health`.
+- **Web:** Vercel. Build: `pnpm turbo build --filter=@protoimsg/web`. SPA rewrites to `/index.html`. OAuth metadata at `/client-metadata.json` excluded from rewrite.
+- **Docker:** Multi-stage build, Alpine base. Migrations copied into dist. No source files in runtime image.
+
+## Dev Workflow
+
+```bash
+pnpm dev:up    # docker up + migrate + dev servers
+# Server: localhost:3000, Web: localhost:5173 (proxies /api and /ws)
+```
+
+Branch from `staging`. PRs target `staging`. Merges to `main` via release cuts. Conventional commits enforced by commitlint.
+
+## Adding Migrations
+
+SQL files in `packages/server/src/db/migrations/`, numbered sequentially (`001_`, `002_`...). Must be idempotent where possible. Test locally with `pnpm --filter @protoimsg/server db:migrate`.

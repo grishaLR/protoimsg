@@ -1,0 +1,110 @@
+{
+  "appName": "proto instant messenger",
+
+  "status": {
+    "online": "Online",
+    "away": "Away",
+    "idle": "Idle"
+  },
+
+  "visibility": {
+    "everyone": "Everyone",
+    "community": "Community",
+    "innerCircle": "Inner Circle",
+    "noOne": "No One"
+  },
+
+  "theme": {
+    "aim": "AIM Classic",
+    "nytLight": "Minimal Light",
+    "nytDark": "Minimal Dark",
+    "dracula": "Dracula",
+    "valentine": "Valentine",
+    "garden": "Garden",
+    "coffee": "Coffee",
+    "fantasy": "Fantasy",
+    "nord": "Nord",
+    "retro": "Retro",
+    "black": "Black",
+    "wireframe": "Wireframe"
+  },
+
+  "nav": {
+    "community": "Community",
+    "rooms": "Rooms",
+    "feed": "Feed"
+  },
+
+  "header": {
+    "menu": "Menu",
+    "awayMessage": {
+      "label": "Away message",
+      "placeholder": "e.g. BRB, grabbing coffee"
+    },
+    "visibility": {
+      "label": "Who can see me"
+    },
+    "settings": "Settings",
+    "minimize": "Minimize",
+    "signOut": "Sign Out"
+  },
+
+  "statusSelector": {
+    "awayMessage": {
+      "label": "Away message",
+      "placeholder": "e.g. BRB, grabbing coffee"
+    },
+    "visibility": {
+      "label": "Who can see me"
+    }
+  },
+
+  "connectionBanner": {
+    "message": "Connection lost \u2014 reconnecting..."
+  },
+
+  "errorBoundary": {
+    "title": "Something went wrong",
+    "fallbackMessage": "An unexpected error occurred",
+    "tryAgain": "Try again"
+  },
+
+  "button": {
+    "back": "Back",
+    "cancel": "Cancel",
+    "send": "Send",
+    "close": "Close",
+    "save": "Save",
+    "settings": "Settings"
+  },
+
+  "aria": {
+    "expand": "Expand",
+    "collapse": "Collapse"
+  },
+
+  "serverError": {
+    "unknown": "An unknown error occurred",
+    "unauthorized": "You must be signed in",
+    "invalidSession": "Your session has expired. Please sign in again.",
+    "invalidChallenge": "Authentication challenge expired. Please try again.",
+    "handleMismatch": "Handle verification failed",
+    "authVerificationFailed": "Authentication verification failed",
+    "authTimeout": "Authentication timed out",
+    "authRequired": "Authentication is required",
+    "forbidden": "You don't have permission to do that",
+    "banned": "This account is not permitted to use this service",
+    "accessDenied": "Access denied",
+    "notParticipant": "You are not a participant in this conversation",
+    "blockedUser": "Cannot message this user",
+    "selfDm": "You cannot send a message to yourself",
+    "notFound": "Not found",
+    "rateLimited": "Too many requests. Please wait and try again.",
+    "serverError": "Something went wrong on our end",
+    "networkError": "Network error. Check your connection.",
+    "invalidInput": "Invalid input",
+    "messageTooLong": "Message is too long",
+    "contentFiltered": "Message was blocked by content filter",
+    "alreadyExists": "Already exists"
+  }
+}

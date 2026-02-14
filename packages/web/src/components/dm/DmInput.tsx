@@ -6,6 +6,7 @@ import {
   useEffect,
   type KeyboardEvent,
 } from 'react';
+import { useTranslation } from 'react-i18next';
 import { DM_LIMITS } from '@protoimsg/shared';
 import styles from './DmInput.module.css';
 
@@ -18,6 +19,7 @@ export const DmInput = forwardRef<HTMLTextAreaElement, DmInputProps>(function Dm
   { onSend, onTyping },
   ref,
 ) {
+  const { t } = useTranslation('dm');
   const [text, setText] = useState('');
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
@@ -67,12 +69,12 @@ export const DmInput = forwardRef<HTMLTextAreaElement, DmInputProps>(function Dm
           handleChange(e.target.value);
         }}
         onKeyDown={handleKeyDown}
-        placeholder="Type a message..."
+        placeholder={t('input.placeholder')}
         rows={1}
-        aria-label="Type a DM message"
+        aria-label={t('input.ariaLabel')}
       />
       <button className={styles.sendBtn} onClick={handleSend} disabled={!text.trim()} type="button">
-        Send
+        {t('input.send')}
       </button>
     </div>
   );

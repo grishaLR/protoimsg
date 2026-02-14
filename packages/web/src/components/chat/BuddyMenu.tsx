@@ -1,10 +1,16 @@
 import { useState, useRef, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import type { CommunityGroup } from '@protoimsg/lexicon';
 import type { MemberWithPresence } from '../../types';
 import styles from './BuddyListPanel.module.css';
 
 const OFFLINE_GROUP = 'Offline';
 const BLOCKED_GROUP = 'Blocked';
+
+const GROUP_I18N_KEYS: Record<string, string> = {
+  'Inner Circle': 'buddyList.groups.innerCircle',
+  Community: 'buddyList.groups.community',
+};
 
 export interface BuddyMenuProps {
   buddy: MemberWithPresence;
@@ -29,6 +35,7 @@ export function BuddyMenu({
   onSendIm,
   onMoveBuddy,
 }: BuddyMenuProps) {
+  const { t } = useTranslation('chat');
   const [open, setOpen] = useState(false);
   const [moveOpen, setMoveOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
@@ -58,8 +65,8 @@ export function BuddyMenu({
         onClick={() => {
           setOpen(!open);
         }}
-        title="Options"
-        aria-label="Buddy options"
+        title={t('buddyMenu.button.title')}
+        aria-label={t('buddyMenu.button.ariaLabel')}
       >
         <span className={styles.menuIcon} />
       </button>
@@ -73,7 +80,7 @@ export function BuddyMenu({
                 setOpen(false);
               }}
             >
-              Send IM
+              {t('buddyMenu.sendIm')}
             </button>
           )}
           <button
@@ -83,7 +90,9 @@ export function BuddyMenu({
               setOpen(false);
             }}
           >
-            {buddy.isInnerCircle ? 'Remove from Inner Circle' : 'Add to Inner Circle'}
+            {buddy.isInnerCircle
+              ? t('buddyMenu.removeFromInnerCircle')
+              : t('buddyMenu.addToInnerCircle')}
           </button>
           {groupName !== OFFLINE_GROUP && moveTargets.length > 0 && (
             <div className={styles.moveSubmenu}>
@@ -93,7 +102,7 @@ export function BuddyMenu({
                   setMoveOpen(!moveOpen);
                 }}
               >
-                <span>Move to...</span>{' '}
+                <span>{t('buddyMenu.moveTo')}</span>{' '}
                 <span className={styles.moveCaret}>{moveOpen ? '\u25B2' : '\u25BC'}</span>
               </button>
               {moveOpen &&
@@ -107,7 +116,9 @@ export function BuddyMenu({
                       setMoveOpen(false);
                     }}
                   >
-                    {g.name}
+                    {GROUP_I18N_KEYS[g.name]
+                      ? t(GROUP_I18N_KEYS[g.name] as 'buddyList.groups.innerCircle')
+                      : g.name}
                   </button>
                 ))}
             </div>
@@ -119,7 +130,7 @@ export function BuddyMenu({
               setOpen(false);
             }}
           >
-            {isBlocked ? 'Unblock' : 'Block'}
+            {isBlocked ? t('buddyMenu.unblock') : t('buddyMenu.block')}
           </button>
           <button
             className={`${styles.menuItem} ${styles.menuItemDanger}`}
@@ -128,7 +139,7 @@ export function BuddyMenu({
               setOpen(false);
             }}
           >
-            Remove
+            {t('buddyMenu.remove')}
           </button>
         </div>
       )}

@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../hooks/useAuth';
 import type { AuthPhase } from '../../contexts/AuthContext';
 import { claimDialup } from '../../lib/sounds';
@@ -6,15 +7,15 @@ import { preloadApp } from '../../lib/preload';
 import styles from './ConnectingScreen.module.css';
 
 interface DisplayStep {
-  label: string;
+  labelKey: string;
   status: 'done' | 'active' | 'pending';
 }
 
-const STEP_LABELS = [
-  'Connecting...',
-  'Verifying credentials...',
-  'Connecting to proto instant messenger...',
-  'Loading your buddies...',
+const STEP_LABEL_KEYS = [
+  'connecting.step.connecting',
+  'connecting.step.verifying',
+  'connecting.step.connectingToService',
+  'connecting.step.loadingBuddies',
 ] as const;
 
 /** Maps authPhase to the minimum step index that should be active */
@@ -37,6 +38,7 @@ function phaseToStepIndex(phase: AuthPhase): number {
 const MIN_STEP_MS = 1000;
 
 export function ConnectingScreen() {
+  const { t } = useTranslation('auth');
   const { authPhase, logout } = useAuth();
   const [displayIndex, setDisplayIndex] = useState(0);
   const [done, setDone] = useState(false);
@@ -84,7 +86,7 @@ export function ConnectingScreen() {
 
   // After reaching last step AND authPhase is ready, wait minimum then signal done
   useEffect(() => {
-    if (authPhase !== 'ready' || displayIndex < STEP_LABELS.length - 1) return;
+    if (authPhase !== 'ready' || displayIndex < STEP_LABEL_KEYS.length - 1) return;
 
     const elapsed = Date.now() - lastAdvanceTime.current;
     const remaining = Math.max(0, MIN_STEP_MS - elapsed);
@@ -104,8 +106,8 @@ export function ConnectingScreen() {
   // Once done, render nothing — parent will show the app
   if (done && authPhase === 'ready') return null;
 
-  const steps: DisplayStep[] = STEP_LABELS.map((label, i) => ({
-    label,
+  const steps: DisplayStep[] = STEP_LABEL_KEYS.map((labelKey, i) => ({
+    labelKey,
     status: i < displayIndex ? 'done' : i === displayIndex ? 'active' : 'pending',
   }));
 
@@ -113,14 +115,14 @@ export function ConnectingScreen() {
     <div className={styles.backdrop}>
       <div className={styles.window}>
         <div className={styles.titleBar}>
-          <span className={styles.titleText}>proto instant messenger Sign On</span>
+          <span className={styles.titleText}>{t('connecting.titleBar')}</span>
         </div>
         <div className={styles.body}>
-          <div className={styles.logo}>proto instant messenger</div>
+          <div className={styles.logo}>{t('connecting.logo')}</div>
           <div className={styles.steps}>
             {steps.map((step) => (
               <div
-                key={step.label}
+                key={step.labelKey}
                 className={
                   step.status === 'done'
                     ? styles.stepDone
@@ -136,7 +138,7 @@ export function ConnectingScreen() {
                       ? '\u25B6'
                       : '\u25CB'}
                 </span>
-                <span>{step.label}</span>
+                <span>{t(step.labelKey as 'connecting.step.connecting')}</span>
               </div>
             ))}
           </div>
@@ -144,7 +146,7 @@ export function ConnectingScreen() {
             <div className={styles.progressFill} />
           </div>
           <button className={styles.cancelButton} onClick={handleCancel} type="button">
-            Cancel
+            {t('connecting.cancel')}
           </button>
         </div>
       </div>

@@ -1,0 +1,65 @@
+---
+description: "Frontend engineering standards: React 19 patterns, hooks, state, a11y, performance"
+alwaysApply: false
+globs: ["packages/web/**"]
+---
+
+# Frontend — Engineering Standards
+
+You are a principal frontend engineer. Performance, accessibility, and correctness are non-negotiable.
+
+## State Architecture
+
+No Redux, no Zustand — pure Context + custom hooks. Six context providers wrap the app: Auth, WebSocket, Moderation, DM, Profile, Block. Keep it that way unless there's a compelling reason.
+
+When a callback reads state that changes often, mirror it in a ref (`groupsRef`, `conversationsRef`) to avoid recreating callbacks. This prevents the stale closure trap.
+
+## WebSocket Integration
+
+Custom WS client, not Socket.io. Key behaviors:
+- Auth token sent as first JSON message after connect
+- Exponential backoff reconnect (1s base, 30s max, jitter)
+- Pending message queue flushed on `auth_success`
+- Close code 4001 = permanent auth failure, stop reconnecting
+- Wrap WS callbacks in `useCallback` with `[connected]` dep to re-subscribe on reconnect
+
+## Hook Hygiene
+
+- `useCallback` with explicit deps — audit every dependency array
+- AbortController cleanup in every `useEffect` that fetches:
+  ```typescript
+  useEffect(() => {
+    const ac = new AbortController();
+    load(ac.signal);
+    return () => ac.abort();
+  }, [deps]);
+  ```
+- Never set state after unmount — check `ac.signal.aborted` in finally blocks
+
+## Optimistic Updates
+
+Pre-generate `rkey` (TID), add to state with `pending: true`, then write to PDS. When WS echo arrives with same rkey, replace the pending entry. Timeout pending messages after 15s.
+
+## TanStack Query
+
+Use `useInfiniteQuery` for paginated data with cursor-based `getNextPageParam`. Always set `enabled: !!agent` to prevent unauthenticated fetches. Stale time: 2min, GC time: 10min. No refetch on window focus.
+
+## Accessibility
+
+Every interactive non-button element needs `role="button"` + `tabIndex={0}` + keyboard handler. Icon buttons require `aria-label`. Typing indicators get `aria-live="polite"`. Focus management: `useEffect` to focus textarea when `replyTo` changes. Use native `<dialog>` for modals (built-in focus trap).
+
+## Performance
+
+- Virtualize large lists (`useVirtualList`) — messages, buddy list
+- `React.lazy()` + `Suspense` for route-level code splitting
+- Cap in-memory collections: 500 messages max, 20 DM notifications max, 4 open DM popovers max
+- Module-level scroll cache for feed position preservation across tab switches
+
+## Presence Initialization Sequence
+
+This order is critical and must not change:
+1. Load community from PDS → `sync_community` (server needs this data first)
+2. `status_change` with cached visibility (server can now filter correctly)
+3. `request_community_presence` (server returns filtered results)
+
+`useBuddyList` owns this sequence. `usePresence` only handles user-initiated changes.

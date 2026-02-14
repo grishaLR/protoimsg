@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import type { AppBskyFeedDefs } from '@atproto/api';
 import { useThread } from '../../hooks/useThread';
 import { FeedPost } from './FeedPost';
@@ -29,15 +30,16 @@ export function ThreadView({
   onReply,
   onOpenThread,
 }: ThreadViewProps) {
+  const { t } = useTranslation('feed');
   const { thread, loading, error } = useThread(uri);
 
   if (loading) {
     return (
       <div className={styles.threadView}>
         <button className={styles.backButton} onClick={onBack}>
-          &larr; Back
+          {'\u2190'} {t('threadView.back')}
         </button>
-        <div className={styles.loading}>Loading thread...</div>
+        <div className={styles.loading}>{t('threadView.loading')}</div>
       </div>
     );
   }
@@ -46,9 +48,9 @@ export function ThreadView({
     return (
       <div className={styles.threadView}>
         <button className={styles.backButton} onClick={onBack}>
-          &larr; Back
+          {'\u2190'} {t('threadView.back')}
         </button>
-        <div className={styles.error}>{error ?? 'Thread not found'}</div>
+        <div className={styles.error}>{error ?? t('threadView.notFound')}</div>
       </div>
     );
   }
@@ -67,7 +69,7 @@ export function ThreadView({
   return (
     <div className={styles.threadView}>
       <button className={styles.backButton} onClick={onBack}>
-        &larr; Back
+        {'\u2190'} {t('threadView.back')}
       </button>
 
       <div className={styles.scrollArea}>
@@ -115,8 +117,7 @@ export function ThreadView({
                   }}
                   type="button"
                 >
-                  View {reply.post.replyCount} {reply.post.replyCount === 1 ? 'reply' : 'replies'}{' '}
-                  &rarr;
+                  {t('threadView.viewReplies', { count: reply.post.replyCount })} &rarr;
                 </button>
               )}
             </div>

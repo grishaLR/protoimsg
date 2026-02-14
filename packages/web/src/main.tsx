@@ -1,4 +1,5 @@
 import '@protoimsg/ui/tokens';
+import './i18n';
 import './app.css';
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';

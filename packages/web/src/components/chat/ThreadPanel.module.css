@@ -3,7 +3,7 @@
   flex-direction: column;
   width: var(--cm-panel-width-thread);
   background: var(--color-base-100);
-  border-left: var(--cm-space-0.5) solid var(--cm-border-dark);
+  border-inline-start: var(--cm-space-0.5) solid var(--cm-border-dark);
   overflow: hidden;
   flex-shrink: 0;
 }
@@ -47,7 +47,7 @@
   cursor: pointer;
   padding: 0 var(--cm-space-1);
   line-height: 1;
-  margin-left: auto;
+  margin-inline-start: auto;
 }
 
 .closeBtn:hover {

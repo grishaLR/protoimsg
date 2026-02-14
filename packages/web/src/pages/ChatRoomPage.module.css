@@ -53,7 +53,7 @@
 .sidebar {
   width: var(--cm-panel-width-sidebar);
   background: var(--color-base-100);
-  border-left: var(--cm-space-0.5) solid var(--cm-border-dark);
+  border-inline-start: var(--cm-space-0.5) solid var(--cm-border-dark);
   overflow-y: auto;
 }
 

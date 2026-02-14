@@ -37,7 +37,7 @@
   position: absolute;
   top: 0;
   width: 100%;
-  left: 0;
+  inset-inline-start: 0;
 }
 
 .virtualItem:has(.menuDropdown) {
@@ -114,7 +114,7 @@
 .awayBubble::after {
   content: attr(data-tooltip);
   position: absolute;
-  left: 0;
+  inset-inline-start: 0;
   bottom: calc(100% + var(--cm-space-3));
   background: var(--color-base-100);
   color: var(--color-base-content);
@@ -198,7 +198,7 @@
   height: var(--cm-space-1);
   background: var(--color-base-content);
   position: absolute;
-  left: 0;
+  inset-inline-start: 0;
 }
 
 .menuIcon::before {
@@ -211,7 +211,7 @@
 
 .menuDropdown {
   position: absolute;
-  right: 0;
+  inset-inline-end: 0;
   top: 100%;
   margin-top: var(--cm-space-1);
   background: var(--color-base-100);
@@ -232,7 +232,7 @@
   cursor: pointer;
   font-size: var(--cm-text-base);
   color: var(--color-base-content);
-  text-align: left;
+  text-align: start;
   white-space: nowrap;
 }
 
@@ -336,7 +336,7 @@
 }
 
 .buddyIndented {
-  padding-left: var(--cm-space-10);
+  padding-inline-start: var(--cm-space-10);
 }
 
 .createGroupBtn {
@@ -349,7 +349,7 @@
   cursor: pointer;
   font-size: var(--cm-text-sm);
   color: var(--cm-border-dark);
-  text-align: left;
+  text-align: start;
 }
 
 .createGroupBtn:hover {
@@ -386,7 +386,7 @@
 }
 
 .moveCaret {
-  margin-left: auto;
+  margin-inline-start: auto;
   font-size: var(--cm-text-xs);
   line-height: 1;
 }
@@ -394,13 +394,14 @@
 .moveTarget {
   display: block;
   width: 100%;
-  padding: var(--cm-space-2) var(--cm-space-3) var(--cm-space-2) var(--cm-space-8);
+  padding: var(--cm-space-2) var(--cm-space-3);
+  padding-inline-start: var(--cm-space-8);
   background: none;
   border: none;
   cursor: pointer;
   font-size: var(--cm-text-sm);
   color: var(--color-base-content);
-  text-align: left;
+  text-align: start;
   white-space: nowrap;
 }
 

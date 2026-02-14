@@ -1,0 +1,56 @@
+{
+  "input": {
+    "placeholder": "Type a message...",
+    "ariaLabel": "Type a DM message",
+    "send": "Send"
+  },
+
+  "messageList": {
+    "empty": "No messages yet. Say hello!",
+    "typing": "typing..."
+  },
+
+  "popover": {
+    "ariaLabel": "DM conversation with {{recipientDid}}",
+    "header": {
+      "ariaLabel": {
+        "expand": "DM with {{recipientDid}} \u2014 click to expand",
+        "minimize": "DM with {{recipientDid}} \u2014 click to minimize"
+      }
+    },
+    "unreadAriaLabel": "{{count}} unread messages",
+    "unreadOverflow": "99+",
+    "persist": {
+      "titleActive": "Messages saved (7 days)",
+      "titleInactive": "Messages ephemeral \u2014 click to save",
+      "ariaLabel": {
+        "disable": "Disable message saving",
+        "enable": "Enable message saving"
+      }
+    },
+    "minimize": {
+      "titleExpand": "Expand",
+      "titleMinimize": "Minimize",
+      "ariaLabel": {
+        "expand": "Expand conversation",
+        "minimize": "Minimize conversation"
+      }
+    },
+    "close": {
+      "title": "Close",
+      "ariaLabel": "Close conversation"
+    }
+  },
+
+  "notification": {
+    "ariaLabel": "New message from {{senderDid}}: {{preview}}",
+    "dismiss": {
+      "title": "Dismiss",
+      "ariaLabel": "Dismiss notification"
+    }
+  },
+
+  "popoverContainer": {
+    "ariaLabel": "DM notifications"
+  }
+}

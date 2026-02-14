@@ -14,19 +14,19 @@ export type Theme =
   | 'black'
   | 'wireframe';
 
-export const THEME_OPTIONS: { id: Theme; label: string }[] = [
-  { id: 'aim', label: 'AIM Classic' },
-  { id: 'nyt-light', label: 'Minimal Light' },
-  { id: 'nyt-dark', label: 'Minimal Dark' },
-  { id: 'dracula', label: 'Dracula' },
-  { id: 'valentine', label: 'Valentine' },
-  { id: 'garden', label: 'Garden' },
-  { id: 'coffee', label: 'Coffee' },
-  { id: 'fantasy', label: 'Fantasy' },
-  { id: 'nord', label: 'Nord' },
-  { id: 'retro', label: 'Retro' },
-  { id: 'black', label: 'Black' },
-  { id: 'wireframe', label: 'Wireframe' },
+export const THEME_OPTIONS: { id: Theme; labelKey: string }[] = [
+  { id: 'aim', labelKey: 'theme.aim' },
+  { id: 'nyt-light', labelKey: 'theme.nytLight' },
+  { id: 'nyt-dark', labelKey: 'theme.nytDark' },
+  { id: 'dracula', labelKey: 'theme.dracula' },
+  { id: 'valentine', labelKey: 'theme.valentine' },
+  { id: 'garden', labelKey: 'theme.garden' },
+  { id: 'coffee', labelKey: 'theme.coffee' },
+  { id: 'fantasy', labelKey: 'theme.fantasy' },
+  { id: 'nord', labelKey: 'theme.nord' },
+  { id: 'retro', labelKey: 'theme.retro' },
+  { id: 'black', labelKey: 'theme.black' },
+  { id: 'wireframe', labelKey: 'theme.wireframe' },
 ];
 
 const VALID_THEMES = new Set<string>(THEME_OPTIONS.map((t) => t.id));

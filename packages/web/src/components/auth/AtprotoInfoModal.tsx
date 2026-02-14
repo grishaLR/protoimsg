@@ -1,4 +1,5 @@
 import { useRef, useEffect, useCallback } from 'react';
+import { useTranslation, Trans } from 'react-i18next';
 import styles from './AtprotoInfoModal.module.css';
 
 interface AtprotoInfoModalProps {
@@ -6,54 +7,51 @@ interface AtprotoInfoModalProps {
 }
 
 const BLACKSKY_PDS = {
-  name: 'blacksky.app',
+  nameKey: 'atprotoInfo.pds.blacksky.name',
   url: 'https://blacksky.community',
-  description:
-    'A community-run PDS democratizing the protocol and building safe spaces. Please follow the rules and boundaries set up by their team. Run by Blacksky Algorithms.',
-  warning:
-    'This PDS is reserved for Black folks building communal infrastructure. Anyone else using a blacksky.app handle will receive a warning and then a suspension.',
+  descriptionKey: 'atprotoInfo.pds.blacksky.description',
+  warningKey: 'atprotoInfo.pds.blacksky.warning',
 };
 
 const OPEN_PDS_PROVIDERS = [
   {
-    name: 'bsky.social',
+    nameKey: 'atprotoInfo.pds.bsky.name',
     url: 'https://bsky.app',
-    description: 'Run by the Bluesky team.',
+    descriptionKey: 'atprotoInfo.pds.bsky.description',
   },
   {
-    name: 'fed.brid.gy',
+    nameKey: 'atprotoInfo.pds.fedbridgy.name',
     url: 'https://fed.brid.gy',
-    description: 'Bridges your account to the Fediverse (Mastodon, etc.).',
+    descriptionKey: 'atprotoInfo.pds.fedbridgy.description',
   },
 ];
 
 const COMMUNITY_PDS_PROVIDERS = [
   BLACKSKY_PDS,
   {
-    name: 'myatproto.social and cryptoanarchy.network',
+    nameKey: 'atprotoInfo.pds.myatproto.name',
     url: 'https://blacksky.community',
-    description:
-      'Blacksky Algorithms also operates PDSs that are open to anyone. These run on the same infrastructure as blacksky.app and are maintained by the same innovative team.',
+    descriptionKey: 'atprotoInfo.pds.myatproto.description',
   },
   {
-    name: 'transrights.northsky.social',
+    nameKey: 'atprotoInfo.pds.transrights.name',
     url: 'https://northsky.social',
-    description:
-      'A digital space designed around active moderation and user safety for 2SLGBTQIA+ communities. Run by Northsky Social Cooperative.',
+    descriptionKey: 'atprotoInfo.pds.transrights.description',
   },
   {
-    name: 'pds.witchcraft.systems',
+    nameKey: 'atprotoInfo.pds.witchcraft.name',
     url: 'https://witchcraft.systems',
-    description: 'Contact directly for invite.',
+    descriptionKey: 'atprotoInfo.pds.witchcraft.description',
   },
   {
-    name: 'selfhosted.social',
+    nameKey: 'atprotoInfo.pds.selfhosted.name',
     url: 'https://selfhosted.social',
-    description: 'Contact directly for invite.',
+    descriptionKey: 'atprotoInfo.pds.selfhosted.description',
   },
 ];
 
 export function AtprotoInfoModal({ onClose }: AtprotoInfoModalProps) {
+  const { t } = useTranslation('auth');
   const dialogRef = useRef<HTMLDialogElement>(null);
   const previousActiveRef = useRef<HTMLElement | null>(null);
 
@@ -71,101 +69,104 @@ export function AtprotoInfoModal({ onClose }: AtprotoInfoModalProps) {
 
   return (
     <dialog ref={dialogRef} className={styles.dialog} onClose={handleClose}>
-      <div className={styles.titleBar}>What is atproto?</div>
+      <div className={styles.titleBar}>{t('atprotoInfo.title')}</div>
       <div className={styles.content}>
         <section className={styles.section}>
-          <h3 className={styles.heading}>The short version</h3>
+          <h3 className={styles.heading}>{t('atprotoInfo.shortVersion.heading')}</h3>
           <p className={styles.text}>
-            AT Protocol (or atproto) is a protocol for creating decentralized social apps like the
-            proto instant messenger and many more. Instead of one company owning your account, you
-            choose a server (called a <strong>Personal Data Server</strong>, or PDS) to host your
-            identity and data. That same account works across any app built on the protocol.
+            <Trans
+              i18nKey="atprotoInfo.shortVersion.p1"
+              ns="auth"
+              components={{ strong: <strong /> }}
+            />
           </p>
           <p className={styles.text}>
-            If you're coming from traditional social media, this is a fundamentally different
-            approach.{' '}
+            {t('atprotoInfo.shortVersion.p2prefix')}
             <a
               className={styles.link}
               href="https://bsky.social/about/blog/02-22-2024-open-social-web"
               target="_blank"
               rel="noopener noreferrer"
             >
-              This Bluesky blog post
-            </a>{' '}
-            explains how it works and why it matters.
+              {t('atprotoInfo.shortVersion.blogLinkText')}
+            </a>
+            {t('atprotoInfo.shortVersion.p2suffix')}
           </p>
         </section>
 
         <section className={styles.section}>
-          <h3 className={styles.heading}>Why it matters</h3>
+          <h3 className={styles.heading}>{t('atprotoInfo.whyItMatters.heading')}</h3>
           <ul className={styles.list}>
             <li>
-              <strong>You own your identity.</strong> Your handle and data travel with you — switch
-              apps or servers anytime.
+              <strong>{t('atprotoInfo.whyItMatters.ownIdentity.strong')}</strong>
+              {t('atprotoInfo.whyItMatters.ownIdentity.text')}
             </li>
             <li>
-              <strong>No lock-in.</strong> Apps built on atproto can talk to each other. Your proto
-              instant messenger buddies are the same people you follow on Bluesky.
+              <strong>{t('atprotoInfo.whyItMatters.noLockIn.strong')}</strong>
+              {t('atprotoInfo.whyItMatters.noLockIn.text')}
             </li>
             <li>
-              <strong>Open source.</strong> Anyone can run a server or build an app. No gatekeepers.
+              <strong>{t('atprotoInfo.whyItMatters.openSource.strong')}</strong>
+              {t('atprotoInfo.whyItMatters.openSource.text')}
             </li>
           </ul>
         </section>
 
         <section className={styles.section}>
-          <h3 className={styles.heading}>Create an account</h3>
-          <p className={styles.text}>
-            To use proto instant messenger, you need an atproto account on any PDS. Some options:
-          </p>
+          <h3 className={styles.heading}>{t('atprotoInfo.createAccount.heading')}</h3>
+          <p className={styles.text}>{t('atprotoInfo.createAccount.text')}</p>
         </section>
 
         <section className={styles.section}>
-          <h3 className={styles.heading}>Community led PDSs</h3>
+          <h3 className={styles.heading}>{t('atprotoInfo.communityPds.heading')}</h3>
           <div className={styles.providers}>
             {COMMUNITY_PDS_PROVIDERS.map((provider) => (
               <a
-                key={provider.name}
+                key={provider.nameKey}
                 className={styles.providerCard}
                 href={provider.url}
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                <span className={styles.providerName}>{provider.name}</span>
-                <span className={styles.providerDesc}>{provider.description}</span>
+                <span className={styles.providerName}>
+                  {t(provider.nameKey as 'atprotoInfo.pds.bsky.name')}
+                </span>
+                <span className={styles.providerDesc}>
+                  {t(provider.descriptionKey as 'atprotoInfo.pds.bsky.description')}
+                </span>
               </a>
             ))}
           </div>
         </section>
 
         <section className={styles.section}>
-          <h3 className={styles.heading}>Other PDSs</h3>
+          <h3 className={styles.heading}>{t('atprotoInfo.otherPds.heading')}</h3>
           <div className={styles.providers}>
             {OPEN_PDS_PROVIDERS.map((provider) => (
               <a
-                key={provider.name}
+                key={provider.nameKey}
                 className={styles.providerCard}
                 href={provider.url}
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                <span className={styles.providerName}>{provider.name}</span>
-                <span className={styles.providerDesc}>{provider.description}</span>
+                <span className={styles.providerName}>
+                  {t(provider.nameKey as 'atprotoInfo.pds.bsky.name')}
+                </span>
+                <span className={styles.providerDesc}>
+                  {t(provider.descriptionKey as 'atprotoInfo.pds.bsky.description')}
+                </span>
               </a>
             ))}
           </div>
         </section>
 
         <section className={styles.section}>
-          <p className={styles.text}>
-            proto instant messenger is not affiliated with any PDS provider. We are a community-run
-            project building on the AT Protocol.
-          </p>
+          <p className={styles.text}>{t('atprotoInfo.disclaimer')}</p>
         </section>
 
         <p className={styles.text}>
-          Once you have an account, come back here and sign in with your handle (e.g.{' '}
-          <strong>yourname.myatproto.social</strong>).
+          <Trans i18nKey="atprotoInfo.signInHint" ns="auth" components={{ strong: <strong /> }} />
         </p>
 
         <button
@@ -175,7 +176,7 @@ export function AtprotoInfoModal({ onClose }: AtprotoInfoModalProps) {
             dialogRef.current?.close();
           }}
         >
-          Got it
+          {t('atprotoInfo.close')}
         </button>
       </div>
     </dialog>

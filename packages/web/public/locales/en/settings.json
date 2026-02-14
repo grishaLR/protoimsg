@@ -1,0 +1,38 @@
+{
+  "back": "Back",
+
+  "accountInfo": {
+    "title": "Account Info",
+    "didLabel": "DID",
+    "handleLabel": "Handle"
+  },
+
+  "editProfile": {
+    "title": "Edit Profile",
+    "loading": "Loading profile...",
+    "changeAvatar": "Change Avatar",
+    "displayNameLabel": "Display Name",
+    "bioLabel": "Bio",
+    "saving": "Saving...",
+    "save": "Save"
+  },
+
+  "appearance": {
+    "title": "Appearance"
+  },
+
+  "language": {
+    "title": "Language"
+  },
+
+  "translation": {
+    "title": "Translation",
+    "autoTranslate": "Auto-translate posts",
+    "autoTranslateHint": "Automatically translate feed posts and bios into your language"
+  },
+
+  "actions": {
+    "title": "Actions",
+    "signOut": "Sign Out"
+  }
+}

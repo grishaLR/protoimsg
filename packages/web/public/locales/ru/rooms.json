@@ -1,0 +1,55 @@
+{
+  "createRoom": {
+    "title": "Создать комнату",
+    "nameLabel": "Название",
+    "namePlaceholder": "Название комнаты",
+    "descriptionLabel": "Описание",
+    "descriptionPlaceholder": "О чём эта комната?",
+    "topicLabel": "Тема",
+    "topicPlaceholder": "Текущая тема обсуждения",
+    "purposeLabel": "Назначение",
+    "purpose": {
+      "discussion": "Обсуждение",
+      "event": "Событие",
+      "community": "Сообщество",
+      "support": "Поддержка"
+    },
+    "visibilityLabel": "Видимость",
+    "visibility": {
+      "public": "Публичная",
+      "unlisted": "Скрытая",
+      "private": "Приватная"
+    },
+    "error": {
+      "default": "Не удалось создать комнату"
+    },
+    "cancel": "Отмена",
+    "submitting": "Создание...",
+    "submit": "Создать"
+  },
+
+  "roomList": {
+    "empty": "Комнат не найдено. Создайте первую!"
+  },
+
+  "roomCard": {
+    "createdDate": "Создана {{date}}",
+    "translate": "Перевести",
+    "translating": "Перевод...",
+    "translatedTo": "Переведено на {{lang}}",
+    "showOriginal": "Показать оригинал"
+  },
+
+  "directory": {
+    "searchPlaceholder": "Поиск комнат...",
+    "createButton": "Создать комнату",
+    "loading": "Загрузка комнат..."
+  },
+
+  "chatRoom": {
+    "invalidId": "Неверный ID комнаты",
+    "loading": "Подготовка комнаты...",
+    "notFound": "Комната не найдена",
+    "backToRooms": "Комнаты"
+  }
+}

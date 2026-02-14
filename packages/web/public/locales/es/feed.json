@@ -1,0 +1,58 @@
+{
+  "composer": {
+    "collapsed": "¿Qué estás pensando?",
+    "replyingTo": "Respondiendo a @{{handle}}",
+    "placeholder": "Escribe tu publicación...",
+    "charCount": "{{count}}/{{max}}",
+    "attachImage": "Adjuntar imagen",
+    "cancel": "Cancelar",
+    "posting": "Publicando...",
+    "post": "Publicar"
+  },
+
+  "post": {
+    "pinned": "Fijado",
+    "repostedBy": "Republicado por",
+    "replyTo": "Responder a @{{handle}}",
+    "relativeTime": {
+      "seconds": "{{count}}s",
+      "minutes": "{{count}}m",
+      "hours": "{{count}}h",
+      "days": "{{count}}d",
+      "months": "{{count}}mo"
+    },
+    "translate": "Traducir",
+    "translatedTo": "Traducido a {{lang}}",
+    "showOriginal": "Ver original",
+    "translating": "Traduciendo..."
+  },
+
+  "feedView": {
+    "loading": "Cargando feed...",
+    "empty": "No hay publicaciones para mostrar",
+    "loadingMore": "Cargando más...",
+    "refresh": "Actualizar feed"
+  },
+
+  "profileView": {
+    "back": "Atrás",
+    "loading": "Cargando perfil...",
+    "error": "Error al cargar perfil",
+    "followers": "seguidores",
+    "following": "siguiendo",
+    "posts": "publicaciones",
+    "loadingMore": "Cargando más...",
+    "translateBio": "Traducir biografía",
+    "translating": "Traduciendo...",
+    "translatedTo": "Traducido a {{lang}}",
+    "showOriginal": "Ver original"
+  },
+
+  "threadView": {
+    "back": "Atrás",
+    "loading": "Cargando hilo...",
+    "notFound": "Hilo no encontrado",
+    "viewReplies_one": "Ver {{count}} respuesta",
+    "viewReplies_other": "Ver {{count}} respuestas"
+  }
+}

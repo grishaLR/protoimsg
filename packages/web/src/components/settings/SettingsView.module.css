@@ -196,6 +196,22 @@
   box-shadow: var(--cm-sunken);
 }
 
+.checkboxLabel {
+  display: flex;
+  align-items: center;
+  gap: var(--cm-space-3);
+  font-size: var(--cm-text-sm);
+  color: var(--color-base-content);
+  cursor: pointer;
+}
+
+.hint {
+  font-size: var(--cm-text-xs);
+  color: var(--cm-border-dark);
+  margin-top: var(--cm-space-1);
+  padding-inline-start: calc(var(--cm-space-3) + 16px);
+}
+
 .signOutButton {
   padding: var(--cm-space-1) var(--cm-space-8);
   background: var(--color-base-200);

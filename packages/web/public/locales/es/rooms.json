@@ -1,0 +1,55 @@
+{
+  "createRoom": {
+    "title": "Crear sala",
+    "nameLabel": "Nombre",
+    "namePlaceholder": "Nombre de la sala",
+    "descriptionLabel": "Descripción",
+    "descriptionPlaceholder": "¿De qué trata esta sala?",
+    "topicLabel": "Tema",
+    "topicPlaceholder": "Tema actual de discusión",
+    "purposeLabel": "Propósito",
+    "purpose": {
+      "discussion": "Discusión",
+      "event": "Evento",
+      "community": "Comunidad",
+      "support": "Soporte"
+    },
+    "visibilityLabel": "Visibilidad",
+    "visibility": {
+      "public": "Público",
+      "unlisted": "No listado",
+      "private": "Privado"
+    },
+    "error": {
+      "default": "Error al crear sala"
+    },
+    "cancel": "Cancelar",
+    "submitting": "Creando...",
+    "submit": "Crear"
+  },
+
+  "roomList": {
+    "empty": "No se encontraron salas. ¡Crea una para comenzar!"
+  },
+
+  "roomCard": {
+    "createdDate": "Creada el {{date}}",
+    "translate": "Traducir",
+    "translating": "Traduciendo...",
+    "translatedTo": "Traducido a {{lang}}",
+    "showOriginal": "Mostrar original"
+  },
+
+  "directory": {
+    "searchPlaceholder": "Buscar salas...",
+    "createButton": "Crear sala",
+    "loading": "Cargando salas..."
+  },
+
+  "chatRoom": {
+    "invalidId": "ID de sala inválido",
+    "loading": "La sala se está configurando...",
+    "notFound": "Sala no encontrada",
+    "backToRooms": "Salas"
+  }
+}

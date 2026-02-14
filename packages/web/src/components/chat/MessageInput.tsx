@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState, type KeyboardEvent } from 'react';
+import { useTranslation } from 'react-i18next';
 import { LIMITS } from '@protoimsg/shared';
 import type { MessageView } from '../../types';
 import { FormattingToolbar } from './FormattingToolbar';
@@ -23,6 +24,7 @@ export function MessageInput({
   onCancelReply,
   placeholder,
 }: MessageInputProps) {
+  const { t } = useTranslation('chat');
   const [text, setText] = useState('');
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
@@ -60,13 +62,13 @@ export function MessageInput({
       {replyTo && (
         <div className={styles.replyBar}>
           <span className={styles.replyContext}>
-            Replying to <UserIdentity did={replyTo.did} size="sm" />
+            {t('messageInput.replyingTo')} <UserIdentity did={replyTo.did} size="sm" />
           </span>
           <button
             className={styles.replyCancelBtn}
             onClick={onCancelReply}
             type="button"
-            aria-label="Cancel reply"
+            aria-label={t('messageInput.cancelReply.ariaLabel')}
           >
             &times;
           </button>
@@ -84,15 +86,15 @@ export function MessageInput({
           onKeyDown={handleKeyDown}
           placeholder={
             placeholder ??
-            (replyTo
-              ? 'Reply... (Enter to send, Esc to cancel)'
-              : 'Type a message... (Enter to send, Shift+Enter for newline)')
+            (replyTo ? t('messageInput.placeholder.reply') : t('messageInput.placeholder.default'))
           }
           rows={2}
-          aria-label={replyTo ? 'Type a reply' : 'Type a message'}
+          aria-label={
+            replyTo ? t('messageInput.ariaLabel.reply') : t('messageInput.ariaLabel.default')
+          }
         />
         <button className={styles.sendButton} onClick={send} disabled={!text.trim()}>
-          Send
+          {t('messageInput.send')}
         </button>
       </div>
     </div>

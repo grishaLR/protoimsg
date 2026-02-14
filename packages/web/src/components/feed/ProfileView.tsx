@@ -1,7 +1,9 @@
-import { useCallback, useRef } from 'react';
+import { useCallback, useRef, useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useQuery, useInfiniteQuery } from '@tanstack/react-query';
 import { RichText as RichTextAPI, type AppBskyFeedDefs } from '@atproto/api';
 import { useAuth } from '../../hooks/useAuth';
+import { useContentTranslation } from '../../hooks/useContentTranslation';
 import { FeedPost } from './FeedPost';
 import { RichText, type GenericFacet } from '../chat/RichText';
 import styles from './ProfileView.module.css';
@@ -23,8 +25,20 @@ export function ProfileView({
   onReply,
   onOpenThread,
 }: ProfileViewProps) {
+  const { t } = useTranslation('feed');
   const { agent } = useAuth();
   const scrollRef = useRef<HTMLDivElement>(null);
+  const {
+    autoTranslate,
+    available: translateAvailable,
+    targetLang,
+    getTranslation,
+    isTranslating: isTranslatingText,
+    requestTranslation,
+    requestBatchTranslation,
+  } = useContentTranslation();
+  const [showTranslatedBio, setShowTranslatedBio] = useState(autoTranslate);
+  const lastTranslatedCount = useRef(0);
 
   const {
     data: profileData,
@@ -96,7 +110,32 @@ export function ProfileView({
     ? allPosts.filter((item) => item.post.uri !== pinnedPostUri)
     : allPosts;
   const loading = profileLoading || feedLoading;
-  const error = profileError ? 'Failed to load profile' : null;
+  const error = profileError ? t('profileView.error') : null;
+
+  // Auto-translate bio on load
+  const bioText = profile?.description ?? '';
+  const translatedBio = bioText ? getTranslation(bioText) : undefined;
+  const bioTranslating = bioText ? isTranslatingText(bioText) : false;
+
+  useEffect(() => {
+    if (autoTranslate && translateAvailable && bioText) {
+      requestTranslation(bioText);
+    }
+  }, [autoTranslate, translateAvailable, bioText, requestTranslation]);
+
+  // Auto-translate posts as pages load
+  useEffect(() => {
+    if (!autoTranslate || !translateAvailable || allPosts.length === 0) return;
+    if (allPosts.length === lastTranslatedCount.current) return;
+
+    const newPosts = allPosts.slice(lastTranslatedCount.current);
+    const texts = newPosts
+      .map((item) => ((item.post.record as Record<string, unknown>).text as string) || '')
+      .filter(Boolean);
+
+    lastTranslatedCount.current = allPosts.length;
+    if (texts.length > 0) requestBatchTranslation(texts);
+  }, [allPosts.length, autoTranslate, translateAvailable, allPosts, requestBatchTranslation]);
 
   const onScroll = useCallback(() => {
     const el = scrollRef.current;
@@ -114,10 +153,10 @@ export function ProfileView({
   return (
     <div className={styles.profileView}>
       <button className={styles.backButton} onClick={onBack}>
-        &larr; Back
+        {'\u2190'} {t('profileView.back')}
       </button>
 
-      {loading && <div className={styles.loading}>Loading profile...</div>}
+      {loading && <div className={styles.loading}>{t('profileView.loading')}</div>}
       {error && <div className={styles.error}>{error}</div>}
 
       {profile && (
@@ -144,23 +183,66 @@ export function ProfileView({
 
             {profile.description && (
               <div className={styles.bio}>
-                <RichText
-                  text={profile.description}
-                  facets={profile.detectedFacets}
-                  onMentionClick={onNavigateToProfile}
-                />
+                {showTranslatedBio && translatedBio ? (
+                  <>
+                    {translatedBio}
+                    <div className={styles.translationLabel}>
+                      {t('profileView.translatedTo', { lang: targetLang })}
+                      {' \u00B7 '}
+                      <button
+                        type="button"
+                        className={styles.showOriginal}
+                        onClick={() => {
+                          setShowTranslatedBio(false);
+                        }}
+                      >
+                        {t('profileView.showOriginal')}
+                      </button>
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <RichText
+                      text={profile.description}
+                      facets={profile.detectedFacets}
+                      onMentionClick={onNavigateToProfile}
+                    />
+                    {translateAvailable && (
+                      <button
+                        type="button"
+                        className={styles.translateBioButton}
+                        onClick={() => {
+                          if (translatedBio) {
+                            setShowTranslatedBio(true);
+                          } else {
+                            requestTranslation(profile.description ?? '');
+                            setShowTranslatedBio(true);
+                          }
+                        }}
+                        disabled={bioTranslating}
+                      >
+                        {bioTranslating
+                          ? t('profileView.translating')
+                          : t('profileView.translateBio')}
+                      </button>
+                    )}
+                  </>
+                )}
               </div>
             )}
 
             <div className={styles.stats}>
               <span>
-                <span className={styles.statCount}>{profile.followersCount ?? 0}</span> followers
+                <span className={styles.statCount}>{profile.followersCount ?? 0}</span>{' '}
+                {t('profileView.followers')}
               </span>
               <span>
-                <span className={styles.statCount}>{profile.followsCount ?? 0}</span> following
+                <span className={styles.statCount}>{profile.followsCount ?? 0}</span>{' '}
+                {t('profileView.following')}
               </span>
               <span>
-                <span className={styles.statCount}>{profile.postsCount ?? 0}</span> posts
+                <span className={styles.statCount}>{profile.postsCount ?? 0}</span>{' '}
+                {t('profileView.posts')}
               </span>
             </div>
           </div>
@@ -192,7 +274,9 @@ export function ProfileView({
             />
           ))}
 
-          {isFetchingNextPage && <div className={styles.loadingMore}>Loading more...</div>}
+          {isFetchingNextPage && (
+            <div className={styles.loadingMore}>{t('profileView.loadingMore')}</div>
+          )}
         </div>
       </div>
     </div>

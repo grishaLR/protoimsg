@@ -1,8 +1,11 @@
 import { useRef, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../hooks/useAuth';
 import { useProfileEditor } from '../../hooks/useProfileEditor';
 import { useTheme } from '../../hooks/useTheme';
+import { useContentTranslation } from '../../hooks/useContentTranslation';
 import { THEME_OPTIONS, type Theme } from '../../contexts/ThemeContext';
+import { LanguageSelector } from './LanguageSelector';
 import styles from './SettingsView.module.css';
 
 interface SettingsViewProps {
@@ -10,8 +13,15 @@ interface SettingsViewProps {
 }
 
 export function SettingsView({ onBack }: SettingsViewProps) {
+  const { t } = useTranslation('settings');
+  const { t: tc } = useTranslation('common');
   const { did, handle, logout } = useAuth();
   const { theme, setTheme } = useTheme();
+  const {
+    autoTranslate,
+    setAutoTranslate,
+    available: translateAvailable,
+  } = useContentTranslation();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const {
@@ -40,27 +50,27 @@ export function SettingsView({ onBack }: SettingsViewProps) {
   return (
     <div className={styles.settingsView}>
       <button className={styles.backButton} onClick={onBack}>
-        &larr; Back
+        {'\u2190'} {t('back')}
       </button>
 
       <div className={styles.scrollArea}>
         {/* Account Info */}
         <div className={styles.section}>
-          <div className={styles.sectionTitle}>Account Info</div>
+          <div className={styles.sectionTitle}>{t('accountInfo.title')}</div>
           <div className={styles.sectionBody}>
-            <label className={styles.label}>DID</label>
+            <label className={styles.label}>{t('accountInfo.didLabel')}</label>
             <input className={styles.readOnly} value={did ?? ''} readOnly />
-            <label className={styles.label}>Handle</label>
+            <label className={styles.label}>{t('accountInfo.handleLabel')}</label>
             <input className={styles.readOnly} value={handle ?? ''} readOnly />
           </div>
         </div>
 
         {/* Edit Profile */}
         <div className={styles.section}>
-          <div className={styles.sectionTitle}>Edit Profile</div>
+          <div className={styles.sectionTitle}>{t('editProfile.title')}</div>
           <div className={styles.sectionBody}>
             {loading ? (
-              <div className={styles.loadingText}>Loading profile...</div>
+              <div className={styles.loadingText}>{t('editProfile.loading')}</div>
             ) : (
               <>
                 <div className={styles.avatarRow}>
@@ -74,7 +84,7 @@ export function SettingsView({ onBack }: SettingsViewProps) {
                     }}
                     type="button"
                   >
-                    Change Avatar
+                    {t('editProfile.changeAvatar')}
                   </button>
                   <input
                     ref={fileInputRef}
@@ -85,7 +95,7 @@ export function SettingsView({ onBack }: SettingsViewProps) {
                   />
                 </div>
 
-                <label className={styles.label}>Display Name</label>
+                <label className={styles.label}>{t('editProfile.displayNameLabel')}</label>
                 <input
                   className={styles.input}
                   value={displayName}
@@ -94,7 +104,7 @@ export function SettingsView({ onBack }: SettingsViewProps) {
                   }}
                 />
 
-                <label className={styles.label}>Bio</label>
+                <label className={styles.label}>{t('editProfile.bioLabel')}</label>
                 <textarea
                   className={styles.textarea}
                   value={description}
@@ -114,7 +124,7 @@ export function SettingsView({ onBack }: SettingsViewProps) {
                   disabled={saving}
                   type="button"
                 >
-                  {saving ? 'Saving...' : 'Save'}
+                  {saving ? t('editProfile.saving') : t('editProfile.save')}
                 </button>
               </>
             )}
@@ -123,7 +133,7 @@ export function SettingsView({ onBack }: SettingsViewProps) {
 
         {/* Appearance */}
         <div className={styles.section}>
-          <div className={styles.sectionTitle}>Appearance</div>
+          <div className={styles.sectionTitle}>{t('appearance.title')}</div>
           <div className={styles.sectionBody}>
             <select
               className={styles.themeSelect}
@@ -132,18 +142,46 @@ export function SettingsView({ onBack }: SettingsViewProps) {
                 setTheme(e.target.value as Theme);
               }}
             >
-              {THEME_OPTIONS.map((t) => (
-                <option key={t.id} value={t.id}>
-                  {t.label}
+              {THEME_OPTIONS.map((themeOpt) => (
+                <option key={themeOpt.id} value={themeOpt.id}>
+                  {tc(themeOpt.labelKey as 'theme.aim')}
                 </option>
               ))}
             </select>
           </div>
         </div>
 
+        {/* Language */}
+        <div className={styles.section}>
+          <div className={styles.sectionTitle}>{t('language.title')}</div>
+          <div className={styles.sectionBody}>
+            <LanguageSelector />
+          </div>
+        </div>
+
+        {/* Translation (only shown when available) */}
+        {translateAvailable && (
+          <div className={styles.section}>
+            <div className={styles.sectionTitle}>{t('translation.title')}</div>
+            <div className={styles.sectionBody}>
+              <label className={styles.checkboxLabel}>
+                <input
+                  type="checkbox"
+                  checked={autoTranslate}
+                  onChange={(e) => {
+                    setAutoTranslate(e.target.checked);
+                  }}
+                />
+                {t('translation.autoTranslate')}
+              </label>
+              <div className={styles.hint}>{t('translation.autoTranslateHint')}</div>
+            </div>
+          </div>
+        )}
+
         {/* Actions */}
         <div className={styles.section}>
-          <div className={styles.sectionTitle}>Actions</div>
+          <div className={styles.sectionTitle}>{t('actions.title')}</div>
           <div className={styles.sectionBody}>
             <button
               className={styles.signOutButton}
@@ -152,7 +190,7 @@ export function SettingsView({ onBack }: SettingsViewProps) {
               }}
               type="button"
             >
-              Sign Out
+              {t('actions.signOut')}
             </button>
           </div>
         </div>

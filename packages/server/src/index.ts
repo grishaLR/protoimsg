@@ -17,6 +17,7 @@ import { RedisRateLimiter } from './moderation/rate-limiter-redis.js';
 import { BlockService } from './moderation/block-service.js';
 import { GlobalBanService } from './moderation/global-ban-service.js';
 import { createDmService } from './dms/service.js';
+import { createTranslateService } from './translate/service.js';
 import { LIMITS } from '@protoimsg/shared';
 import { pruneOldMessages } from './messages/queries.js';
 
@@ -57,6 +58,20 @@ async function main() {
   const globalBans = new GlobalBanService();
   await globalBans.load(db);
 
+  // Translation service (optional — requires LibreTranslate)
+  const translateService = config.TRANSLATE_ENABLED
+    ? createTranslateService(db, config.LIBRETRANSLATE_URL)
+    : null;
+  const translateRateLimiter = config.TRANSLATE_ENABLED
+    ? redis
+      ? new RedisRateLimiter(redis, { windowMs: 60_000, maxRequests: config.TRANSLATE_RATE_LIMIT })
+      : new InMemoryRateLimiter({ windowMs: 60_000, maxRequests: config.TRANSLATE_RATE_LIMIT })
+    : null;
+
+  if (translateService) {
+    log.info({ url: config.LIBRETRANSLATE_URL }, 'Translation service enabled');
+  }
+
   const app = createApp(
     config,
     db,
@@ -66,6 +81,8 @@ async function main() {
     authRateLimiter,
     blockService,
     globalBans,
+    translateService,
+    translateRateLimiter,
   );
   const httpServer = createServer(app);
 

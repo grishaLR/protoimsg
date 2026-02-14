@@ -29,6 +29,24 @@ services:
       retries: 5
       start_period: 5s
 
+  libretranslate:
+    image: libretranslate/libretranslate:latest
+    ports:
+      - '5100:5000'
+    environment:
+      LT_LOAD_ONLY: en,es,ru,ar,ga,uk,zh,hi,ja,ko,vi,fr,pt,de,tr,th
+      LT_DISABLE_WEB_UI: 'true'
+      LT_UPDATE_MODELS: 'true'
+    volumes:
+      - lt_models:/home/libretranslate/.local
+    healthcheck:
+      test: ['CMD', 'curl', '-f', 'http://localhost:5000/languages']
+      interval: 10s
+      timeout: 10s
+      retries: 10
+      start_period: 60s
+
 volumes:
   pgdata:
   redisdata:
+  lt_models:

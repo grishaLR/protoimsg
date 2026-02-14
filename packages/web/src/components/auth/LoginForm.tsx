@@ -1,13 +1,17 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../hooks/useAuth';
 import { useTheme } from '../../hooks/useTheme';
 import { THEME_OPTIONS, type Theme } from '../../contexts/ThemeContext';
 import { AccountBannedError } from '../../lib/api';
 import { ActorSearch, type ActorSearchResult } from '../shared/ActorSearch';
 import { AtprotoInfoModal } from './AtprotoInfoModal';
+import { LanguageSelector } from '../settings/LanguageSelector';
 import styles from './LoginForm.module.css';
 
 export function LoginForm() {
+  const { t } = useTranslation('auth');
+  const { t: tc } = useTranslation('common');
   const { login } = useAuth();
   const { theme, setTheme } = useTheme();
   const [handle, setHandle] = useState('');
@@ -28,7 +32,7 @@ export function LoginForm() {
       if (err instanceof AccountBannedError) {
         setBanned(true);
       } else {
-        setError(err instanceof Error ? err.message : 'Login failed');
+        setError(err instanceof Error ? err.message : t('login.error.default'));
       }
       setLoading(false);
     });
@@ -41,10 +45,10 @@ export function LoginForm() {
   if (banned) {
     return (
       <div className={styles.form}>
-        <h1 className={styles.title}>proto instant messenger</h1>
+        <h1 className={styles.title}>{t('login.title')}</h1>
         <div className={styles.bannedBox}>
           <p className={styles.bannedHandle}>{handle}</p>
-          <p className={styles.bannedMessage}>This account is not permitted to use this service.</p>
+          <p className={styles.bannedMessage}>{t('login.banned.message')}</p>
         </div>
       </div>
     );
@@ -53,10 +57,10 @@ export function LoginForm() {
   return (
     <>
       <form className={styles.form} onSubmit={handleSubmit}>
-        <h1 className={styles.title}>proto instant messenger</h1>
-        <p className={styles.subtitle}>community chats on the AT Protocol</p>
+        <h1 className={styles.title}>{t('login.title')}</h1>
+        <p className={styles.subtitle}>{t('login.subtitle')}</p>
         <label className={styles.label} htmlFor="handle">
-          atproto handle
+          {t('login.handleLabel')}
         </label>
         <ActorSearch
           id="handle"
@@ -64,14 +68,14 @@ export function LoginForm() {
           onInputChange={setHandle}
           onSelect={handleActorSelect}
           clearOnSelect={false}
-          placeholder="you.your-server.com"
+          placeholder={t('login.handlePlaceholder')}
           variant="default"
           disabled={loading}
           autoFocus
         />
         {error && <p className={styles.error}>{error}</p>}
         <button className={styles.button} type="submit" disabled={loading || !handle.trim()}>
-          {loading ? 'Signing in...' : 'Sign In'}
+          {loading ? t('login.submitLoading') : t('login.submit')}
         </button>
         <button
           className={styles.infoLink}
@@ -80,21 +84,30 @@ export function LoginForm() {
             setShowInfo(true);
           }}
         >
-          New to atproto? Learn more
+          {t('login.learnMore')}
         </button>
-        <select
-          className={styles.themeSelect}
-          value={theme}
-          onChange={(e) => {
-            setTheme(e.target.value as Theme);
-          }}
-        >
-          {THEME_OPTIONS.map((t) => (
-            <option key={t.id} value={t.id}>
-              {t.label}
-            </option>
-          ))}
-        </select>
+        <div className={styles.selectors}>
+          <label className={styles.selectorLabel}>
+            {t('login.theme')}
+            <select
+              className={styles.themeSelect}
+              value={theme}
+              onChange={(e) => {
+                setTheme(e.target.value as Theme);
+              }}
+            >
+              {THEME_OPTIONS.map((themeOpt) => (
+                <option key={themeOpt.id} value={themeOpt.id}>
+                  {tc(themeOpt.labelKey as 'theme.aim')}
+                </option>
+              ))}
+            </select>
+          </label>
+          <label className={styles.selectorLabel}>
+            {t('login.language')}
+            <LanguageSelector />
+          </label>
+        </div>
       </form>
       {showInfo && (
         <AtprotoInfoModal

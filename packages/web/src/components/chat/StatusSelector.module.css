@@ -54,7 +54,7 @@
   cursor: pointer;
   font-size: var(--cm-text-base);
   color: var(--color-base-content);
-  text-align: left;
+  text-align: start;
 }
 
 .option:hover {

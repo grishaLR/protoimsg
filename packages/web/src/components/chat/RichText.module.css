@@ -37,7 +37,7 @@
 
 .blockquote {
   display: block;
-  border-left: 2px solid var(--cm-border-dark);
-  padding-left: var(--cm-space-4);
+  border-inline-start: 2px solid var(--cm-border-dark);
+  padding-inline-start: var(--cm-space-4);
   color: var(--color-base-300);
 }

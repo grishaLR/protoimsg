@@ -103,16 +103,30 @@
   color: var(--color-base-content);
 }
 
-.themeSelect {
+.selectors {
+  display: flex;
+  flex-direction: column;
+  gap: var(--cm-space-3);
   margin-top: var(--cm-space-1);
+}
+
+.selectorLabel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--cm-space-1);
+  font-size: var(--cm-text-xs);
+  font-weight: 700;
+  color: var(--cm-border-dark);
+}
+
+.themeSelect {
   padding: var(--cm-space-1) var(--cm-space-3);
   background: var(--cm-surface-content);
   color: var(--color-base-content);
   border: none;
   border-radius: var(--cm-radius-sm);
-  font-size: var(--cm-text-xs);
+  font-size: var(--cm-text-sm);
   font-family: inherit;
   cursor: pointer;
   box-shadow: var(--cm-sunken);
-  align-self: center;
 }

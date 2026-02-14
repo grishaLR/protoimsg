@@ -1,4 +1,5 @@
 import type { RefObject } from 'react';
+import { useTranslation } from 'react-i18next';
 import styles from './FormattingToolbar.module.css';
 
 interface FormattingToolbarProps {
@@ -8,6 +9,12 @@ interface FormattingToolbarProps {
 
 interface FormatAction {
   label: string;
+  titleKey:
+    | 'formattingToolbar.bold'
+    | 'formattingToolbar.italic'
+    | 'formattingToolbar.strikethrough'
+    | 'formattingToolbar.code'
+    | 'formattingToolbar.blockquote';
   prefix: string;
   suffix: string;
   className?: string;
@@ -15,11 +22,41 @@ interface FormatAction {
 }
 
 const FORMAT_ACTIONS: FormatAction[] = [
-  { label: 'B', prefix: '**', suffix: '**', className: styles.bold },
-  { label: 'I', prefix: '*', suffix: '*', className: styles.italic },
-  { label: 'S', prefix: '~~', suffix: '~~', className: styles.strike },
-  { label: '<>', prefix: '`', suffix: '`', className: styles.code },
-  { label: '\u201C', prefix: '> ', suffix: '', blockquote: true },
+  {
+    label: 'B',
+    titleKey: 'formattingToolbar.bold',
+    prefix: '**',
+    suffix: '**',
+    className: styles.bold,
+  },
+  {
+    label: 'I',
+    titleKey: 'formattingToolbar.italic',
+    prefix: '*',
+    suffix: '*',
+    className: styles.italic,
+  },
+  {
+    label: 'S',
+    titleKey: 'formattingToolbar.strikethrough',
+    prefix: '~~',
+    suffix: '~~',
+    className: styles.strike,
+  },
+  {
+    label: '<>',
+    titleKey: 'formattingToolbar.code',
+    prefix: '`',
+    suffix: '`',
+    className: styles.code,
+  },
+  {
+    label: '\u201C',
+    titleKey: 'formattingToolbar.blockquote',
+    prefix: '> ',
+    suffix: '',
+    blockquote: true,
+  },
 ];
 
 function applyBlockquote(
@@ -69,6 +106,8 @@ function applyWrap(
 }
 
 export function FormattingToolbar({ textareaRef, onTextChange }: FormattingToolbarProps) {
+  const { t } = useTranslation('chat');
+
   function handleFormat(action: FormatAction) {
     const ta = textareaRef.current;
     if (!ta) return;
@@ -101,17 +140,7 @@ export function FormattingToolbar({ textareaRef, onTextChange }: FormattingToolb
             handleFormat(action);
           }}
           tabIndex={-1}
-          title={
-            action.label === 'B'
-              ? 'Bold'
-              : action.label === 'I'
-                ? 'Italic'
-                : action.label === 'S'
-                  ? 'Strikethrough'
-                  : action.label === '<>'
-                    ? 'Code'
-                    : 'Blockquote'
-          }
+          title={t(action.titleKey)}
         >
           {action.label}
         </button>

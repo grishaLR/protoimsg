@@ -1,0 +1,38 @@
+{
+  "back": "رجوع",
+
+  "accountInfo": {
+    "title": "معلومات الحساب",
+    "didLabel": "DID",
+    "handleLabel": "Handle"
+  },
+
+  "editProfile": {
+    "title": "تعديل الملف الشخصي",
+    "loading": "جارٍ تحميل الملف الشخصي...",
+    "changeAvatar": "تغيير الصورة الشخصية",
+    "displayNameLabel": "الاسم المعروض",
+    "bioLabel": "السيرة الذاتية",
+    "saving": "جارٍ الحفظ...",
+    "save": "حفظ"
+  },
+
+  "appearance": {
+    "title": "المظهر"
+  },
+
+  "language": {
+    "title": "اللغة"
+  },
+
+  "translation": {
+    "title": "الترجمة",
+    "autoTranslate": "ترجمة المنشورات تلقائياً",
+    "autoTranslateHint": "ترجمة المنشورات والسير الذاتية تلقائياً إلى لغتك"
+  },
+
+  "actions": {
+    "title": "الإجراءات",
+    "signOut": "تسجيل الخروج"
+  }
+}

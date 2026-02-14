@@ -1,4 +1,5 @@
 import { lazy, Suspense } from 'react';
+import { useTranslation } from 'react-i18next';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { AuthProvider } from './contexts/AuthContext';
@@ -47,6 +48,7 @@ const queryClient = new QueryClient({
 });
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
+  const { t } = useTranslation('auth');
   const { did, authPhase, authError, logout } = useAuth();
 
   // No session, not loading — go to login
@@ -66,7 +68,7 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
       <div className={styles.authErrorBox}>
         <p>{authError}</p>
         <button type="button" onClick={logout} className={styles.authErrorButton}>
-          Back to login
+          {t('app.backToLogin')}
         </button>
       </div>
     );

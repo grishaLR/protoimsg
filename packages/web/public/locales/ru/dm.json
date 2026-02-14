@@ -1,0 +1,56 @@
+{
+  "input": {
+    "placeholder": "Введите сообщение...",
+    "ariaLabel": "Введите личное сообщение",
+    "send": "Отправить"
+  },
+
+  "messageList": {
+    "empty": "Сообщений пока нет. Скажите привет!",
+    "typing": "печатает..."
+  },
+
+  "popover": {
+    "ariaLabel": "Личная беседа с {{recipientDid}}",
+    "header": {
+      "ariaLabel": {
+        "expand": "ЛС с {{recipientDid}} — нажмите, чтобы развернуть",
+        "minimize": "ЛС с {{recipientDid}} — нажмите, чтобы свернуть"
+      }
+    },
+    "unreadAriaLabel": "{{count}} непрочитанных сообщений",
+    "unreadOverflow": "99+",
+    "persist": {
+      "titleActive": "Сообщения сохраняются (7 дней)",
+      "titleInactive": "Сообщения эфемерные — нажмите для сохранения",
+      "ariaLabel": {
+        "disable": "Отключить сохранение сообщений",
+        "enable": "Включить сохранение сообщений"
+      }
+    },
+    "minimize": {
+      "titleExpand": "Развернуть",
+      "titleMinimize": "Свернуть",
+      "ariaLabel": {
+        "expand": "Развернуть беседу",
+        "minimize": "Свернуть беседу"
+      }
+    },
+    "close": {
+      "title": "Закрыть",
+      "ariaLabel": "Закрыть беседу"
+    }
+  },
+
+  "notification": {
+    "ariaLabel": "Новое сообщение от {{senderDid}}: {{preview}}",
+    "dismiss": {
+      "title": "Скрыть",
+      "ariaLabel": "Скрыть уведомление"
+    }
+  },
+
+  "popoverContainer": {
+    "ariaLabel": "Уведомления о сообщениях"
+  }
+}

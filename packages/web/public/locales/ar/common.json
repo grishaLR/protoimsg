@@ -1,0 +1,110 @@
+{
+  "appName": "proto instant messenger",
+
+  "status": {
+    "online": "متصل",
+    "away": "غائب",
+    "idle": "خامل"
+  },
+
+  "visibility": {
+    "everyone": "الجميع",
+    "community": "المجتمع",
+    "innerCircle": "الدائرة الداخلية",
+    "noOne": "لا أحد"
+  },
+
+  "theme": {
+    "aim": "AIM كلاسيكي",
+    "nytLight": "بسيط فاتح",
+    "nytDark": "بسيط داكن",
+    "dracula": "دراكولا",
+    "valentine": "فالنتاين",
+    "garden": "حديقة",
+    "coffee": "قهوة",
+    "fantasy": "خيال",
+    "nord": "نورد",
+    "retro": "ريترو",
+    "black": "أسود",
+    "wireframe": "إطار سلكي"
+  },
+
+  "nav": {
+    "community": "المجتمع",
+    "rooms": "الغرف",
+    "feed": "الخلاصة"
+  },
+
+  "header": {
+    "menu": "القائمة",
+    "awayMessage": {
+      "label": "رسالة الغياب",
+      "placeholder": "مثال: سأعود قريباً، أحضر القهوة"
+    },
+    "visibility": {
+      "label": "من يمكنه رؤيتي"
+    },
+    "settings": "الإعدادات",
+    "minimize": "تصغير",
+    "signOut": "تسجيل الخروج"
+  },
+
+  "statusSelector": {
+    "awayMessage": {
+      "label": "رسالة الغياب",
+      "placeholder": "مثال: سأعود قريباً، أحضر القهوة"
+    },
+    "visibility": {
+      "label": "من يمكنه رؤيتي"
+    }
+  },
+
+  "connectionBanner": {
+    "message": "انقطع الاتصال — جارٍ إعادة الاتصال..."
+  },
+
+  "errorBoundary": {
+    "title": "حدث خطأ ما",
+    "fallbackMessage": "حدث خطأ غير متوقع",
+    "tryAgain": "حاول مرة أخرى"
+  },
+
+  "button": {
+    "back": "رجوع",
+    "cancel": "إلغاء",
+    "send": "إرسال",
+    "close": "إغلاق",
+    "save": "حفظ",
+    "settings": "الإعدادات"
+  },
+
+  "aria": {
+    "expand": "توسيع",
+    "collapse": "طي"
+  },
+
+  "serverError": {
+    "unknown": "حدث خطأ غير معروف",
+    "unauthorized": "يجب تسجيل الدخول",
+    "invalidSession": "انتهت صلاحية جلستك. الرجاء تسجيل الدخول مرة أخرى.",
+    "invalidChallenge": "انتهت صلاحية تحدي المصادقة. حاول مرة أخرى.",
+    "handleMismatch": "فشل التحقق من المعرّف",
+    "authVerificationFailed": "فشل التحقق من المصادقة",
+    "authTimeout": "انتهت مهلة المصادقة",
+    "authRequired": "المصادقة مطلوبة",
+    "forbidden": "ليس لديك صلاحية للقيام بذلك",
+    "banned": "هذا الحساب غير مصرح له باستخدام هذه الخدمة",
+    "accessDenied": "تم رفض الوصول",
+    "notParticipant": "أنت لست مشاركاً في هذه المحادثة",
+    "blockedUser": "لا يمكن مراسلة هذا المستخدم",
+    "selfDm": "لا يمكنك إرسال رسالة لنفسك",
+    "notFound": "غير موجود",
+    "rateLimited": "عدد كبير جداً من الطلبات. الرجاء الانتظار والمحاولة مرة أخرى.",
+    "serverError": "حدث خطأ من جانبنا",
+    "networkError": "خطأ في الشبكة. تحقق من اتصالك.",
+    "invalidInput": "إدخال غير صالح",
+    "messageTooLong": "الرسالة طويلة جداً",
+    "contentFiltered": "تم حظر الرسالة بواسطة مرشح المحتوى",
+    "alreadyExists": "موجود مسبقاً"
+  }
+}

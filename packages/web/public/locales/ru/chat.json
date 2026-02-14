@@ -1,0 +1,121 @@
+{
+  "buddyList": {
+    "searchPlaceholder": "Поиск друзей...",
+    "loading": "Загрузка...",
+    "empty": "Друзей пока нет",
+    "createGroup": {
+      "placeholder": "Название группы...",
+      "button": "+ Создать группу"
+    },
+    "footer": {
+      "chatRooms": "Чат-комнаты",
+      "feed": "Лента"
+    },
+    "groups": {
+      "innerCircle": "Ближний круг",
+      "community": "Сообщество",
+      "offline": "Не в сети",
+      "blocked": "Заблокированные"
+    }
+  },
+
+  "buddyMenu": {
+    "button": {
+      "title": "Действия",
+      "ariaLabel": "Действия с другом"
+    },
+    "sendIm": "Отправить сообщение",
+    "addToInnerCircle": "Добавить в Ближний круг",
+    "removeFromInnerCircle": "Убрать из Ближнего круга",
+    "moveTo": "Переместить в...",
+    "block": "Заблокировать",
+    "unblock": "Разблокировать",
+    "remove": "Удалить"
+  },
+
+  "memberMenu": {
+    "button": {
+      "title": "Действия",
+      "ariaLabel": "Действия с участником"
+    },
+    "addToBuddyList": "Добавить в список друзей",
+    "block": "Заблокировать",
+    "unblock": "Разблокировать",
+    "feedback": {
+      "added": "Добавлен!",
+      "alreadyInList": "Уже в списке друзей",
+      "error": "Ошибка добавления"
+    }
+  },
+
+  "messageInput": {
+    "placeholder": {
+      "default": "Введите сообщение... (Enter — отправить, Shift+Enter — новая строка)",
+      "reply": "Ответить... (Enter — отправить, Esc — отмена)"
+    },
+    "replyingTo": "Ответ на",
+    "cancelReply": {
+      "ariaLabel": "Отменить ответ"
+    },
+    "ariaLabel": {
+      "default": "Введите сообщение",
+      "reply": "Введите ответ"
+    },
+    "send": "Отправить"
+  },
+
+  "messageItem": {
+    "contentWarning": "Предупреждение о контенте",
+    "clickToReveal": "Нажмите, чтобы показать",
+    "replyCount_one": "{{count}} ответ",
+    "replyCount_few": "{{count}} ответа",
+    "replyCount_many": "{{count}} ответов",
+    "replyButton": "Ответить",
+    "translate": "Перевести",
+    "translating": "Перевод...",
+    "translatedTo": "Переведено на {{lang}}",
+    "showOriginal": "Показать оригинал"
+  },
+
+  "messageList": {
+    "loading": "Загрузка сообщений...",
+    "empty": "Сообщений пока нет. Начните беседу!",
+    "typing": {
+      "one": "печатает...",
+      "twoAnd": "и",
+      "twoSuffix": "печатают...",
+      "many": "{{count}} человек печатают..."
+    }
+  },
+
+  "threadPanel": {
+    "ariaLabel": "Ветка",
+    "title": "Ветка",
+    "backAriaLabel": "Назад к родительскому",
+    "closeAriaLabel": "Закрыть ветку",
+    "loading": "Загрузка ветки...",
+    "notFound": "Ветка не найдена",
+    "replyCount_one": "{{count}} ответ",
+    "replyCount_few": "{{count}} ответа",
+    "replyCount_many": "{{count}} ответов"
+  },
+
+  "formattingToolbar": {
+    "bold": "Жирный",
+    "italic": "Курсив",
+    "strikethrough": "Зачёркнутый",
+    "code": "Код",
+    "blockquote": "Цитата"
+  },
+
+  "memberList": {
+    "heading": "Участники ({{count}})"
+  },
+
+  "groupHeader": {
+    "renameGroup": "Переименовать группу",
+    "deleteGroup": "Удалить группу",
+    "expand": "Развернуть",
+    "collapse": "Свернуть"
+  }
+}

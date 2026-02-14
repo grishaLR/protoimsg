@@ -1,4 +1,5 @@
-import { useState, useMemo, useCallback } from 'react';
+import { useState, useMemo, useCallback, useEffect, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useVirtualList } from 'virtualized-ui';
 import type { CommunityGroup } from '@protoimsg/lexicon';
 import { StatusIndicator } from './StatusIndicator';
@@ -8,6 +9,7 @@ import { GroupHeaderRow } from './GroupHeaderRow';
 import { ActorSearch, type ActorSearchResult } from '../shared/ActorSearch';
 import { useBlocks } from '../../contexts/BlockContext';
 import { useCollapsedGroups } from '../../hooks/useCollapsedGroups';
+import { useContentTranslation } from '../../hooks/useContentTranslation';
 import type { DoorEvent } from '../../hooks/useBuddyList';
 import type { MemberWithPresence, CommunityListRow } from '../../types';
 import styles from './BuddyListPanel.module.css';
@@ -61,8 +63,16 @@ export function BuddyListPanel({
   onOpenFeed,
   error,
 }: BuddyListPanelProps) {
+  const { t } = useTranslation('chat');
   const { blockedDids } = useBlocks();
   const { collapsed, toggle: toggleCollapse } = useCollapsedGroups();
+  const {
+    autoTranslate,
+    available: translateAvailable,
+    getTranslation,
+    requestBatchTranslation,
+  } = useContentTranslation();
+  const lastAwayMsgHash = useRef('');
   const [creatingGroup, setCreatingGroup] = useState(false);
   const [newGroupName, setNewGroupName] = useState('');
   const [renamingGroup, setRenamingGroup] = useState<string | null>(null);
@@ -85,6 +95,18 @@ export function BuddyListPanel({
     }
     return map;
   }, [buddies]);
+
+  // Auto-translate away messages
+  useEffect(() => {
+    if (!autoTranslate || !translateAvailable) return;
+    const awayTexts = buddies
+      .filter((b) => b.awayMessage && b.status !== 'offline')
+      .map((b) => b.awayMessage as string);
+    const hash = awayTexts.join('\0');
+    if (hash === lastAwayMsgHash.current) return;
+    lastAwayMsgHash.current = hash;
+    if (awayTexts.length > 0) requestBatchTranslation(awayTexts);
+  }, [buddies, autoTranslate, translateAvailable, requestBatchTranslation]);
 
   // Build flat rows for virtualization
   const rows: CommunityListRow[] = useMemo(() => {
@@ -224,19 +246,19 @@ export function BuddyListPanel({
         <ActorSearch
           onSelect={handleBuddySelect}
           isOptionDisabled={(actor) => buddyDids.has(actor.did)}
-          placeholder="Search buddies..."
+          placeholder={t('buddyList.searchPlaceholder')}
           variant="compact"
         />
       </div>
 
       {loading ? (
-        <p className={styles.empty}>Loading...</p>
+        <p className={styles.empty}>{t('buddyList.loading')}</p>
       ) : error ? (
         <p className={styles.empty} role="alert">
           {error.message}
         </p>
       ) : !hasAnyRows ? (
-        <p className={styles.empty}>No buddies yet</p>
+        <p className={styles.empty}>{t('buddyList.empty')}</p>
       ) : (
         <div className={styles.list} ref={containerRef} onScroll={handleScroll}>
           <div className={styles.spacer} style={{ height: totalSize }}>
@@ -309,6 +331,10 @@ export function BuddyListPanel({
               const buddy = row.buddy;
               const door = doorEvents[buddy.did];
               const hasAwayMessage = buddy.awayMessage && buddy.status !== 'offline';
+              const awayTooltip = hasAwayMessage
+                ? (autoTranslate && getTranslation(buddy.awayMessage as string)) ||
+                  buddy.awayMessage
+                : undefined;
 
               return (
                 <div
@@ -323,7 +349,7 @@ export function BuddyListPanel({
                       {door === 'join' ? '\u{1F6AA}\u{2728}' : '\u{1F6AA}\u{1F4A8}'}
                     </span>
                   ) : hasAwayMessage ? (
-                    <span className={styles.awayBubble} data-tooltip={buddy.awayMessage}>
+                    <span className={styles.awayBubble} data-tooltip={awayTooltip}>
                       <svg
                         className={styles.awayBubbleSvg}
                         viewBox="0 0 16 16"
@@ -400,7 +426,7 @@ export function BuddyListPanel({
           <input
             className={styles.createGroupInput}
             autoFocus
-            placeholder="Group name..."
+            placeholder={t('buddyList.createGroup.placeholder')}
             value={newGroupName}
             onChange={(e) => {
               setNewGroupName(e.target.value);
@@ -422,7 +448,7 @@ export function BuddyListPanel({
             setCreatingGroup(true);
           }}
         >
-          + Create Group
+          {t('buddyList.createGroup.button')}
         </button>
       )}
 
@@ -430,12 +456,12 @@ export function BuddyListPanel({
         <div className={styles.footer}>
           {onOpenChatRooms && (
             <button className={styles.footerBtn} onClick={onOpenChatRooms}>
-              Chat Rooms
+              {t('buddyList.footer.chatRooms')}
             </button>
           )}
           {onOpenFeed && (
             <button className={styles.footerBtn} onClick={onOpenFeed}>
-              Feed
+              {t('buddyList.footer.feed')}
             </button>
           )}
         </div>

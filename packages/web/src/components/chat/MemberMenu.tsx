@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../hooks/useAuth';
 import { useWebSocket } from '../../contexts/WebSocketContext';
 import { useBlocks } from '../../contexts/BlockContext';
@@ -11,6 +12,7 @@ interface MemberMenuProps {
 }
 
 export function MemberMenu({ did, className }: MemberMenuProps) {
+  const { t } = useTranslation('chat');
   const { agent } = useAuth();
   const { send } = useWebSocket();
   const { blockedDids, toggleBlock } = useBlocks();
@@ -38,13 +40,17 @@ export function MemberMenu({ did, className }: MemberMenuProps) {
     if (!agent) return;
     try {
       const result = await addToBuddyList(agent, send, did);
-      setFeedback(result === 'added' ? 'Added!' : 'Already in buddy list');
+      setFeedback(
+        result === 'added'
+          ? t('memberMenu.feedback.added')
+          : t('memberMenu.feedback.alreadyInList'),
+      );
       setTimeout(() => {
         setOpen(false);
         setFeedback(null);
       }, 2000);
     } catch {
-      setFeedback('Error adding buddy');
+      setFeedback(t('memberMenu.feedback.error'));
       setTimeout(() => {
         setFeedback(null);
       }, 2000);
@@ -64,8 +70,8 @@ export function MemberMenu({ did, className }: MemberMenuProps) {
           setOpen(!open);
           setFeedback(null);
         }}
-        title="Options"
-        aria-label="Member options"
+        title={t('memberMenu.button.title')}
+        aria-label={t('memberMenu.button.ariaLabel')}
       >
         <span className={styles.menuIcon} />
       </button>
@@ -76,13 +82,13 @@ export function MemberMenu({ did, className }: MemberMenuProps) {
           ) : (
             <>
               <button className={styles.menuItem} onClick={() => void handleAddBuddy()}>
-                Add to Buddy List
+                {t('memberMenu.addToBuddyList')}
               </button>
               <button
                 className={`${styles.menuItem} ${styles.menuItemDanger}`}
                 onClick={handleBlock}
               >
-                {isBlocked ? 'Unblock' : 'Block'}
+                {isBlocked ? t('memberMenu.unblock') : t('memberMenu.block')}
               </button>
             </>
           )}

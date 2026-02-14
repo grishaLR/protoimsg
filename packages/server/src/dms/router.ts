@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { LIMITS } from '@protoimsg/shared';
+import { LIMITS, ERROR_CODES } from '@protoimsg/shared';
 import { listConversationsForDid, getDmMessages, getConversation } from './queries.js';
 import type { Sql } from '../db/client.js';
 
@@ -40,11 +40,13 @@ export function dmRouter(sql: Sql): Router {
       // Verify participant
       const conversation = await getConversation(sql, conversationId);
       if (!conversation) {
-        res.status(404).json({ error: 'Conversation not found' });
+        res.status(404).json({ error: 'Conversation not found', errorCode: ERROR_CODES.NOT_FOUND });
         return;
       }
       if (conversation.did_1 !== did && conversation.did_2 !== did) {
-        res.status(403).json({ error: 'Not a participant' });
+        res
+          .status(403)
+          .json({ error: 'Not a participant', errorCode: ERROR_CODES.NOT_PARTICIPANT });
         return;
       }
 

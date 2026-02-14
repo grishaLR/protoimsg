@@ -13,7 +13,7 @@
   margin-bottom: var(--cm-space-1);
   background: var(--cm-surface-content);
   border-radius: var(--cm-radius-sm) var(--cm-radius-sm) 0 0;
-  border-left: var(--cm-space-1) solid var(--color-primary);
+  border-inline-start: var(--cm-space-1) solid var(--color-primary);
   font-size: var(--cm-text-sm);
   color: var(--cm-border-dark);
 }

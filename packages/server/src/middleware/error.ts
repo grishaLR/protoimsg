@@ -1,4 +1,5 @@
 import type { Request, Response, NextFunction } from 'express';
+import { ERROR_CODES } from '@protoimsg/shared';
 import { createLogger } from '../logger.js';
 import { Sentry } from '../sentry.js';
 import type { Config } from '../config.js';
@@ -20,6 +21,6 @@ export function createErrorHandler(
         ? err.message
         : 'Internal server error';
 
-    res.status(500).json({ error: message });
+    res.status(500).json({ error: message, errorCode: ERROR_CODES.SERVER_ERROR });
   };
 }

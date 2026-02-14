@@ -149,6 +149,7 @@ export interface PongEvent extends WsMessageBase {
 export interface ErrorEvent extends WsMessageBase {
   type: 'error';
   message: string;
+  errorCode?: string;
 }
 
 // DM Server → Client events

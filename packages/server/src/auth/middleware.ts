@@ -1,5 +1,6 @@
 import type { Request, Response, NextFunction } from 'express';
 import type { SessionStore } from './session-store.js';
+import { ERROR_CODES } from '@protoimsg/shared';
 import { createLogger } from '../logger.js';
 
 const log = createLogger('auth');
@@ -21,7 +22,9 @@ export function createRequireAuth(
     const authHeader = req.headers.authorization;
     if (!authHeader?.startsWith('Bearer ')) {
       log.warn({ method: req.method, path: req.path }, 'Auth rejected: missing header');
-      res.status(401).json({ error: 'Missing authorization header' });
+      res
+        .status(401)
+        .json({ error: 'Missing authorization header', errorCode: ERROR_CODES.UNAUTHORIZED });
       return;
     }
 
@@ -31,7 +34,9 @@ export function createRequireAuth(
       .then((session) => {
         if (!session) {
           log.warn({ method: req.method, path: req.path }, 'Auth rejected: invalid/expired token');
-          res.status(401).json({ error: 'Invalid or expired session' });
+          res
+            .status(401)
+            .json({ error: 'Invalid or expired session', errorCode: ERROR_CODES.INVALID_SESSION });
           return;
         }
 

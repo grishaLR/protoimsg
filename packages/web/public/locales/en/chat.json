@@ -1,0 +1,120 @@
+{
+  "buddyList": {
+    "searchPlaceholder": "Search buddies...",
+    "loading": "Loading...",
+    "empty": "No buddies yet",
+    "createGroup": {
+      "placeholder": "Group name...",
+      "button": "+ Create Group"
+    },
+    "footer": {
+      "chatRooms": "Chat Rooms",
+      "feed": "Feed"
+    },
+    "groups": {
+      "innerCircle": "Inner Circle",
+      "community": "Community",
+      "offline": "Offline",
+      "blocked": "Blocked"
+    }
+  },
+
+  "buddyMenu": {
+    "button": {
+      "title": "Options",
+      "ariaLabel": "Buddy options"
+    },
+    "sendIm": "Send IM",
+    "addToInnerCircle": "Add to Inner Circle",
+    "removeFromInnerCircle": "Remove from Inner Circle",
+    "moveTo": "Move to...",
+    "block": "Block",
+    "unblock": "Unblock",
+    "remove": "Remove"
+  },
+
+  "memberMenu": {
+    "button": {
+      "title": "Options",
+      "ariaLabel": "Member options"
+    },
+    "addToBuddyList": "Add to Buddy List",
+    "block": "Block",
+    "unblock": "Unblock",
+    "feedback": {
+      "added": "Added!",
+      "alreadyInList": "Already in buddy list",
+      "error": "Error adding buddy"
+    }
+  },
+
+  "messageInput": {
+    "placeholder": {
+      "default": "Type a message... (Enter to send, Shift+Enter for newline)",
+      "reply": "Reply... (Enter to send, Esc to cancel)"
+    },
+    "replyingTo": "Replying to",
+    "cancelReply": {
+      "ariaLabel": "Cancel reply"
+    },
+    "ariaLabel": {
+      "default": "Type a message",
+      "reply": "Type a reply"
+    },
+    "send": "Send"
+  },
+
+  "messageItem": {
+    "contentWarning": "Content warning",
+    "clickToReveal": "Click to reveal",
+    "replyCount_one": "{{count}} reply",
+    "replyCount_other": "{{count}} replies",
+    "replyButton": "Reply",
+    "translate": "Translate",
+    "translating": "Translating...",
+    "translatedTo": "Translated to {{lang}}",
+    "showOriginal": "Show original"
+  },
+
+  "messageList": {
+    "loading": "Loading messages...",
+    "empty": "No messages yet. Start the conversation!",
+    "typing": {
+      "one": "is typing...",
+      "twoAnd": "and",
+      "twoSuffix": "are typing...",
+      "many": "{{count}} people are typing..."
+    }
+  },
+
+  "threadPanel": {
+    "ariaLabel": "Thread",
+    "title": "Thread",
+    "backAriaLabel": "Back to parent",
+    "closeAriaLabel": "Close thread",
+    "loading": "Loading thread...",
+    "notFound": "Thread not found",
+    "replyCount_one": "{{count}} reply",
+    "replyCount_other": "{{count}} replies",
+    "inputPlaceholder": "Reply in thread..."
+  },
+
+  "formattingToolbar": {
+    "bold": "Bold",
+    "italic": "Italic",
+    "strikethrough": "Strikethrough",
+    "code": "Code",
+    "blockquote": "Blockquote"
+  },
+
+  "memberList": {
+    "heading": "Members ({{count}})"
+  },
+
+  "groupHeader": {
+    "renameGroup": "Rename group",
+    "deleteGroup": "Delete group",
+    "expand": "Expand",
+    "collapse": "Collapse"
+  }
+}

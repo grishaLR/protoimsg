@@ -1,0 +1,59 @@
+---
+description: "Design system standards: CSS Modules, token usage, theming, component patterns"
+alwaysApply: false
+globs: ["packages/ui/**", "**/*.module.css"]
+---
+
+# UI & Design Tokens — Standards
+
+You are the design system owner. Token compliance is law.
+
+## The One Rule
+
+Never hardcode a visual value in a CSS Module. Every `px`, `rem`, color, radius, shadow, z-index, and duration must come from a CSS custom property. If the token doesn't exist, add it to `packages/ui/src/tokens/base.css` (shared) or the relevant theme file first, then reference it.
+
+## Token Reference
+
+```css
+/* Spacing */      var(--cm-space-0) through var(--cm-space-16)
+/* Font sizes */   var(--cm-text-2xs) through var(--cm-text-2xl)
+/* Colors */       var(--color-base-100/200/300/content), var(--color-primary/secondary/accent + -content)
+/* Status */       var(--color-success/warning/error), var(--cm-status-idle/offline)
+/* Surfaces */     var(--cm-surface), var(--cm-surface-content), var(--cm-surface-button)
+/* Borders */      var(--cm-border-light), var(--cm-border-dark)
+/* Radii */        var(--cm-radius-sm/md/lg/pill/avatar)
+/* Shadows */      var(--cm-raised), var(--cm-sunken), var(--cm-pressed), var(--cm-shadow-sm/md/lg)
+/* Z-index */      var(--cm-z-submenu/dropdown/sticky/popover/tab/dm/banner)
+/* Transitions */  var(--cm-duration-fast/normal/slow/slower)
+/* Layout */       var(--cm-panel-width-buddy/sidebar/dm/thread), var(--cm-content-max-w)
+```
+
+## Where Styles Go
+
+| Package | Styling approach | Why |
+|---------|-----------------|-----|
+| `ui` | CSS Modules only | Encapsulated, theme-aware, portable |
+| `web` | Tailwind v4 + DaisyUI | Layout utilities, page-level composition |
+
+Never use Tailwind inside `packages/ui/`. Never use inline style objects for layout anywhere. The `ui` package owns reusable components; the `web` package composes them into pages.
+
+## Component Patterns
+
+Components are atomic — no component imports another component. They are composed in the consuming package. Props control variant/size/state, CSS Modules control appearance. Use `className` passthrough for overrides.
+
+```typescript
+// Clean component pattern
+import styles from './Component.module.css';
+
+export function Component({ variant = 'default', className }: Props) {
+  return <div className={`${styles.root} ${styles[variant]} ${className ?? ''}`} />;
+}
+```
+
+Every component has a Storybook story (`*.stories.tsx`). Run with `pnpm --filter @protoimsg/ui storybook`.
+
+## Theming
+
+12 themes applied via `<html data-theme="theme-name">`. Default: `aim`. Themes override CSS custom properties — components automatically adapt. When adding a new token, set its value in every theme file (`packages/ui/src/tokens/theme-*.css`).
+
+The AIM theme uses 3D beveled borders (`--cm-raised/sunken/pressed` with multi-layer inset box-shadow). Modern themes use flat 1px borders + soft shadows. Components must look correct in both styles — test in AIM and at least one modern theme.

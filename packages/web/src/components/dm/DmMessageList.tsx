@@ -1,4 +1,5 @@
 import { useEffect, useRef, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useVirtualList } from 'virtualized-ui';
 import type { DmMessageView } from '../../types';
 import { RichText } from '../chat/RichText';
@@ -18,6 +19,7 @@ function formatTime(iso: string): string {
 const SCROLL_THRESHOLD = 60;
 
 export function DmMessageList({ messages, currentDid, typing }: DmMessageListProps) {
+  const { t } = useTranslation('dm');
   const isNearBottomRef = useRef(true);
 
   const {
@@ -50,7 +52,7 @@ export function DmMessageList({ messages, currentDid, typing }: DmMessageListPro
   if (messages.length === 0 && !typing) {
     return (
       <div className={styles.empty} role="status">
-        No messages yet. Say hello!
+        {t('messageList.empty')}
       </div>
     );
   }
@@ -72,7 +74,7 @@ export function DmMessageList({ messages, currentDid, typing }: DmMessageListPro
               <div
                 className={`${styles.message} ${isOwn ? styles.own : styles.other} ${msg.pending ? styles.pending : ''}`}
               >
-                <div className={styles.bubble}>
+                <div className={styles.bubble} dir="auto">
                   <RichText text={msg.text} />
                 </div>
                 <span className={styles.time}>{formatTime(msg.createdAt)}</span>
@@ -83,7 +85,7 @@ export function DmMessageList({ messages, currentDid, typing }: DmMessageListPro
       </div>
       {typing && (
         <div className={styles.typingIndicator} role="status" aria-live="polite">
-          typing...
+          {t('messageList.typing')}
         </div>
       )}
     </div>

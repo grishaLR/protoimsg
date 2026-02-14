@@ -94,6 +94,47 @@
   word-break: break-word;
 }
 
+.translationLabel {
+  font-size: var(--cm-text-xs);
+  color: var(--cm-border-dark);
+  margin-top: var(--cm-space-1);
+}
+
+.showOriginal {
+  background: none;
+  border: none;
+  padding: 0;
+  font-size: var(--cm-text-xs);
+  color: var(--cm-border-dark);
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+.showOriginal:hover {
+  color: var(--color-base-content);
+}
+
+.translateBioButton {
+  background: none;
+  border: none;
+  padding: 0;
+  font-size: var(--cm-text-xs);
+  color: var(--cm-border-dark);
+  cursor: pointer;
+  margin-top: var(--cm-space-2);
+  display: block;
+}
+
+.translateBioButton:hover {
+  color: var(--color-base-content);
+  text-decoration: underline;
+}
+
+.translateBioButton:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
 .stats {
   display: flex;
   gap: var(--cm-space-8);
