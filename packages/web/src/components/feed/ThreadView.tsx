@@ -1,6 +1,8 @@
+import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { AppBskyFeedDefs } from '@atproto/api';
 import { useThread } from '../../hooks/useThread';
+import { useContentTranslation } from '../../hooks/useContentTranslation';
 import { FeedPost } from './FeedPost';
 import styles from './ThreadView.module.css';
 
@@ -32,6 +34,7 @@ export function ThreadView({
 }: ThreadViewProps) {
   const { t } = useTranslation('feed');
   const { thread, loading, error } = useThread(uri);
+  const { autoTranslate, requestBatchTranslation, available } = useContentTranslation();
 
   if (loading) {
     return (
@@ -65,6 +68,18 @@ export function ThreadView({
     (r): r is AppBskyFeedDefs.ThreadViewPost =>
       '$type' in r && r.$type === 'app.bsky.feed.defs#threadViewPost',
   );
+
+  // Auto-translate all thread posts (parents + main + replies)
+  useEffect(() => {
+    if (!autoTranslate || !available) return;
+
+    const allPosts = [...parents.map((p) => p.post), thread.post, ...replies.map((r) => r.post)];
+    const texts = allPosts
+      .map((p) => ((p.record as Record<string, unknown>).text as string) || '')
+      .filter(Boolean);
+
+    if (texts.length > 0) requestBatchTranslation(texts);
+  }, [autoTranslate, available, thread, parents, replies, requestBatchTranslation]);
 
   return (
     <div className={styles.threadView}>

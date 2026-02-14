@@ -57,6 +57,11 @@ export function FeedView({
     };
   }, [posts.length]);
 
+  // Reset translation tracking when switching feeds
+  useEffect(() => {
+    lastTranslatedCount.current = 0;
+  }, [activeUri]);
+
   // Auto-translate new posts when pages load
   useEffect(() => {
     if (!autoTranslate || !available || posts.length === 0) return;

@@ -18,6 +18,8 @@ import { BlockService } from './moderation/block-service.js';
 import { GlobalBanService } from './moderation/global-ban-service.js';
 import { createDmService } from './dms/service.js';
 import { createTranslateService } from './translate/service.js';
+import { ChallengeStore } from './auth/challenge.js';
+import { RedisChallengeStore } from './auth/challenge-redis.js';
 import { LIMITS } from '@protoimsg/shared';
 import { pruneOldMessages } from './messages/queries.js';
 
@@ -58,6 +60,9 @@ async function main() {
   const globalBans = new GlobalBanService();
   await globalBans.load(db);
 
+  // Auth challenge store (Redis when available, else in-memory)
+  const challenges = redis ? new RedisChallengeStore(redis) : new ChallengeStore();
+
   // Translation service (optional — requires LibreTranslate)
   const translateService = config.TRANSLATE_ENABLED
     ? createTranslateService(db, config.LIBRETRANSLATE_URL)
@@ -81,6 +86,7 @@ async function main() {
     authRateLimiter,
     blockService,
     globalBans,
+    challenges,
     translateService,
     translateRateLimiter,
   );

@@ -65,16 +65,9 @@ export function translateRouter(
         targetLang,
       );
 
-      // Pre-check rate limit for uncached items
+      // Pre-check rate limit — one check per batch request, not per text
       if (uncached.length > 0) {
-        let allowed = true;
-        for (let i = 0; i < uncached.length; i++) {
-          const ok = await translateRateLimiter.check(did);
-          if (!ok) {
-            allowed = false;
-            break;
-          }
-        }
+        const allowed = await translateRateLimiter.check(did);
 
         if (!allowed) {
           // Return cached results only

@@ -2,12 +2,18 @@ import { randomBytes } from 'crypto';
 
 const CHALLENGE_TTL_MS = 60_000; // 60 seconds
 
+export interface ChallengeStoreInterface {
+  create(did: string): string | Promise<string>;
+  consume(did: string, nonce: string): boolean | Promise<boolean>;
+  prune(): number | Promise<number>;
+}
+
 interface PendingChallenge {
   nonce: string;
   expiresAt: number;
 }
 
-export class ChallengeStore {
+export class ChallengeStore implements ChallengeStoreInterface {
   private challenges = new Map<string, PendingChallenge>();
 
   create(did: string): string {

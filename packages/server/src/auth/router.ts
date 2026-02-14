@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { z } from 'zod';
 import type { SessionStore } from './session-store.js';
-import type { ChallengeStore } from './challenge.js';
+import type { ChallengeStoreInterface } from './challenge.js';
 import { verifyDidHandle, verifyAuthRecord } from './verify.js';
 import { createRequireAuth } from './middleware.js';
 import type { Config } from '../config.js';
@@ -26,7 +26,7 @@ const sessionBodySchema = z.object({
 export function authRouter(
   sessions: SessionStore,
   config: Config,
-  challenges: ChallengeStore,
+  challenges: ChallengeStoreInterface,
   globalBans: GlobalBanService,
 ): Router {
   const router = Router();
@@ -71,7 +71,7 @@ export function authRouter(
   });
 
   // POST /api/auth/challenge — issue a nonce for auth verification
-  router.post('/challenge', (req, res, next) => {
+  router.post('/challenge', async (req, res, next) => {
     try {
       const parsed = challengeBodySchema.safeParse(req.body);
       if (!parsed.success) {
@@ -92,13 +92,7 @@ export function authRouter(
         return;
       }
 
-      if (globalBans.isBanned(parsed.data.did)) {
-        log.warn({ did: parsed.data.did }, 'auth/challenge rejected: globally banned');
-        res.status(403).json({ error: 'This account is not permitted to use this service.' });
-        return;
-      }
-
-      const nonce = challenges.create(parsed.data.did);
+      const nonce = await challenges.create(parsed.data.did);
       res.json({ nonce });
     } catch (err) {
       next(err);
@@ -132,7 +126,7 @@ export function authRouter(
       }
 
       // Step 1: Consume nonce — rejects if not found, expired, or already used
-      if (!challenges.consume(did, nonce)) {
+      if (!(await challenges.consume(did, nonce))) {
         log.warn({ did, handle }, 'auth/session failed: invalid challenge');
         res.status(401).json({
           error: 'Invalid or expired challenge',

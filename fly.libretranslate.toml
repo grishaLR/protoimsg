@@ -1,0 +1,31 @@
+app = 'protoimsg-libretranslate-staging'
+primary_region = 'iad'
+
+[build]
+  image = 'libretranslate/libretranslate:latest'
+
+[env]
+  LT_LOAD_ONLY = 'en,es,ru,ar'
+  LT_DISABLE_WEB_UI = 'true'
+  LT_UPDATE_MODELS = 'true'
+
+[http_service]
+  internal_port = 5000
+  force_https = true
+  auto_stop_machines = 'stop'
+  auto_start_machines = true
+  min_machines_running = 1
+
+[checks]
+  [checks.health]
+    port = 5000
+    type = 'http'
+    interval = '15s'
+    timeout = '10s'
+    grace_period = '300s'
+    path = '/languages'
+
+[[vm]]
+  memory = '2gb'
+  cpu_kind = 'shared'
+  cpus = 2

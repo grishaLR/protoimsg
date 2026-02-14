@@ -8,7 +8,7 @@ import { roomsRouter } from './rooms/router.js';
 import { messagesRouter } from './messages/router.js';
 import { authRouter } from './auth/router.js';
 import { createRequireAuth } from './auth/middleware.js';
-import { ChallengeStore } from './auth/challenge.js';
+import type { ChallengeStoreInterface } from './auth/challenge.js';
 import { presenceRouter } from './presence/router.js';
 import { communityRouter } from './community/router.js';
 import { moderationRouter } from './moderation/router.js';
@@ -32,6 +32,7 @@ export function createApp(
   authRateLimiter: RateLimiterStore,
   blockService: BlockService,
   globalBans: GlobalBanService,
+  challenges: ChallengeStoreInterface,
   translateService?: TranslateService | null,
   translateRateLimiter?: RateLimiterStore | null,
 ): Express {
@@ -50,7 +51,6 @@ export function createApp(
   });
 
   // Auth routes (unprotected — login creates sessions; rate-limited by IP)
-  const challenges = new ChallengeStore();
   app.use(
     '/api/auth',
     createRateLimitMiddleware(authRateLimiter),
