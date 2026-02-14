@@ -49,7 +49,6 @@ export function LoginForm() {
         <div className={styles.bannedBox}>
           <p className={styles.bannedHandle}>{handle}</p>
           <p className={styles.bannedMessage}>{t('login.banned.message')}</p>
-
         </div>
       </div>
     );

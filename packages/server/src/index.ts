@@ -58,7 +58,6 @@ async function main() {
   const globalBans = new GlobalBanService();
   await globalBans.load(db);
 
-
   // Translation service (optional — requires LibreTranslate)
   const translateService = config.TRANSLATE_ENABLED
     ? createTranslateService(db, config.LIBRETRANSLATE_URL)
@@ -72,7 +71,6 @@ async function main() {
   if (translateService) {
     log.info({ url: config.LIBRETRANSLATE_URL }, 'Translation service enabled');
   }
-
 
   const app = createApp(
     config,
