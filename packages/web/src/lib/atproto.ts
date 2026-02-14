@@ -89,6 +89,7 @@ export async function createRoomRecord(
 export interface CreateMessageInput {
   roomUri: string;
   text: string;
+  facets?: Record<string, unknown>[];
   reply?: { root: string; parent: string };
 }
 
@@ -113,6 +114,7 @@ export async function createMessageRecord(
       $type: NSID.Message,
       room: input.roomUri,
       text: input.text,
+      facets: input.facets?.length ? input.facets : undefined,
       reply: input.reply,
       createdAt: new Date().toISOString(),
     },
@@ -157,6 +159,39 @@ export async function putCommunityListRecord(
   });
 
   return { uri: response.data.uri, cid: response.data.cid };
+}
+
+// -- Add buddy from chat room --
+
+export type AddBuddyResult = 'added' | 'already';
+
+export async function addToBuddyList(
+  agent: Agent,
+  send: (msg: { type: 'sync_community'; groups: CommunityGroup[] }) => void,
+  did: string,
+): Promise<AddBuddyResult> {
+  const groups = await getCommunityListRecord(agent);
+
+  // Check if DID already exists in any group
+  for (const group of groups) {
+    if (group.members.some((m) => m.did === did)) {
+      return 'already';
+    }
+  }
+
+  // Find or create "Community" group
+  let community = groups.find((g) => g.name === 'Community');
+  if (!community) {
+    community = { name: 'Community', members: [] };
+    groups.push(community);
+  }
+
+  community.members.push({ did, addedAt: new Date().toISOString() });
+
+  await putCommunityListRecord(agent, groups);
+  send({ type: 'sync_community', groups });
+
+  return 'added';
 }
 
 // -- Presence PDS helpers --

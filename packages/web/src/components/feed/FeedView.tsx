@@ -1,7 +1,9 @@
 import { useState, useCallback, useEffect, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import type { AppBskyFeedDefs } from '@atproto/api';
 import { useSavedFeeds, DISCOVER_FEED_URI } from '../../hooks/useSavedFeeds';
 import { useFeed } from '../../hooks/useFeed';
+import { useContentTranslation } from '../../hooks/useContentTranslation';
 import { FeedTabBar } from './FeedTabBar';
 import { FeedPost } from './FeedPost';
 import { FeedComposer } from './FeedComposer';
@@ -29,12 +31,15 @@ export function FeedView({
   replyTo,
   onClearReply,
 }: FeedViewProps) {
+  const { t } = useTranslation('feed');
   const { feeds } = useSavedFeeds();
   const [activeUri, setActiveUri] = useState<string | undefined>(DISCOVER_FEED_URI);
   const { posts, loading, loadingMore, error, hasMore, loadMore, refresh } = useFeed(activeUri);
+  const { autoTranslate, requestBatchTranslation, available } = useContentTranslation();
   const [showRefresh, setShowRefresh] = useState(false);
   const idleTimerRef = useRef<ReturnType<typeof setTimeout>>(undefined);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const lastTranslatedCount = useRef(0);
 
   // Start idle timer once posts load
   useEffect(() => {
@@ -51,6 +56,25 @@ export function FeedView({
       clearTimeout(idleTimerRef.current);
     };
   }, [posts.length]);
+
+  // Reset translation tracking when switching feeds
+  useEffect(() => {
+    lastTranslatedCount.current = 0;
+  }, [activeUri]);
+
+  // Auto-translate new posts when pages load
+  useEffect(() => {
+    if (!autoTranslate || !available || posts.length === 0) return;
+    if (posts.length === lastTranslatedCount.current) return;
+
+    const newPosts = posts.slice(lastTranslatedCount.current);
+    const texts = newPosts
+      .map((item) => ((item.post.record as Record<string, unknown>).text as string) || '')
+      .filter(Boolean);
+
+    lastTranslatedCount.current = posts.length;
+    if (texts.length > 0) requestBatchTranslation(texts);
+  }, [posts.length, autoTranslate, available, posts, requestBatchTranslation]);
 
   const onScroll = useCallback(() => {
     const el = scrollRef.current;
@@ -111,9 +135,9 @@ export function FeedView({
       {error && <div className={styles.error}>{error}</div>}
 
       {loading ? (
-        <div className={styles.loading}>Loading feed...</div>
+        <div className={styles.loading}>{t('feedView.loading')}</div>
       ) : posts.length === 0 ? (
-        <div className={styles.empty}>No posts to show</div>
+        <div className={styles.empty}>{t('feedView.empty')}</div>
       ) : (
         <>
           <div className={styles.container} ref={scrollRef} onScroll={onScroll}>
@@ -133,12 +157,12 @@ export function FeedView({
                 />
               );
             })}
-            {loadingMore && <div className={styles.loadingMore}>Loading more...</div>}
+            {loadingMore && <div className={styles.loadingMore}>{t('feedView.loadingMore')}</div>}
           </div>
 
           {showRefresh && (
             <button className={styles.refreshFooter} onClick={handleRefreshClick}>
-              &#x2191; Refresh feed
+              &#x2191; {t('feedView.refresh')}
             </button>
           )}
         </>

@@ -28,6 +28,25 @@ import { createLogger } from '../logger.js';
 
 const log = createLogger('firehose');
 
+/** Extract mentioned DIDs from rich text facets. */
+function extractMentionedDids(facets: unknown[]): string[] {
+  const dids = new Set<string>();
+  for (const facet of facets) {
+    const f = facet as { features?: Array<{ $type?: string; did?: string }> };
+    if (!f.features) continue;
+    for (const feat of f.features) {
+      if (
+        (feat.$type === 'app.protoimsg.chat.message#mention' ||
+          feat.$type === 'app.bsky.richtext.facet#mention') &&
+        feat.did
+      ) {
+        dids.add(feat.did);
+      }
+    }
+  }
+  return [...dids];
+}
+
 export interface FirehoseEvent {
   did: string;
   collection: string;
@@ -161,6 +180,27 @@ export function createHandlers(db: Sql, wss: WsServer, presenceService: Presence
             createdAt: record.createdAt,
           },
         });
+
+        // Send mention notifications to users NOT currently in this room
+        if (record.facets) {
+          const mentionedDids = extractMentionedDids(record.facets);
+          const preview = record.text.slice(0, 100);
+          for (const mentionedDid of mentionedDids) {
+            if (mentionedDid === event.did) continue;
+            if (wss.isSubscribedToRoom(mentionedDid, roomId)) continue;
+            wss.sendToUser(mentionedDid, {
+              type: 'mention_notification',
+              data: {
+                roomId,
+                roomName: room.name,
+                senderDid: event.did,
+                messageText: preview,
+                messageUri: event.uri,
+                createdAt: record.createdAt,
+              },
+            });
+          }
+        }
       }
     },
 

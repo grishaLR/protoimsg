@@ -1,0 +1,38 @@
+{
+  "back": "Назад",
+
+  "accountInfo": {
+    "title": "Информация об аккаунте",
+    "didLabel": "DID",
+    "handleLabel": "Идентификатор"
+  },
+
+  "editProfile": {
+    "title": "Редактировать профиль",
+    "loading": "Загрузка профиля...",
+    "changeAvatar": "Изменить аватар",
+    "displayNameLabel": "Отображаемое имя",
+    "bioLabel": "О себе",
+    "saving": "Сохранение...",
+    "save": "Сохранить"
+  },
+
+  "appearance": {
+    "title": "Оформление"
+  },
+
+  "language": {
+    "title": "Язык"
+  },
+
+  "translation": {
+    "title": "Перевод",
+    "autoTranslate": "Автоперевод постов",
+    "autoTranslateHint": "Автоматически переводить посты и биографии на ваш язык"
+  },
+
+  "actions": {
+    "title": "Действия",
+    "signOut": "Выйти"
+  }
+}

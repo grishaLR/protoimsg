@@ -1,0 +1,120 @@
+{
+  "buddyList": {
+    "searchPlaceholder": "Buscar contactos...",
+    "loading": "Cargando...",
+    "empty": "No hay contactos aún",
+    "createGroup": {
+      "placeholder": "Nombre del grupo...",
+      "button": "+ Crear grupo"
+    },
+    "footer": {
+      "chatRooms": "Salas de chat",
+      "feed": "Feed"
+    },
+    "groups": {
+      "innerCircle": "Círculo íntimo",
+      "community": "Comunidad",
+      "offline": "Desconectados",
+      "blocked": "Bloqueados"
+    }
+  },
+
+  "buddyMenu": {
+    "button": {
+      "title": "Opciones",
+      "ariaLabel": "Opciones de contacto"
+    },
+    "sendIm": "Enviar mensaje",
+    "addToInnerCircle": "Agregar a círculo íntimo",
+    "removeFromInnerCircle": "Quitar de círculo íntimo",
+    "moveTo": "Mover a...",
+    "block": "Bloquear",
+    "unblock": "Desbloquear",
+    "remove": "Eliminar"
+  },
+
+  "memberMenu": {
+    "button": {
+      "title": "Opciones",
+      "ariaLabel": "Opciones de miembro"
+    },
+    "addToBuddyList": "Agregar a lista de contactos",
+    "block": "Bloquear",
+    "unblock": "Desbloquear",
+    "feedback": {
+      "added": "¡Agregado!",
+      "alreadyInList": "Ya está en la lista de contactos",
+      "error": "Error al agregar contacto"
+    }
+  },
+
+  "messageInput": {
+    "placeholder": {
+      "default": "Escribe un mensaje... (Enter para enviar, Shift+Enter para nueva línea)",
+      "reply": "Responder... (Enter para enviar, Esc para cancelar)"
+    },
+    "replyingTo": "Respondiendo a",
+    "cancelReply": {
+      "ariaLabel": "Cancelar respuesta"
+    },
+    "ariaLabel": {
+      "default": "Escribe un mensaje",
+      "reply": "Escribe una respuesta"
+    },
+    "send": "Enviar"
+  },
+
+  "messageItem": {
+    "contentWarning": "Advertencia de contenido",
+    "clickToReveal": "Haz clic para revelar",
+    "replyCount_one": "{{count}} respuesta",
+    "replyCount_other": "{{count}} respuestas",
+    "replyButton": "Responder",
+    "translate": "Traducir",
+    "translating": "Traduciendo...",
+    "translatedTo": "Traducido a {{lang}}",
+    "showOriginal": "Mostrar original"
+  },
+
+  "messageList": {
+    "loading": "Cargando mensajes...",
+    "empty": "No hay mensajes aún. ¡Empieza la conversación!",
+    "typing": {
+      "one": "está escribiendo...",
+      "twoAnd": "y",
+      "twoSuffix": "están escribiendo...",
+      "many": "{{count}} personas están escribiendo..."
+    }
+  },
+
+  "threadPanel": {
+    "ariaLabel": "Hilo",
+    "title": "Hilo",
+    "backAriaLabel": "Volver al padre",
+    "closeAriaLabel": "Cerrar hilo",
+    "loading": "Cargando hilo...",
+    "notFound": "Hilo no encontrado",
+    "replyCount_one": "{{count}} respuesta",
+    "replyCount_other": "{{count}} respuestas",
+    "inputPlaceholder": "Responder en el hilo..."
+  },
+
+  "formattingToolbar": {
+    "bold": "Negrita",
+    "italic": "Cursiva",
+    "strikethrough": "Tachado",
+    "code": "Código",
+    "blockquote": "Cita"
+  },
+
+  "memberList": {
+    "heading": "Miembros ({{count}})"
+  },
+
+  "groupHeader": {
+    "renameGroup": "Renombrar grupo",
+    "deleteGroup": "Eliminar grupo",
+    "expand": "Expandir",
+    "collapse": "Contraer"
+  }
+}

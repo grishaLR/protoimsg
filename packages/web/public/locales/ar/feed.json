@@ -1,0 +1,61 @@
+{
+  "composer": {
+    "collapsed": "ما الذي يدور في ذهنك؟",
+    "replyingTo": "الرد على @{{handle}}",
+    "placeholder": "اكتب منشورك...",
+    "charCount": "{{count}}/{{max}}",
+    "attachImage": "إرفاق صورة",
+    "cancel": "إلغاء",
+    "posting": "جارٍ النشر...",
+    "post": "نشر"
+  },
+
+  "post": {
+    "pinned": "مثبت",
+    "repostedBy": "أعاد نشره",
+    "replyTo": "الرد على @{{handle}}",
+    "relativeTime": {
+      "seconds": "{{count}}ث",
+      "minutes": "{{count}}د",
+      "hours": "{{count}}س",
+      "days": "{{count}}ي",
+      "months": "{{count}}ش"
+    },
+    "translate": "ترجمة",
+    "translatedTo": "مُترجم إلى {{lang}}",
+    "showOriginal": "عرض الأصلي",
+    "translating": "جارٍ الترجمة..."
+  },
+
+  "feedView": {
+    "loading": "جارٍ تحميل الخلاصة...",
+    "empty": "لا توجد منشورات للعرض",
+    "loadingMore": "جارٍ تحميل المزيد...",
+    "refresh": "تحديث الخلاصة"
+  },
+
+  "profileView": {
+    "back": "رجوع",
+    "loading": "جارٍ تحميل الملف الشخصي...",
+    "error": "فشل تحميل الملف الشخصي",
+    "followers": "المتابعون",
+    "following": "المتابعة",
+    "posts": "المنشورات",
+    "loadingMore": "جارٍ تحميل المزيد...",
+    "translateBio": "ترجمة السيرة الذاتية",
+    "translating": "جارٍ الترجمة...",
+    "translatedTo": "مُترجم إلى {{lang}}",
+    "showOriginal": "عرض الأصلي"
+  },
+
+  "threadView": {
+    "back": "رجوع",
+    "loading": "جارٍ تحميل المحادثة...",
+    "notFound": "المحادثة غير موجودة",
+    "viewReplies_one": "عرض رد واحد",
+    "viewReplies_two": "عرض ردين",
+    "viewReplies_few": "عرض {{count}} ردود",
+    "viewReplies_many": "عرض {{count}} رداً",
+    "viewReplies_other": "عرض {{count}} رد"
+  }
+}

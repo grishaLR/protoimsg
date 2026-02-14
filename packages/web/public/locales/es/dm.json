@@ -1,0 +1,56 @@
+{
+  "input": {
+    "placeholder": "Escribe un mensaje...",
+    "ariaLabel": "Escribe un mensaje directo",
+    "send": "Enviar"
+  },
+
+  "messageList": {
+    "empty": "No hay mensajes aún. ¡Di hola!",
+    "typing": "escribiendo..."
+  },
+
+  "popover": {
+    "ariaLabel": "Conversación de mensaje directo con {{recipientDid}}",
+    "header": {
+      "ariaLabel": {
+        "expand": "Mensaje directo con {{recipientDid}} — haz clic para expandir",
+        "minimize": "Mensaje directo con {{recipientDid}} — haz clic para minimizar"
+      }
+    },
+    "unreadAriaLabel": "{{count}} mensajes no leídos",
+    "unreadOverflow": "99+",
+    "persist": {
+      "titleActive": "Mensajes guardados (7 días)",
+      "titleInactive": "Mensajes efímeros — haz clic para guardar",
+      "ariaLabel": {
+        "disable": "Desactivar guardado de mensajes",
+        "enable": "Activar guardado de mensajes"
+      }
+    },
+    "minimize": {
+      "titleExpand": "Expandir",
+      "titleMinimize": "Minimizar",
+      "ariaLabel": {
+        "expand": "Expandir conversación",
+        "minimize": "Minimizar conversación"
+      }
+    },
+    "close": {
+      "title": "Cerrar",
+      "ariaLabel": "Cerrar conversación"
+    }
+  },
+
+  "notification": {
+    "ariaLabel": "Nuevo mensaje de {{senderDid}}: {{preview}}",
+    "dismiss": {
+      "title": "Descartar",
+      "ariaLabel": "Descartar notificación"
+    }
+  },
+
+  "popoverContainer": {
+    "ariaLabel": "Notificaciones de mensajes directos"
+  }
+}

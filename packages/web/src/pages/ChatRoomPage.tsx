@@ -1,9 +1,12 @@
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useParams, Link } from 'react-router-dom';
 import { IS_TAURI } from '../lib/config';
 import { useRoom } from '../hooks/useRoom';
 import { useMessages } from '../hooks/useMessages';
 import { useBlocks } from '../contexts/BlockContext';
+import { useMentionNotifications } from '../contexts/MentionNotificationContext';
+import { useContentTranslation } from '../hooks/useContentTranslation';
 import { MessageList } from '../components/chat/MessageList';
 import { MessageInput } from '../components/chat/MessageInput';
 import { MemberList } from '../components/chat/MemberList';
@@ -13,13 +16,15 @@ import type { ChatThreadState } from '../hooks/useChatThread';
 import styles from './ChatRoomPage.module.css';
 
 export function ChatRoomPage() {
+  const { t } = useTranslation('rooms');
   const { id } = useParams<{ id: string }>();
-  if (!id) return <p>Invalid room ID</p>;
+  if (!id) return <p>{t('chatRoom.invalidId')}</p>;
 
   return <ChatRoomContent roomId={id} />;
 }
 
 function ChatRoomContent({ roomId }: { roomId: string }) {
+  const { t } = useTranslation('rooms');
   const { room, members, doorEvents, loading: roomLoading, error: roomError } = useRoom(roomId);
   const {
     messages,
@@ -30,6 +35,31 @@ function ChatRoomContent({ roomId }: { roomId: string }) {
     sendTyping,
   } = useMessages(roomId);
   const { blockedDids } = useBlocks();
+  const { clearMentions } = useMentionNotifications();
+  const {
+    autoTranslate,
+    available: translateAvailable,
+    getTranslation,
+    requestBatchTranslation,
+  } = useContentTranslation();
+  const lastTranslatedCount = useRef(0);
+
+  // Clear unread mention badge when entering the room
+  useEffect(() => {
+    clearMentions(roomId);
+  }, [roomId, clearMentions]);
+
+  // Auto-translate chat messages when new ones arrive
+  useEffect(() => {
+    if (!autoTranslate || !translateAvailable || messages.length === 0) return;
+    if (messages.length === lastTranslatedCount.current) return;
+
+    const newMsgs = messages.slice(lastTranslatedCount.current);
+    const texts = newMsgs.map((m) => m.text).filter(Boolean);
+
+    lastTranslatedCount.current = messages.length;
+    if (texts.length > 0) requestBatchTranslation(texts);
+  }, [messages.length, autoTranslate, translateAvailable, messages, requestBatchTranslation]);
 
   // Thread panel state
   const [activeThread, setActiveThread] = useState<ChatThreadState | null>(null);
@@ -54,20 +84,26 @@ function ChatRoomContent({ roomId }: { roomId: string }) {
     setActiveThread(null);
   }, []);
 
-  if (roomLoading) return <div className={styles.loading}>Room is being set up...</div>;
+  if (roomLoading) return <div className={styles.loading}>{t('chatRoom.loading')}</div>;
   if (roomError) return <div className={styles.error}>{roomError}</div>;
-  if (!room) return <div className={styles.error}>Room not found</div>;
+  if (!room) return <div className={styles.error}>{t('chatRoom.notFound')}</div>;
 
   return (
     <div className={styles.page}>
       <header className={styles.header} data-tauri-drag-region="">
         {!IS_TAURI && (
           <Link to="/" className={styles.back}>
-            &larr; Rooms
+            {'\u2190'} {t('chatRoom.backToRooms')}
           </Link>
         )}
-        <h1 className={styles.roomName}>{room.name}</h1>
-        {room.description && <span className={styles.description}>{room.description}</span>}
+        <h1 className={styles.roomName}>
+          {(autoTranslate && getTranslation(room.name)) || room.name}
+        </h1>
+        {room.description && (
+          <span className={styles.description}>
+            {(autoTranslate && getTranslation(room.description)) || room.description}
+          </span>
+        )}
         <WindowControls />
       </header>
       <div className={styles.content}>

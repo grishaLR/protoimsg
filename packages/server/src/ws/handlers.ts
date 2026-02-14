@@ -1,5 +1,5 @@
 import type { WebSocket } from 'ws';
-import { DM_LIMITS } from '@protoimsg/shared';
+import { DM_LIMITS, ERROR_CODES } from '@protoimsg/shared';
 import { filterText } from '../moderation/filter.js';
 import type { ValidatedClientMessage } from './validation.js';
 import type { RoomSubscriptions } from './rooms.js';
@@ -47,7 +47,13 @@ export async function handleClientMessage(
   // Rate limit per-socket so multi-tab users get separate quotas
   const socketId = (ws as WebSocket & { socketId?: string }).socketId ?? did;
   if (!(await rateLimiter.check(`ws:socket:${socketId}`))) {
-    ws.send(JSON.stringify({ type: 'error', message: 'Rate limited' }));
+    ws.send(
+      JSON.stringify({
+        type: 'error',
+        message: 'Rate limited',
+        errorCode: ERROR_CODES.RATE_LIMITED,
+      }),
+    );
     return;
   }
 
@@ -55,7 +61,13 @@ export async function handleClientMessage(
     case 'join_room': {
       const access = await checkUserAccess(sql, data.roomId, did);
       if (!access.allowed) {
-        ws.send(JSON.stringify({ type: 'error', message: access.reason ?? 'Access denied' }));
+        ws.send(
+          JSON.stringify({
+            type: 'error',
+            message: access.reason ?? 'Access denied',
+            errorCode: ERROR_CODES.ACCESS_DENIED,
+          }),
+        );
         break;
       }
 
@@ -198,12 +210,24 @@ export async function handleClientMessage(
 
     case 'dm_open': {
       if (data.recipientDid === did) {
-        ws.send(JSON.stringify({ type: 'error', message: 'Cannot open DM with yourself' }));
+        ws.send(
+          JSON.stringify({
+            type: 'error',
+            message: 'Cannot open DM with yourself',
+            errorCode: ERROR_CODES.SELF_DM,
+          }),
+        );
         break;
       }
 
       if (blockService.isBlocked(did, data.recipientDid)) {
-        ws.send(JSON.stringify({ type: 'error', message: 'Cannot message this user' }));
+        ws.send(
+          JSON.stringify({
+            type: 'error',
+            message: 'Cannot message this user',
+            errorCode: ERROR_CODES.BLOCKED_USER,
+          }),
+        );
         break;
       }
 
@@ -230,7 +254,9 @@ export async function handleClientMessage(
         );
       } catch (err) {
         const msg = err instanceof Error ? err.message : 'Failed to open DM';
-        ws.send(JSON.stringify({ type: 'error', message: msg }));
+        ws.send(
+          JSON.stringify({ type: 'error', message: msg, errorCode: ERROR_CODES.SERVER_ERROR }),
+        );
       }
       break;
     }
@@ -241,6 +267,7 @@ export async function handleClientMessage(
           JSON.stringify({
             type: 'error',
             message: `Message exceeds ${String(DM_LIMITS.maxMessageLength)} characters`,
+            errorCode: ERROR_CODES.MESSAGE_TOO_LONG,
           }),
         );
         break;
@@ -251,7 +278,13 @@ export async function handleClientMessage(
       {
         const filter = filterText(data.text);
         if (!filter.passed) {
-          ws.send(JSON.stringify({ type: 'error', message: filter.reason ?? 'Message blocked' }));
+          ws.send(
+            JSON.stringify({
+              type: 'error',
+              message: filter.reason ?? 'Message blocked',
+              errorCode: ERROR_CODES.CONTENT_FILTERED,
+            }),
+          );
           break;
         }
       }
@@ -260,7 +293,13 @@ export async function handleClientMessage(
       {
         const recipient = await dmService.getRecipientDid(data.conversationId, did);
         if (recipient && blockService.isBlocked(did, recipient)) {
-          ws.send(JSON.stringify({ type: 'error', message: 'Cannot message this user' }));
+          ws.send(
+            JSON.stringify({
+              type: 'error',
+              message: 'Cannot message this user',
+              errorCode: ERROR_CODES.BLOCKED_USER,
+            }),
+          );
           break;
         }
       }
@@ -307,7 +346,9 @@ export async function handleClientMessage(
         }
       } catch (err) {
         const msg = err instanceof Error ? err.message : 'Failed to send DM';
-        ws.send(JSON.stringify({ type: 'error', message: msg }));
+        ws.send(
+          JSON.stringify({ type: 'error', message: msg, errorCode: ERROR_CODES.SERVER_ERROR }),
+        );
       }
       break;
     }
@@ -315,7 +356,13 @@ export async function handleClientMessage(
     case 'dm_close': {
       const isParticipant = await dmService.isParticipant(data.conversationId, did);
       if (!isParticipant) {
-        ws.send(JSON.stringify({ type: 'error', message: 'Not a participant' }));
+        ws.send(
+          JSON.stringify({
+            type: 'error',
+            message: 'Not a participant',
+            errorCode: ERROR_CODES.NOT_PARTICIPANT,
+          }),
+        );
         break;
       }
 
@@ -331,7 +378,13 @@ export async function handleClientMessage(
     case 'dm_typing': {
       const isParticipant = await dmService.isParticipant(data.conversationId, did);
       if (!isParticipant) {
-        ws.send(JSON.stringify({ type: 'error', message: 'Not a participant' }));
+        ws.send(
+          JSON.stringify({
+            type: 'error',
+            message: 'Not a participant',
+            errorCode: ERROR_CODES.NOT_PARTICIPANT,
+          }),
+        );
         break;
       }
 
@@ -360,7 +413,9 @@ export async function handleClientMessage(
         });
       } catch (err) {
         const msg = err instanceof Error ? err.message : 'Failed to toggle persist';
-        ws.send(JSON.stringify({ type: 'error', message: msg }));
+        ws.send(
+          JSON.stringify({ type: 'error', message: msg, errorCode: ERROR_CODES.SERVER_ERROR }),
+        );
       }
       break;
     }

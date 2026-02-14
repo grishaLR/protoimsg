@@ -39,6 +39,18 @@
   color: var(--color-base-content);
 }
 
+.mentionBadge {
+  margin-inline-start: auto;
+  font-size: var(--cm-text-sm);
+  font-weight: 700;
+  padding: var(--cm-space-0.5) var(--cm-space-2);
+  background: var(--color-error);
+  color: var(--color-error-content);
+  border-radius: var(--cm-radius-pill);
+  line-height: 1;
+  flex-shrink: 0;
+}
+
 .topic {
   margin: var(--cm-space-1) 0 0;
   font-size: var(--cm-text-sm);
@@ -55,4 +67,41 @@
 .meta {
   font-size: var(--cm-text-sm);
   color: var(--cm-border-dark);
+}
+
+.translationLabel {
+  font-size: var(--cm-text-xs);
+  color: var(--cm-border-dark);
+}
+
+.showOriginal {
+  background: none;
+  border: none;
+  color: var(--color-primary);
+  font-size: var(--cm-text-xs);
+  cursor: pointer;
+  padding: 0;
+  text-decoration: underline;
+}
+
+.showOriginal:hover {
+  color: var(--cm-primary-dark);
+}
+
+.translateBtn {
+  background: none;
+  border: none;
+  color: var(--color-primary);
+  font-size: var(--cm-text-xs);
+  cursor: pointer;
+  padding: 0;
+}
+
+.translateBtn:hover {
+  text-decoration: underline;
+}
+
+.translateBtn:disabled {
+  opacity: 0.5;
+  cursor: default;
 }

@@ -1,5 +1,8 @@
+import { useTranslation } from 'react-i18next';
 import { StatusIndicator } from './StatusIndicator';
 import { UserIdentity } from './UserIdentity';
+import { MemberMenu } from './MemberMenu';
+import { useAuth } from '../../hooks/useAuth';
 import type { DoorEvent } from '../../hooks/useRoom';
 import type { MemberPresence } from '../../types';
 import styles from './MemberList.module.css';
@@ -10,12 +13,16 @@ interface MemberListProps {
 }
 
 export function MemberList({ members, doorEvents = {} }: MemberListProps) {
+  const { t } = useTranslation('chat');
+  const { did: myDid } = useAuth();
+
   return (
     <div className={styles.container}>
-      <h3 className={styles.heading}>Members ({members.length})</h3>
+      <h3 className={styles.heading}>{t('memberList.heading', { count: members.length })}</h3>
       <ul className={styles.list}>
         {members.map((member) => {
           const door = doorEvents[member.did];
+          const isSelf = member.did === myDid;
           return (
             <li
               key={member.did}
@@ -34,6 +41,7 @@ export function MemberList({ members, doorEvents = {} }: MemberListProps) {
                 </span>
                 {member.awayMessage && <span className={styles.awayMsg}>{member.awayMessage}</span>}
               </div>
+              {!isSelf && <MemberMenu did={member.did} className={styles.menuReveal} />}
             </li>
           );
         })}

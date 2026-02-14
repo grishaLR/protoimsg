@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../hooks/useAuth';
 import { usePresence } from '../../hooks/usePresence';
 import { StatusIndicator } from '../chat/StatusIndicator';
@@ -12,6 +13,7 @@ interface HeaderProps {
 }
 
 export function Header({ onOpenSettings }: HeaderProps) {
+  const { t } = useTranslation('common');
   const { did, logout } = useAuth();
   const { status, awayMessage, visibleTo, changeStatus } = usePresence();
   const [open, setOpen] = useState(false);
@@ -45,7 +47,7 @@ export function Header({ onOpenSettings }: HeaderProps) {
 
   return (
     <header className={styles.header} data-tauri-drag-region="">
-      <h1 className={styles.title}>proto instant messenger</h1>
+      <h1 className={styles.title}>{t('appName')}</h1>
       <div className={styles.right}>
         {did && (
           <div className={styles.menuWrap} ref={menuRef}>
@@ -54,7 +56,7 @@ export function Header({ onOpenSettings }: HeaderProps) {
               onClick={() => {
                 setOpen(!open);
               }}
-              title="Menu"
+              title={t('header.menu')}
             >
               <span className={styles.hamburgerIcon} />
             </button>
@@ -75,17 +77,17 @@ export function Header({ onOpenSettings }: HeaderProps) {
                     }}
                   >
                     <StatusIndicator status={opt.value} />
-                    {opt.label}
+                    {t(opt.labelKey as 'status.online')}
                   </button>
                 ))}
 
                 {/* Away message */}
                 <div className={styles.awaySection}>
-                  <label className={styles.awayLabel}>Away message</label>
+                  <label className={styles.awayLabel}>{t('header.awayMessage.label')}</label>
                   <input
                     className={styles.awayInput}
                     type="text"
-                    placeholder="e.g. BRB, grabbing coffee"
+                    placeholder={t('header.awayMessage.placeholder')}
                     maxLength={300}
                     value={draftMessage}
                     onChange={(e) => {
@@ -102,7 +104,7 @@ export function Header({ onOpenSettings }: HeaderProps) {
 
                 {/* Visibility */}
                 <div className={styles.visibilitySection}>
-                  <label className={styles.visibilityLabel}>Who can see me</label>
+                  <label className={styles.visibilityLabel}>{t('header.visibility.label')}</label>
                   <div className={styles.visibilityOptions}>
                     {VISIBILITY_OPTIONS.map((opt) => (
                       <button
@@ -117,7 +119,7 @@ export function Header({ onOpenSettings }: HeaderProps) {
                           setOpen(false);
                         }}
                       >
-                        {opt.label}
+                        {t(opt.labelKey as 'visibility.everyone')}
                       </button>
                     ))}
                   </div>
@@ -134,14 +136,14 @@ export function Header({ onOpenSettings }: HeaderProps) {
                       setOpen(false);
                     }}
                   >
-                    &#x2699; Settings
+                    {'\u2699'} {t('header.settings')}
                   </button>
                 )}
 
                 {/* Minimize (Tauri only) */}
                 {IS_TAURI && (
                   <button className={styles.dropdownItem} onClick={handleMinimize}>
-                    &#x2013; Minimize
+                    {'\u2013'} {t('header.minimize')}
                   </button>
                 )}
 
@@ -153,7 +155,7 @@ export function Header({ onOpenSettings }: HeaderProps) {
                     setOpen(false);
                   }}
                 >
-                  Sign Out
+                  {t('header.signOut')}
                 </button>
               </div>
             )}

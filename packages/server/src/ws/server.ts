@@ -15,6 +15,8 @@ import type { SessionStore } from '../auth/session-store.js';
 import type { RateLimiterStore } from '../moderation/rate-limiter-store.js';
 import { BlockService } from '../moderation/block-service.js';
 import type { GlobalBanService } from '../moderation/global-ban-service.js';
+import { ERROR_CODES } from '@protoimsg/shared';
+
 import { createLogger } from '../logger.js';
 import { Sentry } from '../sentry.js';
 
@@ -73,6 +75,8 @@ export class UserSockets {
 
 export interface WsServer {
   broadcastToRoom: (roomId: string, message: ServerMessage) => void;
+  sendToUser: (did: string, message: ServerMessage) => void;
+  isSubscribedToRoom: (did: string, roomId: string) => boolean;
   close: () => Promise<void>;
 }
 
@@ -122,7 +126,13 @@ export function createWsServer(
     // Auth timeout — close if no auth message within 5 seconds
     const authTimer = setTimeout(() => {
       if (!authenticated) {
-        ws.send(JSON.stringify({ type: 'error', message: 'Auth timeout' }));
+        ws.send(
+          JSON.stringify({
+            type: 'error',
+            message: 'Auth timeout',
+            errorCode: ERROR_CODES.AUTH_TIMEOUT,
+          }),
+        );
         ws.close(4001, 'Auth timeout');
       }
     }, AUTH_TIMEOUT_MS);
@@ -132,7 +142,13 @@ export function createWsServer(
       try {
         json = JSON.parse(raw.toString('utf-8'));
       } catch {
-        ws.send(JSON.stringify({ type: 'error', message: 'Invalid JSON' }));
+        ws.send(
+          JSON.stringify({
+            type: 'error',
+            message: 'Invalid JSON',
+            errorCode: ERROR_CODES.INVALID_JSON,
+          }),
+        );
         return;
       }
 
@@ -140,7 +156,13 @@ export function createWsServer(
       if (!authenticated) {
         const msg = json as Record<string, unknown>;
         if (msg.type !== 'auth' || typeof msg.token !== 'string') {
-          ws.send(JSON.stringify({ type: 'error', message: 'First message must be auth' }));
+          ws.send(
+            JSON.stringify({
+              type: 'error',
+              message: 'First message must be auth',
+              errorCode: ERROR_CODES.AUTH_REQUIRED,
+            }),
+          );
           ws.close(4001, 'Auth required');
           return;
         }
@@ -149,7 +171,13 @@ export function createWsServer(
           .get(msg.token)
           .then(async (session) => {
             if (!session) {
-              ws.send(JSON.stringify({ type: 'error', message: 'Invalid or expired token' }));
+              ws.send(
+                JSON.stringify({
+                  type: 'error',
+                  message: 'Invalid or expired token',
+                  errorCode: ERROR_CODES.INVALID_SESSION,
+                }),
+              );
               ws.close(4001, 'Invalid token');
               return;
             }
@@ -191,7 +219,13 @@ export function createWsServer(
       // Validate all post-auth messages with Zod
       const data = parseClientMessage(json);
       if (!data) {
-        ws.send(JSON.stringify({ type: 'error', message: 'Invalid message format' }));
+        ws.send(
+          JSON.stringify({
+            type: 'error',
+            message: 'Invalid message format',
+            errorCode: ERROR_CODES.INVALID_MESSAGE_FORMAT,
+          }),
+        );
         return;
       }
 
@@ -280,6 +314,21 @@ export function createWsServer(
   return {
     broadcastToRoom: (roomId: string, message: ServerMessage) => {
       roomSubs.broadcast(roomId, message);
+    },
+    sendToUser: (did: string, message: ServerMessage) => {
+      const sockets = userSockets.get(did);
+      const payload = JSON.stringify(message);
+      for (const ws of sockets) {
+        if (ws.readyState === ws.OPEN) ws.send(payload);
+      }
+    },
+    isSubscribedToRoom: (did: string, roomId: string) => {
+      const sockets = userSockets.get(did);
+      const subscribers = roomSubs.getSubscribers(roomId);
+      for (const ws of sockets) {
+        if (subscribers.has(ws)) return true;
+      }
+      return false;
     },
     close: async () => {
       blockService.stopSweep();

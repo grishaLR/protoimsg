@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 import { StatusIndicator } from './StatusIndicator';
 import type { PresenceStatus, PresenceVisibility } from '@protoimsg/shared';
 import { STATUS_OPTIONS, VISIBILITY_OPTIONS } from '../../constants/presence';
@@ -21,6 +22,7 @@ export function StatusSelector({
   visibleTo,
   onChangeStatus,
 }: StatusSelectorProps) {
+  const { t } = useTranslation('common');
   const [open, setOpen] = useState(false);
   const [draftMessage, setDraftMessage] = useState(awayMessage ?? '');
   const triggerRef = useRef<HTMLButtonElement>(null);
@@ -116,15 +118,15 @@ export function StatusSelector({
               }}
             >
               <StatusIndicator status={opt.value} />
-              {opt.label}
+              {t(opt.labelKey as 'status.online')}
             </button>
           ))}
           <div className={styles.awaySection}>
-            <label className={styles.awayLabel}>Away message</label>
+            <label className={styles.awayLabel}>{t('statusSelector.awayMessage.label')}</label>
             <input
               className={styles.awayInput}
               type="text"
-              placeholder="e.g. BRB, grabbing coffee"
+              placeholder={t('statusSelector.awayMessage.placeholder')}
               maxLength={300}
               value={draftMessage}
               onChange={(e) => {
@@ -139,7 +141,7 @@ export function StatusSelector({
             />
           </div>
           <div className={styles.visibilitySection}>
-            <label className={styles.visibilityLabel}>Who can see me</label>
+            <label className={styles.visibilityLabel}>{t('statusSelector.visibility.label')}</label>
             <div className={styles.visibilityOptions}>
               {VISIBILITY_OPTIONS.map((opt) => (
                 <button
@@ -154,7 +156,7 @@ export function StatusSelector({
                     setOpen(false);
                   }}
                 >
-                  {opt.label}
+                  {t(opt.labelKey as 'visibility.everyone')}
                 </button>
               ))}
             </div>

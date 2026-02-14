@@ -1,4 +1,5 @@
 import { useRef, useEffect, useState, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { LIMITS } from '@protoimsg/shared';
 import type { RoomPurpose, RoomVisibility } from '@protoimsg/shared';
@@ -12,6 +13,7 @@ interface CreateRoomModalProps {
 }
 
 export function CreateRoomModal({ onClose, onCreated }: CreateRoomModalProps) {
+  const { t } = useTranslation('rooms');
   const dialogRef = useRef<HTMLDialogElement>(null);
   const { agent } = useAuth();
   const navigate = useNavigate();
@@ -56,7 +58,7 @@ export function CreateRoomModal({ onClose, onCreated }: CreateRoomModalProps) {
         void navigate(`/rooms/${result.rkey}`);
       })
       .catch((err: unknown) => {
-        setError(err instanceof Error ? err.message : 'Failed to create room');
+        setError(err instanceof Error ? err.message : t('createRoom.error.default'));
         setSubmitting(false);
       });
   }
@@ -64,10 +66,10 @@ export function CreateRoomModal({ onClose, onCreated }: CreateRoomModalProps) {
   return (
     <dialog ref={dialogRef} className={styles.dialog} onClose={handleClose}>
       <form className={styles.form} onSubmit={handleSubmit}>
-        <h2 className={styles.title}>Create Room</h2>
+        <h2 className={styles.title}>{t('createRoom.title')}</h2>
 
         <label className={styles.label}>
-          Name
+          {t('createRoom.nameLabel')}
           <input
             className={styles.input}
             type="text"
@@ -75,27 +77,27 @@ export function CreateRoomModal({ onClose, onCreated }: CreateRoomModalProps) {
             onChange={(e) => {
               setName(e.target.value.slice(0, LIMITS.maxRoomNameLength));
             }}
-            placeholder="Room name"
+            placeholder={t('createRoom.namePlaceholder')}
             required
             autoFocus
           />
         </label>
 
         <label className={styles.label}>
-          Description
+          {t('createRoom.descriptionLabel')}
           <textarea
             className={styles.textarea}
             value={description}
             onChange={(e) => {
               setDescription(e.target.value.slice(0, LIMITS.maxRoomDescriptionLength));
             }}
-            placeholder="What's this room about?"
+            placeholder={t('createRoom.descriptionPlaceholder')}
             rows={3}
           />
         </label>
 
         <label className={styles.label}>
-          Topic
+          {t('createRoom.topicLabel')}
           <input
             className={styles.input}
             type="text"
@@ -103,12 +105,12 @@ export function CreateRoomModal({ onClose, onCreated }: CreateRoomModalProps) {
             onChange={(e) => {
               setTopic(e.target.value.slice(0, LIMITS.maxRoomTopicLength));
             }}
-            placeholder="Current topic of discussion"
+            placeholder={t('createRoom.topicPlaceholder')}
           />
         </label>
 
         <label className={styles.label}>
-          Purpose
+          {t('createRoom.purposeLabel')}
           <select
             className={styles.select}
             value={purpose}
@@ -116,15 +118,15 @@ export function CreateRoomModal({ onClose, onCreated }: CreateRoomModalProps) {
               setPurpose(e.target.value as RoomPurpose);
             }}
           >
-            <option value="discussion">Discussion</option>
-            <option value="event">Event</option>
-            <option value="community">Community</option>
-            <option value="support">Support</option>
+            <option value="discussion">{t('createRoom.purpose.discussion')}</option>
+            <option value="event">{t('createRoom.purpose.event')}</option>
+            <option value="community">{t('createRoom.purpose.community')}</option>
+            <option value="support">{t('createRoom.purpose.support')}</option>
           </select>
         </label>
 
         <label className={styles.label}>
-          Visibility
+          {t('createRoom.visibilityLabel')}
           <select
             className={styles.select}
             value={visibility}
@@ -132,9 +134,9 @@ export function CreateRoomModal({ onClose, onCreated }: CreateRoomModalProps) {
               setVisibility(e.target.value as RoomVisibility);
             }}
           >
-            <option value="public">Public</option>
-            <option value="unlisted">Unlisted</option>
-            <option value="private">Private</option>
+            <option value="public">{t('createRoom.visibility.public')}</option>
+            <option value="unlisted">{t('createRoom.visibility.unlisted')}</option>
+            <option value="private">{t('createRoom.visibility.private')}</option>
           </select>
         </label>
 
@@ -148,14 +150,14 @@ export function CreateRoomModal({ onClose, onCreated }: CreateRoomModalProps) {
               dialogRef.current?.close();
             }}
           >
-            Cancel
+            {t('createRoom.cancel')}
           </button>
           <button
             type="submit"
             className={styles.submitButton}
             disabled={submitting || !name.trim()}
           >
-            {submitting ? 'Creating...' : 'Create'}
+            {submitting ? t('createRoom.submitting') : t('createRoom.submit')}
           </button>
         </div>
       </form>

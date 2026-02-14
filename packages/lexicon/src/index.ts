@@ -86,7 +86,7 @@ export interface BlobRef {
 
 export interface RichTextFacet {
   index: ByteSlice;
-  features: (MentionFeature | LinkFeature)[];
+  features: (MentionFeature | LinkFeature | TagFeature | FormattingFeature)[];
 }
 
 export interface ByteSlice {
@@ -103,6 +103,43 @@ export interface LinkFeature {
   $type: 'app.protoimsg.chat.message#link';
   uri: string;
 }
+
+export interface TagFeature {
+  $type: 'app.protoimsg.chat.message#tag';
+  tag: string;
+}
+
+export interface BoldFeature {
+  $type: 'app.protoimsg.chat.message#bold';
+}
+
+export interface ItalicFeature {
+  $type: 'app.protoimsg.chat.message#italic';
+}
+
+export interface StrikethroughFeature {
+  $type: 'app.protoimsg.chat.message#strikethrough';
+}
+
+export interface CodeInlineFeature {
+  $type: 'app.protoimsg.chat.message#codeInline';
+}
+
+export interface CodeBlockFeature {
+  $type: 'app.protoimsg.chat.message#codeBlock';
+}
+
+export interface BlockquoteFeature {
+  $type: 'app.protoimsg.chat.message#blockquote';
+}
+
+export type FormattingFeature =
+  | BoldFeature
+  | ItalicFeature
+  | StrikethroughFeature
+  | CodeInlineFeature
+  | CodeBlockFeature
+  | BlockquoteFeature;
 
 /** app.protoimsg.chat.community record */
 export interface CommunityRecord {

@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import styles from './MobileTabBar.module.css';
 
 export type MobileTab = 'buddies' | 'rooms' | 'feed';
@@ -7,13 +8,15 @@ interface MobileTabBarProps {
   onTabChange: (tab: MobileTab) => void;
 }
 
-const TABS: { id: MobileTab; label: string }[] = [
-  { id: 'buddies', label: 'Community' },
-  { id: 'rooms', label: 'Rooms' },
-  { id: 'feed', label: 'Feed' },
+const TABS: { id: MobileTab; labelKey: 'nav.community' | 'nav.rooms' | 'nav.feed' }[] = [
+  { id: 'buddies', labelKey: 'nav.community' },
+  { id: 'rooms', labelKey: 'nav.rooms' },
+  { id: 'feed', labelKey: 'nav.feed' },
 ];
 
 export function MobileTabBar({ activeTab, onTabChange }: MobileTabBarProps) {
+  const { t } = useTranslation('common');
+
   return (
     <nav className={styles.tabBar}>
       {TABS.map((tab) => (
@@ -24,7 +27,7 @@ export function MobileTabBar({ activeTab, onTabChange }: MobileTabBarProps) {
             onTabChange(tab.id);
           }}
         >
-          {tab.label}
+          {t(tab.labelKey)}
         </button>
       ))}
     </nav>

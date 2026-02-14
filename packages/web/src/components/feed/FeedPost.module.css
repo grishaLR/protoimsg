@@ -62,7 +62,7 @@
 .timestamp {
   font-size: var(--cm-text-xs);
   color: var(--cm-border-dark);
-  margin-left: auto;
+  margin-inline-start: auto;
   flex-shrink: 0;
 }
 
@@ -209,6 +209,27 @@
   color: var(--cm-chrome-text);
   text-shadow: var(--cm-shadow-md);
   pointer-events: none;
+}
+
+/* Translation */
+.translationLabel {
+  font-size: var(--cm-text-xs);
+  color: var(--cm-border-dark);
+  margin-top: var(--cm-space-1);
+}
+
+.showOriginal {
+  background: none;
+  border: none;
+  padding: 0;
+  font-size: var(--cm-text-xs);
+  color: var(--cm-border-dark);
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+.showOriginal:hover {
+  color: var(--color-base-content);
 }
 
 /* Clickable body */

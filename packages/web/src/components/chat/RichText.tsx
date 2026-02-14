@@ -1,4 +1,15 @@
-import type { RichTextFacet, MentionFeature, LinkFeature } from '@protoimsg/lexicon';
+import type {
+  RichTextFacet,
+  MentionFeature,
+  LinkFeature,
+  TagFeature,
+  BoldFeature,
+  ItalicFeature,
+  StrikethroughFeature,
+  CodeInlineFeature,
+  CodeBlockFeature,
+  BlockquoteFeature,
+} from '@protoimsg/lexicon';
 import type { ReactNode } from 'react';
 import { isSafeUrl } from '../../lib/sanitize';
 import styles from './RichText.module.css';
@@ -22,6 +33,13 @@ interface BskyTagFeature {
 type AnyFeature =
   | MentionFeature
   | LinkFeature
+  | TagFeature
+  | BoldFeature
+  | ItalicFeature
+  | StrikethroughFeature
+  | CodeInlineFeature
+  | CodeBlockFeature
+  | BlockquoteFeature
   | BskyMentionFeature
   | BskyLinkFeature
   | BskyTagFeature;
@@ -95,9 +113,34 @@ function renderFeature(
           {text}
         </a>
       );
+    case 'app.protoimsg.chat.message#tag':
     case 'app.bsky.richtext.facet#tag':
       return (
         <span key={key} className={styles.tag}>
+          {text}
+        </span>
+      );
+    case 'app.protoimsg.chat.message#bold':
+      return <strong key={key}>{text}</strong>;
+    case 'app.protoimsg.chat.message#italic':
+      return <em key={key}>{text}</em>;
+    case 'app.protoimsg.chat.message#strikethrough':
+      return <del key={key}>{text}</del>;
+    case 'app.protoimsg.chat.message#codeInline':
+      return (
+        <code key={key} className={styles.codeInline}>
+          {text}
+        </code>
+      );
+    case 'app.protoimsg.chat.message#codeBlock':
+      return (
+        <code key={key} className={styles.codeBlock}>
+          {text}
+        </code>
+      );
+    case 'app.protoimsg.chat.message#blockquote':
+      return (
+        <span key={key} className={styles.blockquote}>
           {text}
         </span>
       );

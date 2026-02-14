@@ -1,10 +1,12 @@
 import { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { IS_TAURI } from '../lib/config';
 import { useWebSocket } from '../contexts/WebSocketContext';
 import { useAuth } from '../hooks/useAuth';
 import styles from './ConnectionBanner.module.css';
 
 export function ConnectionBanner() {
+  const { t } = useTranslation('common');
   const { connected } = useWebSocket();
   const { did } = useAuth();
   const [isChildWindow, setIsChildWindow] = useState(false);
@@ -22,7 +24,7 @@ export function ConnectionBanner() {
 
   return (
     <div className={styles.banner} role="alert">
-      Connection lost — reconnecting...
+      {t('connectionBanner.message')}
     </div>
   );
 }

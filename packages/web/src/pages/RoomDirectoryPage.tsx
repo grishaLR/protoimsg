@@ -1,4 +1,5 @@
 import { useState, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 import type { AppBskyFeedDefs } from '@atproto/api';
 import { Header } from '../components/layout/Header';
 import { MobileTabBar } from '../components/layout/MobileTabBar';
@@ -21,6 +22,7 @@ import styles from './RoomDirectoryPage.module.css';
 type View = 'rooms' | 'feed' | 'buddies' | 'profile' | 'thread' | 'settings';
 
 export function RoomDirectoryPage() {
+  const { t } = useTranslation('rooms');
   const { rooms, loading, error, refresh } = useRooms();
   const {
     buddies,
@@ -206,7 +208,7 @@ export function RoomDirectoryPage() {
                 <input
                   className={styles.search}
                   type="text"
-                  placeholder="Search rooms..."
+                  placeholder={t('directory.searchPlaceholder')}
                   value={search}
                   onChange={(e) => {
                     setSearch(e.target.value);
@@ -218,11 +220,11 @@ export function RoomDirectoryPage() {
                     setShowCreate(true);
                   }}
                 >
-                  Create Room
+                  {t('directory.createButton')}
                 </button>
               </div>
               {error && <p className={styles.error}>{error}</p>}
-              {loading ? <p>Loading rooms...</p> : <RoomList rooms={filtered} />}
+              {loading ? <p>{t('directory.loading')}</p> : <RoomList rooms={filtered} />}
             </>
           )}
 

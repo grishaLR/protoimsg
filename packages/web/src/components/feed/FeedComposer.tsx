@@ -1,4 +1,5 @@
 import { useState, useCallback, useRef, useEffect, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import type { AppBskyFeedDefs } from '@atproto/api';
 import { useCompose } from '../../hooks/useCompose';
 import styles from './FeedComposer.module.css';
@@ -10,6 +11,7 @@ interface FeedComposerProps {
 }
 
 export function FeedComposer({ replyTo, onClearReply, onPostSuccess }: FeedComposerProps) {
+  const { t } = useTranslation('feed');
   const [expanded, setExpanded] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -81,7 +83,7 @@ export function FeedComposer({ replyTo, onClearReply, onPostSuccess }: FeedCompo
         }}
         type="button"
       >
-        What&apos;s on your mind?
+        {t('composer.collapsed')}
       </button>
     );
   }
@@ -90,7 +92,7 @@ export function FeedComposer({ replyTo, onClearReply, onPostSuccess }: FeedCompo
     <div className={styles.composer}>
       {replyTo && (
         <div className={styles.replyContext}>
-          <span>Replying to @{replyTo.author.handle}</span>
+          <span>{t('composer.replyingTo', { handle: replyTo.author.handle })}</span>
           <button className={styles.clearReply} onClick={handleClearReply} type="button">
             &times;
           </button>
@@ -103,13 +105,13 @@ export function FeedComposer({ replyTo, onClearReply, onPostSuccess }: FeedCompo
         onChange={(e) => {
           setText(e.target.value);
         }}
-        placeholder="Type your post..."
+        placeholder={t('composer.placeholder')}
         rows={4}
         disabled={posting}
       />
 
       <div className={styles.charCount} data-over={graphemeCount > 300 ? 'true' : undefined}>
-        {graphemeCount}/300
+        {t('composer.charCount', { count: graphemeCount, max: 300 })}
       </div>
 
       {images.length > 0 && (
@@ -142,7 +144,7 @@ export function FeedComposer({ replyTo, onClearReply, onPostSuccess }: FeedCompo
           type="button"
           disabled={images.length >= 4}
         >
-          Attach Image
+          {t('composer.attachImage')}
         </button>
         <input
           ref={fileInputRef}
@@ -162,7 +164,7 @@ export function FeedComposer({ replyTo, onClearReply, onPostSuccess }: FeedCompo
             }}
             type="button"
           >
-            Cancel
+            {t('composer.cancel')}
           </button>
           <button
             className={styles.postButton}
@@ -172,7 +174,7 @@ export function FeedComposer({ replyTo, onClearReply, onPostSuccess }: FeedCompo
             type="button"
             disabled={!canPost}
           >
-            {posting ? 'Posting...' : 'Post'}
+            {posting ? t('composer.posting') : t('composer.post')}
           </button>
         </div>
       </div>

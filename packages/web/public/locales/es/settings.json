@@ -1,0 +1,38 @@
+{
+  "back": "Atrás",
+
+  "accountInfo": {
+    "title": "Información de cuenta",
+    "didLabel": "DID",
+    "handleLabel": "Handle"
+  },
+
+  "editProfile": {
+    "title": "Editar perfil",
+    "loading": "Cargando perfil...",
+    "changeAvatar": "Cambiar avatar",
+    "displayNameLabel": "Nombre visible",
+    "bioLabel": "Biografía",
+    "saving": "Guardando...",
+    "save": "Guardar"
+  },
+
+  "appearance": {
+    "title": "Apariencia"
+  },
+
+  "language": {
+    "title": "Idioma"
+  },
+
+  "translation": {
+    "title": "Traducción",
+    "autoTranslate": "Traducir publicaciones automáticamente",
+    "autoTranslateHint": "Traducir automáticamente publicaciones y biografías a tu idioma"
+  },
+
+  "actions": {
+    "title": "Acciones",
+    "signOut": "Cerrar sesión"
+  }
+}

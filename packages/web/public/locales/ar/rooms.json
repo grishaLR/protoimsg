@@ -1,0 +1,55 @@
+{
+  "createRoom": {
+    "title": "إنشاء غرفة",
+    "nameLabel": "الاسم",
+    "namePlaceholder": "اسم الغرفة",
+    "descriptionLabel": "الوصف",
+    "descriptionPlaceholder": "ما موضوع هذه الغرفة؟",
+    "topicLabel": "الموضوع",
+    "topicPlaceholder": "موضوع النقاش الحالي",
+    "purposeLabel": "الغرض",
+    "purpose": {
+      "discussion": "نقاش",
+      "event": "حدث",
+      "community": "مجتمع",
+      "support": "دعم"
+    },
+    "visibilityLabel": "الظهور",
+    "visibility": {
+      "public": "عام",
+      "unlisted": "غير مدرج",
+      "private": "خاص"
+    },
+    "error": {
+      "default": "فشل إنشاء الغرفة"
+    },
+    "cancel": "إلغاء",
+    "submitting": "جارٍ الإنشاء...",
+    "submit": "إنشاء"
+  },
+
+  "roomList": {
+    "empty": "لم يتم العثور على غرف. أنشئ واحدة للبدء!"
+  },
+
+  "roomCard": {
+    "createdDate": "تم الإنشاء في {{date}}",
+    "translate": "ترجمة",
+    "translating": "جارٍ الترجمة...",
+    "translatedTo": "مترجم إلى {{lang}}",
+    "showOriginal": "إظهار الأصلي"
+  },
+
+  "directory": {
+    "searchPlaceholder": "البحث عن الغرف...",
+    "createButton": "إنشاء غرفة",
+    "loading": "جارٍ تحميل الغرف..."
+  },
+
+  "chatRoom": {
+    "invalidId": "معرف غرفة غير صالح",
+    "loading": "جارٍ إعداد الغرفة...",
+    "notFound": "الغرفة غير موجودة",
+    "backToRooms": "الغرف"
+  }
+}

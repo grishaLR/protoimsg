@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { useDm } from '../../contexts/DmContext';
 import { useAuth } from '../../hooks/useAuth';
 import { IS_TAURI } from '../../lib/config';
@@ -6,6 +7,7 @@ import { DmNotificationBadge } from './DmNotificationBadge';
 import styles from './DmPopoverContainer.module.css';
 
 export function DmPopoverContainer() {
+  const { t } = useTranslation('dm');
   const {
     conversations,
     notifications,
@@ -48,7 +50,7 @@ export function DmPopoverContainer() {
           }}
         />
       ))}
-      <div aria-live="polite" aria-label="DM notifications">
+      <div aria-live="polite" aria-label={t('popoverContainer.ariaLabel')}>
         {notifications.map((n) => (
           <DmNotificationBadge
             key={n.conversationId}

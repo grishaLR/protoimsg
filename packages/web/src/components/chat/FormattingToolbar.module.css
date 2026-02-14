@@ -1,0 +1,44 @@
+.toolbar {
+  display: flex;
+  gap: var(--cm-space-1);
+  padding: var(--cm-space-1) var(--cm-space-2);
+}
+
+.btn {
+  background: var(--cm-surface-button);
+  border: none;
+  box-shadow: var(--cm-raised);
+  color: var(--color-base-content);
+  font-size: var(--cm-text-sm);
+  font-family: inherit;
+  padding: var(--cm-space-1) var(--cm-space-3);
+  cursor: pointer;
+  min-height: var(--cm-button-min-h);
+  line-height: 1;
+}
+
+.btn:hover {
+  background: var(--cm-button-hover);
+}
+
+.btn:active {
+  box-shadow: var(--cm-pressed);
+}
+
+.bold {
+  font-weight: 700;
+}
+
+.italic {
+  font-style: italic;
+}
+
+.strike {
+  text-decoration: line-through;
+}
+
+.code {
+  font-family: monospace;
+  font-size: var(--cm-text-xs);
+  letter-spacing: -0.5px;
+}

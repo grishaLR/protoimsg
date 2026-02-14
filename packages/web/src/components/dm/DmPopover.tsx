@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import type { DmConversation } from '../../contexts/DmContext';
 import { UserIdentity } from '../chat/UserIdentity';
 import { DmMessageList } from './DmMessageList';
@@ -24,6 +25,7 @@ export function DmPopover({
   onTyping,
   onTogglePersist,
 }: DmPopoverProps) {
+  const { t } = useTranslation('dm');
   const { recipientDid, messages, persist, minimized, typing, unreadCount } = conversation;
   const inputRef = useRef<HTMLTextAreaElement>(null);
 
@@ -40,13 +42,13 @@ export function DmPopover({
     }
   }, [minimized]);
 
-  const displayUnread = unreadCount > 99 ? '99+' : String(unreadCount);
+  const displayUnread = unreadCount > 99 ? t('popover.unreadOverflow') : String(unreadCount);
 
   return (
     <div
       className={`${styles.popover} ${minimized ? styles.minimized : ''}`}
       role="log"
-      aria-label={`DM conversation with ${recipientDid}`}
+      aria-label={t('popover.ariaLabel', { recipientDid })}
     >
       <div
         className={styles.header}
@@ -54,7 +56,11 @@ export function DmPopover({
         role="button"
         tabIndex={0}
         aria-expanded={!minimized}
-        aria-label={`DM with ${recipientDid} — ${minimized ? 'click to expand' : 'click to minimize'}`}
+        aria-label={
+          minimized
+            ? t('popover.header.ariaLabel.expand', { recipientDid })
+            : t('popover.header.ariaLabel.minimize', { recipientDid })
+        }
         onKeyDown={(e) => {
           if (e.key === 'Enter' || e.key === ' ') {
             e.preventDefault();
@@ -68,7 +74,7 @@ export function DmPopover({
         {minimized && unreadCount > 0 && (
           <span
             className={styles.unreadBadge}
-            aria-label={`${String(unreadCount)} unread messages`}
+            aria-label={t('popover.unreadAriaLabel', { count: unreadCount })}
           >
             {displayUnread}
           </span>
@@ -80,8 +86,12 @@ export function DmPopover({
               e.stopPropagation();
               onTogglePersist(!persist);
             }}
-            title={persist ? 'Messages saved (7 days)' : 'Messages ephemeral — click to save'}
-            aria-label={persist ? 'Disable message saving' : 'Enable message saving'}
+            title={persist ? t('popover.persist.titleActive') : t('popover.persist.titleInactive')}
+            aria-label={
+              persist
+                ? t('popover.persist.ariaLabel.disable')
+                : t('popover.persist.ariaLabel.enable')
+            }
             aria-pressed={persist}
           >
             {persist ? '\uD83D\uDCBE' : '\u2601\uFE0F'}
@@ -92,8 +102,14 @@ export function DmPopover({
               e.stopPropagation();
               onToggleMinimize();
             }}
-            title={minimized ? 'Expand' : 'Minimize'}
-            aria-label={minimized ? 'Expand conversation' : 'Minimize conversation'}
+            title={
+              minimized ? t('popover.minimize.titleExpand') : t('popover.minimize.titleMinimize')
+            }
+            aria-label={
+              minimized
+                ? t('popover.minimize.ariaLabel.expand')
+                : t('popover.minimize.ariaLabel.minimize')
+            }
           >
             {minimized ? '\u25B2' : '\u2013'}
           </button>
@@ -103,8 +119,8 @@ export function DmPopover({
               e.stopPropagation();
               onClose();
             }}
-            title="Close"
-            aria-label="Close conversation"
+            title={t('popover.close.title')}
+            aria-label={t('popover.close.ariaLabel')}
           >
             {'\u2715'}
           </button>

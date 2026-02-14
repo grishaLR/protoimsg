@@ -1,0 +1,56 @@
+{
+  "input": {
+    "placeholder": "اكتب رسالة...",
+    "ariaLabel": "اكتب رسالة خاصة",
+    "send": "إرسال"
+  },
+
+  "messageList": {
+    "empty": "لا توجد رسائل بعد. قل مرحباً!",
+    "typing": "يكتب..."
+  },
+
+  "popover": {
+    "ariaLabel": "محادثة خاصة مع {{recipientDid}}",
+    "header": {
+      "ariaLabel": {
+        "expand": "رسالة خاصة مع {{recipientDid}} — انقر للتوسيع",
+        "minimize": "رسالة خاصة مع {{recipientDid}} — انقر للتصغير"
+      }
+    },
+    "unreadAriaLabel": "{{count}} رسائل غير مقروءة",
+    "unreadOverflow": "+99",
+    "persist": {
+      "titleActive": "الرسائل محفوظة (7 أيام)",
+      "titleInactive": "الرسائل مؤقتة — انقر للحفظ",
+      "ariaLabel": {
+        "disable": "تعطيل حفظ الرسائل",
+        "enable": "تفعيل حفظ الرسائل"
+      }
+    },
+    "minimize": {
+      "titleExpand": "توسيع",
+      "titleMinimize": "تصغير",
+      "ariaLabel": {
+        "expand": "توسيع المحادثة",
+        "minimize": "تصغير المحادثة"
+      }
+    },
+    "close": {
+      "title": "إغلاق",
+      "ariaLabel": "إغلاق المحادثة"
+    }
+  },
+
+  "notification": {
+    "ariaLabel": "رسالة جديدة من {{senderDid}}: {{preview}}",
+    "dismiss": {
+      "title": "رفض",
+      "ariaLabel": "رفض الإشعار"
+    }
+  },
+
+  "popoverContainer": {
+    "ariaLabel": "إشعارات الرسائل الخاصة"
+  }
+}

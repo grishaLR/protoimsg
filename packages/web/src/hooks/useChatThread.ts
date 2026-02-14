@@ -1,7 +1,9 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import { RichText as RichTextAPI } from '@atproto/api';
 import { NSID } from '@protoimsg/shared';
 import { fetchThreadMessages } from '../lib/api';
 import { createMessageRecord, generateTid, type CreateMessageInput } from '../lib/atproto';
+import { parseMarkdownFacets } from '../lib/markdown-facets';
 import { useAuth } from './useAuth';
 import type { MessageView } from '../types';
 
@@ -82,6 +84,15 @@ export function useChatThread(thread: ChatThreadState | null, liveMessages: Mess
     async (text: string, roomUri: string, parentUri?: string) => {
       if (!agent || !did || !thread) return;
 
+      // Parse markdown → cleaned text + formatting facets
+      const { text: cleaned, facets: mdFacets } = parseMarkdownFacets(text);
+
+      // Detect semantic facets (mentions, links, tags) on the cleaned text
+      const rt = new RichTextAPI({ text: cleaned });
+      await rt.detectFacets(agent);
+
+      const allFacets = [...mdFacets, ...(rt.facets ?? [])] as Record<string, unknown>[];
+
       const reply = {
         root: thread.rootUri,
         parent: parentUri ?? thread.rootUri,
@@ -100,7 +111,8 @@ export function useChatThread(thread: ChatThreadState | null, liveMessages: Mess
           uri,
           did,
           room_id: thread.roomId,
-          text,
+          text: cleaned,
+          facets: allFacets.length > 0 ? allFacets : undefined,
           reply_parent: reply.parent,
           reply_root: reply.root,
           created_at: new Date().toISOString(),
@@ -109,7 +121,12 @@ export function useChatThread(thread: ChatThreadState | null, liveMessages: Mess
         },
       ]);
 
-      const input: CreateMessageInput = { roomUri, text, reply };
+      const input: CreateMessageInput = {
+        roomUri,
+        text: cleaned,
+        facets: allFacets.length > 0 ? allFacets : undefined,
+        reply,
+      };
 
       try {
         await createMessageRecord(agent, input, rkey);

@@ -10,6 +10,9 @@ export type {
 
 export { NSID, NSID_PREFIX, ROOM_DEFAULTS, LIMITS, DM_LIMITS } from './constants.js';
 
+export { ERROR_CODES } from './error-codes.js';
+export type { ErrorCode } from './error-codes.js';
+
 export type {
   WsMessageBase,
   JoinRoomMessage,
@@ -38,5 +41,6 @@ export type {
   DmTypingEvent,
   DmPersistChangedEvent,
   DmIncomingEvent,
+  MentionNotificationEvent,
   ServerMessage,
 } from './ws-types.js';

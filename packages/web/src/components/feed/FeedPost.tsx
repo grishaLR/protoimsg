@@ -1,4 +1,5 @@
-import { memo } from 'react';
+import { memo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import type {
   AppBskyFeedDefs,
   AppBskyEmbedImages,
@@ -10,6 +11,7 @@ import type {
 import { RichText, type GenericFacet } from '../chat/RichText';
 import { isSafeUrl } from '../../lib/sanitize';
 import { usePostInteractions } from '../../hooks/usePostInteractions';
+import { useContentTranslation } from '../../hooks/useContentTranslation';
 import { VideoPlayer } from './VideoPlayer';
 import styles from './FeedPost.module.css';
 
@@ -20,20 +22,21 @@ interface FeedPostProps {
   onOpenThread?: (post: AppBskyFeedDefs.PostView) => void;
 }
 
-function relativeTime(dateStr: string): string {
+function RelativeTime({ dateStr }: { dateStr: string }) {
+  const { t } = useTranslation('feed');
   const now = Date.now();
   const then = new Date(dateStr).getTime();
   const diffSec = Math.floor((now - then) / 1000);
 
-  if (diffSec < 60) return `${diffSec}s`;
+  if (diffSec < 60) return <>{t('post.relativeTime.seconds', { count: diffSec })}</>;
   const diffMin = Math.floor(diffSec / 60);
-  if (diffMin < 60) return `${diffMin}m`;
+  if (diffMin < 60) return <>{t('post.relativeTime.minutes', { count: diffMin })}</>;
   const diffHr = Math.floor(diffMin / 60);
-  if (diffHr < 24) return `${diffHr}h`;
+  if (diffHr < 24) return <>{t('post.relativeTime.hours', { count: diffHr })}</>;
   const diffDay = Math.floor(diffHr / 24);
-  if (diffDay < 30) return `${diffDay}d`;
+  if (diffDay < 30) return <>{t('post.relativeTime.days', { count: diffDay })}</>;
   const diffMo = Math.floor(diffDay / 30);
-  return `${diffMo}mo`;
+  return <>{t('post.relativeTime.months', { count: diffMo })}</>;
 }
 
 function getDomain(url: string): string {
@@ -133,6 +136,7 @@ export const FeedPost = memo(function FeedPost({
   onReply,
   onOpenThread,
 }: FeedPostProps) {
+  const { t } = useTranslation('feed');
   const { post, reason, reply } = item;
   const record = post.record as Record<string, unknown>;
   const text = (record.text as string) || '';
@@ -144,6 +148,18 @@ export const FeedPost = memo(function FeedPost({
 
   const { isLiked, isReposted, likeCount, repostCount, replyCount, toggleLike, toggleRepost } =
     usePostInteractions(post);
+
+  const {
+    autoTranslate,
+    available: translateAvailable,
+    targetLang,
+    getTranslation,
+    isTranslating,
+    requestTranslation,
+  } = useContentTranslation();
+  const [showTranslated, setShowTranslated] = useState(autoTranslate);
+  const translatedText = text ? getTranslation(text) : undefined;
+  const translating = text ? isTranslating(text) : false;
 
   const goToProfile = (did: string) => {
     onNavigateToProfile?.(did);
@@ -160,12 +176,12 @@ export const FeedPost = memo(function FeedPost({
           <svg width="12" height="12" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
             <path d="M4.456.734a1.75 1.75 0 0 1 2.826.504l.613 1.327a3.08 3.08 0 0 0 2.084 1.707l2.454.584c1.332.317 1.8 1.972.832 2.94L11.06 10l3.72 3.72a.75.75 0 1 1-1.06 1.06L10 11.06l-2.204 2.205c-.968.968-2.623.5-2.94-.832l-.584-2.454a3.08 3.08 0 0 0-1.707-2.084l-1.327-.613a1.75 1.75 0 0 0-.504-2.826L4.456.734Z" />
           </svg>
-          Pinned
+          {t('post.pinned')}
         </div>
       )}
       {isRepost && repostAuthor && (
         <div className={styles.repostBar}>
-          &#x21BB; Reposted by{' '}
+          {'\u21BB'} {t('post.repostedBy')}{' '}
           <span
             className={styles.handle}
             role="button"
@@ -187,7 +203,7 @@ export const FeedPost = memo(function FeedPost({
 
       {reply?.parent && (
         <div className={styles.replyContext}>
-          Reply to @{(reply.parent as AppBskyFeedDefs.PostView).author.handle}
+          {t('post.replyTo', { handle: (reply.parent as AppBskyFeedDefs.PostView).author.handle })}
         </div>
       )}
 
@@ -258,7 +274,7 @@ export const FeedPost = memo(function FeedPost({
               : undefined
           }
         >
-          {relativeTime(post.indexedAt)}
+          <RelativeTime dateStr={post.indexedAt} />
         </span>
       </div>
 
@@ -278,8 +294,29 @@ export const FeedPost = memo(function FeedPost({
                 }
               : undefined
           }
+          dir="auto"
         >
-          <RichText text={text} facets={facets} onMentionClick={onNavigateToProfile} />
+          {showTranslated && translatedText ? (
+            <>
+              {translatedText}
+              <div className={styles.translationLabel}>
+                {t('post.translatedTo', { lang: targetLang })}
+                {' \u00B7 '}
+                <button
+                  type="button"
+                  className={styles.showOriginal}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setShowTranslated(false);
+                  }}
+                >
+                  {t('post.showOriginal')}
+                </button>
+              </div>
+            </>
+          ) : (
+            <RichText text={text} facets={facets} onMentionClick={onNavigateToProfile} />
+          )}
         </div>
       )}
 
@@ -309,6 +346,23 @@ export const FeedPost = memo(function FeedPost({
         >
           {isLiked ? '\u2665' : '\u2661'} {likeCount}
         </button>
+        {translateAvailable && text && (
+          <button
+            className={styles.engagementButton}
+            onClick={() => {
+              if (translatedText) {
+                setShowTranslated((v) => !v);
+              } else {
+                requestTranslation(text);
+                setShowTranslated(true);
+              }
+            }}
+            disabled={translating}
+            type="button"
+          >
+            {translating ? t('post.translating') : t('post.translate')}
+          </button>
+        )}
       </div>
     </div>
   );

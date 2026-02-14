@@ -1,0 +1,58 @@
+{
+  "composer": {
+    "collapsed": "What's on your mind?",
+    "replyingTo": "Replying to @{{handle}}",
+    "placeholder": "Type your post...",
+    "charCount": "{{count}}/{{max}}",
+    "attachImage": "Attach Image",
+    "cancel": "Cancel",
+    "posting": "Posting...",
+    "post": "Post"
+  },
+
+  "post": {
+    "pinned": "Pinned",
+    "repostedBy": "Reposted by",
+    "replyTo": "Reply to @{{handle}}",
+    "relativeTime": {
+      "seconds": "{{count}}s",
+      "minutes": "{{count}}m",
+      "hours": "{{count}}h",
+      "days": "{{count}}d",
+      "months": "{{count}}mo"
+    },
+    "translate": "Translate",
+    "translatedTo": "Translated to {{lang}}",
+    "showOriginal": "Show original",
+    "translating": "Translating..."
+  },
+
+  "feedView": {
+    "loading": "Loading feed...",
+    "empty": "No posts to show",
+    "loadingMore": "Loading more...",
+    "refresh": "Refresh feed"
+  },
+
+  "profileView": {
+    "back": "Back",
+    "loading": "Loading profile...",
+    "error": "Failed to load profile",
+    "followers": "followers",
+    "following": "following",
+    "posts": "posts",
+    "loadingMore": "Loading more...",
+    "translateBio": "Translate bio",
+    "translating": "Translating...",
+    "translatedTo": "Translated to {{lang}}",
+    "showOriginal": "Show original"
+  },
+
+  "threadView": {
+    "back": "Back",
+    "loading": "Loading thread...",
+    "notFound": "Thread not found",
+    "viewReplies_one": "View {{count}} reply",
+    "viewReplies_other": "View {{count}} replies"
+  }
+}

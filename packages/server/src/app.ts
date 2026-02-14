@@ -8,11 +8,12 @@ import { roomsRouter } from './rooms/router.js';
 import { messagesRouter } from './messages/router.js';
 import { authRouter } from './auth/router.js';
 import { createRequireAuth } from './auth/middleware.js';
-import { ChallengeStore } from './auth/challenge.js';
+import type { ChallengeStoreInterface } from './auth/challenge.js';
 import { presenceRouter } from './presence/router.js';
 import { communityRouter } from './community/router.js';
 import { moderationRouter } from './moderation/router.js';
 import { dmRouter } from './dms/router.js';
+import { translateRouter } from './translate/router.js';
 import type { Config } from './config.js';
 import type { Sql } from './db/client.js';
 import type { PresenceService } from './presence/service.js';
@@ -20,6 +21,7 @@ import type { SessionStore } from './auth/session-store.js';
 import type { RateLimiterStore } from './moderation/rate-limiter-store.js';
 import type { BlockService } from './moderation/block-service.js';
 import type { GlobalBanService } from './moderation/global-ban-service.js';
+import type { TranslateService } from './translate/service.js';
 
 export function createApp(
   config: Config,
@@ -30,6 +32,9 @@ export function createApp(
   authRateLimiter: RateLimiterStore,
   blockService: BlockService,
   globalBans: GlobalBanService,
+  challenges: ChallengeStoreInterface,
+  translateService?: TranslateService | null,
+  translateRateLimiter?: RateLimiterStore | null,
 ): Express {
   const app = express();
   const requireAuth = createRequireAuth(sessions);
@@ -46,7 +51,6 @@ export function createApp(
   });
 
   // Auth routes (unprotected — login creates sessions; rate-limited by IP)
-  const challenges = new ChallengeStore();
   app.use(
     '/api/auth',
     createRateLimitMiddleware(authRateLimiter),
@@ -60,6 +64,11 @@ export function createApp(
   app.use('/api/presence', requireAuth, presenceRouter(presenceService, blockService, sql));
   app.use('/api/community', requireAuth, communityRouter(sql));
   app.use('/api/dms', requireAuth, createRateLimitMiddleware(rateLimiter), dmRouter(sql));
+
+  // Translation routes (optional — only mounted when TRANSLATE_ENABLED=true)
+  if (translateService && translateRateLimiter) {
+    app.use('/api/translate', requireAuth, translateRouter(translateService, translateRateLimiter));
+  }
 
   // Error handler (must be last)
   app.use(createErrorHandler(config));

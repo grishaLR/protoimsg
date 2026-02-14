@@ -27,5 +27,6 @@ export type {
   DmTypingEvent,
   DmPersistChangedEvent,
   DmIncomingEvent,
+  MentionNotificationEvent,
   ServerMessage,
 } from '@protoimsg/shared';

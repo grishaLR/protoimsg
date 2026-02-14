@@ -20,6 +20,12 @@ const envSchema = z.object({
     .number()
     .default(8 * 60 * 60 * 1000)
     .refine((v) => v > 0, 'SESSION_TTL_MS must be greater than 0'), // 8 hours
+  LIBRETRANSLATE_URL: z.string().url().default('http://localhost:5100'),
+  TRANSLATE_ENABLED: z
+    .enum(['true', 'false'])
+    .default('false')
+    .transform((v) => v === 'true'),
+  TRANSLATE_RATE_LIMIT: z.coerce.number().int().min(1).default(30),
 });
 
 export type Config = z.infer<typeof envSchema>;

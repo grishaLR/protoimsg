@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { z } from 'zod';
-import { LIMITS } from '@protoimsg/shared';
+import { LIMITS, ERROR_CODES } from '@protoimsg/shared';
 import { getRooms, getRoom } from './service.js';
 import type { Sql } from '../db/client.js';
 
@@ -28,7 +28,11 @@ export function roomsRouter(sql: Sql): Router {
         offset: req.query.offset,
       });
       if (!parsed.success) {
-        res.status(400).json({ error: 'Invalid query params', details: parsed.error.issues });
+        res.status(400).json({
+          error: 'Invalid query params',
+          errorCode: ERROR_CODES.INVALID_INPUT,
+          details: parsed.error.issues,
+        });
         return;
       }
       const { visibility, limit, offset } = parsed.data;
@@ -48,7 +52,7 @@ export function roomsRouter(sql: Sql): Router {
     try {
       const room = await getRoom(sql, req.params.id);
       if (!room) {
-        res.status(404).json({ error: 'Room not found' });
+        res.status(404).json({ error: 'Room not found', errorCode: ERROR_CODES.NOT_FOUND });
         return;
       }
       res.json({ room });

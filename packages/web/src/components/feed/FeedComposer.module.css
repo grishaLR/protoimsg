@@ -9,7 +9,7 @@
   cursor: pointer;
   font-size: var(--cm-text-md);
   color: var(--cm-border-dark);
-  text-align: left;
+  text-align: start;
   margin-bottom: var(--cm-space-3);
 }
 
@@ -70,7 +70,7 @@
 .charCount {
   font-size: var(--cm-text-2xs);
   color: var(--cm-border-dark);
-  text-align: right;
+  text-align: end;
   margin-top: var(--cm-space-1);
 }
 

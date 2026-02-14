@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { LIMITS } from '@protoimsg/shared';
+import { LIMITS, ERROR_CODES } from '@protoimsg/shared';
 import { getRoomMessages, getThreadMessagesByRoot, getReplyCounts } from './service.js';
 import type { Sql } from '../db/client.js';
 
@@ -30,7 +30,10 @@ export function messagesRouter(sql: Sql): Router {
     try {
       const rootUri = req.query.root;
       if (typeof rootUri !== 'string' || !rootUri.startsWith('at://')) {
-        res.status(400).json({ error: 'Missing or invalid "root" query param (expected AT-URI)' });
+        res.status(400).json({
+          error: 'Missing or invalid "root" query param (expected AT-URI)',
+          errorCode: ERROR_CODES.INVALID_INPUT,
+        });
         return;
       }
 

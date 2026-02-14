@@ -1,0 +1,59 @@
+{
+  "composer": {
+    "collapsed": "О чём думаете?",
+    "replyingTo": "Ответ @{{handle}}",
+    "placeholder": "Напишите пост...",
+    "charCount": "{{count}}/{{max}}",
+    "attachImage": "Прикрепить изображение",
+    "cancel": "Отмена",
+    "posting": "Публикация...",
+    "post": "Опубликовать"
+  },
+
+  "post": {
+    "pinned": "Закреплено",
+    "repostedBy": "Репост от",
+    "replyTo": "Ответ @{{handle}}",
+    "relativeTime": {
+      "seconds": "{{count}}с",
+      "minutes": "{{count}}м",
+      "hours": "{{count}}ч",
+      "days": "{{count}}д",
+      "months": "{{count}}мес"
+    },
+    "translate": "Перевести",
+    "translatedTo": "Переведено на {{lang}}",
+    "showOriginal": "Показать оригинал",
+    "translating": "Перевод..."
+  },
+
+  "feedView": {
+    "loading": "Загрузка ленты...",
+    "empty": "Нет постов для показа",
+    "loadingMore": "Загрузка...",
+    "refresh": "Обновить ленту"
+  },
+
+  "profileView": {
+    "back": "Назад",
+    "loading": "Загрузка профиля...",
+    "error": "Не удалось загрузить профиль",
+    "followers": "подписчиков",
+    "following": "подписок",
+    "posts": "постов",
+    "loadingMore": "Загрузка...",
+    "translateBio": "Перевести био",
+    "translating": "Перевод...",
+    "translatedTo": "Переведено на {{lang}}",
+    "showOriginal": "Показать оригинал"
+  },
+
+  "threadView": {
+    "back": "Назад",
+    "loading": "Загрузка ветки...",
+    "notFound": "Ветка не найдена",
+    "viewReplies_one": "Показать {{count}} ответ",
+    "viewReplies_few": "Показать {{count}} ответа",
+    "viewReplies_many": "Показать {{count}} ответов"
+  }
+}

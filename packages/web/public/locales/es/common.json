@@ -1,0 +1,110 @@
+{
+  "appName": "proto instant messenger",
+
+  "status": {
+    "online": "En línea",
+    "away": "Ausente",
+    "idle": "Inactivo"
+  },
+
+  "visibility": {
+    "everyone": "Todos",
+    "community": "Comunidad",
+    "innerCircle": "Círculo íntimo",
+    "noOne": "Nadie"
+  },
+
+  "theme": {
+    "aim": "AIM Clásico",
+    "nytLight": "Minimalista Claro",
+    "nytDark": "Minimalista Oscuro",
+    "dracula": "Drácula",
+    "valentine": "San Valentín",
+    "garden": "Jardín",
+    "coffee": "Café",
+    "fantasy": "Fantasía",
+    "nord": "Nord",
+    "retro": "Retro",
+    "black": "Negro",
+    "wireframe": "Wireframe"
+  },
+
+  "nav": {
+    "community": "Comunidad",
+    "rooms": "Salas",
+    "feed": "Feed"
+  },
+
+  "header": {
+    "menu": "Menú",
+    "awayMessage": {
+      "label": "Mensaje de ausencia",
+      "placeholder": "ej. Ya vuelvo, voy por café"
+    },
+    "visibility": {
+      "label": "Quién puede verme"
+    },
+    "settings": "Ajustes",
+    "minimize": "Minimizar",
+    "signOut": "Cerrar sesión"
+  },
+
+  "statusSelector": {
+    "awayMessage": {
+      "label": "Mensaje de ausencia",
+      "placeholder": "ej. Ya vuelvo, voy por café"
+    },
+    "visibility": {
+      "label": "Quién puede verme"
+    }
+  },
+
+  "connectionBanner": {
+    "message": "Conexión perdida — reconectando..."
+  },
+
+  "errorBoundary": {
+    "title": "Algo salió mal",
+    "fallbackMessage": "Ocurrió un error inesperado",
+    "tryAgain": "Intentar de nuevo"
+  },
+
+  "button": {
+    "back": "Atrás",
+    "cancel": "Cancelar",
+    "send": "Enviar",
+    "close": "Cerrar",
+    "save": "Guardar",
+    "settings": "Ajustes"
+  },
+
+  "aria": {
+    "expand": "Expandir",
+    "collapse": "Contraer"
+  },
+
+  "serverError": {
+    "unknown": "Ocurrió un error desconocido",
+    "unauthorized": "Debes iniciar sesión",
+    "invalidSession": "Tu sesión ha expirado. Por favor inicia sesión de nuevo.",
+    "invalidChallenge": "El desafío de autenticación expiró. Intenta de nuevo.",
+    "handleMismatch": "La verificación del handle falló",
+    "authVerificationFailed": "La verificación de autenticación falló",
+    "authTimeout": "La autenticación expiró",
+    "authRequired": "Se requiere autenticación",
+    "forbidden": "No tienes permiso para hacer eso",
+    "banned": "Esta cuenta no tiene permiso para usar este servicio",
+    "accessDenied": "Acceso denegado",
+    "notParticipant": "No eres participante de esta conversación",
+    "blockedUser": "No se puede enviar mensaje a este usuario",
+    "selfDm": "No puedes enviarte un mensaje a ti mismo",
+    "notFound": "No encontrado",
+    "rateLimited": "Demasiadas solicitudes. Espera e intenta de nuevo.",
+    "serverError": "Algo salió mal de nuestro lado",
+    "networkError": "Error de red. Verifica tu conexión.",
+    "invalidInput": "Entrada inválida",
+    "messageTooLong": "El mensaje es demasiado largo",
+    "contentFiltered": "El mensaje fue bloqueado por el filtro de contenido",
+    "alreadyExists": "Ya existe"
+  }
+}

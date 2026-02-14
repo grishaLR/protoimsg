@@ -1,0 +1,126 @@
+{
+  "buddyList": {
+    "searchPlaceholder": "البحث عن الأصدقاء...",
+    "loading": "جارٍ التحميل...",
+    "empty": "لا يوجد أصدقاء بعد",
+    "createGroup": {
+      "placeholder": "اسم المجموعة...",
+      "button": "+ إنشاء مجموعة"
+    },
+    "footer": {
+      "chatRooms": "غرف المحادثة",
+      "feed": "الخلاصة"
+    },
+    "groups": {
+      "innerCircle": "الدائرة الداخلية",
+      "community": "المجتمع",
+      "offline": "غير متصل",
+      "blocked": "محظور"
+    }
+  },
+
+  "buddyMenu": {
+    "button": {
+      "title": "خيارات",
+      "ariaLabel": "خيارات الصديق"
+    },
+    "sendIm": "إرسال رسالة",
+    "addToInnerCircle": "إضافة إلى الدائرة الداخلية",
+    "removeFromInnerCircle": "إزالة من الدائرة الداخلية",
+    "moveTo": "نقل إلى...",
+    "block": "حظر",
+    "unblock": "إلغاء الحظر",
+    "remove": "إزالة"
+  },
+
+  "memberMenu": {
+    "button": {
+      "title": "خيارات",
+      "ariaLabel": "خيارات العضو"
+    },
+    "addToBuddyList": "إضافة إلى قائمة الأصدقاء",
+    "block": "حظر",
+    "unblock": "إلغاء الحظر",
+    "feedback": {
+      "added": "تمت الإضافة!",
+      "alreadyInList": "موجود بالفعل في قائمة الأصدقاء",
+      "error": "خطأ في إضافة الصديق"
+    }
+  },
+
+  "messageInput": {
+    "placeholder": {
+      "default": "اكتب رسالة... (Enter للإرسال، Shift+Enter لسطر جديد)",
+      "reply": "رد... (Enter للإرسال، Esc للإلغاء)"
+    },
+    "replyingTo": "الرد على",
+    "cancelReply": {
+      "ariaLabel": "إلغاء الرد"
+    },
+    "ariaLabel": {
+      "default": "اكتب رسالة",
+      "reply": "اكتب رداً"
+    },
+    "send": "إرسال"
+  },
+
+  "messageItem": {
+    "contentWarning": "تحذير المحتوى",
+    "clickToReveal": "انقر للكشف",
+    "replyCount_one": "رد واحد",
+    "replyCount_two": "ردان",
+    "replyCount_few": "{{count}} ردود",
+    "replyCount_many": "{{count}} رداً",
+    "replyCount_other": "{{count}} رد",
+    "replyButton": "رد",
+    "translate": "ترجمة",
+    "translating": "جارٍ الترجمة...",
+    "translatedTo": "مترجم إلى {{lang}}",
+    "showOriginal": "إظهار الأصلي"
+  },
+
+  "messageList": {
+    "loading": "جارٍ تحميل الرسائل...",
+    "empty": "لا توجد رسائل بعد. ابدأ المحادثة!",
+    "typing": {
+      "one": "يكتب...",
+      "twoAnd": "و",
+      "twoSuffix": "يكتبان...",
+      "many": "{{count}} أشخاص يكتبون..."
+    }
+  },
+
+  "threadPanel": {
+    "ariaLabel": "المحادثة",
+    "title": "المحادثة",
+    "backAriaLabel": "العودة إلى الأصل",
+    "closeAriaLabel": "إغلاق المحادثة",
+    "loading": "جارٍ تحميل المحادثة...",
+    "notFound": "المحادثة غير موجودة",
+    "replyCount_one": "رد واحد",
+    "replyCount_two": "ردان",
+    "replyCount_few": "{{count}} ردود",
+    "replyCount_many": "{{count}} رداً",
+    "replyCount_other": "{{count}} رد",
+    "inputPlaceholder": "الرد في المحادثة..."
+  },
+
+  "formattingToolbar": {
+    "bold": "عريض",
+    "italic": "مائل",
+    "strikethrough": "يتوسطه خط",
+    "code": "كود",
+    "blockquote": "اقتباس"
+  },
+
+  "memberList": {
+    "heading": "الأعضاء ({{count}})"
+  },
+
+  "groupHeader": {
+    "renameGroup": "إعادة تسمية المجموعة",
+    "deleteGroup": "حذف المجموعة",
+    "expand": "توسيع",
+    "collapse": "طي"
+  }
+}

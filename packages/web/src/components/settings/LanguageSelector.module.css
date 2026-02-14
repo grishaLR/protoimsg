@@ -1,0 +1,12 @@
+.select {
+  width: 100%;
+  padding: var(--cm-space-1) var(--cm-space-3);
+  border: none;
+  border-radius: var(--cm-radius-sm);
+  background: var(--cm-surface-content);
+  color: var(--color-base-content);
+  font-size: var(--cm-text-sm);
+  font-family: inherit;
+  cursor: pointer;
+  box-shadow: var(--cm-sunken);
+}

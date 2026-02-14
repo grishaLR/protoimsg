@@ -1,0 +1,55 @@
+{
+  "createRoom": {
+    "title": "Create Room",
+    "nameLabel": "Name",
+    "namePlaceholder": "Room name",
+    "descriptionLabel": "Description",
+    "descriptionPlaceholder": "What's this room about?",
+    "topicLabel": "Topic",
+    "topicPlaceholder": "Current topic of discussion",
+    "purposeLabel": "Purpose",
+    "purpose": {
+      "discussion": "Discussion",
+      "event": "Event",
+      "community": "Community",
+      "support": "Support"
+    },
+    "visibilityLabel": "Visibility",
+    "visibility": {
+      "public": "Public",
+      "unlisted": "Unlisted",
+      "private": "Private"
+    },
+    "error": {
+      "default": "Failed to create room"
+    },
+    "cancel": "Cancel",
+    "submitting": "Creating...",
+    "submit": "Create"
+  },
+
+  "roomList": {
+    "empty": "No rooms found. Create one to get started!"
+  },
+
+  "roomCard": {
+    "createdDate": "Created {{date}}",
+    "translate": "Translate",
+    "translating": "Translating...",
+    "translatedTo": "Translated to {{lang}}",
+    "showOriginal": "Show original"
+  },
+
+  "directory": {
+    "searchPlaceholder": "Search rooms...",
+    "createButton": "Create Room",
+    "loading": "Loading rooms..."
+  },
+
+  "chatRoom": {
+    "invalidId": "Invalid room ID",
+    "loading": "Room is being set up...",
+    "notFound": "Room not found",
+    "backToRooms": "Rooms"
+  }
+}

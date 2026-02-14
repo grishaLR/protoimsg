@@ -87,6 +87,24 @@ export async function deleteServerSession(): Promise<void> {
   });
 }
 
+// -- Translate types --
+
+export interface TranslateResponseItem {
+  text: string;
+  translated: string;
+  sourceLang: string;
+}
+
+export interface TranslateResponse {
+  translations: TranslateResponseItem[];
+  rateLimited?: boolean;
+}
+
+export interface TranslateStatusResponse {
+  available: boolean;
+  languages: string[];
+}
+
 // -- Auth fetch helper --
 
 async function authFetch(url: string, init?: RequestInit): Promise<Response> {
@@ -260,4 +278,41 @@ export async function fetchDmMessages(
 
   const data = (await res.json()) as { messages: DmMessageView[] };
   return data.messages;
+}
+
+// -- Translation --
+
+export async function translateTexts(
+  texts: string[],
+  targetLang: string,
+): Promise<TranslateResponse> {
+  const res = await authFetch('/api/translate', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ texts, targetLang }),
+  });
+
+  if (res.status === 429) {
+    const data = (await res.json()) as TranslateResponse;
+    return { ...data, rateLimited: true };
+  }
+
+  if (!res.ok) {
+    // Return originals on failure
+    return {
+      translations: texts.map((text) => ({ text, translated: text, sourceLang: 'unknown' })),
+    };
+  }
+
+  return (await res.json()) as TranslateResponse;
+}
+
+export async function fetchTranslateStatus(): Promise<TranslateStatusResponse> {
+  try {
+    const res = await authFetch('/api/translate/status');
+    if (!res.ok) return { available: false, languages: [] };
+    return (await res.json()) as TranslateStatusResponse;
+  } catch {
+    return { available: false, languages: [] };
+  }
 }

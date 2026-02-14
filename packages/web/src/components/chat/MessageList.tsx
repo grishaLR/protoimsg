@@ -1,7 +1,10 @@
 import { useEffect, useRef, useCallback, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useVirtualList } from 'virtualized-ui';
 import { MessageItem } from './MessageItem';
 import { UserIdentity } from './UserIdentity';
+import { hasMentionOf } from '../../lib/facet-utils';
+import { useAuth } from '../../hooks/useAuth';
 import type { MessageView } from '../../types';
 import styles from './MessageList.module.css';
 
@@ -24,6 +27,8 @@ export function MessageList({
   replyCounts,
   onOpenThread,
 }: MessageListProps) {
+  const { t } = useTranslation('chat');
+  const { did } = useAuth();
   const isNearBottomRef = useRef(true);
 
   // Main timeline only shows root messages (not replies)
@@ -57,9 +62,9 @@ export function MessageList({
 
   return (
     <div className={styles.container} ref={containerRef} onScroll={onScroll}>
-      {loading && <p className={styles.loading}>Loading messages...</p>}
+      {loading && <p className={styles.loading}>{t('messageList.loading')}</p>}
       {!loading && rootMessages.length === 0 && (
-        <p className={styles.empty}>No messages yet. Start the conversation!</p>
+        <p className={styles.empty}>{t('messageList.empty')}</p>
       )}
       <div className={styles.spacer} style={{ height: totalSize }}>
         {virtualItems.map((vi) => (
@@ -74,6 +79,7 @@ export function MessageList({
               message={data[vi.index] as MessageView}
               replyCount={replyCounts?.[(data[vi.index] as MessageView).uri]}
               onOpenThread={onOpenThread}
+              isMentioned={!!did && hasMentionOf((data[vi.index] as MessageView).facets, did)}
             />
           </div>
         ))}
@@ -82,15 +88,15 @@ export function MessageList({
         <div className={styles.typing} role="status" aria-live="polite">
           {typingUsers.length === 1 && typingUsers[0] ? (
             <>
-              <UserIdentity did={typingUsers[0]} size="sm" /> is typing...
+              <UserIdentity did={typingUsers[0]} size="sm" /> {t('messageList.typing.one')}
             </>
           ) : typingUsers.length === 2 && typingUsers[0] && typingUsers[1] ? (
             <>
-              <UserIdentity did={typingUsers[0]} size="sm" /> and{' '}
-              <UserIdentity did={typingUsers[1]} size="sm" /> are typing...
+              <UserIdentity did={typingUsers[0]} size="sm" /> {t('messageList.typing.twoAnd')}{' '}
+              <UserIdentity did={typingUsers[1]} size="sm" /> {t('messageList.typing.twoSuffix')}
             </>
           ) : (
-            <>{String(typingUsers.length)} people are typing...</>
+            <>{t('messageList.typing.many', { count: typingUsers.length })}</>
           )}
         </div>
       )}

@@ -1,5 +1,8 @@
+import { useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import type { AppBskyFeedDefs } from '@atproto/api';
 import { useThread } from '../../hooks/useThread';
+import { useContentTranslation } from '../../hooks/useContentTranslation';
 import { FeedPost } from './FeedPost';
 import styles from './ThreadView.module.css';
 
@@ -29,15 +32,35 @@ export function ThreadView({
   onReply,
   onOpenThread,
 }: ThreadViewProps) {
+  const { t } = useTranslation('feed');
   const { thread, loading, error } = useThread(uri);
+  const { autoTranslate, requestBatchTranslation, available } = useContentTranslation();
+
+  // Auto-translate all thread posts (parents + main + replies)
+  useEffect(() => {
+    if (!autoTranslate || !available || !thread) return;
+
+    const parents = collectParents(thread);
+    const replies = (thread.replies ?? []).filter(
+      (r): r is AppBskyFeedDefs.ThreadViewPost =>
+        '$type' in r && r.$type === 'app.bsky.feed.defs#threadViewPost',
+    );
+
+    const allPosts = [...parents.map((p) => p.post), thread.post, ...replies.map((r) => r.post)];
+    const texts = allPosts
+      .map((p) => ((p.record as Record<string, unknown>).text as string) || '')
+      .filter(Boolean);
+
+    if (texts.length > 0) requestBatchTranslation(texts);
+  }, [autoTranslate, available, thread, requestBatchTranslation]);
 
   if (loading) {
     return (
       <div className={styles.threadView}>
         <button className={styles.backButton} onClick={onBack}>
-          &larr; Back
+          {'\u2190'} {t('threadView.back')}
         </button>
-        <div className={styles.loading}>Loading thread...</div>
+        <div className={styles.loading}>{t('threadView.loading')}</div>
       </div>
     );
   }
@@ -46,9 +69,9 @@ export function ThreadView({
     return (
       <div className={styles.threadView}>
         <button className={styles.backButton} onClick={onBack}>
-          &larr; Back
+          {'\u2190'} {t('threadView.back')}
         </button>
-        <div className={styles.error}>{error ?? 'Thread not found'}</div>
+        <div className={styles.error}>{error ?? t('threadView.notFound')}</div>
       </div>
     );
   }
@@ -67,7 +90,7 @@ export function ThreadView({
   return (
     <div className={styles.threadView}>
       <button className={styles.backButton} onClick={onBack}>
-        &larr; Back
+        {'\u2190'} {t('threadView.back')}
       </button>
 
       <div className={styles.scrollArea}>
@@ -115,8 +138,7 @@ export function ThreadView({
                   }}
                   type="button"
                 >
-                  View {reply.post.replyCount} {reply.post.replyCount === 1 ? 'reply' : 'replies'}{' '}
-                  &rarr;
+                  {t('threadView.viewReplies', { count: reply.post.replyCount })} &rarr;
                 </button>
               )}
             </div>

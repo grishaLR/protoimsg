@@ -1,4 +1,5 @@
 import { Router } from 'express';
+import { ERROR_CODES } from '@protoimsg/shared';
 import type { PresenceService } from './service.js';
 import type { BlockService } from '../moderation/block-service.js';
 import type { Sql } from '../db/client.js';
@@ -16,7 +17,9 @@ export function presenceRouter(
   router.get('/', (req, res, next) => {
     const didsParam = typeof req.query.dids === 'string' ? req.query.dids : '';
     if (!didsParam) {
-      res.status(400).json({ error: 'Missing dids query parameter' });
+      res
+        .status(400)
+        .json({ error: 'Missing dids query parameter', errorCode: ERROR_CODES.INVALID_INPUT });
       return;
     }
 

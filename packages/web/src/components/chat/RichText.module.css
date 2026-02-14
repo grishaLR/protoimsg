@@ -15,3 +15,29 @@
 .tag {
   color: var(--color-primary);
 }
+
+.codeInline {
+  font-family: monospace;
+  background: var(--cm-surface);
+  padding: var(--cm-space-0.5) var(--cm-space-2);
+  border-radius: var(--cm-radius-sm);
+  font-size: var(--cm-text-sm);
+}
+
+.codeBlock {
+  font-family: monospace;
+  display: block;
+  background: var(--cm-surface);
+  padding: var(--cm-space-4);
+  border-radius: var(--cm-radius-sm);
+  font-size: var(--cm-text-sm);
+  white-space: pre-wrap;
+  margin: var(--cm-space-2) 0;
+}
+
+.blockquote {
+  display: block;
+  border-inline-start: 2px solid var(--cm-border-dark);
+  padding-inline-start: var(--cm-space-4);
+  color: var(--color-base-300);
+}
