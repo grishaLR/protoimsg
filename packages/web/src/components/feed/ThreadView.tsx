@@ -36,6 +36,24 @@ export function ThreadView({
   const { thread, loading, error } = useThread(uri);
   const { autoTranslate, requestBatchTranslation, available } = useContentTranslation();
 
+  // Auto-translate all thread posts (parents + main + replies)
+  useEffect(() => {
+    if (!autoTranslate || !available || !thread) return;
+
+    const parents = collectParents(thread);
+    const replies = (thread.replies ?? []).filter(
+      (r): r is AppBskyFeedDefs.ThreadViewPost =>
+        '$type' in r && r.$type === 'app.bsky.feed.defs#threadViewPost',
+    );
+
+    const allPosts = [...parents.map((p) => p.post), thread.post, ...replies.map((r) => r.post)];
+    const texts = allPosts
+      .map((p) => ((p.record as Record<string, unknown>).text as string) || '')
+      .filter(Boolean);
+
+    if (texts.length > 0) requestBatchTranslation(texts);
+  }, [autoTranslate, available, thread, requestBatchTranslation]);
+
   if (loading) {
     return (
       <div className={styles.threadView}>
@@ -68,18 +86,6 @@ export function ThreadView({
     (r): r is AppBskyFeedDefs.ThreadViewPost =>
       '$type' in r && r.$type === 'app.bsky.feed.defs#threadViewPost',
   );
-
-  // Auto-translate all thread posts (parents + main + replies)
-  useEffect(() => {
-    if (!autoTranslate || !available) return;
-
-    const allPosts = [...parents.map((p) => p.post), thread.post, ...replies.map((r) => r.post)];
-    const texts = allPosts
-      .map((p) => ((p.record as Record<string, unknown>).text as string) || '')
-      .filter(Boolean);
-
-    if (texts.length > 0) requestBatchTranslation(texts);
-  }, [autoTranslate, available, thread, parents, replies, requestBatchTranslation]);
 
   return (
     <div className={styles.threadView}>
