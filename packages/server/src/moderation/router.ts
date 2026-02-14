@@ -18,13 +18,11 @@ export function moderationRouter(sql: Sql): Router {
     try {
       const parsed = reportBodySchema.safeParse(req.body);
       if (!parsed.success) {
-        res
-          .status(400)
-          .json({
-            error: 'Invalid request body',
-            errorCode: ERROR_CODES.INVALID_INPUT,
-            details: parsed.error.issues,
-          });
+        res.status(400).json({
+          error: 'Invalid request body',
+          errorCode: ERROR_CODES.INVALID_INPUT,
+          details: parsed.error.issues,
+        });
         return;
       }
 

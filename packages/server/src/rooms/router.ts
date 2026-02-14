@@ -28,13 +28,11 @@ export function roomsRouter(sql: Sql): Router {
         offset: req.query.offset,
       });
       if (!parsed.success) {
-        res
-          .status(400)
-          .json({
-            error: 'Invalid query params',
-            errorCode: ERROR_CODES.INVALID_INPUT,
-            details: parsed.error.issues,
-          });
+        res.status(400).json({
+          error: 'Invalid query params',
+          errorCode: ERROR_CODES.INVALID_INPUT,
+          details: parsed.error.issues,
+        });
         return;
       }
       const { visibility, limit, offset } = parsed.data;

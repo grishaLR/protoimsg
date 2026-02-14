@@ -54,12 +54,10 @@ export function authRouter(
       const data = (await resolveRes.json()) as { did: string };
       if (globalBans.isBanned(data.did)) {
         log.warn({ did: data.did, handle }, 'auth/preflight rejected: globally banned');
-        res
-          .status(403)
-          .json({
-            error: 'This account is not permitted to use this service.',
-            errorCode: ERROR_CODES.BANNED,
-          });
+        res.status(403).json({
+          error: 'This account is not permitted to use this service.',
+          errorCode: ERROR_CODES.BANNED,
+        });
         return;
       }
 
@@ -74,24 +72,20 @@ export function authRouter(
     try {
       const parsed = challengeBodySchema.safeParse(req.body);
       if (!parsed.success) {
-        res
-          .status(400)
-          .json({
-            error: 'Invalid request body',
-            errorCode: ERROR_CODES.INVALID_INPUT,
-            details: parsed.error.issues,
-          });
+        res.status(400).json({
+          error: 'Invalid request body',
+          errorCode: ERROR_CODES.INVALID_INPUT,
+          details: parsed.error.issues,
+        });
         return;
       }
 
       if (globalBans.isBanned(parsed.data.did)) {
         log.warn({ did: parsed.data.did }, 'auth/challenge rejected: globally banned');
-        res
-          .status(403)
-          .json({
-            error: 'This account is not permitted to use this service.',
-            errorCode: ERROR_CODES.BANNED,
-          });
+        res.status(403).json({
+          error: 'This account is not permitted to use this service.',
+          errorCode: ERROR_CODES.BANNED,
+        });
         return;
       }
 
@@ -107,13 +101,11 @@ export function authRouter(
     try {
       const parsed = sessionBodySchema.safeParse(req.body);
       if (!parsed.success) {
-        res
-          .status(400)
-          .json({
-            error: 'Invalid request body',
-            errorCode: ERROR_CODES.INVALID_INPUT,
-            details: parsed.error.issues,
-          });
+        res.status(400).json({
+          error: 'Invalid request body',
+          errorCode: ERROR_CODES.INVALID_INPUT,
+          details: parsed.error.issues,
+        });
         return;
       }
 
@@ -121,24 +113,20 @@ export function authRouter(
 
       if (globalBans.isBanned(did)) {
         log.warn({ did, handle }, 'auth/session rejected: globally banned');
-        res
-          .status(403)
-          .json({
-            error: 'This account is not permitted to use this service.',
-            errorCode: ERROR_CODES.BANNED,
-          });
+        res.status(403).json({
+          error: 'This account is not permitted to use this service.',
+          errorCode: ERROR_CODES.BANNED,
+        });
         return;
       }
 
       // Step 1: Consume nonce — rejects if not found, expired, or already used
       if (!challenges.consume(did, nonce)) {
         log.warn({ did, handle }, 'auth/session failed: invalid challenge');
-        res
-          .status(401)
-          .json({
-            error: 'Invalid or expired challenge',
-            errorCode: ERROR_CODES.INVALID_CHALLENGE,
-          });
+        res.status(401).json({
+          error: 'Invalid or expired challenge',
+          errorCode: ERROR_CODES.INVALID_CHALLENGE,
+        });
         return;
       }
 
@@ -146,12 +134,10 @@ export function authRouter(
       const verified = await verifyDidHandle(did, handle, config.PUBLIC_API_URL);
       if (!verified) {
         log.warn({ did, handle }, 'auth/session failed: handle mismatch');
-        res
-          .status(401)
-          .json({
-            error: 'Handle does not resolve to provided DID',
-            errorCode: ERROR_CODES.HANDLE_MISMATCH,
-          });
+        res.status(401).json({
+          error: 'Handle does not resolve to provided DID',
+          errorCode: ERROR_CODES.HANDLE_MISMATCH,
+        });
         return;
       }
 
@@ -159,12 +145,10 @@ export function authRouter(
       const recordValid = await verifyAuthRecord(did, nonce, rkey);
       if (!recordValid) {
         log.warn({ did, handle }, 'auth/session failed: record verification');
-        res
-          .status(401)
-          .json({
-            error: 'Auth verification failed — record not found or nonce mismatch',
-            errorCode: ERROR_CODES.AUTH_VERIFICATION_FAILED,
-          });
+        res.status(401).json({
+          error: 'Auth verification failed — record not found or nonce mismatch',
+          errorCode: ERROR_CODES.AUTH_VERIFICATION_FAILED,
+        });
         return;
       }
 

@@ -30,12 +30,10 @@ export function messagesRouter(sql: Sql): Router {
     try {
       const rootUri = req.query.root;
       if (typeof rootUri !== 'string' || !rootUri.startsWith('at://')) {
-        res
-          .status(400)
-          .json({
-            error: 'Missing or invalid "root" query param (expected AT-URI)',
-            errorCode: ERROR_CODES.INVALID_INPUT,
-          });
+        res.status(400).json({
+          error: 'Missing or invalid "root" query param (expected AT-URI)',
+          errorCode: ERROR_CODES.INVALID_INPUT,
+        });
         return;
       }
 
