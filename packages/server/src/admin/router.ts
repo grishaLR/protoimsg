@@ -18,6 +18,7 @@ export function adminRouter(
   adminApiKey: string,
   publicApiUrl: string,
   emailService: EmailService | null,
+  firehoseFailover?: () => void,
 ): Router {
   const router = Router();
 
@@ -96,6 +97,15 @@ export function adminRouter(
       next(err);
     }
   });
+
+  // POST /firehose/failover — force Jetstream failover to next instance
+  if (firehoseFailover) {
+    router.post('/firehose/failover', (_req, res) => {
+      log.info('Admin-triggered Jetstream failover');
+      firehoseFailover();
+      res.json({ success: true, message: 'Failover triggered' });
+    });
+  }
 
   return router;
 }

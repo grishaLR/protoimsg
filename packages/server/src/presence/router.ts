@@ -32,7 +32,7 @@ export function presenceRouter(
       const presence = await Promise.all(
         rawPresence.map(async (p) => {
           // Block filter
-          if (blockService.doesBlock(requesterDid, p.did)) {
+          if (blockService.isBlocked(requesterDid, p.did)) {
             return { did: p.did, status: 'offline' as const };
           }
           // Visibility filter — same logic as WS request_community_presence

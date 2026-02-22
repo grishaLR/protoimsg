@@ -1,9 +1,9 @@
 .item {
   display: flex;
-  align-items: baseline;
+  align-items: center;
   flex-wrap: wrap;
   padding: var(--cm-space-1) var(--cm-space-2) var(--cm-space-1) var(--cm-space-3);
-  line-height: 1.4;
+  line-height: var(--cm-leading-snug);
   position: relative;
 }
 
@@ -28,6 +28,8 @@
 }
 
 .did {
+  display: flex;
+  align-items: center;
   font-weight: 700;
   font-size: var(--cm-text-md);
   color: var(--color-primary);
@@ -37,16 +39,19 @@
   font-size: var(--cm-text-sm);
   color: var(--cm-border-dark);
   margin-inline-start: var(--cm-space-2);
+  line-height: var(--cm-avatar-sm);
 }
 
 .text {
   font-size: var(--cm-text-lg);
+  line-height: var(--cm-avatar-sm);
 }
 
 .blurredText {
   font-size: var(--cm-text-lg);
   color: var(--cm-border-dark);
   font-style: italic;
+  line-height: var(--cm-avatar-sm);
 }
 
 .revealBtn {

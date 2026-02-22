@@ -1,5 +1,5 @@
 import type { WebSocket } from 'ws';
-import { ERROR_CODES } from '@protoimsg/shared';
+import { ERROR_CODES, NSID } from '@protoimsg/shared';
 import type { ValidatedClientMessage } from './validation.js';
 import type { RoomSubscriptions } from './rooms.js';
 import type { DmSubscriptions } from '../dms/subscriptions.js';
@@ -9,23 +9,28 @@ import type { PresenceService } from '../presence/service.js';
 import type { DmService } from '../dms/service.js';
 import type { ImRegistry } from '../dms/registry.js';
 import type { PresenceVisibility } from '@protoimsg/shared';
-import type { Sql } from '../db/client.js';
+import type { Sql, JsonValue } from '../db/client.js';
 import type { RateLimiterStore } from '../moderation/rate-limiter-store.js';
-import { checkUserAccess } from '../moderation/service.js';
+import { checkUserAccess, checkMessageContent } from '../moderation/service.js';
 import type { BlockService } from '../moderation/block-service.js';
 import type { LabelerService } from '../moderation/labeler-service.js';
 import { createLogger } from '../logger.js';
-import { incDmsSent } from '../stats/queries.js';
-import { getChannelsByRoom, ensureDefaultChannel } from '../channels/queries.js';
-import { getRoomById } from '../rooms/queries.js';
+import { incDmsSent, incMessagesSent } from '../stats/queries.js';
 import {
-  syncCommunityMembers,
-  upsertCommunityList,
-  isCommunityMember,
-  isInnerCircle,
-} from '../community/queries.js';
+  getChannelsByRoom,
+  ensureDefaultChannel,
+  getChannelByUri,
+  getChannelById,
+} from '../channels/queries.js';
+import { getRoomById } from '../rooms/queries.js';
+import { insertMessage } from '../messages/queries.js';
+import { isUserBanned, isUserModerator } from '../moderation/queries.js';
+import { syncCommunityMembers, upsertCommunityList } from '../community/queries.js';
 import { computeConversationId, sortDids } from '../dms/queries.js';
 import { resolveVisibleStatus } from '../presence/visibility.js';
+import { resolvePdsEndpoint } from '../auth/verify.js';
+import { messageRecordSchema } from '../firehose/record-schemas.js';
+import { extractMentionedDids, extractRkey } from '../firehose/handlers.js';
 
 /**
  * Per-user-per-room typing throttle. Prevents a single client from flooding
@@ -35,11 +40,27 @@ const log = createLogger('ws');
 const TYPING_THROTTLE_MS = 3000;
 const typingThrottle = new Map<string, number>();
 
+/**
+ * Per-DID pending call tracker. Prevents a user from spamming make_call
+ * before the previous call is accepted/rejected. Key: caller DID,
+ * value: timestamp of the last make_call. Cleared on accept/reject.
+ */
+const CALL_COOLDOWN_MS = 30_000;
+const pendingCallAttempts = new Map<string, number>();
+
 /** Remove stale entries from the typing throttle map (older than 60s). */
 export function pruneTypingThrottle(): void {
   const cutoff = Date.now() - 60_000;
   for (const [key, ts] of typingThrottle) {
     if (ts < cutoff) typingThrottle.delete(key);
+  }
+}
+
+/** Remove stale entries from the pending call attempts map (older than CALL_COOLDOWN_MS). */
+export function pruneCallAttempts(): void {
+  const cutoff = Date.now() - CALL_COOLDOWN_MS;
+  for (const [key, ts] of pendingCallAttempts) {
+    if (ts < cutoff) pendingCallAttempts.delete(key);
   }
 }
 
@@ -170,34 +191,55 @@ export async function handleClientMessage(
 
     case 'request_community_presence': {
       const rawPresence = await service.getBulkPresence(data.dids);
-      const presenceList = await Promise.all(
-        rawPresence.map(async (p) => {
-          if (blockService.doesBlock(p.did, did)) {
-            return { did: p.did, status: 'offline' as const };
-          }
-          const visibility = await service.getVisibleTo(p.did);
-          if (visibility === 'everyone') return p;
 
-          const member =
-            visibility === 'community' || visibility === 'inner-circle'
-              ? await isCommunityMember(sql, p.did, did)
-              : false;
-          const friend =
-            visibility === 'inner-circle' ? await isInnerCircle(sql, p.did, did) : false;
+      // Resolve visibility for all DIDs, then batch-query community/inner-circle
+      const visibilityMap = new Map<string, PresenceVisibility>();
+      const communityCheckDids: string[] = [];
+      const innerCircleCheckDids: string[] = [];
 
-          const effectiveStatus = resolveVisibleStatus(
-            visibility,
-            p.status as 'online' | 'away' | 'idle' | 'offline',
-            member,
-            friend,
-          );
-          return {
-            did: p.did,
-            status: effectiveStatus,
-            awayMessage: effectiveStatus === 'offline' ? undefined : p.awayMessage,
-          };
-        }),
-      );
+      for (const p of rawPresence) {
+        const v = await service.getVisibleTo(p.did);
+        visibilityMap.set(p.did, v);
+        if (v === 'community' || v === 'inner-circle') {
+          communityCheckDids.push(p.did);
+        }
+        if (v === 'inner-circle') {
+          innerCircleCheckDids.push(p.did);
+        }
+      }
+
+      // Two batch queries instead of N individual ones
+      const [communityMembers, innerCircleSets] = await Promise.all([
+        communityCheckDids.length > 0
+          ? batchCommunityCheck(sql, communityCheckDids, did)
+          : new Set<string>(),
+        innerCircleCheckDids.length > 0
+          ? batchInnerCircleCheck(sql, innerCircleCheckDids, did)
+          : new Set<string>(),
+      ]);
+
+      const presenceList = rawPresence.map((p) => {
+        if (blockService.doesBlock(p.did, did)) {
+          return { did: p.did, status: 'offline' as const };
+        }
+        const visibility = visibilityMap.get(p.did) ?? 'no-one';
+        if (visibility === 'everyone') return p;
+
+        const member = communityMembers.has(p.did);
+        const friend = innerCircleSets.has(p.did);
+
+        const effectiveStatus = resolveVisibleStatus(
+          visibility,
+          p.status as 'online' | 'away' | 'idle' | 'offline',
+          member,
+          friend,
+        );
+        return {
+          did: p.did,
+          status: effectiveStatus,
+          awayMessage: effectiveStatus === 'offline' ? undefined : p.awayMessage,
+        };
+      });
       ws.send(
         JSON.stringify({
           type: 'community_presence',
@@ -552,6 +594,22 @@ export async function handleClientMessage(
         break;
       }
 
+      // Rate limit: one pending call attempt per 30s per DID
+      {
+        const lastAttempt = pendingCallAttempts.get(did);
+        if (lastAttempt && Date.now() - lastAttempt < CALL_COOLDOWN_MS) {
+          ws.send(
+            JSON.stringify({
+              type: 'error',
+              message: 'Call already pending — wait before trying again',
+              errorCode: ERROR_CODES.RATE_LIMITED,
+            }),
+          );
+          break;
+        }
+        pendingCallAttempts.set(did, Date.now());
+      }
+
       try {
         // Broadcast to sockets subscribed to this conversation
         callSubs.broadcast(
@@ -597,6 +655,12 @@ export async function handleClientMessage(
         ws.send(JSON.stringify({ type: 'error', message: 'Not a participant' }));
         break;
       }
+      // Clear pending call state for both participants so they can call again later
+      {
+        const callerDid = await dmService.getRecipientDid(conversationId, did);
+        if (callerDid) pendingCallAttempts.delete(callerDid);
+        pendingCallAttempts.delete(did);
+      }
       try {
         callSubs.broadcast(
           conversationId,
@@ -620,6 +684,12 @@ export async function handleClientMessage(
       if (!isParticipant) {
         ws.send(JSON.stringify({ type: 'error', message: 'Not a participant' }));
         break;
+      }
+      // Clear pending call state for both participants so they can call again later
+      {
+        const callerDid = await dmService.getRecipientDid(conversationId, did);
+        if (callerDid) pendingCallAttempts.delete(callerDid);
+        pendingCallAttempts.delete(did);
       }
       try {
         callSubs.broadcast(
@@ -661,5 +731,286 @@ export async function handleClientMessage(
       }
       break;
     }
+
+    case 'notify_record': {
+      // Client notifies us after writing a record to their PDS.
+      // We fetch + verify the record, then index and broadcast it.
+      // This bypasses Jetstream for real-time delivery while Jetstream
+      // stays as a backup for federation/catch-up.
+      const { uri, cid } = data;
+
+      // Parse AT-URI: at://did/collection/rkey
+      const uriParts = uri.match(/^at:\/\/(did:[^/]+)\/([^/]+)\/([^/]+)$/);
+      if (!uriParts) {
+        ws.send(
+          JSON.stringify({
+            type: 'error',
+            message: 'Invalid AT-URI',
+            errorCode: ERROR_CODES.INVALID_MESSAGE_FORMAT,
+          }),
+        );
+        break;
+      }
+      // Guaranteed by regex match above — 3 capture groups always present
+      const uriDid = uriParts[1] as string;
+      const collection = uriParts[2] as string;
+      const rkey = uriParts[3] as string;
+
+      // Security: URI DID must match authenticated DID
+      if (uriDid !== did) {
+        ws.send(
+          JSON.stringify({
+            type: 'error',
+            message: 'DID mismatch',
+            errorCode: ERROR_CODES.ACCESS_DENIED,
+          }),
+        );
+        break;
+      }
+
+      // Only handle messages for now
+      if (collection !== NSID.Message) {
+        log.debug({ collection }, 'notify_record: unsupported collection — ignoring');
+        break;
+      }
+
+      try {
+        // Resolve PDS endpoint (SSRF-safe)
+        const pdsUrl = await resolvePdsEndpoint(did);
+        if (!pdsUrl) {
+          log.warn({ did }, 'notify_record: could not resolve PDS');
+          ws.send(
+            JSON.stringify({
+              type: 'error',
+              message: 'Could not resolve PDS',
+              errorCode: ERROR_CODES.SERVER_ERROR,
+            }),
+          );
+          break;
+        }
+
+        // Fetch record from PDS
+        const getRecordUrl = `${pdsUrl}/xrpc/com.atproto.repo.getRecord?repo=${encodeURIComponent(did)}&collection=${encodeURIComponent(collection)}&rkey=${encodeURIComponent(rkey)}`;
+        const pdsRes = await fetch(getRecordUrl);
+        if (!pdsRes.ok) {
+          log.warn({ did, rkey, status: pdsRes.status }, 'notify_record: PDS fetch failed');
+          ws.send(
+            JSON.stringify({
+              type: 'error',
+              message: 'Record not found on PDS',
+              errorCode: ERROR_CODES.SERVER_ERROR,
+            }),
+          );
+          break;
+        }
+
+        const pdsData = (await pdsRes.json()) as { uri: string; cid: string; value: unknown };
+
+        // Verify CID matches (tamper protection)
+        if (pdsData.cid !== cid) {
+          log.warn(
+            { did, rkey, expected: cid, actual: pdsData.cid },
+            'notify_record: CID mismatch',
+          );
+          ws.send(
+            JSON.stringify({
+              type: 'error',
+              message: 'CID mismatch',
+              errorCode: ERROR_CODES.ACCESS_DENIED,
+            }),
+          );
+          break;
+        }
+
+        // Validate record shape
+        const parsed = messageRecordSchema.safeParse(pdsData.value);
+        if (!parsed.success) {
+          log.warn({ did, rkey, error: parsed.error.message }, 'notify_record: invalid record');
+          break;
+        }
+        const record = parsed.data;
+
+        // Content filter
+        const filterResult = checkMessageContent(record.text);
+        if (!filterResult.passed) {
+          log.info({ did, reason: filterResult.reason ?? 'blocked' }, 'notify_record: filtered');
+          break;
+        }
+
+        // Channel lookup (handles both AT-URIs and synthetic URIs)
+        const channelUri = record.channel;
+        const channel =
+          (await getChannelByUri(sql, channelUri)) ??
+          (await getChannelById(sql, extractRkey(channelUri)));
+        if (!channel) {
+          log.warn({ channelUri, did, rkey }, 'notify_record: unknown channel');
+          break;
+        }
+
+        const roomId = channel.room_id;
+        const channelId = channel.id;
+
+        // Room must exist
+        const room = await getRoomById(sql, roomId);
+        if (!room) {
+          log.warn({ roomId, did, rkey }, 'notify_record: unknown room');
+          break;
+        }
+
+        // Post policy enforcement
+        if (channel.post_policy !== 'everyone') {
+          const isOwner = room.did === did;
+          const isMod = !isOwner && (await isUserModerator(sql, roomId, did));
+          if (channel.post_policy === 'owner' && !isOwner) {
+            log.info({ did, channelId }, 'notify_record: blocked by post_policy=owner');
+            break;
+          }
+          if (channel.post_policy === 'moderators' && !isOwner && !isMod) {
+            log.info({ did, channelId }, 'notify_record: blocked by post_policy=moderators');
+            break;
+          }
+        }
+
+        // Index message (ON CONFLICT = idempotent)
+        await insertMessage(sql, {
+          id: rkey,
+          uri,
+          did,
+          cid,
+          roomId,
+          channelId,
+          text: record.text,
+          replyRoot: record.reply?.root,
+          replyParent: record.reply?.parent,
+          facets: record.facets,
+          embed: record.embed,
+          createdAt: record.createdAt,
+        });
+        void incMessagesSent(sql);
+
+        // Upsert into generic records table (ON CONFLICT = idempotent)
+        await sql`
+          INSERT INTO records (uri, cid, did, collection, json, indexed_at)
+          VALUES (${uri}, ${cid}, ${did}, ${collection}, ${sql.json(pdsData.value as JsonValue)}, NOW())
+          ON CONFLICT (uri) DO UPDATE SET
+            cid = EXCLUDED.cid,
+            json = EXCLUDED.json,
+            indexed_at = NOW()
+        `;
+
+        // Ban/labeler check — after insert so the record is indexed regardless
+        const banned = await isUserBanned(sql, roomId, did);
+        const restricted = await labelerService.shouldRestrict(did);
+
+        if (!banned && !restricted) {
+          // Broadcast to room subscribers
+          roomSubs.broadcast(roomId, {
+            type: 'message',
+            data: {
+              id: rkey,
+              uri,
+              did,
+              roomId,
+              channelId,
+              text: record.text,
+              reply: record.reply,
+              facets: record.facets,
+              embed: record.embed,
+              createdAt: record.createdAt,
+            },
+          });
+
+          // Mention notifications for users NOT in this room
+          if (record.facets) {
+            const mentionedDids = extractMentionedDids(record.facets);
+            const preview = record.text.slice(0, 100);
+            for (const mentionedDid of mentionedDids) {
+              if (mentionedDid === did) continue;
+              // Check if user is subscribed to this room
+              const mentionedSockets = userSockets.get(mentionedDid);
+              const roomSubscribers = roomSubs.getSubscribers(roomId);
+              let inRoom = false;
+              for (const mws of mentionedSockets) {
+                if (roomSubscribers.has(mws)) {
+                  inRoom = true;
+                  break;
+                }
+              }
+              if (inRoom) continue;
+
+              const payload = JSON.stringify({
+                type: 'mention_notification',
+                data: {
+                  roomId,
+                  roomName: room.name,
+                  channelId,
+                  channelName: channel.name,
+                  senderDid: did,
+                  messageText: preview,
+                  messageUri: uri,
+                  createdAt: record.createdAt,
+                },
+              });
+              for (const mws of userSockets.get(mentionedDid)) {
+                if (mws.readyState === mws.OPEN) mws.send(payload);
+              }
+            }
+          }
+        }
+
+        log.info({ did, rkey, roomId }, 'notify_record: message indexed and broadcast');
+      } catch (err) {
+        const msg = err instanceof Error ? err.message : 'Failed to process record notification';
+        log.error({ err, did, uri }, 'notify_record: error');
+        ws.send(
+          JSON.stringify({ type: 'error', message: msg, errorCode: ERROR_CODES.SERVER_ERROR }),
+        );
+      }
+      break;
+    }
   }
+}
+
+/**
+ * Batch check which of `ownerDids` consider `queryDid` a community member.
+ * Returns a Set of owner DIDs that include queryDid in their community.
+ */
+async function batchCommunityCheck(
+  sql: Sql,
+  ownerDids: string[],
+  queryDid: string,
+): Promise<Set<string>> {
+  if (ownerDids.length === 0) return new Set();
+  const rows = await sql<Array<{ owner_did: string }>>`
+    SELECT owner_did FROM community_members
+    WHERE owner_did = ANY(${ownerDids}) AND member_did = ${queryDid}
+  `;
+  return new Set(rows.map((r) => r.owner_did));
+}
+
+/**
+ * Batch check which of `ownerDids` consider `queryDid` in their inner circle.
+ * Scans the JSONB `groups` column for inner-circle groups containing queryDid.
+ * Returns a Set of owner DIDs whose inner circle includes queryDid.
+ */
+async function batchInnerCircleCheck(
+  sql: Sql,
+  ownerDids: string[],
+  queryDid: string,
+): Promise<Set<string>> {
+  if (ownerDids.length === 0) return new Set();
+  const rows = await sql<Array<{ did: string }>>`
+    SELECT DISTINCT community_lists.did
+    FROM community_lists,
+         jsonb_array_elements(groups) AS g
+    WHERE community_lists.did = ANY(${ownerDids})
+      AND jsonb_typeof(groups) = 'array'
+      AND (g->>'isInnerCircle')::boolean = true
+      AND jsonb_typeof(g->'members') = 'array'
+      AND EXISTS (
+        SELECT 1 FROM jsonb_array_elements(g->'members') AS m
+        WHERE m->>'did' = ${queryDid}
+      )
+  `;
+  return new Set(rows.map((r) => r.did));
 }

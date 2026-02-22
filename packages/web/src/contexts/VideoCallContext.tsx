@@ -413,6 +413,13 @@ export function VideoCallProvider({ children }: { children: ReactNode }) {
         saved.enabled = true;
         void sender?.replaceTrack(saved);
         cameraOffTrack.current = null;
+
+        // Safari background: OS kills camera track, firing 'ended'.
+        // Update local state so the UI reflects the camera is off.
+        saved.addEventListener('ended', () => {
+          isCameraOffRef.current = true;
+          setIsCameraOff(true);
+        });
       }
     }
   }, [getVideoSender]);
@@ -445,6 +452,12 @@ export function VideoCallProvider({ children }: { children: ReactNode }) {
       }
       stream.addTrack(newTrack);
       currentFacingMode.current = newFacing;
+
+      // Safari background: OS kills camera track, firing 'ended'.
+      newTrack.addEventListener('ended', () => {
+        isCameraOffRef.current = true;
+        setIsCameraOff(true);
+      });
 
       // Trigger re-render so PIP updates
       setActiveCall((prev) => (prev ? { ...prev, localStream: stream } : prev));
@@ -547,10 +560,31 @@ export function VideoCallProvider({ children }: { children: ReactNode }) {
         case 'incoming_call': {
           const { conversationId, senderDid, offer } = msg.data;
 
-          // Already in a call — auto-reject
+          // Glare handling: both users called each other simultaneously.
+          // DID-based tiebreaker — lexicographically lower DID is the "polite"
+          // peer (abandons its outgoing call, accepts the incoming one).
+          // Higher DID is "impolite" (ignores incoming, keeps outgoing).
           if (activeCallRef.current) {
-            send({ type: 'reject_call', conversationId });
-            break;
+            if (activeCallRef.current.status === 'outgoing' && did) {
+              const localIsPolite = did < senderDid;
+              if (localIsPolite) {
+                // We are polite — abandon our outgoing call, accept the incoming one
+                send({
+                  type: 'reject_call',
+                  conversationId: activeCallRef.current.conversationId,
+                });
+                cleanUp();
+                // Fall through to handle this as a normal incoming call
+              } else {
+                // We are impolite — ignore the incoming call, keep our outgoing
+                send({ type: 'reject_call', conversationId });
+                break;
+              }
+            } else {
+              // Already in an active/incoming/reconnecting/failed call — reject incoming
+              send({ type: 'reject_call', conversationId });
+              break;
+            }
           }
 
           playImNotify();
@@ -624,7 +658,7 @@ export function VideoCallProvider({ children }: { children: ReactNode }) {
     return () => {
       unsub();
     };
-  }, [subscribe, send, initiateCall, cleanUp]);
+  }, [subscribe, send, initiateCall, cleanUp, did]);
 
   // Notify remote peer on tab close so they don't see frozen video for 30s
   useEffect(() => {

@@ -163,7 +163,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
               const authResult = await newAgent.com.atproto.repo.createRecord({
                 repo: restoredSession.did,
                 collection: 'app.protoimsg.chat.authVerify',
-                record: { nonce, createdAt: new Date().toISOString() },
+                record: {
+                  $type: 'app.protoimsg.chat.authVerify',
+                  nonce,
+                  createdAt: new Date().toISOString(),
+                },
               });
               const rkey = authResult.data.uri.split('/').pop();
               if (!rkey) throw new Error('Invalid AT-URI from createRecord');

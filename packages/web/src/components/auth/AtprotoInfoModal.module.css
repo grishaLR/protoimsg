@@ -47,7 +47,7 @@
 .text {
   margin: 0;
   font-size: var(--cm-text-sm);
-  line-height: 1.5;
+  line-height: var(--cm-leading-normal);
   color: var(--color-base-content);
 }
 
@@ -60,7 +60,7 @@
   margin: 0;
   padding-inline-start: var(--cm-space-6);
   font-size: var(--cm-text-sm);
-  line-height: 1.5;
+  line-height: var(--cm-leading-normal);
   color: var(--color-base-content);
   display: flex;
   flex-direction: column;
@@ -70,7 +70,7 @@
 .warning {
   margin: 0;
   font-size: var(--cm-text-xs);
-  line-height: 1.5;
+  line-height: var(--cm-leading-normal);
   color: var(--color-error);
   padding: var(--cm-space-2) var(--cm-space-3);
   background: var(--cm-surface-content);

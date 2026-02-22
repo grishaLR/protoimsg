@@ -146,7 +146,13 @@ async function authFetch(url: string, init?: RequestInit): Promise<Response> {
   if (serverToken) {
     headers.set('Authorization', `Bearer ${serverToken}`);
   }
-  return fetch(`${API_URL}${url}`, { ...init, headers });
+  const res = await fetch(`${API_URL}${url}`, { ...init, headers });
+  if (res.status === 401 && serverToken) {
+    // Session expired — clear token and reload to trigger re-auth
+    setServerToken(null);
+    window.location.reload();
+  }
+  return res;
 }
 
 // -- Rooms --

@@ -28,9 +28,19 @@ export function Header({ onOpenSettings }: HeaderProps) {
         setOpen(false);
       }
     }
+    function handleKeyDown(e: KeyboardEvent) {
+      if (e.key === 'Escape') {
+        setOpen(false);
+        // Return focus to the hamburger button
+        const btn = menuRef.current?.querySelector('button');
+        btn?.focus();
+      }
+    }
     document.addEventListener('mousedown', handleClick);
+    document.addEventListener('keydown', handleKeyDown);
     return () => {
       document.removeEventListener('mousedown', handleClick);
+      document.removeEventListener('keydown', handleKeyDown);
     };
   }, [open]);
 
@@ -57,16 +67,20 @@ export function Header({ onOpenSettings }: HeaderProps) {
               onClick={() => {
                 setOpen(!open);
               }}
+              aria-label={t('header.menu')}
+              aria-haspopup="menu"
+              aria-expanded={open}
               title={t('header.menu')}
             >
               <Menu size={14} />
             </button>
             {open && (
-              <div className={styles.dropdown}>
+              <div className={styles.dropdown} role="menu">
                 {/* Status options */}
                 {STATUS_OPTIONS.map((opt) => (
                   <button
                     key={opt.value}
+                    role="menuitem"
                     className={`${styles.dropdownItem} ${styles.statusItem} ${status === opt.value ? styles.statusActive : ''}`}
                     onClick={() => {
                       if (opt.value !== 'away') {
@@ -131,6 +145,7 @@ export function Header({ onOpenSettings }: HeaderProps) {
                 {/* Settings */}
                 {onOpenSettings && (
                   <button
+                    role="menuitem"
                     className={styles.dropdownItem}
                     onClick={() => {
                       onOpenSettings();
@@ -143,13 +158,14 @@ export function Header({ onOpenSettings }: HeaderProps) {
 
                 {/* Minimize (Tauri only) */}
                 {IS_TAURI && (
-                  <button className={styles.dropdownItem} onClick={handleMinimize}>
+                  <button role="menuitem" className={styles.dropdownItem} onClick={handleMinimize}>
                     <Minus size={14} /> {t('header.minimize')}
                   </button>
                 )}
 
                 {/* Sign Out */}
                 <button
+                  role="menuitem"
                   className={`${styles.dropdownItem} ${styles.dropdownItemDanger}`}
                   onClick={() => {
                     logout();

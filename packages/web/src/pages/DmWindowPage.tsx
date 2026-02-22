@@ -41,10 +41,10 @@ export function DmWindowPage() {
     return (
       <div className={styles.container}>
         <div className={styles.header} data-tauri-drag-region="">
-          <span className={styles.headerTitle}>Connecting...</span>
+          <span className={styles.headerTitle}>{t('window.connecting')}</span>
           <WindowControls />
         </div>
-        <div className={styles.loading}>Waiting for connection...</div>
+        <div className={styles.loading}>{t('window.waitingForConnection')}</div>
       </div>
     );
   }

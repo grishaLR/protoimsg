@@ -4,21 +4,16 @@
   "defs": {
     "main": {
       "type": "record",
-      "description": "User's current status. Lives in their repo, updated by their client.",
+      "description": "User's current presence status. Lives in their repo, updated by their client. IMPORTANT: visibleTo is intentionally excluded — it is a privacy preference and must remain server-side only. Writing it to the PDS would publicly expose who the user is hiding from.",
       "key": "literal:self",
       "record": {
         "type": "object",
-        "required": ["status", "visibleTo", "updatedAt"],
+        "required": ["status", "updatedAt"],
         "properties": {
           "status": {
             "type": "string",
             "knownValues": ["online", "away", "idle", "offline", "invisible"],
             "description": "Current presence status."
-          },
-          "visibleTo": {
-            "type": "string",
-            "knownValues": ["everyone", "community", "inner-circle", "no-one"],
-            "description": "Who can see your real presence status."
           },
           "awayMessage": {
             "type": "string",

@@ -33,7 +33,7 @@ export function getOAuthClient(): BrowserOAuthClient {
     const redirectUri = `http://127.0.0.1:5173/`;
     const scope = 'atproto transition:generic';
     client = new BrowserOAuthClient({
-      handleResolver: 'https://bsky.social',
+      handleResolver: 'https://public.api.bsky.app',
       clientMetadata: {
         client_id: `http://localhost?redirect_uri=${encodeURIComponent(redirectUri)}&scope=${encodeURIComponent(scope)}`,
         client_name: 'protoimsg (dev)',
@@ -52,7 +52,7 @@ export function getOAuthClient(): BrowserOAuthClient {
     // deployments all get correct redirect URIs automatically. The Vite plugin
     // generates a matching client-metadata.json at build time via VITE_SITE_URL.
     client = new BrowserOAuthClient({
-      handleResolver: 'https://bsky.social',
+      handleResolver: 'https://public.api.bsky.app',
       clientMetadata: buildMetadata(origin),
     });
   }

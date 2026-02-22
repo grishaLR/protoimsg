@@ -97,6 +97,19 @@
   --cm-z-videocall: 1100;
   --cm-z-banner: 2000;
 
+  /* ── Local stacking (within scoped containers) ──────── */
+  --cm-z-local-base: 0;
+  --cm-z-local-raised: 1;
+  --cm-z-local-above: 2;
+  --cm-z-local-top: 3;
+
+  /* ── Line-height ───────────────────────────────────── */
+  --cm-leading-none: 1;
+  --cm-leading-tight: 1.3;
+  --cm-leading-snug: 1.4;
+  --cm-leading-normal: 1.5;
+  --cm-leading-relaxed: 1.6;
+
   /* ── Filters ────────────────────────────────────────── */
   --cm-blur-base: 4px;
   --cm-blur-light: 2px;

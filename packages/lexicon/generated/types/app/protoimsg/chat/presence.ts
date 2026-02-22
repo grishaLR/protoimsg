@@ -9,8 +9,6 @@ import { CID } from 'multiformats/cid';
 export interface Record {
   /** Current presence status. */
   status: 'online' | 'away' | 'idle' | 'offline' | 'invisible' | (string & {});
-  /** Who can see your real presence status. */
-  visibleTo: 'everyone' | 'community' | 'inner-circle' | 'no-one' | (string & {});
   /** Custom away message / status text. */
   awayMessage?: string;
   /** When presence was last updated. */

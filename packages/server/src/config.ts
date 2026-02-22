@@ -5,7 +5,22 @@ const envSchema = z.object({
   HOST: z.string().default('localhost'),
   NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),
   DATABASE_URL: z.string().url(),
-  JETSTREAM_URL: z.string().url().default('wss://jetstream2.us-east.bsky.network/subscribe'),
+  JETSTREAM_URL: z
+    .string()
+    .default(
+      [
+        'wss://jetstream1.us-east.bsky.network/subscribe',
+        'wss://jetstream2.us-east.bsky.network/subscribe',
+        'wss://jetstream1.us-west.bsky.network/subscribe',
+        'wss://jetstream2.us-west.bsky.network/subscribe',
+      ].join(','),
+    )
+    .transform((v) =>
+      v
+        .split(',')
+        .map((u) => u.trim())
+        .filter(Boolean),
+    ),
   PUBLIC_API_URL: z.string().url().default('https://public.api.bsky.app'),
   OAUTH_CLIENT_ID: z.string().optional(),
   OAUTH_REDIRECT_URI: z.string().url().optional(),
@@ -37,7 +52,7 @@ const envSchema = z.object({
   COTURN_SHARED_SECRET: z.string().optional(),
   STUN_URL: z.string().optional(),
   TURN_URL: z.string().optional(),
-  ICE_CREDENTIAL_TTL_SECS: z.coerce.number().int().min(60).default(86400),
+  ICE_CREDENTIAL_TTL_SECS: z.coerce.number().int().min(60).default(14400),
   RESEND_API_KEY: z.string().optional(),
   RESEND_FROM: z.string().default('proto instant messenger <noreply@protoimsg.app>'),
   ADMIN_API_KEY: z.string().optional(),

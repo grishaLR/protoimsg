@@ -50,7 +50,7 @@ import { incMessagesSent, incRoomsCreated } from '../stats/queries.js';
 const log = createLogger('firehose');
 
 /** Extract mentioned DIDs from rich text facets. */
-function extractMentionedDids(facets: unknown[]): string[] {
+export function extractMentionedDids(facets: unknown[]): string[] {
   const dids = new Set<string>();
   for (const facet of facets) {
     const f = facet as { features?: Array<{ $type?: string; did?: string }> };
@@ -686,8 +686,8 @@ export function createHandlers(
   return handlers;
 }
 
-/** Extract the rkey from an AT-URI: at://did/collection/rkey → rkey */
-function extractRkey(uri: string): string {
-  const parts = uri.split('/');
-  return parts[parts.length - 1] ?? uri;
+/** Extract the rkey (last path segment) from an AT-URI or synthetic URI. */
+export function extractRkey(uri: string): string {
+  const segments = uri.split('/');
+  return segments[segments.length - 1] ?? uri;
 }

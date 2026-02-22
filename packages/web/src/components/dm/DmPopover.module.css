@@ -149,7 +149,7 @@
 /* Resize handles — invisible hit areas around all edges and corners */
 .resizeHandle {
   position: absolute;
-  z-index: 3;
+  z-index: var(--cm-z-local-top);
 }
 
 .resizeN {

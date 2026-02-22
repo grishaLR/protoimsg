@@ -22,7 +22,7 @@
   padding: var(--cm-space-1.5) var(--cm-space-3);
   font-size: max(var(--cm-text-md), 16px);
   font-family: inherit;
-  line-height: 1.4;
+  line-height: var(--cm-leading-snug);
   min-height: 1.6em;
   max-height: 4em;
   overflow-y: auto;
@@ -47,7 +47,7 @@
   font-weight: 700;
   cursor: pointer;
   flex-shrink: 0;
-  line-height: 1.4;
+  line-height: var(--cm-leading-snug);
   min-height: var(--cm-button-min-h);
 }
 

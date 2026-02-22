@@ -109,6 +109,32 @@ Common prefixes: `feat`, `fix`, `chore`, `refactor`, `docs`, `test`, `style`.
 - `knownValues` fields are open sets — don't use strict enums for these in firehose validation
 - Reference [Bluesky](https://github.com/bluesky-social) and [Blacksky](https://github.com/blacksky-algorithms/blacksky.community) for ATProto conventions
 
+## TURN Relay (coturn)
+
+Video calls use WebRTC with trust-aware routing: inner circle gets pure P2P (STUN), everyone else is relayed through coturn (TURN) to hide IP addresses. The relay is optional for most development — calls work without it on localhost.
+
+Start coturn if you're working on WebRTC, video calling, or the relay infrastructure:
+
+```bash
+docker compose up -d coturn
+```
+
+Then set these in your `.env`:
+
+```env
+STUN_URL=stun:localhost:3478
+TURN_URL=turn:localhost:3478
+ICE_AUTH_SECRET=localdev-coturn-secret
+```
+
+The relay config lives in `docker/coturn/entrypoint.sh` (production) and inline in `docker-compose.yml` (local dev). Production runs on Fly.io with a dedicated IPv4 — see `fly.coturn.toml`.
+
+### Key constraints
+
+- **UDP only in production** — Fly's TCP proxy corrupts TURN binary framing. Local dev supports both.
+- **Single machine** — TURN allocations are stateful and can't be split across instances.
+- **No third-party STUN** — all ICE infrastructure is self-hosted. If the server can't provide ICE servers, the client returns an empty list (no Google STUN fallback).
+
 ## Translation
 
 Translation is optional for most development work. The system uses two backends:

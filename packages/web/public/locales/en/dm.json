@@ -50,5 +50,10 @@
 
   "popoverContainer": {
     "ariaLabel": "DM notifications"
+  },
+
+  "window": {
+    "connecting": "Connecting\u2026",
+    "waitingForConnection": "Waiting for connection\u2026"
   }
 }

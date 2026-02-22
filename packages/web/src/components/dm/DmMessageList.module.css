@@ -43,7 +43,7 @@
   padding: var(--cm-space-3, 6px) var(--cm-space-3, 6px) var(--cm-space-3, 6px) var(--cm-space-4, 10px);
   border-radius: var(--cm-radius-md);
   font-size: var(--cm-text-md);
-  line-height: 1.4;
+  line-height: var(--cm-leading-snug);
   word-break: break-word;
 }
 
