@@ -4,7 +4,6 @@ import type { Redis } from './redis/client.js';
 interface CheckResult {
   status: 'ok' | 'error';
   latencyMs: number;
-  error?: string;
 }
 
 interface HealthResponse {
@@ -30,11 +29,10 @@ export async function checkHealth(
   try {
     await sql`SELECT 1`;
     checks.db = { status: 'ok', latencyMs: Math.round(performance.now() - dbStart) };
-  } catch (err) {
+  } catch {
     checks.db = {
       status: 'error',
       latencyMs: Math.round(performance.now() - dbStart),
-      error: err instanceof Error ? err.message : 'Unknown error',
     };
   }
 
@@ -44,11 +42,10 @@ export async function checkHealth(
     try {
       await redis.ping();
       checks.redis = { status: 'ok', latencyMs: Math.round(performance.now() - redisStart) };
-    } catch (err) {
+    } catch {
       checks.redis = {
         status: 'error',
         latencyMs: Math.round(performance.now() - redisStart),
-        error: err instanceof Error ? err.message : 'Unknown error',
       };
     }
   }

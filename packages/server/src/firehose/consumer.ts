@@ -64,15 +64,22 @@ export interface FirehoseConsumer {
   start: () => void;
   stop: () => Promise<void>;
   isConnected: () => boolean;
+  /** Force failover to the next Jetstream instance (admin use). */
+  failover: () => void;
 }
 
-const RECONNECT_DELAY_MS = 3000;
+const INITIAL_RECONNECT_DELAY_MS = 1000;
+const MAX_RECONNECT_DELAY_MS = 30000;
 const CURSOR_SAVE_INTERVAL = 100;
 /** Jetstream retains ~72 hours of events. Beyond this, events are permanently lost. */
 const CURSOR_STALENESS_THRESHOLD_US = 72 * 60 * 60 * 1_000_000;
+/** Failover if the WebSocket goes completely silent (no events at all). */
+const CONNECTION_LIVENESS_TIMEOUT_MS = 30_000;
+/** Failover if commits stop arriving while other events still flow (silent drop). */
+const COMMIT_LIVENESS_TIMEOUT_MS = 5 * 60 * 1000;
 
 export function createFirehoseConsumer(
-  jetstreamUrl: string,
+  jetstreamUrls: string[],
   db: Sql,
   wss: WsServer,
   presenceService: PresenceService,
@@ -86,8 +93,67 @@ export function createFirehoseConsumer(
   let lastCursor: number | undefined;
   /** Sequential processing queue — prevents unbounded DB concurrency */
   let processQueue: Promise<void> = Promise.resolve();
+  let reconnectDelay = INITIAL_RECONNECT_DELAY_MS;
+  /** Last time ANY event was received (proves the WS connection is alive). */
+  let lastEventAt = 0;
+  /** Last time a commit event with a matching handler was received. */
+  let lastCommitAt = 0;
+  let livenessTimer: ReturnType<typeof setInterval> | null = null;
+  /** Index into jetstreamUrls for round-robin failover. */
+  let urlIndex = 0;
+
+  function currentUrl(): string {
+    return jetstreamUrls[urlIndex % jetstreamUrls.length] as string;
+  }
+
+  /** Rotate to the next Jetstream instance. Returns true if we wrapped around. */
+  function rotateUrl(): boolean {
+    urlIndex++;
+    const wrapped = urlIndex >= jetstreamUrls.length;
+    urlIndex = urlIndex % jetstreamUrls.length;
+    return wrapped;
+  }
+
+  function failover() {
+    if (!shouldReconnect) return;
+
+    const prev = currentUrl();
+    const wrapped = rotateUrl();
+    const next = currentUrl();
+
+    // Log cursor age so we can audit if any events were missed between
+    // "last received" and "failover triggered". The new instance should
+    // have them if the cursor is within the 72h retention window.
+    const cursorAgeSecs = lastCursor
+      ? Math.round((Date.now() * 1000 - lastCursor) / 1_000_000)
+      : null;
+
+    log.warn(
+      { from: prev, to: next, wrapped, cursorAgeSecs },
+      'Jetstream liveness timeout — failing over to next instance',
+    );
+
+    if (wrapped) {
+      // All instances tried — alert Sentry
+      Sentry.captureMessage(
+        `All Jetstream instances exhausted — cycling back to ${next}. Federation may be degraded.`,
+        {
+          level: 'error',
+          tags: { component: 'firehose' },
+          extra: { urls: jetstreamUrls, lastCommitAt, cursorAgeSecs },
+        },
+      );
+    }
+
+    // Close current connection — the 'close' handler will reconnect to the new URL
+    if (ws) {
+      ws.close();
+    }
+  }
 
   function connect(cursor: number | undefined) {
+    const jetstreamUrl = currentUrl();
+
     // Staleness check: warn if cursor is beyond Jetstream's retention window
     if (cursor) {
       const nowUs = Date.now() * 1000;
@@ -112,13 +178,57 @@ export function createFirehoseConsumer(
 
     ws.on('open', () => {
       setJetstreamConnected(true);
-      log.info('Jetstream connected');
+      log.info({ instance: jetstreamUrl }, 'Jetstream connected');
+      reconnectDelay = INITIAL_RECONNECT_DELAY_MS;
+      lastEventAt = Date.now();
+      lastCommitAt = Date.now();
+
+      // Dual liveness watchdog — two failure modes, two timeouts:
+      //
+      // 1. CONNECTION_LIVENESS (30s): No events at all (not even identity/account).
+      //    The WebSocket is dead or the instance is down. Fast failover.
+      //
+      // 2. COMMIT_LIVENESS (5min): Identity/account events still flowing, but
+      //    commits silently missing. This is the EXACT bug we hit: us-east
+      //    Jetstream stopped propagating commits from us-west PDS instances
+      //    while identity events kept flowing. Slower check because low-traffic
+      //    periods naturally have no commits.
+      if (livenessTimer) clearInterval(livenessTimer);
+      livenessTimer = setInterval(() => {
+        const now = Date.now();
+        const eventSilenceMs = now - lastEventAt;
+        const commitSilenceMs = now - lastCommitAt;
+
+        if (eventSilenceMs > CONNECTION_LIVENESS_TIMEOUT_MS) {
+          log.warn(
+            { silenceMs: eventSilenceMs },
+            'No events received — connection appears dead, failing over',
+          );
+          failover();
+        } else if (commitSilenceMs > COMMIT_LIVENESS_TIMEOUT_MS) {
+          // Don't auto-failover — 5min of no commits is normal during quiet
+          // hours for a small app. Just alert so we can investigate.
+          log.warn(
+            { commitSilenceMs, lastEventAgoMs: eventSilenceMs, instance: currentUrl() },
+            'Events flowing but no commits — possible silent drop',
+          );
+          Sentry.captureMessage(
+            `Jetstream commit silence on ${currentUrl()} — events flowing but no commits for ${Math.round(commitSilenceMs / 1000)}s`,
+            {
+              level: 'warning',
+              tags: { component: 'firehose' },
+              extra: { commitSilenceMs, eventSilenceMs, instance: currentUrl() },
+            },
+          );
+        }
+      }, CONNECTION_LIVENESS_TIMEOUT_MS);
     });
 
     ws.on('message', (raw: Buffer) => {
       try {
         const event = JSON.parse(raw.toString('utf-8')) as JetstreamEvent;
         lastCursor = event.time_us;
+        lastEventAt = Date.now();
         setJetstreamLag((Date.now() * 1000 - event.time_us) / 1_000_000);
 
         if (event.kind === 'identity') {
@@ -165,6 +275,7 @@ export function createFirehoseConsumer(
         }
 
         const { commit } = event;
+        lastCommitAt = Date.now();
         const handler = handlers[commit.collection];
         if (!handler) return;
 
@@ -231,6 +342,10 @@ export function createFirehoseConsumer(
 
     ws.on('close', () => {
       setJetstreamConnected(false);
+      if (livenessTimer) {
+        clearInterval(livenessTimer);
+        livenessTimer = null;
+      }
       log.info('Jetstream disconnected');
       ws = null;
       if (shouldReconnect) {
@@ -238,10 +353,13 @@ export function createFirehoseConsumer(
         if (lastCursor !== undefined) {
           void saveCursor(db, lastCursor);
         }
-        log.info({ delayMs: RECONNECT_DELAY_MS }, 'Reconnecting...');
+        const jitter = Math.random() * 1000;
+        const delay = reconnectDelay + jitter;
+        log.info({ delayMs: Math.round(delay), instance: currentUrl() }, 'Reconnecting...');
         setTimeout(() => {
           connect(lastCursor);
-        }, RECONNECT_DELAY_MS);
+        }, delay);
+        reconnectDelay = Math.min(reconnectDelay * 2, MAX_RECONNECT_DELAY_MS);
       }
     });
 
@@ -253,6 +371,7 @@ export function createFirehoseConsumer(
 
   return {
     isConnected: () => ws !== null && ws.readyState === WebSocket.OPEN,
+    failover,
 
     start: () => {
       shouldReconnect = true;
@@ -263,6 +382,10 @@ export function createFirehoseConsumer(
 
     async stop(): Promise<void> {
       shouldReconnect = false;
+      if (livenessTimer) {
+        clearInterval(livenessTimer);
+        livenessTimer = null;
+      }
       if (lastCursor !== undefined) {
         await saveCursor(db, lastCursor);
       }
@@ -270,6 +393,8 @@ export function createFirehoseConsumer(
         ws.close();
         ws = null;
       }
+      // Wait for any in-flight event handlers to complete before shutdown
+      await processQueue;
       log.info('Jetstream consumer stopped');
     },
   };

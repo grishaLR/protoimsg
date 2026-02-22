@@ -129,6 +129,12 @@ const imIceCandidate = z.object({
   candidate: candidateSchema,
 });
 
+const notifyRecord = z.object({
+  type: z.literal('notify_record'),
+  uri: z.string().min(1),
+  cid: z.string().min(1),
+});
+
 const clientMessage = z.discriminatedUnion('type', [
   joinRoom,
   leaveRoom,
@@ -149,6 +155,7 @@ const clientMessage = z.discriminatedUnion('type', [
   rejectCall,
   acceptCall,
   newIceCandidate,
+  notifyRecord,
 ]);
 
 export type ValidatedClientMessage = z.infer<typeof clientMessage>;

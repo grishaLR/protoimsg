@@ -120,6 +120,8 @@ function ChatRoomContent({ roomId }: { roomId: string }) {
     });
   }, []);
 
+  const [sendError, setSendError] = useState<string | null>(null);
+
   const filteredMessages = useMemo(
     () => messages.filter((m) => !blockedDids.has(m.did)),
     [messages, blockedDids],
@@ -243,16 +245,39 @@ function ChatRoomContent({ roomId }: { roomId: string }) {
               void castVote(pollId, pollUri, opts);
             }}
           />
+          {sendError && (
+            <div className={styles.sendError} role="alert">
+              {sendError}
+              <button
+                type="button"
+                onClick={() => {
+                  setSendError(null);
+                }}
+              >
+                {t('chatRoom.dismiss')}
+              </button>
+            </div>
+          )}
           <MessageInput
             onSend={(text) => {
-              if (activeChannel) void sendMessage(text, activeChannel.uri);
+              if (activeChannel) {
+                setSendError(null);
+                sendMessage(text, activeChannel.uri).catch(() => {
+                  setSendError(t('chatRoom.sendFailed'));
+                });
+              }
             }}
             onTyping={sendTyping}
             onCreatePoll={(input) => {
               if (activeChannel) void createPoll(input, activeChannel.uri);
             }}
             onSendWithEmbed={(text, embed) => {
-              if (activeChannel) void sendMessage(text, activeChannel.uri, undefined, embed);
+              if (activeChannel) {
+                setSendError(null);
+                sendMessage(text, activeChannel.uri, undefined, embed).catch(() => {
+                  setSendError(t('chatRoom.sendFailed'));
+                });
+              }
             }}
           />
         </div>

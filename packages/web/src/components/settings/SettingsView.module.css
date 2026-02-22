@@ -226,7 +226,7 @@
   font-size: var(--cm-text-sm);
   color: var(--cm-border-dark);
   margin-top: var(--cm-space-3);
-  line-height: 1.4;
+  line-height: var(--cm-leading-snug);
 }
 
 .signOutButton {

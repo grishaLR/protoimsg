@@ -19,9 +19,8 @@ export class RedisChallengeStore implements ChallengeStoreInterface {
   }
 
   async consume(did: string, nonce: string): Promise<boolean> {
-    const stored = await this.redis.get(`${KEY_PREFIX}${did}`);
+    const stored = await this.redis.getdel(`${KEY_PREFIX}${did}`);
     if (!stored) return false;
-    await this.redis.del(`${KEY_PREFIX}${did}`);
     return stored === nonce;
   }
 

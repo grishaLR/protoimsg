@@ -98,12 +98,14 @@ export async function deleteRoomRoleByUri(sql: Sql, uri: string): Promise<void> 
 }
 
 export async function isUserModerator(sql: Sql, roomId: string, did: string): Promise<boolean> {
-  const rows = await sql<{ count: string }[]>`
-    SELECT COUNT(*) as count FROM room_roles
-    WHERE room_id = ${roomId} AND subject_did = ${did}
-      AND role IN ('moderator', 'owner')
+  const rows = await sql<{ exists: boolean }[]>`
+    SELECT EXISTS(
+      SELECT 1 FROM room_roles
+      WHERE room_id = ${roomId} AND subject_did = ${did}
+        AND role IN ('moderator', 'owner')
+    ) as exists
   `;
-  return Number(rows[0]?.count) > 0;
+  return rows[0]?.exists ?? false;
 }
 
 export async function getRoomRoles(sql: Sql, roomId: string): Promise<RoomRoleRow[]> {

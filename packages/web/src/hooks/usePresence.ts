@@ -63,10 +63,10 @@ export function usePresence() {
       });
 
       // Fire-and-forget atproto presence record write
+      // visibleTo is intentionally NOT written — it stays server-side only
       if (agent) {
         void putPresenceRecord(agent, newStatus, {
           awayMessage: msg,
-          visibleTo: effectiveVisibleTo,
         });
       }
     },

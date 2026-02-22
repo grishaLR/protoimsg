@@ -78,7 +78,7 @@
   font-size: var(--cm-text-lg);
   font-weight: 700;
   margin: 0;
-  line-height: 1.4;
+  line-height: var(--cm-leading-snug);
 }
 
 .betaSignupBox {
@@ -100,7 +100,7 @@
   font-size: var(--cm-text-sm);
   color: var(--color-base-content);
   margin: 0;
-  line-height: 1.6;
+  line-height: var(--cm-leading-relaxed);
 }
 
 .betaSignupLabel {
@@ -128,7 +128,7 @@
   font-size: var(--cm-text-sm);
   color: var(--color-success, #22c55e);
   margin: 0;
-  line-height: 1.6;
+  line-height: var(--cm-leading-relaxed);
   text-align: center;
   font-weight: 600;
 }

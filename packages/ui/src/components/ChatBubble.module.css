@@ -13,8 +13,10 @@
 }
 
 .bubble {
+  padding: var(--cm-space-3) var(--cm-space-4);
+  border-radius: var(--cm-radius-md);
   font-size: var(--cm-text-md);
-  line-height: 1.4;
+  line-height: var(--cm-leading-snug);
   word-break: break-word;
 }
 

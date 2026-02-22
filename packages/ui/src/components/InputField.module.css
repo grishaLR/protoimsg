@@ -2,7 +2,7 @@
   width: 100%;
   padding: var(--cm-space-2) var(--cm-space-4);
   font-size: var(--cm-text-md);
-  line-height: 1.5;
+  line-height: var(--cm-leading-normal);
   color: var(--color-base-content);
   background: var(--color-base-100);
   border: var(--cm-space-0.5) solid var(--color-base-300);

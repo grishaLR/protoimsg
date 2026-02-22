@@ -1,11 +1,6 @@
 import type { Agent } from '@atproto/api';
 import { NSID } from '@protoimsg/shared';
-import type {
-  RoomPurpose,
-  RoomVisibility,
-  PresenceStatus,
-  PresenceVisibility,
-} from '@protoimsg/shared';
+import type { RoomPurpose, RoomVisibility, PresenceStatus } from '@protoimsg/shared';
 import type { CommunityGroup } from '@protoimsg/lexicon';
 
 /** Extract the record key (last path segment) from an AT URI */
@@ -327,9 +322,7 @@ export async function addToBuddyList(
 
 // -- Presence PDS helpers --
 
-export async function getPresenceRecord(
-  agent: Agent,
-): Promise<{ visibleTo?: PresenceVisibility; awayMessage?: string } | null> {
+export async function getPresenceRecord(agent: Agent): Promise<{ awayMessage?: string } | null> {
   try {
     const response = await agent.com.atproto.repo.getRecord({
       repo: agent.assertDid,
@@ -337,7 +330,6 @@ export async function getPresenceRecord(
       rkey: 'self',
     });
     const record = response.data.value as {
-      visibleTo?: PresenceVisibility;
       awayMessage?: string;
     };
     return record;
@@ -346,10 +338,12 @@ export async function getPresenceRecord(
   }
 }
 
+/** Write presence to ATProto repo. visibleTo is intentionally excluded —
+ * it's a privacy preference and stays server-side only. */
 export async function putPresenceRecord(
   agent: Agent,
   status: PresenceStatus,
-  opts?: { awayMessage?: string; visibleTo?: PresenceVisibility },
+  opts?: { awayMessage?: string },
 ): Promise<{ uri: string; cid: string }> {
   const response = await agent.com.atproto.repo.putRecord({
     repo: agent.assertDid,
@@ -358,7 +352,6 @@ export async function putPresenceRecord(
     record: {
       $type: NSID.Presence,
       status,
-      visibleTo: opts?.visibleTo ?? 'everyone',
       awayMessage: opts?.awayMessage,
       updatedAt: new Date().toISOString(),
     },

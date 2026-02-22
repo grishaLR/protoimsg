@@ -127,7 +127,7 @@
   background: var(--color-base-100);
   color: var(--color-base-content);
   font-size: var(--cm-text-sm);
-  line-height: 1.4;
+  line-height: var(--cm-leading-snug);
   padding: var(--cm-space-2) var(--cm-space-3);
   border-radius: var(--cm-radius-sm);
   white-space: normal;

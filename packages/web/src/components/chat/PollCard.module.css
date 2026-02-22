@@ -85,13 +85,13 @@
   background: color-mix(in srgb, var(--color-primary) 15%, transparent);
   transform-origin: left;
   transition: transform var(--cm-duration-fast);
-  z-index: 0;
+  z-index: var(--cm-z-local-base);
   pointer-events: none;
 }
 
 .optionContent {
   position: relative;
-  z-index: 1;
+  z-index: var(--cm-z-local-raised);
   display: flex;
   align-items: center;
   justify-content: space-between;

@@ -108,6 +108,25 @@
   color: var(--color-error);
 }
 
+.sendError {
+  display: flex;
+  align-items: center;
+  gap: var(--cm-space-2);
+  padding: var(--cm-space-2) var(--cm-space-3);
+  background: var(--color-error);
+  color: var(--color-base-100);
+  font-size: var(--cm-text-sm);
+}
+
+.sendError button {
+  background: none;
+  border: none;
+  color: inherit;
+  text-decoration: underline;
+  cursor: pointer;
+  font-size: inherit;
+}
+
 @media (max-width: 767px) {
   .channelSidebar {
     display: none;

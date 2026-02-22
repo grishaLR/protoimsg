@@ -137,6 +137,12 @@ export interface NewIceCandidateMessage extends WsMessageBase {
   candidate: IceCandidateInit;
 }
 
+export interface NotifyRecordMessage extends WsMessageBase {
+  type: 'notify_record';
+  uri: string;
+  cid: string;
+}
+
 export type ClientMessage =
   | AuthMessage
   | JoinRoomMessage
@@ -157,7 +163,8 @@ export type ClientMessage =
   | MakeCallMessage
   | AcceptCallMessage
   | RejectCallMessage
-  | NewIceCandidateMessage;
+  | NewIceCandidateMessage
+  | NotifyRecordMessage;
 
 // Server → Client messages
 

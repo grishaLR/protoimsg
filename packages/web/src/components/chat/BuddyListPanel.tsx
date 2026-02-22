@@ -401,11 +401,11 @@ export function BuddyListPanel({
                       >
                         <path
                           d="M2 3a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2H6l-3 2.5V11H2a1 1 0 0 1-1-1V3z"
-                          fill="#f59e0b"
+                          fill="currentColor"
                         />
-                        <circle cx="5.5" cy="6" r="0.75" fill="#fff" />
-                        <circle cx="8" cy="6" r="0.75" fill="#fff" />
-                        <circle cx="10.5" cy="6" r="0.75" fill="#fff" />
+                        <circle cx="5.5" cy="6" r="0.75" fill="var(--color-base-100)" />
+                        <circle cx="8" cy="6" r="0.75" fill="var(--color-base-100)" />
+                        <circle cx="10.5" cy="6" r="0.75" fill="var(--color-base-100)" />
                       </svg>
                     </span>
                   ) : (

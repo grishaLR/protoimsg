@@ -25,7 +25,7 @@ import { ChallengeStore } from './auth/challenge.js';
 import { RedisChallengeStore } from './auth/challenge-redis.js';
 import { LIMITS } from '@protoimsg/shared';
 import { pruneOldMessages } from './messages/queries.js';
-import { pruneTypingThrottle } from './ws/handlers.js';
+import { pruneTypingThrottle, pruneCallAttempts } from './ws/handlers.js';
 import { pruneSlowModeTracker } from './firehose/handlers.js';
 import { EmailService } from './email/service.js';
 
@@ -162,6 +162,9 @@ async function main() {
     gifRateLimiter,
     redis,
     () => firehose.isConnected(),
+    () => {
+      firehose.failover();
+    },
     emailService,
   );
   const httpServer = createServer(app);
@@ -200,6 +203,7 @@ async function main() {
     void rateLimiter.prune();
     void dmService.pruneExpired();
     pruneTypingThrottle();
+    pruneCallAttempts();
     pruneSlowModeTracker();
     void pruneOldMessages(db, LIMITS.defaultRetentionDays).then((count) => {
       if (count > 0) log.info({ count }, 'Pruned old room messages');

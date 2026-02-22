@@ -52,6 +52,7 @@ export function createApp(
   gifRateLimiter?: RateLimiterStore | null,
   redis?: Redis | null,
   isJetstreamConnected?: () => boolean,
+  firehoseFailover?: () => void,
   emailService?: EmailService | null,
 ): Express {
   const app = express();
@@ -63,9 +64,15 @@ export function createApp(
   app.use(corsMiddleware(config));
   app.use(createRequestLogger());
 
-  // Prometheus metrics (internal-only — reject requests with Fly-Client-IP header)
+  // Prometheus metrics (internal-only on Fly.io)
+  // Fly.io strips fly-client-ip from internal requests, so its presence means external.
+  // Additionally require ADMIN_API_KEY when set for defense-in-depth.
   app.get('/metrics', async (req, res) => {
     if (req.headers['fly-client-ip']) {
+      res.status(404).end();
+      return;
+    }
+    if (config.ADMIN_API_KEY && req.headers['authorization'] !== `Bearer ${config.ADMIN_API_KEY}`) {
       res.status(404).end();
       return;
     }
@@ -118,6 +125,7 @@ export function createApp(
         config.ADMIN_API_KEY,
         config.PUBLIC_API_URL,
         emailService ?? null,
+        firehoseFailover,
       ),
     );
   }
@@ -128,7 +136,12 @@ export function createApp(
   app.use('/api/rooms', requireAuth, createRateLimitMiddleware(rateLimiter), moderationRouter(sql));
   app.use('/api/rooms', requireAuth, createRateLimitMiddleware(rateLimiter), pollsRouter(sql));
   app.use('/api/rooms', requireAuth, createRateLimitMiddleware(rateLimiter), channelsRouter(sql));
-  app.use('/api/presence', requireAuth, presenceRouter(presenceService, blockService, sql));
+  app.use(
+    '/api/presence',
+    requireAuth,
+    createRateLimitMiddleware(rateLimiter),
+    presenceRouter(presenceService, blockService, sql),
+  );
   app.use('/api/community', requireAuth, communityRouter(sql));
   app.use(
     '/api/ice-servers',

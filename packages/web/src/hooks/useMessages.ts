@@ -226,7 +226,8 @@ export function useMessages(roomId: string, channelId: string | null) {
       }, PENDING_MESSAGE_TIMEOUT_MS);
 
       try {
-        await createMessageRecord(agent, input, rkey);
+        const result = await createMessageRecord(agent, input, rkey);
+        send({ type: 'notify_record', uri: result.uri, cid: result.cid });
       } catch (err) {
         // Rollback optimistic message on failure
         setMessages((prev) => prev.filter((m) => m.id !== rkey));

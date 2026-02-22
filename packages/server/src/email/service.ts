@@ -3,6 +3,15 @@ import { createLogger } from '../logger.js';
 
 const log = createLogger('email');
 
+/** Escape HTML special characters to prevent XSS in email templates. */
+function escapeHtml(str: string): string {
+  return str
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+
 export class EmailService {
   private client: Resend;
   private from: string;
@@ -13,7 +22,7 @@ export class EmailService {
   }
 
   async sendWaitlistConfirmation(to: string, handle?: string): Promise<void> {
-    const greeting = handle ? `Hey @${handle}` : 'Hey';
+    const greeting = handle ? `Hey @${escapeHtml(handle)}` : 'Hey';
     try {
       await this.client.emails.send({
         from: this.from,
@@ -44,7 +53,7 @@ export class EmailService {
   }
 
   async sendApprovalNotification(to: string, handle?: string): Promise<void> {
-    const greeting = handle ? `Hey @${handle}` : 'Hey';
+    const greeting = handle ? `Hey @${escapeHtml(handle)}` : 'Hey';
     try {
       await this.client.emails.send({
         from: this.from,

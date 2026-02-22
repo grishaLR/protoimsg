@@ -12,7 +12,7 @@ Your identity, contacts, and public chat history are yours, portable across any 
 
 - **Peer-to-peer video calling** — Free video calls powered by WebRTC. Pure P2P for your inner circle: direct connection, zero latency. Everyone else routes through our TURN relay to keep your IP address private. No third-party STUN servers — all infrastructure is self-hosted so your IP is never leaked to Google or anyone else. Tested NYC to Europe with clear video and no lag.
 
-- **Public chat rooms** — Join rooms by interest, meet people, and follow the ones you vibe with. The chat rooms have treaded replies, rich text, polls, GIF search (/giphy, /klipy), and room history that persists so you can discover people even after the conversation has moved on.
+- **Public chat rooms** — Join rooms by interest, meet people, and follow the ones you vibe with. The chat rooms have threaded replies, rich text, polls, GIF search (/giphy, /klipy), and room history that persists so you can discover people even after the conversation has moved on.
 
 - **Instant messaging** — Real-time IMs when both people are online. Same trust-aware routing as video: pure P2P for your inner circle, relay for everyone else. Relay is mandatory for non-inner-circle connections — users cannot override this to protect IP addresses. For offline messaging, use [Germ](https://germnetwork.com) integration for persistent E2E-encrypted DMs.
 
@@ -20,7 +20,7 @@ Your identity, contacts, and public chat history are yours, portable across any 
 
 - **Translation** — The entire UI, chat rooms, messages, and feed available in 8 languages (English, Spanish, Russian, Arabic, Ukrainian, Irish, Swahili, Hausa). Turn on auto-translate in settings or translate individual messages on demand. Powered by NLLB and LibreTranslate, both self-hosted. No data sent to third parties. Migrating fully to NLLB.
 
-- **E2E encrypted DMs (coming)** — Integration with [Germ](https://germnetwork.com) for persistent, end-to-end encrypted private messaging.
+- **E2E encrypted DMs** — Integration with [Germ](https://germnetwork.com) for persistent, end-to-end encrypted private messaging when you or the other person is offline.
 
 - **Moderation** — Block/report users, room bans, account age gates, slow mode, allowlists. ATProto labeler integration respects your existing moderation preferences.
 
@@ -44,7 +44,7 @@ The product is built on a three-layer architecture:
 
 Different conversations need different infrastructure:
 
-- **IMs (live/ephemeral)** — Server-relayed instant messages when both people are online. Migrating to WebRTC data channels for P2P.
+- **IMs (live/ephemeral)** — Peer-to-peer instant messages via WebRTC data channels when both people are online. Device-to-device — nothing stored on the server.
 - **DMs (persistent E2E)** — [Germ](https://germnetwork.com) integration. For async private messages that survive both parties being offline. End-to-end encrypted via MLS.
 - **Room chat** — ATProto records via the protoimsg server. For group rooms, public/community chat. Durable, searchable, portable.
 
@@ -56,12 +56,11 @@ This is where you _build_ your feed: discover people through conversation, follo
 
 ## Planned
 
-| Feature                     | Notes                                                                     |
-| --------------------------- | ------------------------------------------------------------------------- |
-| Private chat rooms          | Multi-party, peer-to-peer via WebRTC. Nothing stored server-side.         |
-| ATProto labeler integration | Subscribe to community labelers (e.g. Blacksky) for structured moderation |
-| WebRTC P2P IMs              | Device-to-device messaging, no server touches the data                    |
-| Custom theme creator        | Build your own theme, stored in ATProto for portability                   |
+| Feature              | Notes                                                             |
+| -------------------- | ----------------------------------------------------------------- |
+| Group video calls    | Multi-party video from chat rooms. 1:1 already shipped.           |
+| Private chat rooms   | Multi-party, peer-to-peer via WebRTC. Nothing stored server-side. |
+| Custom theme creator | Build your own theme, stored in ATProto for portability           |
 
 ## Protocol
 
@@ -71,27 +70,7 @@ Full Lexicon reference including all record schemas (room, message, community, p
 
 ## Getting started
 
-**Prerequisites:** Node.js 22+, [pnpm](https://pnpm.io/) 9+, Docker (for Postgres).
-
-```bash
-# Install dependencies
-pnpm install
-
-# Start Postgres
-docker compose up -d
-
-# Server: copy env and run migrations
-cp packages/server/.env.example packages/server/.env
-pnpm --filter @protoimsg/server db:migrate
-
-# Run everything
-pnpm dev
-```
-
-- **Server** at `http://localhost:3000` (API + WebSocket)
-- **Web app** at `http://localhost:5173` (Vite dev server)
-
-Other commands: `pnpm build`, `pnpm test`, `pnpm lint`, `pnpm typecheck`.
+See [CONTRIBUTING.md](./CONTRIBUTING.md) for setup instructions, development workflow, code style, and how to run translation backends.
 
 ## Stack
 

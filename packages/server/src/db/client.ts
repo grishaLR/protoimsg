@@ -19,6 +19,7 @@ export function createDb(connectionString: string, options: DbPoolOptions = {}):
     max,
     idle_timeout: idleTimeout,
     connect_timeout: connectTimeout,
+    prepare: false,
     onnotice: () => {
       // Suppress NOTICE messages from Postgres (e.g. during migrations)
     },

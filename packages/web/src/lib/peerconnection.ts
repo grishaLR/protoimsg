@@ -27,6 +27,11 @@ export class PeerManager {
   private type: PeerConnectionType;
   private pendingCandidates: IceCandidateInit[] = [];
 
+  /** Negotiation mutex — prevents overlapping createOffer/setLocalDescription cycles */
+  private isNegotiating = false;
+  /** Set when onnegotiationneeded fires while a negotiation is already in progress */
+  private negotiationNeededAgain = false;
+
   constructor(peerConfig: PeerConnectionConfig) {
     this.send = peerConfig.send;
     this.pc = new RTCPeerConnection(peerConfig.config);
@@ -92,6 +97,15 @@ export class PeerManager {
     // Only the caller should create offers — callee sends answers only
     if (this.type !== PeerConnectionType.Caller) return;
 
+    // Serialize negotiation — rapid track additions can fire this multiple
+    // times before the previous createOffer/setLocalDescription completes,
+    // causing "wrong state" InvalidStateError.
+    if (this.isNegotiating) {
+      this.negotiationNeededAgain = true;
+      return;
+    }
+    this.isNegotiating = true;
+
     void this.pc
       .createOffer({
         offerToReceiveAudio: true,
@@ -109,6 +123,13 @@ export class PeerManager {
       })
       .catch((err: unknown) => {
         log.error('Error during negotiation', err);
+      })
+      .finally(() => {
+        this.isNegotiating = false;
+        if (this.negotiationNeededAgain) {
+          this.negotiationNeededAgain = false;
+          this.handleNegotiationNeededEvent(new Event('negotiationneeded'));
+        }
       });
   }
 
