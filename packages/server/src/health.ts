@@ -11,7 +11,7 @@ interface HealthResponse {
   checks: {
     db: CheckResult;
     redis?: CheckResult;
-    jetstream?: { status: 'ok' | 'error'; connected: boolean };
+    jetstream?: { status: 'ok' | 'error'; connected: boolean; instance?: string };
   };
 }
 
@@ -19,6 +19,7 @@ export async function checkHealth(
   sql: Sql,
   redis: Redis | null,
   isJetstreamConnected: () => boolean,
+  jetstreamInstance?: () => string,
 ): Promise<{ response: HealthResponse; httpStatus: number }> {
   const checks: HealthResponse['checks'] = {
     db: { status: 'error', latencyMs: 0 },
@@ -52,7 +53,11 @@ export async function checkHealth(
 
   // Jetstream check
   const connected = isJetstreamConnected();
-  checks.jetstream = { status: connected ? 'ok' : 'error', connected };
+  checks.jetstream = {
+    status: connected ? 'ok' : 'error',
+    connected,
+    instance: jetstreamInstance?.(),
+  };
 
   // DB down = 503 (server can't function). Everything else = 200 degraded.
   const dbOk = checks.db.status === 'ok';

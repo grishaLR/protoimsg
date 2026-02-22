@@ -66,6 +66,8 @@ export interface FirehoseConsumer {
   isConnected: () => boolean;
   /** Force failover to the next Jetstream instance (admin use). */
   failover: () => void;
+  /** Currently connected (or connecting) Jetstream instance URL. */
+  currentInstance: () => string;
 }
 
 const INITIAL_RECONNECT_DELAY_MS = 1000;
@@ -371,6 +373,7 @@ export function createFirehoseConsumer(
 
   return {
     isConnected: () => ws !== null && ws.readyState === WebSocket.OPEN,
+    currentInstance: currentUrl,
     failover,
 
     start: () => {

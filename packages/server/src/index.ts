@@ -162,6 +162,7 @@ async function main() {
     gifRateLimiter,
     redis,
     () => firehose.isConnected(),
+    () => firehose.currentInstance(),
     () => {
       firehose.failover();
     },
