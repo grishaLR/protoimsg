@@ -52,6 +52,7 @@ export function createApp(
   gifRateLimiter?: RateLimiterStore | null,
   redis?: Redis | null,
   isJetstreamConnected?: () => boolean,
+  jetstreamInstance?: () => string,
   firehoseFailover?: () => void,
   emailService?: EmailService | null,
 ): Express {
@@ -86,6 +87,7 @@ export function createApp(
       sql,
       redis ?? null,
       isJetstreamConnected ?? (() => true),
+      jetstreamInstance,
     );
     res.status(httpStatus).json(response);
   });
