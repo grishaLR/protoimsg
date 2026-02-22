@@ -41,7 +41,7 @@ export class EmailService {
               If you have any questions, reach out to us on <a href="https://bsky.app/profile/protoimsg.myatproto.social" style="color: #6366f1;">Bluesky</a> or email <a href="mailto:protoimsg@gmail.com" style="color: #6366f1;">protoimsg@gmail.com</a>.
             </p>
             <p style="line-height: 1.6; color: #999; font-size: 14px; margin-top: 32px;">
-              — the protoimsg team
+              — the proto IM team
             </p>
           </div>
         `,
@@ -63,16 +63,22 @@ export class EmailService {
           <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 480px; margin: 0 auto; padding: 24px;">
             <h2 style="margin: 0 0 16px;">${greeting},</h2>
             <p style="line-height: 1.6; color: #333;">
-              You've been approved for <strong>proto instant messenger</strong>. Sign in with your ATProto handle and you're good to go.
-            </p>
-            <p style="line-height: 1.6;">
-              <a href="https://protoimsg.app" style="display: inline-block; background: #6366f1; color: #fff; padding: 12px 24px; border-radius: 6px; text-decoration: none; font-weight: 600;">Open protoimsg</a>
+              You're off the waitlist. Your account is active.
             </p>
             <p style="line-height: 1.6; color: #333;">
-              Questions? Contact us on <a href="https://bsky.app/profile/protoimsg.myatproto.social" style="color: #6366f1;">Bluesky</a> or send an email to <a href="mailto:protoimsg@gmail.com" style="color: #6366f1;">protoimsg@gmail.com</a>.
+              Sign in at <a href="https://protoimsg.app" style="color: #6366f1;">protoimsg.app</a> with your AT Protocol handle to get started.
+            </p>
+            <p style="line-height: 1.6; color: #333;">
+              This is an early beta — things might break. If something's off, reach out on
+              <a href="https://bsky.app/profile/protoimsg.myatproto.social" style="color: #6366f1;">Bluesky</a> or
+              email <a href="mailto:protoimsg@gmail.com" style="color: #6366f1;">protoimsg@gmail.com</a>.
+              Your feedback helps shape what this becomes.
+            </p>
+            <p style="line-height: 1.6; color: #333;">
+              See you in the rooms.
             </p>
             <p style="line-height: 1.6; color: #999; font-size: 14px; margin-top: 32px;">
-              — the protoimsg team
+              — the proto IM team
             </p>
           </div>
         `,
