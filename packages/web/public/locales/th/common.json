@@ -1,0 +1,121 @@
+{
+  "appName": "proto IM",
+
+  "status": {
+    "online": "ออนไลน์",
+    "away": "ไม่อยู่",
+    "idle": "ไม่ได้ใช้งาน"
+  },
+
+  "visibility": {
+    "everyone": "ทุกคน",
+    "community": "ชุมชน",
+    "innerCircle": "เพื่อนสนิท",
+    "noOne": "ไม่มีใคร"
+  },
+
+  "theme": {
+    "aim": "'98 คลาสสิก",
+    "nytLight": "มินิมอลสว่าง",
+    "nytDark": "มินิมอลมืด",
+    "dracula": "Dracula",
+    "valentine": "วาเลนไทน์",
+    "garden": "สวน",
+    "coffee": "กาแฟ",
+    "fantasy": "แฟนตาซี",
+    "nord": "Nord",
+    "retro": "เรโทร",
+    "black": "ดำ",
+    "wireframe": "Wireframe"
+  },
+
+  "nav": {
+    "community": "ชุมชน",
+    "rooms": "ห้อง",
+    "feed": "ฟีด"
+  },
+
+  "header": {
+    "menu": "เมนู",
+    "awayMessage": {
+      "label": "ข้อความไม่อยู่",
+      "placeholder": "เช่น เดี๋ยวกลับมา ไปชงกาแฟ"
+    },
+    "visibility": {
+      "label": "ใครเห็นฉันได้"
+    },
+    "settings": "ตั้งค่า",
+    "minimize": "ย่อ",
+    "signOut": "ออกจากระบบ"
+  },
+
+  "statusSelector": {
+    "awayMessage": {
+      "label": "ข้อความไม่อยู่",
+      "placeholder": "เช่น เดี๋ยวกลับมา ไปชงกาแฟ"
+    },
+    "visibility": {
+      "label": "ใครเห็นฉันได้"
+    }
+  },
+
+  "connectionBanner": {
+    "message": "การเชื่อมต่อขาดหาย — กำลังเชื่อมต่อใหม่..."
+  },
+
+  "errorBoundary": {
+    "title": "เกิดข้อผิดพลาด",
+    "fallbackMessage": "เกิดข้อผิดพลาดที่ไม่คาดคิด",
+    "tryAgain": "ลองใหม่"
+  },
+
+  "button": {
+    "back": "กลับ",
+    "cancel": "ยกเลิก",
+    "send": "ส่ง",
+    "close": "ปิด",
+    "save": "บันทึก",
+    "settings": "ตั้งค่า"
+  },
+
+  "aria": {
+    "expand": "ขยาย",
+    "collapse": "ย่อ"
+  },
+
+  "feedback": {
+    "menuItem": "ส่งความคิดเห็น",
+    "title": "ส่งความคิดเห็น",
+    "placeholder": "คุณคิดอะไรอยู่? รายงานบั๊ก ไอเดียฟีเจอร์ อะไรก็ได้",
+    "submit": "ส่ง",
+    "sending": "กำลังส่ง...",
+    "cancel": "ยกเลิก",
+    "success": "ขอบคุณ! ส่งความคิดเห็นแล้ว",
+    "error": "เกิดข้อผิดพลาด ลองใหม่อีกครั้ง"
+  },
+
+  "serverError": {
+    "unknown": "เกิดข้อผิดพลาดที่ไม่ทราบสาเหตุ",
+    "unauthorized": "คุณต้องลงชื่อเข้าใช้ก่อน",
+    "invalidSession": "เซสชันของคุณหมดอายุแล้ว กรุณาลงชื่อเข้าใช้ใหม่",
+    "invalidChallenge": "การยืนยันตัวตนหมดอายุ กรุณาลองใหม่",
+    "handleMismatch": "การตรวจสอบ handle ล้มเหลว",
+    "authVerificationFailed": "การยืนยันตัวตนล้มเหลว",
+    "authTimeout": "การยืนยันตัวตนหมดเวลา",
+    "authRequired": "ต้องยืนยันตัวตนก่อน",
+    "forbidden": "คุณไม่มีสิทธิ์ทำสิ่งนี้",
+    "banned": "บัญชีนี้ไม่ได้รับอนุญาตให้ใช้บริการนี้",
+    "accessDenied": "ถูกปฏิเสธการเข้าถึง",
+    "notParticipant": "คุณไม่ได้เป็นผู้เข้าร่วมในการสนทนานี้",
+    "blockedUser": "ไม่สามารถส่งข้อความให้ผู้ใช้นี้ได้",
+    "selfDm": "คุณไม่สามารถส่งข้อความหาตัวเองได้",
+    "notFound": "ไม่พบ",
+    "rateLimited": "คำขอมากเกินไป กรุณารอสักครู่แล้วลองใหม่",
+    "serverError": "เกิดข้อผิดพลาดจากฝั่งเรา",
+    "networkError": "เกิดข้อผิดพลาดเครือข่าย ตรวจสอบการเชื่อมต่อของคุณ",
+    "invalidInput": "ข้อมูลไม่ถูกต้อง",
+    "messageTooLong": "ข้อความยาวเกินไป",
+    "contentFiltered": "ข้อความถูกบล็อกโดยตัวกรองเนื้อหา",
+    "alreadyExists": "มีอยู่แล้ว"
+  }
+}

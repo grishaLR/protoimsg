@@ -1,0 +1,62 @@
+{
+  "composer": {
+    "collapsed": "คุณกำลังคิดอะไรอยู่?",
+    "replyingTo": "กำลังตอบกลับ @{{handle}}",
+    "placeholder": "พิมพ์โพสต์ของคุณ...",
+    "charCount": "{{count}}/{{max}}",
+    "attachImage": "แนบรูปภาพ",
+    "cancel": "ยกเลิก",
+    "posting": "กำลังโพสต์...",
+    "post": "โพสต์",
+    "imageAltText": "อธิบายรูปภาพนี้...",
+    "gifAltText": "อธิบาย GIF นี้..."
+  },
+
+  "post": {
+    "pinned": "ปักหมุด",
+    "repostedBy": "รีโพสต์โดย",
+    "replyTo": "ตอบกลับ @{{handle}}",
+    "relativeTime": {
+      "seconds": "{{count}} วิ",
+      "minutes": "{{count}} น",
+      "hours": "{{count}} ชม",
+      "days": "{{count}} ว",
+      "months": "{{count}} ด"
+    },
+    "translate": "แปล",
+    "translatedTo": "แปลเป็น{{lang}}",
+    "showOriginal": "แสดงต้นฉบับ",
+    "translating": "กำลังแปล..."
+  },
+
+  "feedView": {
+    "loading": "กำลังโหลดฟีด...",
+    "empty": "ไม่มีโพสต์ให้แสดง",
+    "loadingMore": "กำลังโหลดเพิ่ม...",
+    "refresh": "รีเฟรชฟีด"
+  },
+
+  "profileView": {
+    "back": "กลับ",
+    "loading": "กำลังโหลดโปรไฟล์...",
+    "error": "โหลดโปรไฟล์ไม่สำเร็จ",
+    "followers": "ผู้ติดตาม",
+    "following": "กำลังติดตาม",
+    "posts": "โพสต์",
+    "loadingMore": "กำลังโหลดเพิ่ม...",
+    "translateBio": "แปลประวัติ",
+    "translating": "กำลังแปล...",
+    "translatedTo": "แปลเป็น{{lang}}",
+    "showOriginal": "แสดงต้นฉบับ",
+    "messageOnGerm": "ส่งข้อความบน Germ",
+    "germDm": "Germ DM"
+  },
+
+  "threadView": {
+    "back": "กลับ",
+    "loading": "กำลังโหลดเธรด...",
+    "notFound": "ไม่พบเธรด",
+    "viewReplies_one": "ดู {{count}} ข้อความตอบกลับ",
+    "viewReplies_other": "ดู {{count}} ข้อความตอบกลับ"
+  }
+}

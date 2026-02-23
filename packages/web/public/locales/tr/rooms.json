@@ -1,0 +1,63 @@
+{
+  "createRoom": {
+    "title": "Oda Oluştur",
+    "nameLabel": "Ad",
+    "namePlaceholder": "Oda adı",
+    "descriptionLabel": "Açıklama",
+    "descriptionPlaceholder": "Bu oda ne hakkında?",
+    "topicLabel": "Konu",
+    "topicPlaceholder": "Güncel tartışma konusu",
+    "purposeLabel": "Amaç",
+    "purpose": {
+      "discussion": "Tartışma",
+      "event": "Etkinlik",
+      "community": "Topluluk",
+      "support": "Destek"
+    },
+    "visibilityLabel": "Görünürlük",
+    "visibility": {
+      "public": "Herkese Açık",
+      "unlisted": "Listelenmemiş",
+      "private": "Gizli"
+    },
+    "error": {
+      "default": "Oda oluşturulamadı"
+    },
+    "cancel": "İptal",
+    "submitting": "Oluşturuluyor...",
+    "submit": "Oluştur"
+  },
+
+  "roomList": {
+    "empty": "Oda bulunamadı. Başlamak için bir tane oluştur!"
+  },
+
+  "roomCard": {
+    "createdDate": "{{date}} tarihinde oluşturuldu",
+    "translate": "Çevir",
+    "translating": "Çevriliyor...",
+    "translatedTo": "{{lang}} diline çevrildi",
+    "showOriginal": "Orijinali göster"
+  },
+
+  "directory": {
+    "searchPlaceholder": "Oda ara...",
+    "createButton": "Oda Oluştur",
+    "loading": "Odalar yükleniyor..."
+  },
+
+  "chatRoom": {
+    "invalidId": "Geçersiz oda kimliği",
+    "loading": "Oda hazırlanıyor...",
+    "notFound": "Oda bulunamadı",
+    "backToRooms": "Odalar",
+    "members": "Üyeler",
+    "channelSwitcher": "Kanal seç",
+    "createChannel": "Kanal oluştur",
+    "collapseChannels": "Kanalları daralt",
+    "expandChannels": "Kanalları genişlet",
+    "sendFailed": "Mesaj gönderilemedi. Lütfen tekrar dene.",
+    "dismiss": "Kapat",
+    "reportRoom": "Odayı Şikayet Et"
+  }
+}

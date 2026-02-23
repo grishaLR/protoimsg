@@ -1,0 +1,59 @@
+{
+  "input": {
+    "placeholder": "Mesaj yaz...",
+    "ariaLabel": "DM mesajı yaz",
+    "send": "Gönder"
+  },
+
+  "messageList": {
+    "empty": "Henüz mesaj yok. Merhaba de!",
+    "typing": "yazıyor..."
+  },
+
+  "popover": {
+    "ariaLabel": "{{recipientDid}} ile DM sohbeti",
+    "header": {
+      "ariaLabel": {
+        "expand": "{{recipientDid}} ile DM — genişletmek için tıkla",
+        "minimize": "{{recipientDid}} ile DM — küçültmek için tıkla"
+      }
+    },
+    "unreadAriaLabel": "{{count}} okunmamış mesaj",
+    "unreadOverflow": "99+",
+    "connecting": "Bağlanılıyor...",
+    "connectionFailed": "Bağlantı başarısız",
+    "retry": "Tekrar dene",
+    "peerClosed": "Sohbet kapatıldı. Çevrimdışı mesajlar için Germ kullan.",
+    "closingCountdown": "Sohbet bitti. {{seconds}}sn sonra kapanacak...",
+    "minimize": {
+      "titleExpand": "Genişlet",
+      "titleMinimize": "Küçült",
+      "ariaLabel": {
+        "expand": "Sohbeti genişlet",
+        "minimize": "Sohbeti küçült"
+      }
+    },
+    "close": {
+      "title": "Kapat",
+      "ariaLabel": "Sohbeti kapat"
+    }
+  },
+
+  "notification": {
+    "ariaLabel": "{{senderDid}} kişisinden yeni mesaj",
+    "incoming": "sohbet etmek istiyor",
+    "dismiss": {
+      "title": "Kapat",
+      "ariaLabel": "Bildirimi kapat"
+    }
+  },
+
+  "popoverContainer": {
+    "ariaLabel": "DM bildirimleri"
+  },
+
+  "window": {
+    "connecting": "Bağlanılıyor...",
+    "waitingForConnection": "Bağlantı bekleniyor..."
+  }
+}

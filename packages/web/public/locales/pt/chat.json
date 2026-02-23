@@ -1,0 +1,270 @@
+{
+  "buddyList": {
+    "searchPlaceholder": "Buscar contatos...",
+    "addBuddyLabel": "Adicionar contato",
+    "loading": "Carregando...",
+    "empty": "Nenhum contato ainda",
+    "createGroup": {
+      "placeholder": "Nome do grupo...",
+      "button": "+ Criar grupo"
+    },
+    "footer": {
+      "chatRooms": "Salas de bate-papo",
+      "feed": "Feed"
+    },
+    "unreadIm": "{{count}} n\u00e3o lida(s)",
+    "incomingIm": "Mensagem recebida",
+    "groups": {
+      "innerCircle": "C\u00edrculo \u00edntimo",
+      "community": "Comunidade",
+      "offline": "Offline",
+      "blocked": "Bloqueados",
+      "followers": "Seguidores",
+      "following": "Seguindo"
+    }
+  },
+
+  "buddyMenu": {
+    "button": {
+      "title": "Op\u00e7\u00f5es",
+      "ariaLabel": "Op\u00e7\u00f5es do contato"
+    },
+    "sendIm": "Enviar mensagem",
+    "addToInnerCircle": "Adicionar ao c\u00edrculo \u00edntimo",
+    "removeFromInnerCircle": "Remover do c\u00edrculo \u00edntimo",
+    "moveTo": "Mover para...",
+    "block": "Bloquear",
+    "unblock": "Desbloquear",
+    "remove": "Remover",
+    "messageOnGerm": "Mensagem no Germ",
+    "addToCommunity": "Adicionar \u00e0 comunidade",
+    "sendImDisabled": "Usu\u00e1rio est\u00e1 offline",
+    "videoCall": "Chamada de v\u00eddeo",
+    "videoCallDisabled": "Usu\u00e1rio est\u00e1 offline",
+    "report": "Denunciar usu\u00e1rio"
+  },
+
+  "memberMenu": {
+    "button": {
+      "title": "Op\u00e7\u00f5es",
+      "ariaLabel": "Op\u00e7\u00f5es do membro"
+    },
+    "addToBuddyList": "Adicionar \u00e0 lista de contatos",
+    "block": "Bloquear",
+    "unblock": "Desbloquear",
+    "feedback": {
+      "added": "Adicionado!",
+      "alreadyInList": "J\u00e1 est\u00e1 na lista de contatos",
+      "error": "Erro ao adicionar contato"
+    },
+    "report": "Denunciar usu\u00e1rio"
+  },
+
+  "messageInput": {
+    "placeholder": {
+      "default": "Digite uma mensagem... (Enter para enviar, Shift+Enter para nova linha)",
+      "reply": "Responder... (Enter para enviar, Esc para cancelar)"
+    },
+    "replyingTo": "Respondendo a",
+    "cancelReply": {
+      "ariaLabel": "Cancelar resposta"
+    },
+    "ariaLabel": {
+      "default": "Digite uma mensagem",
+      "reply": "Digite uma resposta"
+    },
+    "send": "Enviar"
+  },
+
+  "messageItem": {
+    "contentWarning": "Aviso de conte\u00fado",
+    "clickToReveal": "Clique para revelar",
+    "replyCount_one": "{{count}} resposta",
+    "replyCount_other": "{{count}} respostas",
+    "replyButton": "Responder",
+    "translate": "Traduzir",
+    "translating": "Traduzindo...",
+    "translatedTo": "Traduzido para {{lang}}",
+    "showOriginal": "Mostrar original",
+    "reportButton": "Denunciar"
+  },
+
+  "messageList": {
+    "loading": "Carregando mensagens...",
+    "empty": "Nenhuma mensagem ainda. Comece a conversa!",
+    "typing": {
+      "one": "est\u00e1 digitando...",
+      "twoAnd": "e",
+      "twoSuffix": "est\u00e3o digitando...",
+      "many": "{{count}} pessoas est\u00e3o digitando..."
+    }
+  },
+
+  "threadPanel": {
+    "ariaLabel": "T\u00f3pico",
+    "title": "T\u00f3pico",
+    "backAriaLabel": "Voltar \u00e0 mensagem principal",
+    "closeAriaLabel": "Fechar t\u00f3pico",
+    "loading": "Carregando t\u00f3pico...",
+    "notFound": "T\u00f3pico n\u00e3o encontrado",
+    "replyCount_one": "{{count}} resposta",
+    "replyCount_other": "{{count}} respostas",
+    "inputPlaceholder": "Responder no t\u00f3pico..."
+  },
+
+  "formattingToolbar": {
+    "bold": "Negrito",
+    "italic": "It\u00e1lico",
+    "strikethrough": "Tachado",
+    "code": "C\u00f3digo",
+    "blockquote": "Cita\u00e7\u00e3o"
+  },
+
+  "memberList": {
+    "heading": "Membros ({{count}})"
+  },
+
+  "groupHeader": {
+    "renameGroup": "Renomear grupo",
+    "deleteGroup": "Excluir grupo",
+    "expand": "Expandir",
+    "collapse": "Recolher"
+  },
+
+  "gif": {
+    "title": "GIFs",
+    "searchPlaceholder": "Buscar GIFs...",
+    "noResults": "Nenhum GIF encontrado",
+    "loading": "Carregando...",
+    "poweredByGiphy": "Fornecido por GIPHY",
+    "poweredByKlipy": "Fornecido por Klipy",
+    "close": "Fechar",
+    "altTextPlaceholder": "Descreva este GIF (texto alternativo)...",
+    "confirm": "Enviar",
+    "back": "Voltar"
+  },
+
+  "videoCall": {
+    "incoming": {
+      "ariaLabel": "Chamada de v\u00eddeo recebida",
+      "label": "Chamada recebida...",
+      "accept": "Aceitar chamada",
+      "acceptAriaLabel": "Aceitar chamada recebida",
+      "reject": "Recusar chamada",
+      "rejectAriaLabel": "Recusar chamada recebida"
+    },
+    "calling": "Chamando...",
+    "ringing": "Tocando...",
+    "reconnecting": "Reconectando...",
+    "mute": "Silenciar",
+    "unmute": "Ativar som",
+    "cameraOff": "Desligar c\u00e2mera",
+    "cameraOn": "Ligar c\u00e2mera",
+    "flipCamera": "Trocar c\u00e2mera",
+    "connectionFailed": "Falha na conex\u00e3o",
+    "retry": "Tentar novamente",
+    "endCall": "Encerrar chamada",
+    "shareScreen": "Compartilhar tela",
+    "stopSharing": "Parar de compartilhar",
+    "error": {
+      "mediaPermission": "\u00c9 necess\u00e1ria permiss\u00e3o de c\u00e2mera/microfone para chamadas de v\u00eddeo"
+    }
+  },
+
+  "channel": {
+    "heading": "Canais",
+    "listAriaLabel": "Lista de canais",
+    "create": "Criar canal",
+    "createTitle": "Criar canal",
+    "nameLabel": "Nome",
+    "namePlaceholder": "Nome do canal",
+    "descriptionLabel": "Descri\u00e7\u00e3o",
+    "descriptionPlaceholder": "Sobre o que \u00e9 este canal?",
+    "postPolicyLabel": "Quem pode publicar",
+    "postPolicy": {
+      "everyone": "Todos",
+      "moderators": "Somente moderadores",
+      "owner": "Somente o dono"
+    },
+    "cancel": "Cancelar",
+    "creating": "Criando...",
+    "createSubmit": "Criar",
+    "error": {
+      "default": "Falha ao criar canal"
+    }
+  },
+
+  "report": {
+    "title": "Denunciar usu\u00e1rio",
+    "subjectLabel": "Usu\u00e1rio",
+    "categoryLabel": "Categoria",
+    "categories": {
+      "harassment": "Ass\u00e9dio",
+      "spam": "Spam",
+      "impersonation": "Falsidade ideol\u00f3gica",
+      "hateSpeech": "Discurso de \u00f3dio",
+      "other": "Outro"
+    },
+    "descriptionLabel": "Descri\u00e7\u00e3o",
+    "descriptionPlaceholder": "O que aconteceu?",
+    "attachmentsLabel": "Capturas de tela (opcional)",
+    "attachmentsHint": "At\u00e9 2 imagens",
+    "addAttachment": "Adicionar captura",
+    "submit": "Enviar den\u00fancia",
+    "submitting": "Enviando...",
+    "cancel": "Cancelar",
+    "success": "Den\u00fancia enviada. Vamos analisar.",
+    "error": "Falha ao enviar den\u00fancia.",
+    "removeAttachment": "Remover anexo",
+    "fileSizeError": "Arquivo muito grande. Tamanho m\u00e1ximo: 2 MB."
+  },
+
+  "poll": {
+    "createPoll": "Criar enquete",
+    "questionLabel": "Pergunta",
+    "questionPlaceholder": "Fa\u00e7a uma pergunta...",
+    "optionsLabel": "Op\u00e7\u00f5es",
+    "optionPlaceholder": "Op\u00e7\u00e3o {{n}}",
+    "addOption": "Adicionar op\u00e7\u00e3o",
+    "removeOption": "Remover op\u00e7\u00e3o",
+    "allowMultiple": "Permitir m\u00faltipla escolha",
+    "expires": "Expira",
+    "expired": "Enquete encerrada",
+    "expiresIn": "Encerra em {{time}}",
+    "totalVotes_one": "{{count}} voto",
+    "totalVotes_other": "{{count}} votos",
+    "vote": "Votar",
+    "create": "Criar",
+    "cancel": "Cancelar",
+    "expiry": {
+      "none": "Sem expira\u00e7\u00e3o",
+      "1h": "1 hora",
+      "6h": "6 horas",
+      "24h": "24 horas",
+      "3d": "3 dias",
+      "1w": "1 semana"
+    },
+    "error": {
+      "minOptions": "S\u00e3o necess\u00e1rias pelo menos 2 op\u00e7\u00f5es",
+      "default": "Falha ao criar enquete"
+    }
+  },
+
+  "reportContent": {
+    "title": "Denunciar",
+    "subjectLabel": "Assunto",
+    "categoryLabel": "Categoria",
+    "descriptionLabel": "Descri\u00e7\u00e3o",
+    "descriptionPlaceholder": "O que aconteceu?",
+    "attachmentsLabel": "Capturas de tela (opcional)",
+    "attachmentsHint": "At\u00e9 2 imagens",
+    "addAttachment": "Adicionar captura",
+    "removeAttachment": "Remover",
+    "submit": "Enviar den\u00fancia",
+    "submitting": "Enviando...",
+    "cancel": "Cancelar",
+    "success": "Den\u00fancia enviada. Vamos analisar.",
+    "error": "Falha ao enviar den\u00fancia.",
+    "fileSizeError": "Arquivo muito grande (m\u00e1x. 2 MB)"
+  }
+}

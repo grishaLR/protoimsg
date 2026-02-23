@@ -1,0 +1,59 @@
+{
+  "input": {
+    "placeholder": "संदेश लिखें...",
+    "ariaLabel": "DM संदेश लिखें",
+    "send": "भेजें"
+  },
+
+  "messageList": {
+    "empty": "अभी कोई संदेश नहीं। नमस्ते कहें!",
+    "typing": "टाइप कर रहा है..."
+  },
+
+  "popover": {
+    "ariaLabel": "{{recipientDid}} के साथ DM बातचीत",
+    "header": {
+      "ariaLabel": {
+        "expand": "{{recipientDid}} के साथ DM — विस्तार करने के लिए क्लिक करें",
+        "minimize": "{{recipientDid}} के साथ DM — छोटा करने के लिए क्लिक करें"
+      }
+    },
+    "unreadAriaLabel": "{{count}} अपठित संदेश",
+    "unreadOverflow": "99+",
+    "connecting": "जुड़ रहे हैं…",
+    "connectionFailed": "कनेक्शन विफल",
+    "retry": "फिर से कोशिश करें",
+    "peerClosed": "चैट बंद हो गई। ऑफ़लाइन संदेश के लिए Germ का उपयोग करें।",
+    "closingCountdown": "चैट समाप्त। {{seconds}}s में बंद हो रहा है…",
+    "minimize": {
+      "titleExpand": "विस्तार करें",
+      "titleMinimize": "छोटा करें",
+      "ariaLabel": {
+        "expand": "बातचीत विस्तार करें",
+        "minimize": "बातचीत छोटा करें"
+      }
+    },
+    "close": {
+      "title": "बंद करें",
+      "ariaLabel": "बातचीत बंद करें"
+    }
+  },
+
+  "notification": {
+    "ariaLabel": "{{senderDid}} से नया संदेश",
+    "incoming": "चैट करना चाहता है",
+    "dismiss": {
+      "title": "खारिज करें",
+      "ariaLabel": "सूचना खारिज करें"
+    }
+  },
+
+  "popoverContainer": {
+    "ariaLabel": "DM सूचनाएँ"
+  },
+
+  "window": {
+    "connecting": "जुड़ रहे हैं…",
+    "waitingForConnection": "कनेक्शन की प्रतीक्षा…"
+  }
+}

@@ -1,0 +1,56 @@
+{
+  "back": "Geri",
+
+  "accountInfo": {
+    "title": "Hesap Bilgileri",
+    "didLabel": "DID",
+    "handleLabel": "Handle"
+  },
+
+  "editProfile": {
+    "title": "Profili Düzenle",
+    "loading": "Profil yükleniyor...",
+    "changeAvatar": "Avatarı Değiştir",
+    "displayNameLabel": "Görünen Ad",
+    "bioLabel": "Biyografi",
+    "saving": "Kaydediliyor...",
+    "save": "Kaydet"
+  },
+
+  "appearance": {
+    "title": "Görünüm"
+  },
+
+  "language": {
+    "title": "Dil"
+  },
+
+  "translation": {
+    "title": "Çeviri",
+    "autoTranslate": "Gönderileri otomatik çevir",
+    "autoTranslateHint": "Akış gönderilerini ve biyografileri otomatik olarak senin diline çevir"
+  },
+
+  "notifications": {
+    "title": "Bildirimler",
+    "enableSounds": "Sesleri etkinleştir",
+    "enableSoundsHint": "Giriş/çıkış, yeni mesajlar ve gelen aramalar için ses çal"
+  },
+
+  "privacy": {
+    "title": "Gizlilik",
+    "ipProtectionLabel": "Aramalar için IP koruması",
+    "ipProtectionHint": "Yakın çevreyle doğrudan bağlantılar düşük gecikme ve net, akıcı görüntü sağlar ancak IP adresini karşı tarafa gösterir. Relay, IP adresini gizler ama biraz gecikme ekleyebilir.",
+    "directConnectionInfo": "Doğrudan bağlantı tamamen eşler arası (peer-to-peer) bir bağlantıdır. Araman aradaki herhangi bir sunucu olmadan doğrudan karşı kişiye gider. Bu da düşük gecikme ve net, akıcı bir görüntü demek. Ancak karşılığında IP adresin karşı tarafa görünür. IP adresini internetteki evin kapı numarası gibi düşün. Yakın çevren, fiziksel adresini de paylaşabileceğin insanlar olmalı. Bununla rahatsan, doğrudan bağlantı kullanabilirsin.",
+    "relayInfo": "Relay ile araman doğrudan karşı kişiye gitmek yerine sunucumuz üzerinden yönlendirilir, böylece ikiniz de birbirinizin IP adresini görmez. Bu teknik olarak peer-to-peer değildir ama yalnızca IP adresini gizlemek için kullanılır. Araman yine de DTLS-SRTP ile şifrelenir — şifreleme anahtarları doğrudan sen ve karşı arayan arasında belirlenir. Relay sunucumuz yalnızca paketleri iletir ve hiçbir şeyi göremez veya duyamaz.",
+    "options": {
+      "nonInnerCircle": "Yakın çevre için doğrudan, diğerleri için relay (önerilen)",
+      "all": "IP adresimi herkesten gizle"
+    }
+  },
+
+  "actions": {
+    "title": "İşlemler",
+    "signOut": "Çıkış Yap"
+  }
+}

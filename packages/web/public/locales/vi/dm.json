@@ -1,0 +1,59 @@
+{
+  "input": {
+    "placeholder": "Nhập tin nhắn...",
+    "ariaLabel": "Nhập tin nhắn DM",
+    "send": "Gửi"
+  },
+
+  "messageList": {
+    "empty": "Chưa có tin nhắn nào. Hãy chào nhau!",
+    "typing": "đang nhập..."
+  },
+
+  "popover": {
+    "ariaLabel": "Cuộc trò chuyện DM với {{recipientDid}}",
+    "header": {
+      "ariaLabel": {
+        "expand": "DM với {{recipientDid}} — nhấn để mở rộng",
+        "minimize": "DM với {{recipientDid}} — nhấn để thu nhỏ"
+      }
+    },
+    "unreadAriaLabel": "{{count}} tin nhắn chưa đọc",
+    "unreadOverflow": "99+",
+    "connecting": "Đang kết nối…",
+    "connectionFailed": "Kết nối thất bại",
+    "retry": "Thử lại",
+    "peerClosed": "Cuộc trò chuyện đã đóng. Dùng Germ để nhắn tin ngoại tuyến.",
+    "closingCountdown": "Cuộc trò chuyện đã kết thúc. Đóng sau {{seconds}} giây…",
+    "minimize": {
+      "titleExpand": "Mở rộng",
+      "titleMinimize": "Thu nhỏ",
+      "ariaLabel": {
+        "expand": "Mở rộng cuộc trò chuyện",
+        "minimize": "Thu nhỏ cuộc trò chuyện"
+      }
+    },
+    "close": {
+      "title": "Đóng",
+      "ariaLabel": "Đóng cuộc trò chuyện"
+    }
+  },
+
+  "notification": {
+    "ariaLabel": "Tin nhắn mới từ {{senderDid}}",
+    "incoming": "muốn trò chuyện",
+    "dismiss": {
+      "title": "Bỏ qua",
+      "ariaLabel": "Bỏ qua thông báo"
+    }
+  },
+
+  "popoverContainer": {
+    "ariaLabel": "Thông báo DM"
+  },
+
+  "window": {
+    "connecting": "Đang kết nối…",
+    "waitingForConnection": "Đang chờ kết nối…"
+  }
+}

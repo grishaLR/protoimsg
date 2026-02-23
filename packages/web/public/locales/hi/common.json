@@ -1,0 +1,121 @@
+{
+  "appName": "proto IM",
+
+  "status": {
+    "online": "ऑनलाइन",
+    "away": "दूर",
+    "idle": "निष्क्रिय"
+  },
+
+  "visibility": {
+    "everyone": "सभी",
+    "community": "समुदाय",
+    "innerCircle": "करीबी दोस्त",
+    "noOne": "कोई नहीं"
+  },
+
+  "theme": {
+    "aim": "'98 क्लासिक",
+    "nytLight": "मिनिमल लाइट",
+    "nytDark": "मिनिमल डार्क",
+    "dracula": "Dracula",
+    "valentine": "वेलेंटाइन",
+    "garden": "गार्डन",
+    "coffee": "कॉफ़ी",
+    "fantasy": "फ़ैंटेसी",
+    "nord": "Nord",
+    "retro": "रेट्रो",
+    "black": "ब्लैक",
+    "wireframe": "Wireframe"
+  },
+
+  "nav": {
+    "community": "समुदाय",
+    "rooms": "रूम",
+    "feed": "फ़ीड"
+  },
+
+  "header": {
+    "menu": "मेनू",
+    "awayMessage": {
+      "label": "दूर रहने का संदेश",
+      "placeholder": "जैसे: बस आ रहा हूँ, चाय ले रहा हूँ"
+    },
+    "visibility": {
+      "label": "मुझे कौन देख सकता है"
+    },
+    "settings": "सेटिंग्स",
+    "minimize": "छोटा करें",
+    "signOut": "साइन आउट"
+  },
+
+  "statusSelector": {
+    "awayMessage": {
+      "label": "दूर रहने का संदेश",
+      "placeholder": "जैसे: बस आ रहा हूँ, चाय ले रहा हूँ"
+    },
+    "visibility": {
+      "label": "मुझे कौन देख सकता है"
+    }
+  },
+
+  "connectionBanner": {
+    "message": "कनेक्शन टूट गया — फिर से जोड़ रहे हैं..."
+  },
+
+  "errorBoundary": {
+    "title": "कुछ गड़बड़ हो गई",
+    "fallbackMessage": "एक अप्रत्याशित त्रुटि हुई",
+    "tryAgain": "फिर से कोशिश करें"
+  },
+
+  "button": {
+    "back": "वापस",
+    "cancel": "रद्द करें",
+    "send": "भेजें",
+    "close": "बंद करें",
+    "save": "सहेजें",
+    "settings": "सेटिंग्स"
+  },
+
+  "aria": {
+    "expand": "विस्तार करें",
+    "collapse": "संक्षिप्त करें"
+  },
+
+  "feedback": {
+    "menuItem": "फ़ीडबैक भेजें",
+    "title": "फ़ीडबैक भेजें",
+    "placeholder": "आपके मन में क्या है? बग रिपोर्ट, फ़ीचर आइडिया, कुछ भी।",
+    "submit": "भेजें",
+    "sending": "भेज रहे हैं...",
+    "cancel": "रद्द करें",
+    "success": "धन्यवाद! फ़ीडबैक भेज दिया गया।",
+    "error": "कुछ गड़बड़ हो गई। फिर से कोशिश करें।"
+  },
+
+  "serverError": {
+    "unknown": "एक अज्ञात त्रुटि हुई",
+    "unauthorized": "आपको साइन इन होना ज़रूरी है",
+    "invalidSession": "आपका सत्र समाप्त हो गया है। कृपया फिर से साइन इन करें।",
+    "invalidChallenge": "प्रमाणीकरण चुनौती समाप्त हो गई। कृपया फिर से कोशिश करें।",
+    "handleMismatch": "Handle सत्यापन विफल रहा",
+    "authVerificationFailed": "प्रमाणीकरण सत्यापन विफल रहा",
+    "authTimeout": "प्रमाणीकरण का समय समाप्त हो गया",
+    "authRequired": "प्रमाणीकरण आवश्यक है",
+    "forbidden": "आपको यह करने की अनुमति नहीं है",
+    "banned": "इस खाते को यह सेवा उपयोग करने की अनुमति नहीं है",
+    "accessDenied": "पहुँच अस्वीकृत",
+    "notParticipant": "आप इस बातचीत के सहभागी नहीं हैं",
+    "blockedUser": "इस उपयोगकर्ता को संदेश नहीं भेज सकते",
+    "selfDm": "आप खुद को संदेश नहीं भेज सकते",
+    "notFound": "नहीं मिला",
+    "rateLimited": "बहुत ज़्यादा अनुरोध। कृपया थोड़ा रुकें और फिर कोशिश करें।",
+    "serverError": "हमारी तरफ़ से कुछ गड़बड़ हो गई",
+    "networkError": "नेटवर्क त्रुटि। अपना कनेक्शन जाँचें।",
+    "invalidInput": "अमान्य इनपुट",
+    "messageTooLong": "संदेश बहुत लंबा है",
+    "contentFiltered": "संदेश कंटेंट फ़िल्टर द्वारा रोक दिया गया",
+    "alreadyExists": "पहले से मौजूद है"
+  }
+}

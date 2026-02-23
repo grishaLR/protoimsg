@@ -1,0 +1,59 @@
+{
+  "input": {
+    "placeholder": "메시지를 입력하세요...",
+    "ariaLabel": "DM 메시지 입력",
+    "send": "보내기"
+  },
+
+  "messageList": {
+    "empty": "아직 메시지가 없습니다. 인사해 보세요!",
+    "typing": "입력 중..."
+  },
+
+  "popover": {
+    "ariaLabel": "{{recipientDid}}와(과)의 DM 대화",
+    "header": {
+      "ariaLabel": {
+        "expand": "{{recipientDid}}와(과)의 DM — 클릭하여 확장",
+        "minimize": "{{recipientDid}}와(과)의 DM — 클릭하여 최소화"
+      }
+    },
+    "unreadAriaLabel": "읽지 않은 메시지 {{count}}개",
+    "unreadOverflow": "99+",
+    "connecting": "연결 중…",
+    "connectionFailed": "연결 실패",
+    "retry": "다시 시도",
+    "peerClosed": "채팅이 종료되었습니다. 오프라인 메시지는 Germ을 이용하세요.",
+    "closingCountdown": "채팅이 종료되었습니다. {{seconds}}초 후 닫힙니다…",
+    "minimize": {
+      "titleExpand": "확장",
+      "titleMinimize": "최소화",
+      "ariaLabel": {
+        "expand": "대화 확장",
+        "minimize": "대화 최소화"
+      }
+    },
+    "close": {
+      "title": "닫기",
+      "ariaLabel": "대화 닫기"
+    }
+  },
+
+  "notification": {
+    "ariaLabel": "{{senderDid}}님의 새 메시지",
+    "incoming": "채팅을 원합니다",
+    "dismiss": {
+      "title": "닫기",
+      "ariaLabel": "알림 닫기"
+    }
+  },
+
+  "popoverContainer": {
+    "ariaLabel": "DM 알림"
+  },
+
+  "window": {
+    "connecting": "연결 중…",
+    "waitingForConnection": "연결 대기 중…"
+  }
+}

@@ -1,0 +1,59 @@
+{
+  "input": {
+    "placeholder": "メッセージを入力...",
+    "ariaLabel": "DM メッセージを入力",
+    "send": "送信"
+  },
+
+  "messageList": {
+    "empty": "まだメッセージがありません。挨拶してみましょう！",
+    "typing": "入力中..."
+  },
+
+  "popover": {
+    "ariaLabel": "{{recipientDid}} との DM 会話",
+    "header": {
+      "ariaLabel": {
+        "expand": "{{recipientDid}} との DM — クリックして展開",
+        "minimize": "{{recipientDid}} との DM — クリックして最小化"
+      }
+    },
+    "unreadAriaLabel": "未読メッセージ {{count}} 件",
+    "unreadOverflow": "99+",
+    "connecting": "接続中…",
+    "connectionFailed": "接続に失敗しました",
+    "retry": "再試行",
+    "peerClosed": "チャットが閉じられました。オフラインメッセージは Germ をお使いください。",
+    "closingCountdown": "チャットが終了しました。{{seconds}}秒後に閉じます…",
+    "minimize": {
+      "titleExpand": "展開",
+      "titleMinimize": "最小化",
+      "ariaLabel": {
+        "expand": "会話を展開",
+        "minimize": "会話を最小化"
+      }
+    },
+    "close": {
+      "title": "閉じる",
+      "ariaLabel": "会話を閉じる"
+    }
+  },
+
+  "notification": {
+    "ariaLabel": "{{senderDid}} からの新しいメッセージ",
+    "incoming": "チャットしたがっています",
+    "dismiss": {
+      "title": "閉じる",
+      "ariaLabel": "通知を閉じる"
+    }
+  },
+
+  "popoverContainer": {
+    "ariaLabel": "DM 通知"
+  },
+
+  "window": {
+    "connecting": "接続中…",
+    "waitingForConnection": "接続待ち…"
+  }
+}

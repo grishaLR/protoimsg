@@ -1,0 +1,56 @@
+{
+  "back": "뒤로",
+
+  "accountInfo": {
+    "title": "계정 정보",
+    "didLabel": "DID",
+    "handleLabel": "핸들"
+  },
+
+  "editProfile": {
+    "title": "프로필 수정",
+    "loading": "프로필 불러오는 중...",
+    "changeAvatar": "아바타 변경",
+    "displayNameLabel": "표시 이름",
+    "bioLabel": "소개",
+    "saving": "저장 중...",
+    "save": "저장"
+  },
+
+  "appearance": {
+    "title": "화면 설정"
+  },
+
+  "language": {
+    "title": "언어"
+  },
+
+  "translation": {
+    "title": "번역",
+    "autoTranslate": "게시글 자동 번역",
+    "autoTranslateHint": "피드 게시글과 소개를 자동으로 내 언어로 번역합니다"
+  },
+
+  "notifications": {
+    "title": "알림",
+    "enableSounds": "소리 켜기",
+    "enableSoundsHint": "접속/퇴장, 새 메시지, 수신 전화 시 소리를 재생합니다"
+  },
+
+  "privacy": {
+    "title": "개인정보",
+    "ipProtectionLabel": "통화 시 IP 보호",
+    "ipProtectionHint": "친한 친구와의 직접 연결은 지연이 적고 화질이 선명하지만 상대방에게 IP 주소가 노출됩니다. 릴레이는 IP를 숨기지만 약간의 지연이 생길 수 있습니다.",
+    "directConnectionInfo": "직접 연결은 순수한 P2P 방식입니다. 통화가 서버를 거치지 않고 상대방에게 직접 전달되어 지연이 적고 화질이 선명합니다. 다만 상대방에게 IP 주소가 보입니다. IP 주소는 인터넷에서의 집 주소라고 생각하시면 됩니다. 친한 친구는 실제 주소를 알려줘도 괜찮을 만큼 신뢰하는 사람이어야 합니다. 그 정도의 신뢰가 있다면 직접 연결을 사용해도 됩니다.",
+    "relayInfo": "릴레이를 사용하면 통화가 상대방에게 직접 가지 않고 우리 서버를 경유하므로 서로의 IP 주소를 볼 수 없습니다. 기술적으로는 P2P가 아니지만, IP를 숨기기 위한 목적으로만 사용합니다. 통화는 여전히 DTLS-SRTP로 암호화되어 있어 암호화 키는 두 사람 사이에서 직접 협상됩니다. 릴레이 서버는 패킷을 전달할 뿐 통화 내용을 보거나 들을 수 없습니다.",
+    "options": {
+      "nonInnerCircle": "친한 친구는 직접 연결, 그 외에는 릴레이 (권장)",
+      "all": "모든 사람에게 IP 숨기기"
+    }
+  },
+
+  "actions": {
+    "title": "작업",
+    "signOut": "로그아웃"
+  }
+}

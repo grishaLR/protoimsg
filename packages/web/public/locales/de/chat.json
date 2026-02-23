@@ -1,0 +1,270 @@
+{
+  "buddyList": {
+    "searchPlaceholder": "Buddys suchen...",
+    "addBuddyLabel": "Buddy hinzufügen",
+    "loading": "Wird geladen...",
+    "empty": "Noch keine Buddys",
+    "createGroup": {
+      "placeholder": "Gruppenname...",
+      "button": "+ Gruppe erstellen"
+    },
+    "footer": {
+      "chatRooms": "Chaträume",
+      "feed": "Feed"
+    },
+    "unreadIm": "{{count}} ungelesen",
+    "incomingIm": "Eingehende Nachricht",
+    "groups": {
+      "innerCircle": "Engster Kreis",
+      "community": "Community",
+      "offline": "Offline",
+      "blocked": "Blockiert",
+      "followers": "Follower",
+      "following": "Folge ich"
+    }
+  },
+
+  "buddyMenu": {
+    "button": {
+      "title": "Optionen",
+      "ariaLabel": "Buddy-Optionen"
+    },
+    "sendIm": "Nachricht senden",
+    "addToInnerCircle": "Zum engsten Kreis hinzufügen",
+    "removeFromInnerCircle": "Aus dem engsten Kreis entfernen",
+    "moveTo": "Verschieben nach...",
+    "block": "Blockieren",
+    "unblock": "Entblocken",
+    "remove": "Entfernen",
+    "messageOnGerm": "Nachricht über Germ",
+    "addToCommunity": "Zur Community hinzufügen",
+    "sendImDisabled": "Nutzer ist offline",
+    "videoCall": "Videoanruf",
+    "videoCallDisabled": "Nutzer ist offline",
+    "report": "Nutzer melden"
+  },
+
+  "memberMenu": {
+    "button": {
+      "title": "Optionen",
+      "ariaLabel": "Mitglieder-Optionen"
+    },
+    "addToBuddyList": "Zur Buddyliste hinzufügen",
+    "block": "Blockieren",
+    "unblock": "Entblocken",
+    "feedback": {
+      "added": "Hinzugefügt!",
+      "alreadyInList": "Bereits in der Buddyliste",
+      "error": "Fehler beim Hinzufügen"
+    },
+    "report": "Nutzer melden"
+  },
+
+  "messageInput": {
+    "placeholder": {
+      "default": "Nachricht eingeben... (Enter zum Senden, Umschalt+Enter für neue Zeile)",
+      "reply": "Antworten... (Enter zum Senden, Esc zum Abbrechen)"
+    },
+    "replyingTo": "Antwort an",
+    "cancelReply": {
+      "ariaLabel": "Antwort abbrechen"
+    },
+    "ariaLabel": {
+      "default": "Nachricht eingeben",
+      "reply": "Antwort eingeben"
+    },
+    "send": "Senden"
+  },
+
+  "messageItem": {
+    "contentWarning": "Inhaltswarnung",
+    "clickToReveal": "Klicken zum Anzeigen",
+    "replyCount_one": "{{count}} Antwort",
+    "replyCount_other": "{{count}} Antworten",
+    "replyButton": "Antworten",
+    "translate": "Übersetzen",
+    "translating": "Wird übersetzt...",
+    "translatedTo": "Übersetzt nach {{lang}}",
+    "showOriginal": "Original anzeigen",
+    "reportButton": "Melden"
+  },
+
+  "messageList": {
+    "loading": "Nachrichten werden geladen...",
+    "empty": "Noch keine Nachrichten. Starte die Unterhaltung!",
+    "typing": {
+      "one": "tippt...",
+      "twoAnd": "und",
+      "twoSuffix": "tippen...",
+      "many": "{{count}} Personen tippen..."
+    }
+  },
+
+  "threadPanel": {
+    "ariaLabel": "Thread",
+    "title": "Thread",
+    "backAriaLabel": "Zurück zum Ursprung",
+    "closeAriaLabel": "Thread schließen",
+    "loading": "Thread wird geladen...",
+    "notFound": "Thread nicht gefunden",
+    "replyCount_one": "{{count}} Antwort",
+    "replyCount_other": "{{count}} Antworten",
+    "inputPlaceholder": "Im Thread antworten..."
+  },
+
+  "formattingToolbar": {
+    "bold": "Fett",
+    "italic": "Kursiv",
+    "strikethrough": "Durchgestrichen",
+    "code": "Code",
+    "blockquote": "Zitat"
+  },
+
+  "memberList": {
+    "heading": "Mitglieder ({{count}})"
+  },
+
+  "groupHeader": {
+    "renameGroup": "Gruppe umbenennen",
+    "deleteGroup": "Gruppe löschen",
+    "expand": "Aufklappen",
+    "collapse": "Zuklappen"
+  },
+
+  "gif": {
+    "title": "GIFs",
+    "searchPlaceholder": "GIFs suchen...",
+    "noResults": "Keine GIFs gefunden",
+    "loading": "Wird geladen...",
+    "poweredByGiphy": "Powered by GIPHY",
+    "poweredByKlipy": "Powered by Klipy",
+    "close": "Schließen",
+    "altTextPlaceholder": "Dieses GIF beschreiben (Alt-Text)...",
+    "confirm": "Senden",
+    "back": "Zurück"
+  },
+
+  "videoCall": {
+    "incoming": {
+      "ariaLabel": "Eingehender Videoanruf",
+      "label": "Eingehender Anruf...",
+      "accept": "Anruf annehmen",
+      "acceptAriaLabel": "Eingehenden Anruf annehmen",
+      "reject": "Anruf ablehnen",
+      "rejectAriaLabel": "Eingehenden Anruf ablehnen"
+    },
+    "calling": "Wird angerufen...",
+    "ringing": "Klingelt...",
+    "reconnecting": "Verbindung wird wiederhergestellt...",
+    "mute": "Stummschalten",
+    "unmute": "Stummschaltung aufheben",
+    "cameraOff": "Kamera ausschalten",
+    "cameraOn": "Kamera einschalten",
+    "flipCamera": "Kamera wechseln",
+    "connectionFailed": "Verbindung fehlgeschlagen",
+    "retry": "Erneut versuchen",
+    "endCall": "Anruf beenden",
+    "shareScreen": "Bildschirm teilen",
+    "stopSharing": "Teilen beenden",
+    "error": {
+      "mediaPermission": "Kamera-/Mikrofonberechtigung für Videoanrufe erforderlich"
+    }
+  },
+
+  "channel": {
+    "heading": "Kanäle",
+    "listAriaLabel": "Kanalliste",
+    "create": "Kanal erstellen",
+    "createTitle": "Kanal erstellen",
+    "nameLabel": "Name",
+    "namePlaceholder": "Kanalname",
+    "descriptionLabel": "Beschreibung",
+    "descriptionPlaceholder": "Worum geht es in diesem Kanal?",
+    "postPolicyLabel": "Wer darf posten",
+    "postPolicy": {
+      "everyone": "Alle",
+      "moderators": "Nur Moderatoren",
+      "owner": "Nur der Besitzer"
+    },
+    "cancel": "Abbrechen",
+    "creating": "Wird erstellt...",
+    "createSubmit": "Erstellen",
+    "error": {
+      "default": "Kanal konnte nicht erstellt werden"
+    }
+  },
+
+  "report": {
+    "title": "Nutzer melden",
+    "subjectLabel": "Nutzer",
+    "categoryLabel": "Kategorie",
+    "categories": {
+      "harassment": "Belästigung",
+      "spam": "Spam",
+      "impersonation": "Identitätsdiebstahl",
+      "hateSpeech": "Hassrede",
+      "other": "Sonstiges"
+    },
+    "descriptionLabel": "Beschreibung",
+    "descriptionPlaceholder": "Was ist passiert?",
+    "attachmentsLabel": "Screenshots (optional)",
+    "attachmentsHint": "Bis zu 2 Bilder",
+    "addAttachment": "Screenshot hinzufügen",
+    "submit": "Meldung absenden",
+    "submitting": "Wird gesendet...",
+    "cancel": "Abbrechen",
+    "success": "Meldung gesendet. Wir kümmern uns darum.",
+    "error": "Meldung konnte nicht gesendet werden.",
+    "removeAttachment": "Anhang entfernen",
+    "fileSizeError": "Datei zu groß. Maximale Größe ist 2 MB."
+  },
+
+  "poll": {
+    "createPoll": "Umfrage erstellen",
+    "questionLabel": "Frage",
+    "questionPlaceholder": "Stell eine Frage...",
+    "optionsLabel": "Optionen",
+    "optionPlaceholder": "Option {{n}}",
+    "addOption": "Option hinzufügen",
+    "removeOption": "Option entfernen",
+    "allowMultiple": "Mehrfachauswahl erlauben",
+    "expires": "Läuft ab",
+    "expired": "Umfrage beendet",
+    "expiresIn": "Endet in {{time}}",
+    "totalVotes_one": "{{count}} Stimme",
+    "totalVotes_other": "{{count}} Stimmen",
+    "vote": "Abstimmen",
+    "create": "Erstellen",
+    "cancel": "Abbrechen",
+    "expiry": {
+      "none": "Kein Ablauf",
+      "1h": "1 Stunde",
+      "6h": "6 Stunden",
+      "24h": "24 Stunden",
+      "3d": "3 Tage",
+      "1w": "1 Woche"
+    },
+    "error": {
+      "minOptions": "Mindestens 2 Optionen sind erforderlich",
+      "default": "Umfrage konnte nicht erstellt werden"
+    }
+  },
+
+  "reportContent": {
+    "title": "Melden",
+    "subjectLabel": "Betreff",
+    "categoryLabel": "Kategorie",
+    "descriptionLabel": "Beschreibung",
+    "descriptionPlaceholder": "Was ist passiert?",
+    "attachmentsLabel": "Screenshots (optional)",
+    "attachmentsHint": "Bis zu 2 Bilder",
+    "addAttachment": "Screenshot hinzufügen",
+    "removeAttachment": "Entfernen",
+    "submit": "Meldung absenden",
+    "submitting": "Wird gesendet...",
+    "cancel": "Abbrechen",
+    "success": "Meldung gesendet. Wir kümmern uns darum.",
+    "error": "Meldung konnte nicht gesendet werden.",
+    "fileSizeError": "Datei zu groß (max. 2 MB)"
+  }
+}

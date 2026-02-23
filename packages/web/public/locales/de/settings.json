@@ -1,0 +1,56 @@
+{
+  "back": "Zurück",
+
+  "accountInfo": {
+    "title": "Kontoinformationen",
+    "didLabel": "DID",
+    "handleLabel": "Handle"
+  },
+
+  "editProfile": {
+    "title": "Profil bearbeiten",
+    "loading": "Profil wird geladen...",
+    "changeAvatar": "Avatar ändern",
+    "displayNameLabel": "Anzeigename",
+    "bioLabel": "Bio",
+    "saving": "Wird gespeichert...",
+    "save": "Speichern"
+  },
+
+  "appearance": {
+    "title": "Darstellung"
+  },
+
+  "language": {
+    "title": "Sprache"
+  },
+
+  "translation": {
+    "title": "Übersetzung",
+    "autoTranslate": "Beiträge automatisch übersetzen",
+    "autoTranslateHint": "Übersetzt Feed-Beiträge und Bios automatisch in deine Sprache"
+  },
+
+  "notifications": {
+    "title": "Benachrichtigungen",
+    "enableSounds": "Töne aktivieren",
+    "enableSoundsHint": "Töne bei Betreten/Verlassen, neuen Nachrichten und eingehenden Anrufen abspielen"
+  },
+
+  "privacy": {
+    "title": "Datenschutz",
+    "ipProtectionLabel": "IP-Schutz bei Anrufen",
+    "ipProtectionHint": "Direktverbindungen zum engsten Kreis haben geringe Latenz und ein klares, flüssiges Bild, geben aber deine IP-Adresse an den anderen Anrufer weiter. Relay verbirgt deine IP-Adresse, kann aber etwas Latenz hinzufügen.",
+    "directConnectionInfo": "Eine Direktverbindung ist reines Peer-to-Peer. Dein Anruf geht direkt an die andere Person ohne Server dazwischen — das bedeutet geringe Latenz und ein klares, flüssiges Bild. Der Kompromiss ist, dass deine IP-Adresse für die andere Person sichtbar ist. Stell dir deine IP-Adresse wie die Haustür deines Hauses im Internet vor. Dein engster Kreis sollten Leute sein, denen du auch deine physische Adresse anvertrauen würdest. Wenn du damit einverstanden wärst, sind Direktverbindungen in Ordnung.",
+    "relayInfo": "Mit Relay wird dein Anruf über unseren Server geleitet, statt direkt an die andere Person zu gehen — so sieht keiner von euch die IP-Adresse des anderen. Das ist technisch kein Peer-to-Peer, aber wir nutzen es ausschließlich, um deine IP zu verbergen. Dein Anruf ist trotzdem mit DTLS-SRTP verschlüsselt — die Verschlüsselungsschlüssel werden direkt zwischen dir und dem anderen Anrufer ausgehandelt. Unser Relay-Server leitet die Pakete nur weiter und kann nichts sehen oder hören.",
+    "options": {
+      "nonInnerCircle": "Direkt für engsten Kreis, Relay für alle anderen (empfohlen)",
+      "all": "Meine IP vor allen verbergen"
+    }
+  },
+
+  "actions": {
+    "title": "Aktionen",
+    "signOut": "Abmelden"
+  }
+}

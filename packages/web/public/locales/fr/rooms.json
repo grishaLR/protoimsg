@@ -1,0 +1,63 @@
+{
+  "createRoom": {
+    "title": "Cr\u00e9er un salon",
+    "nameLabel": "Nom",
+    "namePlaceholder": "Nom du salon",
+    "descriptionLabel": "Description",
+    "descriptionPlaceholder": "De quoi parle ce salon ?",
+    "topicLabel": "Sujet",
+    "topicPlaceholder": "Sujet de discussion en cours",
+    "purposeLabel": "Objectif",
+    "purpose": {
+      "discussion": "Discussion",
+      "event": "\u00c9v\u00e9nement",
+      "community": "Communaut\u00e9",
+      "support": "Entraide"
+    },
+    "visibilityLabel": "Visibilit\u00e9",
+    "visibility": {
+      "public": "Public",
+      "unlisted": "Non r\u00e9f\u00e9renc\u00e9",
+      "private": "Priv\u00e9"
+    },
+    "error": {
+      "default": "\u00c9chec de la cr\u00e9ation du salon"
+    },
+    "cancel": "Annuler",
+    "submitting": "Cr\u00e9ation...",
+    "submit": "Cr\u00e9er"
+  },
+
+  "roomList": {
+    "empty": "Aucun salon trouv\u00e9. Cr\u00e9ez-en un pour commencer !"
+  },
+
+  "roomCard": {
+    "createdDate": "Cr\u00e9\u00e9 le {{date}}",
+    "translate": "Traduire",
+    "translating": "Traduction en cours...",
+    "translatedTo": "Traduit en {{lang}}",
+    "showOriginal": "Afficher l'original"
+  },
+
+  "directory": {
+    "searchPlaceholder": "Rechercher des salons...",
+    "createButton": "Cr\u00e9er un salon",
+    "loading": "Chargement des salons..."
+  },
+
+  "chatRoom": {
+    "invalidId": "Identifiant de salon invalide",
+    "loading": "Configuration du salon en cours...",
+    "notFound": "Salon introuvable",
+    "backToRooms": "Salons",
+    "members": "Membres",
+    "channelSwitcher": "Choisir un canal",
+    "createChannel": "Cr\u00e9er un canal",
+    "collapseChannels": "Replier les canaux",
+    "expandChannels": "D\u00e9plier les canaux",
+    "sendFailed": "\u00c9chec de l'envoi du message. Veuillez r\u00e9essayer.",
+    "dismiss": "Ignorer",
+    "reportRoom": "Signaler le salon"
+  }
+}

@@ -1,0 +1,63 @@
+{
+  "createRoom": {
+    "title": "Tạo phòng",
+    "nameLabel": "Tên",
+    "namePlaceholder": "Tên phòng",
+    "descriptionLabel": "Mô tả",
+    "descriptionPlaceholder": "Phòng này về chủ đề gì?",
+    "topicLabel": "Chủ đề",
+    "topicPlaceholder": "Chủ đề thảo luận hiện tại",
+    "purposeLabel": "Mục đích",
+    "purpose": {
+      "discussion": "Thảo luận",
+      "event": "Sự kiện",
+      "community": "Cộng đồng",
+      "support": "Hỗ trợ"
+    },
+    "visibilityLabel": "Hiển thị",
+    "visibility": {
+      "public": "Công khai",
+      "unlisted": "Không liệt kê",
+      "private": "Riêng tư"
+    },
+    "error": {
+      "default": "Tạo phòng thất bại"
+    },
+    "cancel": "Hủy",
+    "submitting": "Đang tạo...",
+    "submit": "Tạo"
+  },
+
+  "roomList": {
+    "empty": "Chưa có phòng nào. Hãy tạo phòng đầu tiên!"
+  },
+
+  "roomCard": {
+    "createdDate": "Tạo ngày {{date}}",
+    "translate": "Dịch",
+    "translating": "Đang dịch...",
+    "translatedTo": "Đã dịch sang {{lang}}",
+    "showOriginal": "Xem bản gốc"
+  },
+
+  "directory": {
+    "searchPlaceholder": "Tìm phòng...",
+    "createButton": "Tạo phòng",
+    "loading": "Đang tải danh sách phòng..."
+  },
+
+  "chatRoom": {
+    "invalidId": "ID phòng không hợp lệ",
+    "loading": "Đang thiết lập phòng...",
+    "notFound": "Không tìm thấy phòng",
+    "backToRooms": "Phòng chat",
+    "members": "Thành viên",
+    "channelSwitcher": "Chọn kênh",
+    "createChannel": "Tạo kênh",
+    "collapseChannels": "Thu gọn kênh",
+    "expandChannels": "Mở rộng kênh",
+    "sendFailed": "Gửi tin nhắn thất bại. Vui lòng thử lại.",
+    "dismiss": "Bỏ qua",
+    "reportRoom": "Báo cáo phòng"
+  }
+}

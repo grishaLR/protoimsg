@@ -1,0 +1,121 @@
+{
+  "appName": "proto IM",
+
+  "status": {
+    "online": "온라인",
+    "away": "자리 비움",
+    "idle": "대기 중"
+  },
+
+  "visibility": {
+    "everyone": "모두",
+    "community": "커뮤니티",
+    "innerCircle": "친한 친구",
+    "noOne": "아무도 안 봄"
+  },
+
+  "theme": {
+    "aim": "'98 클래식",
+    "nytLight": "미니멀 라이트",
+    "nytDark": "미니멀 다크",
+    "dracula": "Dracula",
+    "valentine": "발렌타인",
+    "garden": "가든",
+    "coffee": "커피",
+    "fantasy": "판타지",
+    "nord": "Nord",
+    "retro": "레트로",
+    "black": "블랙",
+    "wireframe": "Wireframe"
+  },
+
+  "nav": {
+    "community": "커뮤니티",
+    "rooms": "채팅방",
+    "feed": "피드"
+  },
+
+  "header": {
+    "menu": "메뉴",
+    "awayMessage": {
+      "label": "부재중 메시지",
+      "placeholder": "예: 잠깐 커피 사 올게요"
+    },
+    "visibility": {
+      "label": "내 상태를 볼 수 있는 사람"
+    },
+    "settings": "설정",
+    "minimize": "최소화",
+    "signOut": "로그아웃"
+  },
+
+  "statusSelector": {
+    "awayMessage": {
+      "label": "부재중 메시지",
+      "placeholder": "예: 잠깐 커피 사 올게요"
+    },
+    "visibility": {
+      "label": "내 상태를 볼 수 있는 사람"
+    }
+  },
+
+  "connectionBanner": {
+    "message": "연결이 끊어졌습니다 — 다시 연결하는 중..."
+  },
+
+  "errorBoundary": {
+    "title": "문제가 발생했습니다",
+    "fallbackMessage": "예기치 않은 오류가 발생했습니다",
+    "tryAgain": "다시 시도"
+  },
+
+  "button": {
+    "back": "뒤로",
+    "cancel": "취소",
+    "send": "보내기",
+    "close": "닫기",
+    "save": "저장",
+    "settings": "설정"
+  },
+
+  "aria": {
+    "expand": "펼치기",
+    "collapse": "접기"
+  },
+
+  "feedback": {
+    "menuItem": "피드백 보내기",
+    "title": "피드백 보내기",
+    "placeholder": "버그 신고, 기능 제안 등 무엇이든 자유롭게 적어 주세요.",
+    "submit": "보내기",
+    "sending": "보내는 중...",
+    "cancel": "취소",
+    "success": "감사합니다! 피드백이 전송되었습니다.",
+    "error": "문제가 발생했습니다. 다시 시도해 주세요."
+  },
+
+  "serverError": {
+    "unknown": "알 수 없는 오류가 발생했습니다",
+    "unauthorized": "로그인이 필요합니다",
+    "invalidSession": "세션이 만료되었습니다. 다시 로그인해 주세요.",
+    "invalidChallenge": "인증 요청이 만료되었습니다. 다시 시도해 주세요.",
+    "handleMismatch": "핸들 인증에 실패했습니다",
+    "authVerificationFailed": "인증 확인에 실패했습니다",
+    "authTimeout": "인증 시간이 초과되었습니다",
+    "authRequired": "인증이 필요합니다",
+    "forbidden": "권한이 없습니다",
+    "banned": "이 계정은 서비스 이용이 제한되었습니다",
+    "accessDenied": "접근이 거부되었습니다",
+    "notParticipant": "이 대화의 참여자가 아닙니다",
+    "blockedUser": "이 사용자에게 메시지를 보낼 수 없습니다",
+    "selfDm": "자기 자신에게는 메시지를 보낼 수 없습니다",
+    "notFound": "찾을 수 없습니다",
+    "rateLimited": "요청이 너무 많습니다. 잠시 후 다시 시도해 주세요.",
+    "serverError": "서버에 문제가 발생했습니다",
+    "networkError": "네트워크 오류입니다. 연결 상태를 확인해 주세요.",
+    "invalidInput": "잘못된 입력입니다",
+    "messageTooLong": "메시지가 너무 깁니다",
+    "contentFiltered": "콘텐츠 필터에 의해 메시지가 차단되었습니다",
+    "alreadyExists": "이미 존재합니다"
+  }
+}

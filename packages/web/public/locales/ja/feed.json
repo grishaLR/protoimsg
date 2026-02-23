@@ -1,0 +1,62 @@
+{
+  "composer": {
+    "collapsed": "何か投稿しませんか？",
+    "replyingTo": "@{{handle}} に返信",
+    "placeholder": "投稿を入力...",
+    "charCount": "{{count}}/{{max}}",
+    "attachImage": "画像を添付",
+    "cancel": "キャンセル",
+    "posting": "投稿中...",
+    "post": "投稿",
+    "imageAltText": "この画像を説明...",
+    "gifAltText": "この GIF を説明..."
+  },
+
+  "post": {
+    "pinned": "ピン留め",
+    "repostedBy": "リポスト元",
+    "replyTo": "@{{handle}} への返信",
+    "relativeTime": {
+      "seconds": "{{count}}秒",
+      "minutes": "{{count}}分",
+      "hours": "{{count}}時間",
+      "days": "{{count}}日",
+      "months": "{{count}}ヶ月"
+    },
+    "translate": "翻訳",
+    "translatedTo": "{{lang}}に翻訳済み",
+    "showOriginal": "原文を表示",
+    "translating": "翻訳中..."
+  },
+
+  "feedView": {
+    "loading": "フィードを読み込み中...",
+    "empty": "投稿はありません",
+    "loadingMore": "さらに読み込み中...",
+    "refresh": "フィードを更新"
+  },
+
+  "profileView": {
+    "back": "戻る",
+    "loading": "プロフィールを読み込み中...",
+    "error": "プロフィールの読み込みに失敗しました",
+    "followers": "フォロワー",
+    "following": "フォロー中",
+    "posts": "投稿",
+    "loadingMore": "さらに読み込み中...",
+    "translateBio": "自己紹介を翻訳",
+    "translating": "翻訳中...",
+    "translatedTo": "{{lang}}に翻訳済み",
+    "showOriginal": "原文を表示",
+    "messageOnGerm": "Germ でメッセージ",
+    "germDm": "Germ DM"
+  },
+
+  "threadView": {
+    "back": "戻る",
+    "loading": "スレッドを読み込み中...",
+    "notFound": "スレッドが見つかりません",
+    "viewReplies_one": "{{count}} 件の返信を表示",
+    "viewReplies_other": "{{count}} 件の返信を表示"
+  }
+}

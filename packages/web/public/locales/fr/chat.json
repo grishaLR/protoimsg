@@ -1,0 +1,270 @@
+{
+  "buddyList": {
+    "searchPlaceholder": "Rechercher des contacts...",
+    "addBuddyLabel": "Ajouter un contact",
+    "loading": "Chargement...",
+    "empty": "Aucun contact pour l'instant",
+    "createGroup": {
+      "placeholder": "Nom du groupe...",
+      "button": "+ Cr\u00e9er un groupe"
+    },
+    "footer": {
+      "chatRooms": "Salons de discussion",
+      "feed": "Fil"
+    },
+    "unreadIm": "{{count}} non lu(s)",
+    "incomingIm": "Message entrant",
+    "groups": {
+      "innerCircle": "Cercle intime",
+      "community": "Communaut\u00e9",
+      "offline": "Hors ligne",
+      "blocked": "Bloqu\u00e9s",
+      "followers": "Abonn\u00e9s",
+      "following": "Abonnements"
+    }
+  },
+
+  "buddyMenu": {
+    "button": {
+      "title": "Options",
+      "ariaLabel": "Options du contact"
+    },
+    "sendIm": "Envoyer un message",
+    "addToInnerCircle": "Ajouter au cercle intime",
+    "removeFromInnerCircle": "Retirer du cercle intime",
+    "moveTo": "D\u00e9placer vers...",
+    "block": "Bloquer",
+    "unblock": "D\u00e9bloquer",
+    "remove": "Supprimer",
+    "messageOnGerm": "Message sur Germ",
+    "addToCommunity": "Ajouter \u00e0 la communaut\u00e9",
+    "sendImDisabled": "L'utilisateur est hors ligne",
+    "videoCall": "Appel vid\u00e9o",
+    "videoCallDisabled": "L'utilisateur est hors ligne",
+    "report": "Signaler l'utilisateur"
+  },
+
+  "memberMenu": {
+    "button": {
+      "title": "Options",
+      "ariaLabel": "Options du membre"
+    },
+    "addToBuddyList": "Ajouter \u00e0 la liste de contacts",
+    "block": "Bloquer",
+    "unblock": "D\u00e9bloquer",
+    "feedback": {
+      "added": "Ajout\u00e9 !",
+      "alreadyInList": "D\u00e9j\u00e0 dans la liste de contacts",
+      "error": "Erreur lors de l'ajout du contact"
+    },
+    "report": "Signaler l'utilisateur"
+  },
+
+  "messageInput": {
+    "placeholder": {
+      "default": "Saisissez un message... (Entr\u00e9e pour envoyer, Maj+Entr\u00e9e pour un retour \u00e0 la ligne)",
+      "reply": "R\u00e9pondre... (Entr\u00e9e pour envoyer, \u00c9chap pour annuler)"
+    },
+    "replyingTo": "En r\u00e9ponse \u00e0",
+    "cancelReply": {
+      "ariaLabel": "Annuler la r\u00e9ponse"
+    },
+    "ariaLabel": {
+      "default": "Saisissez un message",
+      "reply": "Saisissez une r\u00e9ponse"
+    },
+    "send": "Envoyer"
+  },
+
+  "messageItem": {
+    "contentWarning": "Avertissement de contenu",
+    "clickToReveal": "Cliquez pour afficher",
+    "replyCount_one": "{{count}} r\u00e9ponse",
+    "replyCount_other": "{{count}} r\u00e9ponses",
+    "replyButton": "R\u00e9pondre",
+    "translate": "Traduire",
+    "translating": "Traduction en cours...",
+    "translatedTo": "Traduit en {{lang}}",
+    "showOriginal": "Afficher l'original",
+    "reportButton": "Signaler"
+  },
+
+  "messageList": {
+    "loading": "Chargement des messages...",
+    "empty": "Aucun message pour l'instant. Lancez la conversation !",
+    "typing": {
+      "one": "est en train d'\u00e9crire...",
+      "twoAnd": "et",
+      "twoSuffix": "sont en train d'\u00e9crire...",
+      "many": "{{count}} personnes sont en train d'\u00e9crire..."
+    }
+  },
+
+  "threadPanel": {
+    "ariaLabel": "Fil de discussion",
+    "title": "Fil de discussion",
+    "backAriaLabel": "Retour au message parent",
+    "closeAriaLabel": "Fermer le fil",
+    "loading": "Chargement du fil...",
+    "notFound": "Fil introuvable",
+    "replyCount_one": "{{count}} r\u00e9ponse",
+    "replyCount_other": "{{count}} r\u00e9ponses",
+    "inputPlaceholder": "R\u00e9pondre dans le fil..."
+  },
+
+  "formattingToolbar": {
+    "bold": "Gras",
+    "italic": "Italique",
+    "strikethrough": "Barr\u00e9",
+    "code": "Code",
+    "blockquote": "Citation"
+  },
+
+  "memberList": {
+    "heading": "Membres ({{count}})"
+  },
+
+  "groupHeader": {
+    "renameGroup": "Renommer le groupe",
+    "deleteGroup": "Supprimer le groupe",
+    "expand": "D\u00e9plier",
+    "collapse": "Replier"
+  },
+
+  "gif": {
+    "title": "GIFs",
+    "searchPlaceholder": "Rechercher des GIFs...",
+    "noResults": "Aucun GIF trouv\u00e9",
+    "loading": "Chargement...",
+    "poweredByGiphy": "Propuls\u00e9 par GIPHY",
+    "poweredByKlipy": "Propuls\u00e9 par Klipy",
+    "close": "Fermer",
+    "altTextPlaceholder": "D\u00e9crivez ce GIF (texte alternatif)...",
+    "confirm": "Envoyer",
+    "back": "Retour"
+  },
+
+  "videoCall": {
+    "incoming": {
+      "ariaLabel": "Appel vid\u00e9o entrant",
+      "label": "Appel entrant...",
+      "accept": "Accepter l'appel",
+      "acceptAriaLabel": "Accepter l'appel entrant",
+      "reject": "Refuser l'appel",
+      "rejectAriaLabel": "Refuser l'appel entrant"
+    },
+    "calling": "Appel en cours...",
+    "ringing": "\u00c7a sonne...",
+    "reconnecting": "Reconnexion...",
+    "mute": "Couper le micro",
+    "unmute": "Activer le micro",
+    "cameraOff": "D\u00e9sactiver la cam\u00e9ra",
+    "cameraOn": "Activer la cam\u00e9ra",
+    "flipCamera": "Changer de cam\u00e9ra",
+    "connectionFailed": "\u00c9chec de la connexion",
+    "retry": "R\u00e9essayer",
+    "endCall": "Raccrocher",
+    "shareScreen": "Partager l'\u00e9cran",
+    "stopSharing": "Arr\u00eater le partage",
+    "error": {
+      "mediaPermission": "L'acc\u00e8s \u00e0 la cam\u00e9ra et au micro est requis pour les appels vid\u00e9o"
+    }
+  },
+
+  "channel": {
+    "heading": "Canaux",
+    "listAriaLabel": "Liste des canaux",
+    "create": "Cr\u00e9er un canal",
+    "createTitle": "Cr\u00e9er un canal",
+    "nameLabel": "Nom",
+    "namePlaceholder": "Nom du canal",
+    "descriptionLabel": "Description",
+    "descriptionPlaceholder": "De quoi parle ce canal ?",
+    "postPolicyLabel": "Qui peut publier",
+    "postPolicy": {
+      "everyone": "Tout le monde",
+      "moderators": "Mod\u00e9rateurs uniquement",
+      "owner": "Propri\u00e9taire uniquement"
+    },
+    "cancel": "Annuler",
+    "creating": "Cr\u00e9ation...",
+    "createSubmit": "Cr\u00e9er",
+    "error": {
+      "default": "\u00c9chec de la cr\u00e9ation du canal"
+    }
+  },
+
+  "report": {
+    "title": "Signaler un utilisateur",
+    "subjectLabel": "Utilisateur",
+    "categoryLabel": "Cat\u00e9gorie",
+    "categories": {
+      "harassment": "Harc\u00e8lement",
+      "spam": "Spam",
+      "impersonation": "Usurpation d'identit\u00e9",
+      "hateSpeech": "Discours haineux",
+      "other": "Autre"
+    },
+    "descriptionLabel": "Description",
+    "descriptionPlaceholder": "Que s'est-il pass\u00e9 ?",
+    "attachmentsLabel": "Captures d'\u00e9cran (optionnel)",
+    "attachmentsHint": "2 images maximum",
+    "addAttachment": "Ajouter une capture",
+    "submit": "Envoyer le signalement",
+    "submitting": "Envoi en cours...",
+    "cancel": "Annuler",
+    "success": "Signalement envoy\u00e9. Nous allons examiner la situation.",
+    "error": "\u00c9chec de l'envoi du signalement.",
+    "removeAttachment": "Supprimer la pi\u00e8ce jointe",
+    "fileSizeError": "Fichier trop volumineux. Taille maximale : 2 Mo."
+  },
+
+  "poll": {
+    "createPoll": "Cr\u00e9er un sondage",
+    "questionLabel": "Question",
+    "questionPlaceholder": "Posez une question...",
+    "optionsLabel": "Options",
+    "optionPlaceholder": "Option {{n}}",
+    "addOption": "Ajouter une option",
+    "removeOption": "Supprimer l'option",
+    "allowMultiple": "Autoriser les choix multiples",
+    "expires": "Expire",
+    "expired": "Sondage termin\u00e9",
+    "expiresIn": "Se termine dans {{time}}",
+    "totalVotes_one": "{{count}} vote",
+    "totalVotes_other": "{{count}} votes",
+    "vote": "Voter",
+    "create": "Cr\u00e9er",
+    "cancel": "Annuler",
+    "expiry": {
+      "none": "Pas d'expiration",
+      "1h": "1 heure",
+      "6h": "6 heures",
+      "24h": "24 heures",
+      "3d": "3 jours",
+      "1w": "1 semaine"
+    },
+    "error": {
+      "minOptions": "2 options minimum sont requises",
+      "default": "\u00c9chec de la cr\u00e9ation du sondage"
+    }
+  },
+
+  "reportContent": {
+    "title": "Signaler",
+    "subjectLabel": "Sujet",
+    "categoryLabel": "Cat\u00e9gorie",
+    "descriptionLabel": "Description",
+    "descriptionPlaceholder": "Que s'est-il pass\u00e9 ?",
+    "attachmentsLabel": "Captures d'\u00e9cran (optionnel)",
+    "attachmentsHint": "2 images maximum",
+    "addAttachment": "Ajouter une capture",
+    "removeAttachment": "Supprimer",
+    "submit": "Envoyer le signalement",
+    "submitting": "Envoi en cours...",
+    "cancel": "Annuler",
+    "success": "Signalement envoy\u00e9. Nous allons examiner la situation.",
+    "error": "\u00c9chec de l'envoi du signalement.",
+    "fileSizeError": "Fichier trop volumineux (max. 2 Mo)"
+  }
+}
