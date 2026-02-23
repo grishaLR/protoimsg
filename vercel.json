@@ -3,7 +3,9 @@
   "outputDirectory": "packages/web/dist",
   "installCommand": "pnpm install",
   "framework": "vite",
-  "rewrites": [{ "source": "/((?!assets/|client-metadata.json).*)", "destination": "/index.html" }],
+  "rewrites": [
+    { "source": "/((?!assets/|lexicon/|client-metadata.json).*)", "destination": "/index.html" }
+  ],
   "headers": [
     {
       "source": "/(.*)",

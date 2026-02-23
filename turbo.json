@@ -6,6 +6,17 @@
       "inputs": ["src/**", "tsconfig.json", "tsconfig.*.json", "package.json"],
       "outputs": ["dist/**"]
     },
+    "@protoimsg/web#build": {
+      "dependsOn": ["^build"],
+      "inputs": [
+        "src/**",
+        "tsconfig.json",
+        "tsconfig.*.json",
+        "package.json",
+        "../../packages/lexicon/schemas/**"
+      ],
+      "outputs": ["dist/**"]
+    },
     "dev": {
       "cache": false,
       "persistent": true
