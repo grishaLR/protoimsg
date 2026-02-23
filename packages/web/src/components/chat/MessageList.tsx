@@ -18,6 +18,8 @@ interface MessageListProps {
   replyCounts?: Record<string, number>;
   /** Called when user clicks Reply or reply count — opens thread sidebar */
   onOpenThread?: (rootUri: string) => void;
+  /** Called when user clicks Report on a message */
+  onReport?: (messageUri: string, preview: string) => void;
   /** Called when user votes on a poll */
   onVote?: (pollId: string, pollUri: string, selectedOptions: number[]) => void;
 }
@@ -31,6 +33,7 @@ export function MessageList({
   typingUsers = [],
   replyCounts,
   onOpenThread,
+  onReport,
   onVote,
 }: MessageListProps) {
   const { t } = useTranslation('chat');
@@ -109,6 +112,7 @@ export function MessageList({
                   message={item}
                   replyCount={replyCounts?.[item.uri]}
                   onOpenThread={onOpenThread}
+                  onReport={onReport}
                   isMentioned={!!did && hasMentionOf(item.facets, did)}
                 />
               )}

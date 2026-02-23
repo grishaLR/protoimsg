@@ -48,6 +48,29 @@ export interface BuddyMenuProps {
   onAddToCommunity?: () => void;
   /** True for entries in Followers/Following groups */
   isFollowGraphEntry?: boolean;
+  onReport?: () => void;
+}
+
+function ReportButton({
+  onReport,
+  onClose,
+  label,
+}: {
+  onReport: () => void;
+  onClose: () => void;
+  label: string;
+}) {
+  return (
+    <button
+      className={`${styles.menuItem} ${styles.menuItemDanger}`}
+      onClick={() => {
+        onReport();
+        onClose();
+      }}
+    >
+      {label}
+    </button>
+  );
 }
 
 export function BuddyMenu({
@@ -63,6 +86,7 @@ export function BuddyMenu({
   onMoveBuddy,
   onAddToCommunity,
   isFollowGraphEntry,
+  onReport,
 }: BuddyMenuProps) {
   const { t } = useTranslation('chat');
   const [open, setOpen] = useState(false);
@@ -125,6 +149,15 @@ export function BuddyMenu({
               >
                 {isBlocked ? t('buddyMenu.unblock') : t('buddyMenu.block')}
               </button>
+              {onReport && (
+                <ReportButton
+                  onReport={onReport}
+                  onClose={() => {
+                    setOpen(false);
+                  }}
+                  label={t('buddyMenu.report')}
+                />
+              )}
             </>
           ) : (
             <>
@@ -151,7 +184,7 @@ export function BuddyMenu({
                   }}
                   title={isOffline ? t('buddyMenu.videoCallDisabled') : undefined}
                 >
-                  <Video size={14} /> Video Call
+                  <Video size={14} /> {t('buddyMenu.videoCall')}
                 </button>
               )}
               <GermMenuItem
@@ -211,6 +244,15 @@ export function BuddyMenu({
               >
                 {isBlocked ? t('buddyMenu.unblock') : t('buddyMenu.block')}
               </button>
+              {onReport && (
+                <ReportButton
+                  onReport={onReport}
+                  onClose={() => {
+                    setOpen(false);
+                  }}
+                  label={t('buddyMenu.report')}
+                />
+              )}
               <button
                 className={`${styles.menuItem} ${styles.menuItemDanger}`}
                 onClick={() => {

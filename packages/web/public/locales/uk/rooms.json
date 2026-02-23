@@ -51,9 +51,13 @@
     "loading": "Кімната налаштовується...",
     "notFound": "Кімнату не знайдено",
     "backToRooms": "Кімнати",
-    "channelSwitcher": "Select channel",
-    "createChannel": "Create channel",
-    "collapseChannels": "Collapse channels",
-    "expandChannels": "Expand channels"
+    "channelSwitcher": "Обрати канал",
+    "createChannel": "Створити канал",
+    "collapseChannels": "Згорнути канали",
+    "expandChannels": "Розгорнути канали",
+    "members": "Учасники",
+    "sendFailed": "Не вдалося надіслати повідомлення. Спробуйте ще раз.",
+    "dismiss": "Закрити",
+    "reportRoom": "Поскаржитись на кімнату"
   }
 }

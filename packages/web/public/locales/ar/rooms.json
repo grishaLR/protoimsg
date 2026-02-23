@@ -51,9 +51,13 @@
     "loading": "جارٍ إعداد الغرفة...",
     "notFound": "الغرفة غير موجودة",
     "backToRooms": "الغرف",
-    "channelSwitcher": "Select channel",
-    "createChannel": "Create channel",
-    "collapseChannels": "Collapse channels",
-    "expandChannels": "Expand channels"
+    "channelSwitcher": "اختر قناة",
+    "createChannel": "إنشاء قناة",
+    "collapseChannels": "طي القنوات",
+    "expandChannels": "توسيع القنوات",
+    "members": "الأعضاء",
+    "sendFailed": "فشل إرسال الرسالة. يرجى المحاولة مرة أخرى.",
+    "dismiss": "إغلاق",
+    "reportRoom": "الإبلاغ عن الغرفة"
   }
 }

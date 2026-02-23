@@ -12,6 +12,8 @@
       "feed": "الخلاصة"
     },
     "unreadIm": "{{count}} غير مقروءة",
+    "addBuddyLabel": "إضافة صديق",
+    "incomingIm": "رسالة واردة",
     "groups": {
       "innerCircle": "الدائرة الداخلية",
       "community": "المجتمع",
@@ -37,7 +39,9 @@
     "messageOnGerm": "مراسلة عبر Germ",
     "addToCommunity": "إضافة إلى المجتمع",
     "sendImDisabled": "المستخدم غير متصل",
-    "videoCallDisabled": "المستخدم غير متصل"
+    "videoCall": "مكالمة فيديو",
+    "videoCallDisabled": "المستخدم غير متصل",
+    "report": "الإبلاغ عن مستخدم"
   },
 
   "memberMenu": {
@@ -52,7 +56,8 @@
       "added": "تمت الإضافة!",
       "alreadyInList": "موجود بالفعل في قائمة الأصدقاء",
       "error": "خطأ في إضافة الصديق"
-    }
+    },
+    "report": "الإبلاغ عن مستخدم"
   },
 
   "messageInput": {
@@ -83,7 +88,8 @@
     "translate": "ترجمة",
     "translating": "جارٍ الترجمة...",
     "translatedTo": "مترجم إلى {{lang}}",
-    "showOriginal": "إظهار الأصلي"
+    "showOriginal": "إظهار الأصلي",
+    "reportButton": "إبلاغ"
   },
 
   "messageList": {
@@ -162,32 +168,61 @@
     "endCall": "إنهاء المكالمة",
     "shareScreen": "مشاركة الشاشة",
     "stopSharing": "إيقاف المشاركة",
+    "cameraOff": "إيقاف الكاميرا",
+    "cameraOn": "تشغيل الكاميرا",
+    "connectionFailed": "فشل الاتصال",
+    "retry": "إعادة المحاولة",
     "error": {
       "mediaPermission": "يلزم إذن الكاميرا/الميكروفون لمكالمات الفيديو"
     }
   },
 
   "channel": {
-    "heading": "Channels",
-    "listAriaLabel": "Channel list",
-    "create": "Create Channel",
-    "createTitle": "Create Channel",
-    "nameLabel": "Name",
-    "namePlaceholder": "Channel name",
-    "descriptionLabel": "Description",
-    "descriptionPlaceholder": "What's this channel about?",
-    "postPolicyLabel": "Who can post",
+    "heading": "القنوات",
+    "listAriaLabel": "قائمة القنوات",
+    "create": "إنشاء قناة",
+    "createTitle": "إنشاء قناة",
+    "nameLabel": "الاسم",
+    "namePlaceholder": "اسم القناة",
+    "descriptionLabel": "الوصف",
+    "descriptionPlaceholder": "عن ماذا هذه القناة؟",
+    "postPolicyLabel": "من يمكنه النشر",
     "postPolicy": {
-      "everyone": "Everyone",
-      "moderators": "Moderators only",
-      "owner": "Owner only"
+      "everyone": "الجميع",
+      "moderators": "المشرفون فقط",
+      "owner": "المالك فقط"
     },
-    "cancel": "Cancel",
-    "creating": "Creating...",
-    "createSubmit": "Create",
+    "cancel": "إلغاء",
+    "creating": "جارٍ الإنشاء...",
+    "createSubmit": "إنشاء",
     "error": {
-      "default": "Failed to create channel"
+      "default": "فشل إنشاء القناة"
     }
+  },
+
+  "report": {
+    "title": "الإبلاغ عن مستخدم",
+    "subjectLabel": "المستخدم",
+    "categoryLabel": "الفئة",
+    "categories": {
+      "harassment": "تحرش",
+      "spam": "رسائل مزعجة",
+      "impersonation": "انتحال شخصية",
+      "hateSpeech": "خطاب كراهية",
+      "other": "أخرى"
+    },
+    "descriptionLabel": "الوصف",
+    "descriptionPlaceholder": "ماذا حدث؟",
+    "attachmentsLabel": "لقطات شاشة (اختياري)",
+    "attachmentsHint": "حتى صورتين",
+    "addAttachment": "إضافة لقطة شاشة",
+    "submit": "إرسال البلاغ",
+    "submitting": "جاري الإرسال...",
+    "cancel": "إلغاء",
+    "success": "تم إرسال البلاغ. سننظر في الأمر.",
+    "error": "فشل في إرسال البلاغ.",
+    "removeAttachment": "إزالة المرفق",
+    "fileSizeError": "الملف كبير جداً. الحد الأقصى 2 ميغابايت."
   },
 
   "poll": {
@@ -222,5 +257,23 @@
       "minOptions": "مطلوب خياران على الأقل",
       "default": "فشل في إنشاء الاستطلاع"
     }
+  },
+
+  "reportContent": {
+    "title": "إبلاغ",
+    "subjectLabel": "الموضوع",
+    "categoryLabel": "الفئة",
+    "descriptionLabel": "الوصف",
+    "descriptionPlaceholder": "ماذا حدث؟",
+    "attachmentsLabel": "لقطات شاشة (اختياري)",
+    "attachmentsHint": "حتى صورتين",
+    "addAttachment": "إضافة لقطة شاشة",
+    "removeAttachment": "إزالة",
+    "submit": "إرسال البلاغ",
+    "submitting": "جارٍ الإرسال...",
+    "cancel": "إلغاء",
+    "success": "تم إرسال البلاغ. سننظر في الأمر.",
+    "error": "فشل إرسال البلاغ.",
+    "fileSizeError": "الملف كبير جدًا (الحد الأقصى 2 ميجابايت)"
   }
 }

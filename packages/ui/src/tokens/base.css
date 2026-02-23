@@ -10,6 +10,7 @@
   /* ── Panel Widths ──────────────────────────────────── */
   --cm-panel-width-buddy: 240px;
   --cm-panel-width-sidebar: 200px;
+  --cm-panel-width-channels: 180px;
   --cm-panel-width-dm: 320px;
   --cm-panel-width-thread: 340px;
 
@@ -39,6 +40,15 @@
   --cm-avatar-md: 24px;
   --cm-avatar-lg: 64px;
 
+  /* ── Thumbnail / Badge Sizes ────────────────────────── */
+  --cm-thumb-sm: 64px;
+  --cm-badge-sm: 18px;
+  --cm-badge-offset: -4px;
+
+  /* ── Textarea min-heights ──────────────────────────── */
+  --cm-textarea-min-h: 100px;
+  --cm-textarea-min-h-sm: 60px;
+
   /* ── Image Constraints ─────────────────────────────── */
   --cm-image-max-h: 300px;
   --cm-link-thumb: 80px;
@@ -58,6 +68,7 @@
   --cm-modal-max-w: 28rem;
   --cm-modal-max-w-sm: 420px;
   --cm-modal-max-w-info: 460px;
+  --cm-modal-max-w-lg: 560px;
   --cm-connecting-w: 360px;
   --cm-button-min-w: 80px;
   --cm-dropdown-min-w: 170px;

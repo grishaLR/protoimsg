@@ -4,7 +4,8 @@ export interface ModActionRow {
   id: number;
   room_id: string;
   actor_did: string;
-  subject_did: string;
+  subject_did: string | null;
+  subject_uri: string | null;
   action: string;
   reason: string | null;
   created_at: Date;
@@ -12,17 +13,18 @@ export interface ModActionRow {
 
 export interface RecordModActionInput {
   uri?: string;
-  roomId: string;
+  roomId: string | null;
   actorDid: string;
-  subjectDid: string;
+  subjectDid?: string | null;
+  subjectUri?: string | null;
   action: string;
   reason?: string;
 }
 
 export async function recordModAction(sql: Sql, input: RecordModActionInput): Promise<void> {
   await sql`
-    INSERT INTO mod_actions (uri, room_id, actor_did, subject_did, action, reason)
-    VALUES (${input.uri ?? null}, ${input.roomId}, ${input.actorDid}, ${input.subjectDid}, ${input.action}, ${input.reason ?? null})
+    INSERT INTO mod_actions (uri, room_id, actor_did, subject_did, subject_uri, action, reason)
+    VALUES (${input.uri ?? null}, ${input.roomId}, ${input.actorDid}, ${input.subjectDid ?? null}, ${input.subjectUri ?? null}, ${input.action}, ${input.reason ?? null})
     ON CONFLICT (uri) DO NOTHING
   `;
 }

@@ -113,6 +113,19 @@
   opacity: 1;
 }
 
+.reportBtn {
+  background: none;
+  border: none;
+  color: var(--cm-border-dark);
+  font-size: var(--cm-text-sm);
+  cursor: pointer;
+  padding: 0;
+}
+
+.reportBtn:hover {
+  color: var(--color-error);
+}
+
 .translateBtn {
   background: none;
   border: none;

@@ -83,6 +83,17 @@
     "collapse": "Collapse"
   },
 
+  "feedback": {
+    "menuItem": "Send Feedback",
+    "title": "Send Feedback",
+    "placeholder": "What's on your mind? Bug reports, feature ideas, anything.",
+    "submit": "Send",
+    "sending": "Sending...",
+    "cancel": "Cancel",
+    "success": "Thanks! Feedback sent.",
+    "error": "Something went wrong. Try again."
+  },
+
   "serverError": {
     "unknown": "An unknown error occurred",
     "unauthorized": "You must be signed in",

@@ -16,7 +16,8 @@ import { ThreadPanel } from '../components/chat/ThreadPanel';
 import { ChannelList } from '../components/chat/ChannelList';
 import { ChannelSwitcher } from '../components/chat/ChannelSwitcher';
 import { CreateChannelModal } from '../components/chat/CreateChannelModal';
-import { ArrowLeft, PanelLeftOpen } from 'lucide-react';
+import { ReportContentModal } from '../components/feedback/ReportContentModal';
+import { ArrowLeft, Flag, PanelLeftOpen } from 'lucide-react';
 import { WindowControls } from '../components/layout/WindowControls';
 import { LoadingBars } from '../components/LoadingBars';
 import type { ChatThreadState } from '../hooks/useChatThread';
@@ -106,6 +107,11 @@ function ChatRoomContent({ roomId }: { roomId: string }) {
   // Thread panel state
   const [activeThread, setActiveThread] = useState<ChatThreadState | null>(null);
   const [showMembers, setShowMembers] = useState(false);
+  const [reportTarget, setReportTarget] = useState<{
+    uri: string;
+    label: string;
+    roomId?: string;
+  } | null>(null);
   const [showCreateChannel, setShowCreateChannel] = useState(false);
   const [channelSidebarOpen, setChannelSidebarOpen] = useState(() => {
     const stored = localStorage.getItem('protoimsg:channelSidebarOpen');
@@ -142,6 +148,13 @@ function ChatRoomContent({ roomId }: { roomId: string }) {
   const handleCloseThread = useCallback(() => {
     setActiveThread(null);
   }, []);
+
+  const handleReport = useCallback(
+    (messageUri: string, preview: string) => {
+      setReportTarget({ uri: messageUri, label: preview, roomId });
+    },
+    [roomId],
+  );
 
   // Close thread when switching channels
   useEffect(() => {
@@ -205,6 +218,19 @@ function ChatRoomContent({ roomId }: { roomId: string }) {
         >
           {t('chatRoom.members')}
         </button>
+        {!isOwner && (
+          <button
+            className={styles.reportRoomBtn}
+            type="button"
+            onClick={() => {
+              setReportTarget({ uri: room.uri, label: room.name, roomId });
+            }}
+            title={t('chatRoom.reportRoom')}
+            aria-label={t('chatRoom.reportRoom')}
+          >
+            <Flag size={14} />
+          </button>
+        )}
         <WindowControls />
       </header>
       <div className={styles.content}>
@@ -241,6 +267,7 @@ function ChatRoomContent({ roomId }: { roomId: string }) {
             typingUsers={filteredTyping}
             replyCounts={replyCounts}
             onOpenThread={handleOpenThread}
+            onReport={handleReport}
             onVote={(pollId, pollUri, opts) => {
               void castVote(pollId, pollUri, opts);
             }}
@@ -287,6 +314,7 @@ function ChatRoomContent({ roomId }: { roomId: string }) {
             channelUri={activeChannel.uri}
             liveMessages={messages}
             onClose={handleCloseThread}
+            onReport={handleReport}
           />
         )}
         <aside className={`${styles.sidebar} ${showMembers ? styles.sidebarOpen : ''}`}>
@@ -307,6 +335,16 @@ function ChatRoomContent({ roomId }: { roomId: string }) {
           roomUri={room.uri}
           onClose={() => {
             setShowCreateChannel(false);
+          }}
+        />
+      )}
+      {reportTarget && (
+        <ReportContentModal
+          subjectUri={reportTarget.uri}
+          subjectLabel={reportTarget.label}
+          roomId={reportTarget.roomId}
+          onClose={() => {
+            setReportTarget(null);
           }}
         />
       )}

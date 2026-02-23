@@ -5,6 +5,7 @@ import { Menu, Settings, Minus } from 'lucide-react';
 import { usePresence } from '../../hooks/usePresence';
 import { StatusIndicator } from '../chat/StatusIndicator';
 import { WindowControls } from './WindowControls';
+import { FeedbackModal } from '../feedback/FeedbackModal';
 import { IS_TAURI } from '../../lib/config';
 import { STATUS_OPTIONS, VISIBILITY_OPTIONS } from '../../constants/presence';
 import styles from './Header.module.css';
@@ -18,6 +19,7 @@ export function Header({ onOpenSettings }: HeaderProps) {
   const { did, logout } = useAuth();
   const { status, awayMessage, visibleTo, changeStatus } = usePresence();
   const [open, setOpen] = useState(false);
+  const [showFeedback, setShowFeedback] = useState(false);
   const [draftMessage, setDraftMessage] = useState(awayMessage ?? '');
   const menuRef = useRef<HTMLDivElement>(null);
 
@@ -156,6 +158,18 @@ export function Header({ onOpenSettings }: HeaderProps) {
                   </button>
                 )}
 
+                {/* Send Feedback */}
+                <button
+                  role="menuitem"
+                  className={styles.dropdownItem}
+                  onClick={() => {
+                    setShowFeedback(true);
+                    setOpen(false);
+                  }}
+                >
+                  {t('feedback.menuItem')}
+                </button>
+
                 {/* Minimize (Tauri only) */}
                 {IS_TAURI && (
                   <button role="menuitem" className={styles.dropdownItem} onClick={handleMinimize}>
@@ -180,6 +194,13 @@ export function Header({ onOpenSettings }: HeaderProps) {
         )}
         <WindowControls showMinimize={false} />
       </div>
+      {showFeedback && (
+        <FeedbackModal
+          onClose={() => {
+            setShowFeedback(false);
+          }}
+        />
+      )}
     </header>
   );
 }

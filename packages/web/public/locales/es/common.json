@@ -83,6 +83,17 @@
     "collapse": "Contraer"
   },
 
+  "feedback": {
+    "menuItem": "Enviar comentarios",
+    "title": "Enviar comentarios",
+    "placeholder": "¿Qué tienes en mente? Reportes de errores, ideas, lo que sea.",
+    "submit": "Enviar",
+    "sending": "Enviando...",
+    "cancel": "Cancelar",
+    "success": "¡Gracias! Comentarios enviados.",
+    "error": "Algo salió mal. Intenta de nuevo."
+  },
+
   "serverError": {
     "unknown": "Ocurrió un error desconocido",
     "unauthorized": "Debes iniciar sesión",

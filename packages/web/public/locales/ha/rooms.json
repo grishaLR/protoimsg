@@ -51,9 +51,13 @@
     "loading": "Ana shirya \u0257aki...",
     "notFound": "Ba a sami \u0257akin ba",
     "backToRooms": "\u0110akuna",
-    "channelSwitcher": "Select channel",
-    "createChannel": "Create channel",
-    "collapseChannels": "Collapse channels",
-    "expandChannels": "Expand channels"
+    "channelSwitcher": "Zaɓi tashar",
+    "createChannel": "Ƙirƙiri tashar",
+    "collapseChannels": "Rufe tashoshi",
+    "expandChannels": "Buɗe tashoshi",
+    "members": "Mambobi",
+    "sendFailed": "An kasa aika saƙo. Da fatan za a sake gwadawa.",
+    "dismiss": "Rufe",
+    "reportRoom": "Rahoto ɗakin"
   }
 }

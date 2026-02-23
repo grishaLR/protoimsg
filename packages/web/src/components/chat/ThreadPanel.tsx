@@ -14,9 +14,16 @@ interface ThreadPanelProps {
   channelUri: string;
   liveMessages: MessageView[];
   onClose: () => void;
+  onReport?: (messageUri: string, preview: string) => void;
 }
 
-export function ThreadPanel({ thread, channelUri, liveMessages, onClose }: ThreadPanelProps) {
+export function ThreadPanel({
+  thread,
+  channelUri,
+  liveMessages,
+  onClose,
+  onReport,
+}: ThreadPanelProps) {
   const { t } = useTranslation('chat');
   const { messages, loading, sendReply } = useChatThread(thread, liveMessages);
   const { blockedDids } = useBlocks();
@@ -143,6 +150,7 @@ export function ThreadPanel({ thread, channelUri, liveMessages, onClose }: Threa
               <MessageItem
                 message={focusedMessage}
                 hideActions
+                onReport={onReport}
                 isMentioned={!!did && hasMentionOf(focusedMessage.facets, did)}
               />
             </div>
@@ -157,6 +165,7 @@ export function ThreadPanel({ thread, channelUri, liveMessages, onClose }: Threa
                 message={msg}
                 replyCount={childReplyCounts[msg.uri]}
                 onOpenThread={handleDrillInto}
+                onReport={onReport}
                 isMentioned={!!did && hasMentionOf(msg.facets, did)}
               />
             ))}

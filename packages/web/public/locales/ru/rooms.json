@@ -51,9 +51,13 @@
     "loading": "Подготовка комнаты...",
     "notFound": "Комната не найдена",
     "backToRooms": "Комнаты",
-    "channelSwitcher": "Select channel",
-    "createChannel": "Create channel",
-    "collapseChannels": "Collapse channels",
-    "expandChannels": "Expand channels"
+    "channelSwitcher": "Выбрать канал",
+    "createChannel": "Создать канал",
+    "collapseChannels": "Свернуть каналы",
+    "expandChannels": "Развернуть каналы",
+    "members": "Участники",
+    "sendFailed": "Не удалось отправить сообщение. Попробуйте ещё раз.",
+    "dismiss": "Закрыть",
+    "reportRoom": "Пожаловаться на комнату"
   }
 }
