@@ -24,7 +24,7 @@ import {
 } from '../channels/queries.js';
 import { getRoomById } from '../rooms/queries.js';
 import { insertMessage } from '../messages/queries.js';
-import { isUserBanned, isUserModerator } from '../moderation/queries.js';
+import { isUserModerator } from '../moderation/queries.js';
 import { syncCommunityMembers, upsertCommunityList } from '../community/queries.js';
 import { computeConversationId, sortDids } from '../dms/queries.js';
 import { resolveVisibleStatus } from '../presence/visibility.js';
@@ -81,9 +81,12 @@ export async function handleClientMessage(
   labelerService: LabelerService,
   callSubs: DmSubscriptions,
 ): Promise<void> {
-  // Rate limit per-socket so multi-tab users get separate quotas
+  // Rate limit: per-socket for tab fairness, per-DID to cap total throughput
   const socketId = (ws as WebSocket & { socketId?: string }).socketId ?? did;
-  if (!(await rateLimiter.check(`ws:socket:${socketId}`))) {
+  if (
+    !(await rateLimiter.check(`ws:socket:${socketId}`)) ||
+    !(await rateLimiter.check(`ws:did:${did}`))
+  ) {
     ws.send(
       JSON.stringify({
         type: 'error',
@@ -857,6 +860,13 @@ export async function handleClientMessage(
           break;
         }
 
+        // Access check — must pass the same gate as join_room
+        const access = await checkUserAccess(sql, roomId, did, labelerService);
+        if (!access.allowed) {
+          log.info({ did, roomId, reason: access.reason }, 'notify_record: access denied');
+          break;
+        }
+
         // Post policy enforcement
         if (channel.post_policy !== 'everyone') {
           const isOwner = room.did === did;
@@ -898,62 +908,56 @@ export async function handleClientMessage(
             indexed_at = NOW()
         `;
 
-        // Ban/labeler check — after insert so the record is indexed regardless
-        const banned = await isUserBanned(sql, roomId, did);
-        const restricted = await labelerService.shouldRestrict(did);
+        // Broadcast to room subscribers
+        roomSubs.broadcast(roomId, {
+          type: 'message',
+          data: {
+            id: rkey,
+            uri,
+            did,
+            roomId,
+            channelId,
+            text: record.text,
+            reply: record.reply,
+            facets: record.facets,
+            embed: record.embed,
+            createdAt: record.createdAt,
+          },
+        });
 
-        if (!banned && !restricted) {
-          // Broadcast to room subscribers
-          roomSubs.broadcast(roomId, {
-            type: 'message',
-            data: {
-              id: rkey,
-              uri,
-              did,
-              roomId,
-              channelId,
-              text: record.text,
-              reply: record.reply,
-              facets: record.facets,
-              embed: record.embed,
-              createdAt: record.createdAt,
-            },
-          });
-
-          // Mention notifications for users NOT in this room
-          if (record.facets) {
-            const mentionedDids = extractMentionedDids(record.facets);
-            const preview = record.text.slice(0, 100);
-            for (const mentionedDid of mentionedDids) {
-              if (mentionedDid === did) continue;
-              // Check if user is subscribed to this room
-              const mentionedSockets = userSockets.get(mentionedDid);
-              const roomSubscribers = roomSubs.getSubscribers(roomId);
-              let inRoom = false;
-              for (const mws of mentionedSockets) {
-                if (roomSubscribers.has(mws)) {
-                  inRoom = true;
-                  break;
-                }
+        // Mention notifications for users NOT in this room
+        if (record.facets) {
+          const mentionedDids = extractMentionedDids(record.facets);
+          const preview = record.text.slice(0, 100);
+          for (const mentionedDid of mentionedDids) {
+            if (mentionedDid === did) continue;
+            // Check if user is subscribed to this room
+            const mentionedSockets = userSockets.get(mentionedDid);
+            const roomSubscribers = roomSubs.getSubscribers(roomId);
+            let inRoom = false;
+            for (const mws of mentionedSockets) {
+              if (roomSubscribers.has(mws)) {
+                inRoom = true;
+                break;
               }
-              if (inRoom) continue;
+            }
+            if (inRoom) continue;
 
-              const payload = JSON.stringify({
-                type: 'mention_notification',
-                data: {
-                  roomId,
-                  roomName: room.name,
-                  channelId,
-                  channelName: channel.name,
-                  senderDid: did,
-                  messageText: preview,
-                  messageUri: uri,
-                  createdAt: record.createdAt,
-                },
-              });
-              for (const mws of userSockets.get(mentionedDid)) {
-                if (mws.readyState === mws.OPEN) mws.send(payload);
-              }
+            const payload = JSON.stringify({
+              type: 'mention_notification',
+              data: {
+                roomId,
+                roomName: room.name,
+                channelId,
+                channelName: channel.name,
+                senderDid: did,
+                messageText: preview,
+                messageUri: uri,
+                createdAt: record.createdAt,
+              },
+            });
+            for (const mws of userSockets.get(mentionedDid)) {
+              if (mws.readyState === mws.OPEN) mws.send(payload);
             }
           }
         }

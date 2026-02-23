@@ -1,3 +1,4 @@
+import { timingSafeEqual } from 'crypto';
 import { Router } from 'express';
 import { z } from 'zod';
 import type { Sql } from '../db/client.js';
@@ -23,10 +24,14 @@ export function adminRouter(
 ): Router {
   const router = Router();
 
-  // API key auth middleware
+  // API key auth middleware (timing-safe comparison)
   router.use((req, res, next) => {
     const key = req.headers['x-admin-key'] ?? req.headers.authorization?.replace('Bearer ', '');
-    if (key !== adminApiKey) {
+    if (
+      typeof key !== 'string' ||
+      key.length !== adminApiKey.length ||
+      !timingSafeEqual(Buffer.from(key), Buffer.from(adminApiKey))
+    ) {
       res.status(401).json({ error: 'Invalid admin key' });
       return;
     }

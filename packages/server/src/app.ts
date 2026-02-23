@@ -152,7 +152,12 @@ export function createApp(
     createRateLimitMiddleware(rateLimiter),
     presenceRouter(presenceService, blockService, sql),
   );
-  app.use('/api/community', requireAuth, communityRouter(sql));
+  app.use(
+    '/api/community',
+    requireAuth,
+    createRateLimitMiddleware(rateLimiter),
+    communityRouter(sql),
+  );
   app.use('/api/feedback', requireAuth, feedbackRouter(sql, emailService ?? null));
   app.use(
     '/api/ice-servers',
