@@ -1,13 +1,16 @@
 .dialog {
+  position: fixed;
+  inset: 0;
+  height: fit-content;
   border: none;
   border-radius: var(--cm-radius-lg);
   padding: 0;
   overflow: hidden;
   max-width: var(--cm-modal-max-w-info);
   width: 90%;
+  margin: auto;
   background: var(--color-base-100);
   box-shadow: var(--cm-raised), var(--cm-window-shadow);
-  margin: auto;
 }
 
 .dialog::backdrop {

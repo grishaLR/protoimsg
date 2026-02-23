@@ -9,7 +9,16 @@ export type {
   WsDirection,
 } from './types.js';
 
-export { NSID, NSID_PREFIX, ROOM_DEFAULTS, LIMITS, DM_LIMITS, APP_LABELERS } from './constants.js';
+export {
+  NSID,
+  NSID_PREFIX,
+  ROOM_DEFAULTS,
+  LIMITS,
+  DM_LIMITS,
+  APP_LABELERS,
+  REPORT_CATEGORIES,
+} from './constants.js';
+export type { ReportCategory } from './constants.js';
 
 export { ERROR_CODES } from './error-codes.js';
 export type { ErrorCode } from './error-codes.js';

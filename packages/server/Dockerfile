@@ -27,6 +27,7 @@ COPY --from=build /app/deploy/node_modules ./node_modules
 COPY --from=build /app/deploy/package.json ./
 
 ENV NODE_ENV=production
+USER node
 EXPOSE 3000
 
 CMD ["node", "dist/index.js"]

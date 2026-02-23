@@ -51,9 +51,13 @@
     "loading": "Tá an seomra á shocrú...",
     "notFound": "Seomra gan aimsiú",
     "backToRooms": "Seomraí",
-    "channelSwitcher": "Select channel",
-    "createChannel": "Create channel",
-    "collapseChannels": "Collapse channels",
-    "expandChannels": "Expand channels"
+    "channelSwitcher": "Roghnaigh cainéal",
+    "createChannel": "Cruthaigh cainéal",
+    "collapseChannels": "Leag na cainéil",
+    "expandChannels": "Leathnaigh na cainéil",
+    "members": "Baill",
+    "sendFailed": "Theip ar sheoladh na teachtaireachta. Bain triail eile as.",
+    "dismiss": "Dún",
+    "reportRoom": "Tuairiscigh seomra"
   }
 }

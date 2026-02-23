@@ -12,6 +12,7 @@ import { useBlocks } from '../../contexts/BlockContext';
 import { useCollapsedGroups } from '../../hooks/useCollapsedGroups';
 import { useContentTranslation } from '../../hooks/useContentTranslation';
 import { ScrollableGroup } from './ScrollableGroup';
+import { ReportUserModal } from '../feedback/ReportUserModal';
 import type { FollowGraphEntry } from '../../hooks/useFollowGraph';
 import type { DoorEvent } from '../../hooks/useBuddyList';
 import type { MemberWithPresence, CommunityListRow } from '../../types';
@@ -97,6 +98,7 @@ export function BuddyListPanel({
     requestBatchTranslation,
   } = useContentTranslation();
   const lastAwayMsgHash = useRef('');
+  const [reportDid, setReportDid] = useState<string | null>(null);
   const [creatingGroup, setCreatingGroup] = useState(false);
   const [newGroupName, setNewGroupName] = useState('');
   const [renamingGroup, setRenamingGroup] = useState<string | null>(null);
@@ -483,6 +485,9 @@ export function BuddyListPanel({
                     onMoveBuddy={(fromGroup, toGroup) => {
                       void onMoveBuddy(buddy.did, fromGroup, toGroup);
                     }}
+                    onReport={() => {
+                      setReportDid(buddy.did);
+                    }}
                   />
                 </div>
               );
@@ -514,6 +519,9 @@ export function BuddyListPanel({
               onBuddyClick={onBuddyClick}
               onAddToCommunity={(did) => void onAddBuddy(did)}
               onBlock={onBlockBuddy}
+              onReport={(did) => {
+                setReportDid(did);
+              }}
               blockedDids={blockedDids}
             />
           )}
@@ -543,6 +551,9 @@ export function BuddyListPanel({
               onBuddyClick={onBuddyClick}
               onAddToCommunity={(did) => void onAddBuddy(did)}
               onBlock={onBlockBuddy}
+              onReport={(did) => {
+                setReportDid(did);
+              }}
               blockedDids={blockedDids}
             />
           )}
@@ -594,6 +605,14 @@ export function BuddyListPanel({
             </button>
           )}
         </div>
+      )}
+      {reportDid && (
+        <ReportUserModal
+          subjectDid={reportDid}
+          onClose={() => {
+            setReportDid(null);
+          }}
+        />
       )}
     </div>
   );

@@ -83,6 +83,17 @@
     "collapse": "Rufe"
   },
 
+  "feedback": {
+    "menuItem": "Aika ra'ayi",
+    "title": "Aika ra'ayi",
+    "placeholder": "Me kake tunani? Rahoton matsala, ra'ayoyi, komai.",
+    "submit": "Aika",
+    "sending": "Ana aikawa...",
+    "cancel": "Soke",
+    "success": "Na gode! An aika ra'ayin.",
+    "error": "Wani abu ya samu kuskure. Sake gwadawa."
+  },
+
   "serverError": {
     "unknown": "Kuskure da ba a sani ba ta faru",
     "unauthorized": "Dole ne ka shiga",

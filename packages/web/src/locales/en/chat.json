@@ -39,7 +39,9 @@
     "messageOnGerm": "Message on Germ",
     "addToCommunity": "Add to Community",
     "sendImDisabled": "User is offline",
-    "videoCallDisabled": "User is offline"
+    "videoCall": "Video Call",
+    "videoCallDisabled": "User is offline",
+    "report": "Report User"
   },
 
   "memberMenu": {
@@ -54,7 +56,8 @@
       "added": "Added!",
       "alreadyInList": "Already in buddy list",
       "error": "Error adding buddy"
-    }
+    },
+    "report": "Report User"
   },
 
   "messageInput": {
@@ -82,7 +85,8 @@
     "translate": "Translate",
     "translating": "Translating...",
     "translatedTo": "Translated to {{lang}}",
-    "showOriginal": "Show original"
+    "showOriginal": "Show original",
+    "reportButton": "Report"
   },
 
   "messageList": {
@@ -190,6 +194,31 @@
     }
   },
 
+  "report": {
+    "title": "Report User",
+    "subjectLabel": "User",
+    "categoryLabel": "Category",
+    "categories": {
+      "harassment": "Harassment",
+      "spam": "Spam",
+      "impersonation": "Impersonation",
+      "hateSpeech": "Hate Speech",
+      "other": "Other"
+    },
+    "descriptionLabel": "Description",
+    "descriptionPlaceholder": "What happened?",
+    "attachmentsLabel": "Screenshots (optional)",
+    "attachmentsHint": "Up to 2 images",
+    "addAttachment": "Add Screenshot",
+    "submit": "Submit Report",
+    "submitting": "Submitting...",
+    "cancel": "Cancel",
+    "success": "Report submitted. We'll look into it.",
+    "error": "Failed to submit report.",
+    "removeAttachment": "Remove attachment",
+    "fileSizeError": "File too large. Maximum size is 2 MB."
+  },
+
   "poll": {
     "createPoll": "Create Poll",
     "questionLabel": "Question",
@@ -219,5 +248,23 @@
       "minOptions": "At least 2 options are required",
       "default": "Failed to create poll"
     }
+  },
+
+  "reportContent": {
+    "title": "Report",
+    "subjectLabel": "Subject",
+    "categoryLabel": "Category",
+    "descriptionLabel": "Description",
+    "descriptionPlaceholder": "What happened?",
+    "attachmentsLabel": "Screenshots (optional)",
+    "attachmentsHint": "Up to 2 images",
+    "addAttachment": "Add Screenshot",
+    "removeAttachment": "Remove",
+    "submit": "Submit Report",
+    "submitting": "Submitting...",
+    "cancel": "Cancel",
+    "success": "Report submitted. We'll look into it.",
+    "error": "Failed to submit report.",
+    "fileSizeError": "File too large (max 2 MB)"
   }
 }

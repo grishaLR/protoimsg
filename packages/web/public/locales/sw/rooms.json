@@ -51,9 +51,13 @@
     "loading": "Chumba kinaandaliwa...",
     "notFound": "Chumba hakijapatikana",
     "backToRooms": "Vyumba",
-    "channelSwitcher": "Select channel",
-    "createChannel": "Create channel",
-    "collapseChannels": "Collapse channels",
-    "expandChannels": "Expand channels"
+    "channelSwitcher": "Chagua kituo",
+    "createChannel": "Unda kituo",
+    "collapseChannels": "Kunja vituo",
+    "expandChannels": "Panua vituo",
+    "members": "Wanachama",
+    "sendFailed": "Ujumbe haujatumwa. Tafadhali jaribu tena.",
+    "dismiss": "Funga",
+    "reportRoom": "Ripoti chumba"
   }
 }

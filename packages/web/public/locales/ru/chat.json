@@ -12,6 +12,8 @@
       "feed": "Лента"
     },
     "unreadIm": "{{count}} непрочитанных",
+    "addBuddyLabel": "Добавить друга",
+    "incomingIm": "Входящее сообщение",
     "groups": {
       "innerCircle": "Ближний круг",
       "community": "Сообщество",
@@ -37,7 +39,9 @@
     "messageOnGerm": "Написать в Germ",
     "addToCommunity": "Добавить в сообщество",
     "sendImDisabled": "Пользователь не в сети",
-    "videoCallDisabled": "Пользователь не в сети"
+    "videoCall": "Видеозвонок",
+    "videoCallDisabled": "Пользователь не в сети",
+    "report": "Пожаловаться"
   },
 
   "memberMenu": {
@@ -52,7 +56,8 @@
       "added": "Добавлен!",
       "alreadyInList": "Уже в списке друзей",
       "error": "Ошибка добавления"
-    }
+    },
+    "report": "Пожаловаться"
   },
 
   "messageInput": {
@@ -77,11 +82,13 @@
     "replyCount_one": "{{count}} ответ",
     "replyCount_few": "{{count}} ответа",
     "replyCount_many": "{{count}} ответов",
+    "replyCount_other": "{{count}} ответов",
     "replyButton": "Ответить",
     "translate": "Перевести",
     "translating": "Перевод...",
     "translatedTo": "Переведено на {{lang}}",
-    "showOriginal": "Показать оригинал"
+    "showOriginal": "Показать оригинал",
+    "reportButton": "Пожаловаться"
   },
 
   "messageList": {
@@ -104,7 +111,9 @@
     "notFound": "Ветка не найдена",
     "replyCount_one": "{{count}} ответ",
     "replyCount_few": "{{count}} ответа",
-    "replyCount_many": "{{count}} ответов"
+    "replyCount_many": "{{count}} ответов",
+    "replyCount_other": "{{count}} ответов",
+    "inputPlaceholder": "Ответить в ветке..."
   },
 
   "formattingToolbar": {
@@ -157,32 +166,61 @@
     "endCall": "Завершить звонок",
     "shareScreen": "Демонстрация экрана",
     "stopSharing": "Остановить показ",
+    "cameraOff": "Выключить камеру",
+    "cameraOn": "Включить камеру",
+    "connectionFailed": "Ошибка соединения",
+    "retry": "Повторить",
     "error": {
       "mediaPermission": "Для видеозвонков требуется доступ к камере и микрофону"
     }
   },
 
   "channel": {
-    "heading": "Channels",
-    "listAriaLabel": "Channel list",
-    "create": "Create Channel",
-    "createTitle": "Create Channel",
-    "nameLabel": "Name",
-    "namePlaceholder": "Channel name",
-    "descriptionLabel": "Description",
-    "descriptionPlaceholder": "What's this channel about?",
-    "postPolicyLabel": "Who can post",
+    "heading": "Каналы",
+    "listAriaLabel": "Список каналов",
+    "create": "Создать канал",
+    "createTitle": "Создать канал",
+    "nameLabel": "Название",
+    "namePlaceholder": "Название канала",
+    "descriptionLabel": "Описание",
+    "descriptionPlaceholder": "О чём этот канал?",
+    "postPolicyLabel": "Кто может писать",
     "postPolicy": {
-      "everyone": "Everyone",
-      "moderators": "Moderators only",
-      "owner": "Owner only"
+      "everyone": "Все",
+      "moderators": "Только модераторы",
+      "owner": "Только владелец"
     },
-    "cancel": "Cancel",
-    "creating": "Creating...",
-    "createSubmit": "Create",
+    "cancel": "Отмена",
+    "creating": "Создание...",
+    "createSubmit": "Создать",
     "error": {
-      "default": "Failed to create channel"
+      "default": "Не удалось создать канал"
     }
+  },
+
+  "report": {
+    "title": "Пожаловаться на пользователя",
+    "subjectLabel": "Пользователь",
+    "categoryLabel": "Категория",
+    "categories": {
+      "harassment": "Домогательство",
+      "spam": "Спам",
+      "impersonation": "Выдача себя за другого",
+      "hateSpeech": "Разжигание ненависти",
+      "other": "Другое"
+    },
+    "descriptionLabel": "Описание",
+    "descriptionPlaceholder": "Что произошло?",
+    "attachmentsLabel": "Скриншоты (необязательно)",
+    "attachmentsHint": "До 2 изображений",
+    "addAttachment": "Добавить скриншот",
+    "submit": "Отправить жалобу",
+    "submitting": "Отправка...",
+    "cancel": "Отмена",
+    "success": "Жалоба отправлена. Мы разберёмся.",
+    "error": "Не удалось отправить жалобу.",
+    "removeAttachment": "Удалить вложение",
+    "fileSizeError": "Файл слишком большой. Максимум 2 МБ."
   },
 
   "poll": {
@@ -200,6 +238,7 @@
     "totalVotes_one": "{{count}} голос",
     "totalVotes_few": "{{count}} голоса",
     "totalVotes_many": "{{count}} голосов",
+    "totalVotes_other": "{{count}} голосов",
     "vote": "Проголосовать",
     "create": "Создать",
     "cancel": "Отмена",
@@ -215,5 +254,23 @@
       "minOptions": "Необходимо минимум 2 варианта",
       "default": "Ошибка создания опроса"
     }
+  },
+
+  "reportContent": {
+    "title": "Жалоба",
+    "subjectLabel": "Тема",
+    "categoryLabel": "Категория",
+    "descriptionLabel": "Описание",
+    "descriptionPlaceholder": "Что произошло?",
+    "attachmentsLabel": "Скриншоты (необязательно)",
+    "attachmentsHint": "До 2 изображений",
+    "addAttachment": "Добавить скриншот",
+    "removeAttachment": "Удалить",
+    "submit": "Отправить жалобу",
+    "submitting": "Отправка...",
+    "cancel": "Отмена",
+    "success": "Жалоба отправлена. Мы разберёмся.",
+    "error": "Не удалось отправить жалобу.",
+    "fileSizeError": "Файл слишком большой (макс. 2 МБ)"
   }
 }

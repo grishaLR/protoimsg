@@ -18,6 +18,7 @@ import { translateRouter } from './translate/router.js';
 import { gifRouter } from './giphy/router.js';
 import { iceRouter } from './ice/router.js';
 import { waitlistRouter } from './waitlist/router.js';
+import { feedbackRouter } from './feedback/router.js';
 import { adminRouter } from './admin/router.js';
 import type { Config } from './config.js';
 import type { Sql } from './db/client.js';
@@ -61,7 +62,14 @@ export function createApp(
 
   // Middleware
   app.use(helmet());
-  app.use(express.json({ limit: '100kb' }));
+  app.use((req, res, next) => {
+    // Skip global body parser for report route — it has its own 6mb limit
+    if (req.path.startsWith('/api/feedback/report')) {
+      next();
+      return;
+    }
+    express.json({ limit: '100kb' })(req, res, next);
+  });
   app.use(corsMiddleware(config));
   app.use(createRequestLogger());
 
@@ -144,7 +152,13 @@ export function createApp(
     createRateLimitMiddleware(rateLimiter),
     presenceRouter(presenceService, blockService, sql),
   );
-  app.use('/api/community', requireAuth, communityRouter(sql));
+  app.use(
+    '/api/community',
+    requireAuth,
+    createRateLimitMiddleware(rateLimiter),
+    communityRouter(sql),
+  );
+  app.use('/api/feedback', requireAuth, feedbackRouter(sql, emailService ?? null));
   app.use(
     '/api/ice-servers',
     requireAuth,

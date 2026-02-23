@@ -62,6 +62,17 @@ export const APP_LABELERS = [
   { did: 'did:plc:d2mkddsbmnrgr3domzg5qexf' }, // Blacksky
 ] as const;
 
+/** Report categories for user report moderation flow */
+export const REPORT_CATEGORIES = [
+  'harassment',
+  'spam',
+  'impersonation',
+  'hateSpeech',
+  'other',
+] as const;
+
+export type ReportCategory = (typeof REPORT_CATEGORIES)[number];
+
 /** DM-specific limits */
 export const DM_LIMITS = {
   /** Maximum DM message text length in characters */

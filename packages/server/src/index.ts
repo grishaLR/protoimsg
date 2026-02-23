@@ -195,6 +195,7 @@ async function main() {
     presenceService,
     sessions,
     labelerService,
+    config.COMMIT_SILENCE_MINUTES,
   );
   firehose.start();
 

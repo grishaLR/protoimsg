@@ -44,7 +44,7 @@
 }
 
 .channelSidebar {
-  width: 180px;
+  width: var(--cm-panel-width-channels);
   background: var(--color-base-100);
   border-inline-end: var(--cm-space-0.5) solid var(--cm-border-dark);
   overflow-y: auto;
@@ -55,7 +55,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 24px;
+  width: var(--cm-avatar-md);
   background: var(--color-base-100);
   border: none;
   border-inline-end: var(--cm-space-0.5) solid var(--cm-border-dark);
@@ -91,6 +91,22 @@
 
 .membersPanelClose {
   display: none;
+}
+
+.reportRoomBtn {
+  background: none;
+  border: none;
+  color: var(--cm-chrome-text);
+  cursor: pointer;
+  padding: var(--cm-space-1);
+  opacity: 0.5;
+  display: flex;
+  align-items: center;
+}
+
+.reportRoomBtn:hover {
+  opacity: 1;
+  color: var(--color-error);
 }
 
 .loadingBody {

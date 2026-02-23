@@ -12,6 +12,8 @@
       "feed": "Mlisho"
     },
     "unreadIm": "{{count}} hazijasomwa",
+    "addBuddyLabel": "Ongeza rafiki",
+    "incomingIm": "Ujumbe unaoingia",
     "groups": {
       "innerCircle": "Watu wa Karibu",
       "community": "Jamii",
@@ -37,7 +39,9 @@
     "messageOnGerm": "Tuma ujumbe kwenye Germ",
     "addToCommunity": "Ongeza kwenye jumuiya",
     "sendImDisabled": "Mtumiaji hayuko mtandaoni",
-    "videoCallDisabled": "Mtumiaji hayuko mtandaoni"
+    "videoCall": "Simu ya video",
+    "videoCallDisabled": "Mtumiaji hayuko mtandaoni",
+    "report": "Ripoti mtumiaji"
   },
 
   "memberMenu": {
@@ -52,7 +56,8 @@
       "added": "Ameongezwa!",
       "alreadyInList": "Tayari yumo kwenye orodha ya marafiki",
       "error": "Hitilafu ya kuongeza rafiki"
-    }
+    },
+    "report": "Ripoti mtumiaji"
   },
 
   "messageInput": {
@@ -80,7 +85,8 @@
     "translate": "Tafsiri",
     "translating": "Inatafsiri...",
     "translatedTo": "Imetafsiriwa kwa {{lang}}",
-    "showOriginal": "Onyesha asili"
+    "showOriginal": "Onyesha asili",
+    "reportButton": "Ripoti"
   },
 
   "messageList": {
@@ -156,32 +162,61 @@
     "endCall": "Maliza simu",
     "shareScreen": "Shiriki skrini",
     "stopSharing": "Acha kushiriki",
+    "cameraOff": "Zima kamera",
+    "cameraOn": "Washa kamera",
+    "connectionFailed": "Muunganisho umeshindwa",
+    "retry": "Jaribu tena",
     "error": {
       "mediaPermission": "Ruhusa ya kamera/maikrofoni inahitajika kwa simu za video"
     }
   },
 
   "channel": {
-    "heading": "Channels",
-    "listAriaLabel": "Channel list",
-    "create": "Create Channel",
-    "createTitle": "Create Channel",
-    "nameLabel": "Name",
-    "namePlaceholder": "Channel name",
-    "descriptionLabel": "Description",
-    "descriptionPlaceholder": "What's this channel about?",
-    "postPolicyLabel": "Who can post",
+    "heading": "Vituo",
+    "listAriaLabel": "Orodha ya vituo",
+    "create": "Unda kituo",
+    "createTitle": "Unda kituo",
+    "nameLabel": "Jina",
+    "namePlaceholder": "Jina la kituo",
+    "descriptionLabel": "Maelezo",
+    "descriptionPlaceholder": "Kituo hiki kinahusu nini?",
+    "postPolicyLabel": "Nani anaweza kuchapisha",
     "postPolicy": {
-      "everyone": "Everyone",
-      "moderators": "Moderators only",
-      "owner": "Owner only"
+      "everyone": "Kila mtu",
+      "moderators": "Wasimamizi pekee",
+      "owner": "Mmiliki pekee"
     },
-    "cancel": "Cancel",
-    "creating": "Creating...",
-    "createSubmit": "Create",
+    "cancel": "Ghairi",
+    "creating": "Inaunda...",
+    "createSubmit": "Unda",
     "error": {
-      "default": "Failed to create channel"
+      "default": "Imeshindwa kuunda kituo"
     }
+  },
+
+  "report": {
+    "title": "Ripoti mtumiaji",
+    "subjectLabel": "Mtumiaji",
+    "categoryLabel": "Aina",
+    "categories": {
+      "harassment": "Unyanyasaji",
+      "spam": "Barua taka",
+      "impersonation": "Kujifanya mtu mwingine",
+      "hateSpeech": "Hotuba ya chuki",
+      "other": "Nyingine"
+    },
+    "descriptionLabel": "Maelezo",
+    "descriptionPlaceholder": "Nini kilitokea?",
+    "attachmentsLabel": "Picha za skrini (si lazima)",
+    "attachmentsHint": "Hadi picha 2",
+    "addAttachment": "Ongeza picha ya skrini",
+    "submit": "Tuma ripoti",
+    "submitting": "Inatuma...",
+    "cancel": "Ghairi",
+    "success": "Ripoti imetumwa. Tutaichunguza.",
+    "error": "Imeshindwa kutuma ripoti.",
+    "removeAttachment": "Ondoa kiambatisho",
+    "fileSizeError": "Faili kubwa sana. Ukubwa wa juu ni MB 2."
   },
 
   "poll": {
@@ -213,5 +248,23 @@
       "minOptions": "Chaguo 2 au zaidi zinahitajika",
       "default": "Imeshindwa kuunda kura"
     }
+  },
+
+  "reportContent": {
+    "title": "Ripoti",
+    "subjectLabel": "Mada",
+    "categoryLabel": "Aina",
+    "descriptionLabel": "Maelezo",
+    "descriptionPlaceholder": "Nini kilitokea?",
+    "attachmentsLabel": "Picha za skrini (si lazima)",
+    "attachmentsHint": "Hadi picha 2",
+    "addAttachment": "Ongeza picha ya skrini",
+    "removeAttachment": "Ondoa",
+    "submit": "Tuma ripoti",
+    "submitting": "Inatuma...",
+    "cancel": "Ghairi",
+    "success": "Ripoti imetumwa. Tutachunguza.",
+    "error": "Imeshindwa kutuma ripoti.",
+    "fileSizeError": "Faili kubwa sana (upeo 2 MB)"
   }
 }

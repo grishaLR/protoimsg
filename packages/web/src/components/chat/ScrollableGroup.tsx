@@ -16,6 +16,7 @@ interface ScrollableGroupProps {
   onBuddyClick?: (did: string) => void;
   onAddToCommunity?: (did: string) => void;
   onBlock?: (did: string) => void;
+  onReport?: (did: string) => void;
   blockedDids: Set<string>;
 }
 
@@ -30,6 +31,7 @@ export function ScrollableGroup({
   onBuddyClick,
   onAddToCommunity,
   onBlock,
+  onReport,
   blockedDids,
 }: ScrollableGroupProps) {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -87,6 +89,13 @@ export function ScrollableGroup({
               onAddToCommunity
                 ? () => {
                     onAddToCommunity(buddy.did);
+                  }
+                : undefined
+            }
+            onReport={
+              onReport
+                ? () => {
+                    onReport(buddy.did);
                   }
                 : undefined
             }

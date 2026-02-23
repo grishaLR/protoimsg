@@ -1,8 +1,10 @@
+import { timingSafeEqual } from 'crypto';
 import { Router } from 'express';
 import { z } from 'zod';
 import type { Sql } from '../db/client.js';
 import type { GlobalAllowlistService } from '../moderation/global-allowlist-service.js';
 import type { EmailService } from '../email/service.js';
+import { setRoomHidden } from '../rooms/queries.js';
 import { createLogger } from '../logger.js';
 
 const log = createLogger('admin');
@@ -22,10 +24,14 @@ export function adminRouter(
 ): Router {
   const router = Router();
 
-  // API key auth middleware
+  // API key auth middleware (timing-safe comparison)
   router.use((req, res, next) => {
     const key = req.headers['x-admin-key'] ?? req.headers.authorization?.replace('Bearer ', '');
-    if (key !== adminApiKey) {
+    if (
+      typeof key !== 'string' ||
+      key.length !== adminApiKey.length ||
+      !timingSafeEqual(Buffer.from(key), Buffer.from(adminApiKey))
+    ) {
       res.status(401).json({ error: 'Invalid admin key' });
       return;
     }
@@ -93,6 +99,51 @@ export function adminRouter(
         waitlistUpdated: updated.length > 0,
         emailSent: !!entry?.email && !!emailService,
       });
+    } catch (err) {
+      next(err);
+    }
+  });
+
+  // POST /rooms/:id/hide — hide a room from the directory
+  router.post('/rooms/:id/hide', async (req, res, next) => {
+    try {
+      const updated = await setRoomHidden(sql, req.params.id, true);
+      if (!updated) {
+        res.status(404).json({ error: 'Room not found' });
+        return;
+      }
+      log.info({ roomId: req.params.id }, 'Room hidden by admin');
+      res.json({ success: true });
+    } catch (err) {
+      next(err);
+    }
+  });
+
+  // POST /rooms/:id/unhide — unhide a room
+  router.post('/rooms/:id/unhide', async (req, res, next) => {
+    try {
+      const updated = await setRoomHidden(sql, req.params.id, false);
+      if (!updated) {
+        res.status(404).json({ error: 'Room not found' });
+        return;
+      }
+      log.info({ roomId: req.params.id }, 'Room unhidden by admin');
+      res.json({ success: true });
+    } catch (err) {
+      next(err);
+    }
+  });
+
+  // GET /reports — list recent reports
+  router.get('/reports', async (_req, res, next) => {
+    try {
+      const rows = await sql`
+        SELECT * FROM mod_actions
+        WHERE action = 'report'
+        ORDER BY created_at DESC
+        LIMIT 50
+      `;
+      res.json({ reports: rows });
     } catch (err) {
       next(err);
     }

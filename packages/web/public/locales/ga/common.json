@@ -83,6 +83,17 @@
     "collapse": "Laghdaigh"
   },
 
+  "feedback": {
+    "menuItem": "Seol aiseolas",
+    "title": "Seol aiseolas",
+    "placeholder": "Cad atá ar d'intinn? Fabhtanna, smaointe, rud ar bith.",
+    "submit": "Seol",
+    "sending": "Á sheoladh...",
+    "cancel": "Cealaigh",
+    "success": "Go raibh maith agat! Aiseolas seolta.",
+    "error": "Chuaigh rud éigin mícheart. Bain triail eile as."
+  },
+
   "serverError": {
     "unknown": "Tharla earráid anaithnid",
     "unauthorized": "Caithfidh tú a bheith sínithe isteach",

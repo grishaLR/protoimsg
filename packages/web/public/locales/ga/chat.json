@@ -12,6 +12,8 @@
       "feed": "Fotha"
     },
     "unreadIm": "{{count}} gan léamh",
+    "addBuddyLabel": "Cuir cara leis",
+    "incomingIm": "IM ag teacht",
     "groups": {
       "innerCircle": "Ciorcal Inmheánach",
       "community": "Pobal",
@@ -37,7 +39,9 @@
     "messageOnGerm": "Teachtaireacht ar Germ",
     "addToCommunity": "Cuir leis an bpobal",
     "sendImDisabled": "Tá an t-úsáideoir as líne",
-    "videoCallDisabled": "Tá an t-úsáideoir as líne"
+    "videoCall": "Físghlao",
+    "videoCallDisabled": "Tá an t-úsáideoir as líne",
+    "report": "Tuairiscigh úsáideoir"
   },
 
   "memberMenu": {
@@ -52,7 +56,8 @@
       "added": "Curtha leis!",
       "alreadyInList": "Ar an liosta cairde cheana féin",
       "error": "Earráid ag cur carad leis"
-    }
+    },
+    "report": "Tuairiscigh úsáideoir"
   },
 
   "messageInput": {
@@ -80,7 +85,8 @@
     "translate": "Aistrigh",
     "translating": "Ag aistriú...",
     "translatedTo": "Aistrithe go {{lang}}",
-    "showOriginal": "Taispeáin an bunleagan"
+    "showOriginal": "Taispeáin an bunleagan",
+    "reportButton": "Tuairiscigh"
   },
 
   "messageList": {
@@ -156,32 +162,61 @@
     "endCall": "Cuir deireadh leis an nglao",
     "shareScreen": "Roinn scáileán",
     "stopSharing": "Stop ag roinnt",
+    "cameraOff": "Múch an ceamara",
+    "cameraOn": "Las an ceamara",
+    "connectionFailed": "Theip ar an nasc",
+    "retry": "Bain triail eile as",
     "error": {
       "mediaPermission": "Teastaíonn cead ceamara/micreafóin le haghaidh físghlaonna"
     }
   },
 
   "channel": {
-    "heading": "Channels",
-    "listAriaLabel": "Channel list",
-    "create": "Create Channel",
-    "createTitle": "Create Channel",
-    "nameLabel": "Name",
-    "namePlaceholder": "Channel name",
-    "descriptionLabel": "Description",
-    "descriptionPlaceholder": "What's this channel about?",
-    "postPolicyLabel": "Who can post",
+    "heading": "Cainéil",
+    "listAriaLabel": "Liosta cainéal",
+    "create": "Cruthaigh cainéal",
+    "createTitle": "Cruthaigh cainéal",
+    "nameLabel": "Ainm",
+    "namePlaceholder": "Ainm an chainéil",
+    "descriptionLabel": "Cur síos",
+    "descriptionPlaceholder": "Cad é ábhar an chainéil seo?",
+    "postPolicyLabel": "Cé atá in ann postáil",
     "postPolicy": {
-      "everyone": "Everyone",
-      "moderators": "Moderators only",
-      "owner": "Owner only"
+      "everyone": "Gach duine",
+      "moderators": "Modhnóirí amháin",
+      "owner": "Úinéir amháin"
     },
-    "cancel": "Cancel",
-    "creating": "Creating...",
-    "createSubmit": "Create",
+    "cancel": "Cealaigh",
+    "creating": "Á chruthú...",
+    "createSubmit": "Cruthaigh",
     "error": {
-      "default": "Failed to create channel"
+      "default": "Theip ar chruthú an chainéil"
     }
+  },
+
+  "report": {
+    "title": "Tuairiscigh úsáideoir",
+    "subjectLabel": "Úsáideoir",
+    "categoryLabel": "Catagóir",
+    "categories": {
+      "harassment": "Ciapadh",
+      "spam": "Turscar",
+      "impersonation": "Pearsanú",
+      "hateSpeech": "Caint fuatha",
+      "other": "Eile"
+    },
+    "descriptionLabel": "Cur síos",
+    "descriptionPlaceholder": "Cad a tharla?",
+    "attachmentsLabel": "Gabhálacha scáileáin (roghnach)",
+    "attachmentsHint": "Suas le 2 íomhá",
+    "addAttachment": "Cuir gabháil scáileáin leis",
+    "submit": "Seol tuairisc",
+    "submitting": "Á sheoladh...",
+    "cancel": "Cealaigh",
+    "success": "Tuairisc seolta. Breathnóimid air.",
+    "error": "Theip ar sheoladh na tuairisce.",
+    "removeAttachment": "Bain ceangaltán",
+    "fileSizeError": "Comhad rómhór. Uasmhéid 2 MB."
   },
 
   "poll": {
@@ -213,5 +248,23 @@
       "minOptions": "Teastaíonn 2 rogha ar a laghad",
       "default": "Theip ar chruthú vótála"
     }
+  },
+
+  "reportContent": {
+    "title": "Tuairiscigh",
+    "subjectLabel": "Ábhar",
+    "categoryLabel": "Catagóir",
+    "descriptionLabel": "Cur síos",
+    "descriptionPlaceholder": "Cad a tharla?",
+    "attachmentsLabel": "Grianghraif scáileáin (roghnach)",
+    "attachmentsHint": "Suas le 2 íomhá",
+    "addAttachment": "Cuir grianghraf leis",
+    "removeAttachment": "Bain",
+    "submit": "Seol tuairisc",
+    "submitting": "Á sheoladh...",
+    "cancel": "Cealaigh",
+    "success": "Tuairisc seolta. Breathnóimid air.",
+    "error": "Theip ar sheoladh na tuairisce.",
+    "fileSizeError": "Comhad rómhór (uasmhéid 2 MB)"
   }
 }

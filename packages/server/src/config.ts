@@ -56,6 +56,8 @@ const envSchema = z.object({
   RESEND_API_KEY: z.string().optional(),
   RESEND_FROM: z.string().default('proto instant messenger <noreply@protoimsg.app>'),
   ADMIN_API_KEY: z.string().optional(),
+  /** Minutes of commit silence before Sentry warning. 0 disables the check. */
+  COMMIT_SILENCE_MINUTES: z.coerce.number().min(0).default(30),
 });
 
 export type Config = z.infer<typeof envSchema>;

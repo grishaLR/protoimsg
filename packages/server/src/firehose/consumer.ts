@@ -77,8 +77,8 @@ const CURSOR_SAVE_INTERVAL = 100;
 const CURSOR_STALENESS_THRESHOLD_US = 72 * 60 * 60 * 1_000_000;
 /** Failover if the WebSocket goes completely silent (no events at all). */
 const CONNECTION_LIVENESS_TIMEOUT_MS = 30_000;
-/** Failover if commits stop arriving while other events still flow (silent drop). */
-const COMMIT_LIVENESS_TIMEOUT_MS = 5 * 60 * 1000;
+/** Default: failover if commits stop arriving while other events still flow. */
+const DEFAULT_COMMIT_LIVENESS_TIMEOUT_MS = 30 * 60 * 1000;
 
 export function createFirehoseConsumer(
   jetstreamUrls: string[],
@@ -87,7 +87,12 @@ export function createFirehoseConsumer(
   presenceService: PresenceService,
   sessions: SessionStore,
   labelerService: LabelerService,
+  commitSilenceMinutes?: number,
 ): FirehoseConsumer {
+  const commitLivenessTimeoutMs =
+    commitSilenceMinutes != null
+      ? commitSilenceMinutes * 60 * 1000
+      : DEFAULT_COMMIT_LIVENESS_TIMEOUT_MS;
   const handlers = createHandlers(db, wss, presenceService, labelerService);
   let ws: WebSocket | null = null;
   let shouldReconnect = true;
@@ -207,7 +212,7 @@ export function createFirehoseConsumer(
             'No events received — connection appears dead, failing over',
           );
           failover();
-        } else if (commitSilenceMs > COMMIT_LIVENESS_TIMEOUT_MS) {
+        } else if (commitLivenessTimeoutMs > 0 && commitSilenceMs > commitLivenessTimeoutMs) {
           // Don't auto-failover — 5min of no commits is normal during quiet
           // hours for a small app. Just alert so we can investigate.
           log.warn(
@@ -222,6 +227,8 @@ export function createFirehoseConsumer(
               extra: { commitSilenceMs, eventSilenceMs, instance: currentUrl() },
             },
           );
+          // Reset so we don't re-alert every 30s on subsequent ticks
+          lastCommitAt = now;
         }
       }, CONNECTION_LIVENESS_TIMEOUT_MS);
     });

@@ -5,6 +5,7 @@ import { useAuth } from '../../hooks/useAuth';
 import { useWebSocket } from '../../contexts/WebSocketContext';
 import { useBlocks } from '../../contexts/BlockContext';
 import { addToBuddyList } from '../../lib/atproto';
+import { ReportUserModal } from '../feedback/ReportUserModal';
 import styles from './MemberMenu.module.css';
 
 interface MemberMenuProps {
@@ -19,7 +20,9 @@ export function MemberMenu({ did, className }: MemberMenuProps) {
   const { blockedDids, toggleBlock } = useBlocks();
   const [open, setOpen] = useState(false);
   const [feedback, setFeedback] = useState<string | null>(null);
+  const [showReport, setShowReport] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
+  const timerRef = useRef<ReturnType<typeof setTimeout>>(undefined);
 
   const isBlocked = blockedDids.has(did);
 
@@ -37,6 +40,12 @@ export function MemberMenu({ did, className }: MemberMenuProps) {
     };
   }, [open]);
 
+  useEffect(() => {
+    return () => {
+      clearTimeout(timerRef.current);
+    };
+  }, []);
+
   async function handleAddBuddy() {
     if (!agent) return;
     try {
@@ -46,13 +55,13 @@ export function MemberMenu({ did, className }: MemberMenuProps) {
           ? t('memberMenu.feedback.added')
           : t('memberMenu.feedback.alreadyInList'),
       );
-      setTimeout(() => {
+      timerRef.current = setTimeout(() => {
         setOpen(false);
         setFeedback(null);
       }, 2000);
     } catch {
       setFeedback(t('memberMenu.feedback.error'));
-      setTimeout(() => {
+      timerRef.current = setTimeout(() => {
         setFeedback(null);
       }, 2000);
     }
@@ -91,9 +100,26 @@ export function MemberMenu({ did, className }: MemberMenuProps) {
               >
                 {isBlocked ? t('memberMenu.unblock') : t('memberMenu.block')}
               </button>
+              <button
+                className={`${styles.menuItem} ${styles.menuItemDanger}`}
+                onClick={() => {
+                  setShowReport(true);
+                  setOpen(false);
+                }}
+              >
+                {t('memberMenu.report')}
+              </button>
             </>
           )}
         </div>
+      )}
+      {showReport && (
+        <ReportUserModal
+          subjectDid={did}
+          onClose={() => {
+            setShowReport(false);
+          }}
+        />
       )}
     </div>
   );

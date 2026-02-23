@@ -12,6 +12,8 @@
       "feed": "Labarai"
     },
     "unreadIm": "{{count}} ba a karanta ba",
+    "addBuddyLabel": "Ƙara aboki",
+    "incomingIm": "Saƙo mai shigowa",
     "groups": {
       "innerCircle": "Na Kusa",
       "community": "Al'umma",
@@ -37,7 +39,9 @@
     "messageOnGerm": "Aika saƙo a Germ",
     "addToCommunity": "Ƙara zuwa al'umma",
     "sendImDisabled": "Mai amfani ba a kan layi ba",
-    "videoCallDisabled": "Mai amfani ba a kan layi ba"
+    "videoCall": "Kiran bidiyo",
+    "videoCallDisabled": "Mai amfani ba a kan layi ba",
+    "report": "Kai rahoto"
   },
 
   "memberMenu": {
@@ -52,7 +56,8 @@
       "added": "An \u0137ara!",
       "alreadyInList": "Ya riga yana cikin jerin abokai",
       "error": "Kuskure wajen \u0137ara aboki"
-    }
+    },
+    "report": "Kai rahoto"
   },
 
   "messageInput": {
@@ -80,7 +85,8 @@
     "translate": "Fassara",
     "translating": "Ana fassarawa...",
     "translatedTo": "An fassara zuwa {{lang}}",
-    "showOriginal": "Nuna asali"
+    "showOriginal": "Nuna asali",
+    "reportButton": "Rahoto"
   },
 
   "messageList": {
@@ -156,32 +162,61 @@
     "endCall": "Kawo ƙarshen kira",
     "shareScreen": "Raba allon",
     "stopSharing": "Daina rabawa",
+    "cameraOff": "Kashe kyamara",
+    "cameraOn": "Kunna kyamara",
+    "connectionFailed": "An kasa haɗawa",
+    "retry": "Sake gwadawa",
     "error": {
       "mediaPermission": "Ana buƙatar izinin kyamara/makirufo don kiran bidiyo"
     }
   },
 
   "channel": {
-    "heading": "Channels",
-    "listAriaLabel": "Channel list",
-    "create": "Create Channel",
-    "createTitle": "Create Channel",
-    "nameLabel": "Name",
-    "namePlaceholder": "Channel name",
-    "descriptionLabel": "Description",
-    "descriptionPlaceholder": "What's this channel about?",
-    "postPolicyLabel": "Who can post",
+    "heading": "Tashoshi",
+    "listAriaLabel": "Jerin tashoshi",
+    "create": "Ƙirƙiri tashar",
+    "createTitle": "Ƙirƙiri tashar",
+    "nameLabel": "Suna",
+    "namePlaceholder": "Sunan tashar",
+    "descriptionLabel": "Bayani",
+    "descriptionPlaceholder": "Menene wannan tashar game da shi?",
+    "postPolicyLabel": "Wane ne zai iya bugawa",
     "postPolicy": {
-      "everyone": "Everyone",
-      "moderators": "Moderators only",
-      "owner": "Owner only"
+      "everyone": "Kowa",
+      "moderators": "Masu kula kaɗai",
+      "owner": "Mai shi kaɗai"
     },
-    "cancel": "Cancel",
-    "creating": "Creating...",
-    "createSubmit": "Create",
+    "cancel": "Soke",
+    "creating": "Ana ƙirƙira...",
+    "createSubmit": "Ƙirƙira",
     "error": {
-      "default": "Failed to create channel"
+      "default": "An kasa ƙirƙiri tashar"
     }
+  },
+
+  "report": {
+    "title": "Kai rahoton mai amfani",
+    "subjectLabel": "Mai amfani",
+    "categoryLabel": "Nau'i",
+    "categories": {
+      "harassment": "Cin mutunci",
+      "spam": "Saƙon banza",
+      "impersonation": "Yin kamar wani",
+      "hateSpeech": "Maganar ƙiyayya",
+      "other": "Wani"
+    },
+    "descriptionLabel": "Bayani",
+    "descriptionPlaceholder": "Me ya faru?",
+    "attachmentsLabel": "Hotunan allo (ba dole ba)",
+    "attachmentsHint": "Har zuwa hotuna 2",
+    "addAttachment": "Ƙara hoton allo",
+    "submit": "Aika rahoto",
+    "submitting": "Ana aikawa...",
+    "cancel": "Soke",
+    "success": "An aika rahoto. Za mu duba.",
+    "error": "Ba a iya aika rahoto ba.",
+    "removeAttachment": "Cire abin da aka haɗa",
+    "fileSizeError": "Fayil ya yi girma. Mafi girma 2 MB."
   },
 
   "poll": {
@@ -213,5 +248,23 @@
       "minOptions": "Ana bu\u0137atar za\u0253u\u0253\u0253uka 2 a \u0137alla",
       "default": "Kuskure wajen \u0137ir\u0137irar za\u0253e"
     }
+  },
+
+  "reportContent": {
+    "title": "Rahoto",
+    "subjectLabel": "Batun",
+    "categoryLabel": "Nau'i",
+    "descriptionLabel": "Bayani",
+    "descriptionPlaceholder": "Me ya faru?",
+    "attachmentsLabel": "Hotunan allo (na zaɓi)",
+    "attachmentsHint": "Har hotuna 2",
+    "addAttachment": "Ƙara hoton allo",
+    "removeAttachment": "Cire",
+    "submit": "Aika rahoto",
+    "submitting": "Ana aikawa...",
+    "cancel": "Soke",
+    "success": "An aika rahoton. Za mu duba.",
+    "error": "An kasa aika rahoton.",
+    "fileSizeError": "Fayil ya yi girma (mafi girma 2 MB)"
   }
 }

@@ -483,6 +483,55 @@ export async function translateTexts(
   return (await res.json()) as TranslateResponse;
 }
 
+// -- Feedback & Reports --
+
+export async function sendFeedback(message: string): Promise<void> {
+  const res = await authFetch('/api/feedback', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ message }),
+  });
+  if (!res.ok) {
+    const data = (await res.json().catch(() => ({}))) as { error?: string };
+    throw new Error(data.error ?? 'Failed to send feedback');
+  }
+}
+
+export async function sendReport(report: {
+  subjectDid: string;
+  category: string;
+  description?: string;
+  attachments?: string[];
+}): Promise<void> {
+  const res = await authFetch('/api/feedback/report', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(report),
+  });
+  if (!res.ok) {
+    const data = (await res.json().catch(() => ({}))) as { error?: string };
+    throw new Error(data.error ?? 'Failed to submit report');
+  }
+}
+
+export async function sendContentReport(report: {
+  subjectUri: string;
+  roomId?: string;
+  category: string;
+  description?: string;
+  attachments?: string[];
+}): Promise<void> {
+  const res = await authFetch('/api/feedback/report-content', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(report),
+  });
+  if (!res.ok) {
+    const data = (await res.json().catch(() => ({}))) as { error?: string };
+    throw new Error(data.error ?? 'Failed to submit report');
+  }
+}
+
 export async function fetchTranslateStatus(): Promise<TranslateStatusResponse> {
   try {
     const res = await authFetch('/api/translate/status');

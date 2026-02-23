@@ -57,6 +57,7 @@
     "collapseChannels": "Collapse channels",
     "expandChannels": "Expand channels",
     "sendFailed": "Message failed to send. Please try again.",
-    "dismiss": "Dismiss"
+    "dismiss": "Dismiss",
+    "reportRoom": "Report Room"
   }
 }

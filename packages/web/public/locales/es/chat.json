@@ -12,6 +12,8 @@
       "feed": "Feed"
     },
     "unreadIm": "{{count}} sin leer",
+    "addBuddyLabel": "Agregar amigo",
+    "incomingIm": "Mensaje entrante",
     "groups": {
       "innerCircle": "Círculo íntimo",
       "community": "Comunidad",
@@ -37,7 +39,9 @@
     "messageOnGerm": "Mensaje en Germ",
     "addToCommunity": "Agregar a la Comunidad",
     "sendImDisabled": "El usuario está desconectado",
-    "videoCallDisabled": "El usuario está desconectado"
+    "videoCall": "Videollamada",
+    "videoCallDisabled": "El usuario está desconectado",
+    "report": "Reportar usuario"
   },
 
   "memberMenu": {
@@ -52,7 +56,8 @@
       "added": "¡Agregado!",
       "alreadyInList": "Ya está en la lista de contactos",
       "error": "Error al agregar contacto"
-    }
+    },
+    "report": "Reportar usuario"
   },
 
   "messageInput": {
@@ -80,7 +85,8 @@
     "translate": "Traducir",
     "translating": "Traduciendo...",
     "translatedTo": "Traducido a {{lang}}",
-    "showOriginal": "Mostrar original"
+    "showOriginal": "Mostrar original",
+    "reportButton": "Reportar"
   },
 
   "messageList": {
@@ -156,32 +162,61 @@
     "endCall": "Finalizar llamada",
     "shareScreen": "Compartir pantalla",
     "stopSharing": "Dejar de compartir",
+    "cameraOff": "Apagar cámara",
+    "cameraOn": "Encender cámara",
+    "connectionFailed": "Conexión fallida",
+    "retry": "Reintentar",
     "error": {
       "mediaPermission": "Se requiere permiso de cámara/micrófono para videollamadas"
     }
   },
 
   "channel": {
-    "heading": "Channels",
-    "listAriaLabel": "Channel list",
-    "create": "Create Channel",
-    "createTitle": "Create Channel",
-    "nameLabel": "Name",
-    "namePlaceholder": "Channel name",
-    "descriptionLabel": "Description",
-    "descriptionPlaceholder": "What's this channel about?",
-    "postPolicyLabel": "Who can post",
+    "heading": "Canales",
+    "listAriaLabel": "Lista de canales",
+    "create": "Crear canal",
+    "createTitle": "Crear canal",
+    "nameLabel": "Nombre",
+    "namePlaceholder": "Nombre del canal",
+    "descriptionLabel": "Descripción",
+    "descriptionPlaceholder": "¿De qué se trata este canal?",
+    "postPolicyLabel": "Quién puede publicar",
     "postPolicy": {
-      "everyone": "Everyone",
-      "moderators": "Moderators only",
-      "owner": "Owner only"
+      "everyone": "Todos",
+      "moderators": "Solo moderadores",
+      "owner": "Solo el dueño"
     },
-    "cancel": "Cancel",
-    "creating": "Creating...",
-    "createSubmit": "Create",
+    "cancel": "Cancelar",
+    "creating": "Creando...",
+    "createSubmit": "Crear",
     "error": {
-      "default": "Failed to create channel"
+      "default": "Error al crear el canal"
     }
+  },
+
+  "report": {
+    "title": "Reportar usuario",
+    "subjectLabel": "Usuario",
+    "categoryLabel": "Categoría",
+    "categories": {
+      "harassment": "Acoso",
+      "spam": "Spam",
+      "impersonation": "Suplantación de identidad",
+      "hateSpeech": "Discurso de odio",
+      "other": "Otro"
+    },
+    "descriptionLabel": "Descripción",
+    "descriptionPlaceholder": "¿Qué pasó?",
+    "attachmentsLabel": "Capturas de pantalla (opcional)",
+    "attachmentsHint": "Hasta 2 imágenes",
+    "addAttachment": "Agregar captura",
+    "submit": "Enviar reporte",
+    "submitting": "Enviando...",
+    "cancel": "Cancelar",
+    "success": "Reporte enviado. Lo revisaremos.",
+    "error": "Error al enviar el reporte.",
+    "removeAttachment": "Eliminar adjunto",
+    "fileSizeError": "Archivo demasiado grande. Máximo 2 MB."
   },
 
   "poll": {
@@ -213,5 +248,23 @@
       "minOptions": "Se requieren al menos 2 opciones",
       "default": "Error al crear encuesta"
     }
+  },
+
+  "reportContent": {
+    "title": "Reportar",
+    "subjectLabel": "Asunto",
+    "categoryLabel": "Categoría",
+    "descriptionLabel": "Descripción",
+    "descriptionPlaceholder": "¿Qué pasó?",
+    "attachmentsLabel": "Capturas de pantalla (opcional)",
+    "attachmentsHint": "Hasta 2 imágenes",
+    "addAttachment": "Agregar captura",
+    "removeAttachment": "Eliminar",
+    "submit": "Enviar reporte",
+    "submitting": "Enviando...",
+    "cancel": "Cancelar",
+    "success": "Reporte enviado. Lo revisaremos.",
+    "error": "Error al enviar el reporte.",
+    "fileSizeError": "Archivo muy grande (máx. 2 MB)"
   }
 }

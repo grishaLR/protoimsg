@@ -1,0 +1,50 @@
+.dialog {
+  composes: dialog from './ModalForm.module.css';
+}
+
+.form {
+  composes: form from './ModalForm.module.css';
+}
+
+.title {
+  composes: title from './ModalForm.module.css';
+}
+
+.textarea {
+  padding: var(--cm-space-1.5) var(--cm-space-4);
+  border: none;
+  border-radius: var(--cm-radius-sm);
+  font-size: max(var(--cm-text-md), 16px);
+  font-family: inherit;
+  color: var(--color-base-content);
+  background: var(--cm-surface-content);
+  box-shadow: var(--cm-sunken);
+  box-sizing: border-box;
+  resize: vertical;
+  min-height: var(--cm-textarea-min-h);
+}
+
+.textarea:focus {
+  outline: var(--cm-focus-thin) solid var(--cm-focus);
+  outline-offset: var(--cm-focus-offset);
+}
+
+.success {
+  composes: success from './ModalForm.module.css';
+}
+
+.error {
+  composes: error from './ModalForm.module.css';
+}
+
+.actions {
+  composes: actions from './ModalForm.module.css';
+}
+
+.cancelButton {
+  composes: cancelButton from './ModalForm.module.css';
+}
+
+.submitButton {
+  composes: submitButton from './ModalForm.module.css';
+}

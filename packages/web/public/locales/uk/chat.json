@@ -12,6 +12,8 @@
       "feed": "Стрічка"
     },
     "unreadIm": "{{count}} непрочитаних",
+    "addBuddyLabel": "Додати друга",
+    "incomingIm": "Вхідне повідомлення",
     "groups": {
       "innerCircle": "Близьке коло",
       "community": "Спільнота",
@@ -37,7 +39,9 @@
     "messageOnGerm": "Написати в Germ",
     "addToCommunity": "Додати до спільноти",
     "sendImDisabled": "Користувач не в мережі",
-    "videoCallDisabled": "Користувач не в мережі"
+    "videoCall": "Відеодзвінок",
+    "videoCallDisabled": "Користувач не в мережі",
+    "report": "Поскаржитися"
   },
 
   "memberMenu": {
@@ -52,7 +56,8 @@
       "added": "Додано!",
       "alreadyInList": "Вже у списку друзів",
       "error": "Помилка додавання друга"
-    }
+    },
+    "report": "Поскаржитися"
   },
 
   "messageInput": {
@@ -75,12 +80,15 @@
     "contentWarning": "Попередження про вміст",
     "clickToReveal": "Натисніть, щоб показати",
     "replyCount_one": "{{count}} відповідь",
+    "replyCount_few": "{{count}} відповіді",
+    "replyCount_many": "{{count}} відповідей",
     "replyCount_other": "{{count}} відповідей",
     "replyButton": "Відповісти",
     "translate": "Перекласти",
     "translating": "Переклад...",
     "translatedTo": "Перекладено на {{lang}}",
-    "showOriginal": "Показати оригінал"
+    "showOriginal": "Показати оригінал",
+    "reportButton": "Поскаржитись"
   },
 
   "messageList": {
@@ -102,6 +110,8 @@
     "loading": "Завантаження гілки...",
     "notFound": "Гілку не знайдено",
     "replyCount_one": "{{count}} відповідь",
+    "replyCount_few": "{{count}} відповіді",
+    "replyCount_many": "{{count}} відповідей",
     "replyCount_other": "{{count}} відповідей",
     "inputPlaceholder": "Відповісти в гілці..."
   },
@@ -156,32 +166,61 @@
     "endCall": "Завершити дзвінок",
     "shareScreen": "Демонстрація екрану",
     "stopSharing": "Зупинити показ",
+    "cameraOff": "Вимкнути камеру",
+    "cameraOn": "Увімкнути камеру",
+    "connectionFailed": "Помилка з'єднання",
+    "retry": "Повторити",
     "error": {
       "mediaPermission": "Для відеодзвінків потрібен доступ до камери та мікрофона"
     }
   },
 
   "channel": {
-    "heading": "Channels",
-    "listAriaLabel": "Channel list",
-    "create": "Create Channel",
-    "createTitle": "Create Channel",
-    "nameLabel": "Name",
-    "namePlaceholder": "Channel name",
-    "descriptionLabel": "Description",
-    "descriptionPlaceholder": "What's this channel about?",
-    "postPolicyLabel": "Who can post",
+    "heading": "Канали",
+    "listAriaLabel": "Список каналів",
+    "create": "Створити канал",
+    "createTitle": "Створити канал",
+    "nameLabel": "Назва",
+    "namePlaceholder": "Назва каналу",
+    "descriptionLabel": "Опис",
+    "descriptionPlaceholder": "Про що цей канал?",
+    "postPolicyLabel": "Хто може писати",
     "postPolicy": {
-      "everyone": "Everyone",
-      "moderators": "Moderators only",
-      "owner": "Owner only"
+      "everyone": "Усі",
+      "moderators": "Лише модератори",
+      "owner": "Лише власник"
     },
-    "cancel": "Cancel",
-    "creating": "Creating...",
-    "createSubmit": "Create",
+    "cancel": "Скасувати",
+    "creating": "Створення...",
+    "createSubmit": "Створити",
     "error": {
-      "default": "Failed to create channel"
+      "default": "Не вдалося створити канал"
     }
+  },
+
+  "report": {
+    "title": "Поскаржитися на користувача",
+    "subjectLabel": "Користувач",
+    "categoryLabel": "Категорія",
+    "categories": {
+      "harassment": "Переслідування",
+      "spam": "Спам",
+      "impersonation": "Видавання себе за іншого",
+      "hateSpeech": "Мова ворожнечі",
+      "other": "Інше"
+    },
+    "descriptionLabel": "Опис",
+    "descriptionPlaceholder": "Що сталося?",
+    "attachmentsLabel": "Знімки екрану (необов'язково)",
+    "attachmentsHint": "До 2 зображень",
+    "addAttachment": "Додати знімок екрану",
+    "submit": "Надіслати скаргу",
+    "submitting": "Надсилання...",
+    "cancel": "Скасувати",
+    "success": "Скаргу надіслано. Ми розберемося.",
+    "error": "Не вдалося надіслати скаргу.",
+    "removeAttachment": "Видалити вкладення",
+    "fileSizeError": "Файл завеликий. Максимум 2 МБ."
   },
 
   "poll": {
@@ -197,6 +236,8 @@
     "expired": "Опитування завершено",
     "expiresIn": "Завершиться через {{time}}",
     "totalVotes_one": "{{count}} голос",
+    "totalVotes_few": "{{count}} голоси",
+    "totalVotes_many": "{{count}} голосів",
     "totalVotes_other": "{{count}} голосів",
     "vote": "Проголосувати",
     "create": "Створити",
@@ -213,5 +254,23 @@
       "minOptions": "Потрібно щонайменше 2 варіанти",
       "default": "Помилка створення опитування"
     }
+  },
+
+  "reportContent": {
+    "title": "Скарга",
+    "subjectLabel": "Тема",
+    "categoryLabel": "Категорія",
+    "descriptionLabel": "Опис",
+    "descriptionPlaceholder": "Що сталося?",
+    "attachmentsLabel": "Скріншоти (необов'язково)",
+    "attachmentsHint": "До 2 зображень",
+    "addAttachment": "Додати скріншот",
+    "removeAttachment": "Видалити",
+    "submit": "Надіслати скаргу",
+    "submitting": "Надсилання...",
+    "cancel": "Скасувати",
+    "success": "Скаргу надіслано. Ми розберемося.",
+    "error": "Не вдалося надіслати скаргу.",
+    "fileSizeError": "Файл занадто великий (макс. 2 МБ)"
   }
 }

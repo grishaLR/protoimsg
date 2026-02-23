@@ -83,6 +83,17 @@
     "collapse": "Kunja"
   },
 
+  "feedback": {
+    "menuItem": "Tuma maoni",
+    "title": "Tuma maoni",
+    "placeholder": "Una nini akilini? Hitilafu, mawazo, chochote.",
+    "submit": "Tuma",
+    "sending": "Inatuma...",
+    "cancel": "Ghairi",
+    "success": "Asante! Maoni yametumwa.",
+    "error": "Kuna hitilafu. Jaribu tena."
+  },
+
   "serverError": {
     "unknown": "Hitilafu isiyojulikana imetokea",
     "unauthorized": "Lazima uwe umeingia",

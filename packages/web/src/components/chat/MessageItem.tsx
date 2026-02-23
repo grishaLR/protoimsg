@@ -14,6 +14,8 @@ interface MessageItemProps {
   replyCount?: number;
   /** Called when user clicks Reply or the reply count badge — opens the thread sidebar */
   onOpenThread?: (rootUri: string) => void;
+  /** Called when user clicks Report — opens the content report modal */
+  onReport?: (messageUri: string, preview: string) => void;
   /** Whether to hide the reply/thread actions (e.g. inside thread panel) */
   hideActions?: boolean;
   /** Whether this message mentions the current user */
@@ -29,6 +31,7 @@ export const MessageItem = memo(function MessageItem({
   message,
   replyCount,
   onOpenThread,
+  onReport,
   hideActions,
   isMentioned,
 }: MessageItemProps) {
@@ -112,7 +115,7 @@ export const MessageItem = memo(function MessageItem({
         </span>
       )}
       {message.embed != null && <EmbedRenderer embed={message.embed} />}
-      {(showReplyActions || showTranslateBtn) && (
+      {(showReplyActions || showTranslateBtn || onReport) && (
         <div className={styles.actions}>
           {showReplyActions && hasReplies && (
             <button className={styles.threadBtn} onClick={handleOpenThread} type="button">
@@ -139,6 +142,17 @@ export const MessageItem = memo(function MessageItem({
               type="button"
             >
               {translating ? t('messageItem.translating') : t('messageItem.translate')}
+            </button>
+          )}
+          {onReport && (
+            <button
+              className={styles.reportBtn}
+              onClick={() => {
+                onReport(message.uri, message.text.slice(0, 80));
+              }}
+              type="button"
+            >
+              {t('messageItem.reportButton')}
             </button>
           )}
         </div>

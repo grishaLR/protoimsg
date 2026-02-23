@@ -51,9 +51,13 @@
     "loading": "La sala se está configurando...",
     "notFound": "Sala no encontrada",
     "backToRooms": "Salas",
-    "channelSwitcher": "Select channel",
-    "createChannel": "Create channel",
-    "collapseChannels": "Collapse channels",
-    "expandChannels": "Expand channels"
+    "channelSwitcher": "Seleccionar canal",
+    "createChannel": "Crear canal",
+    "collapseChannels": "Colapsar canales",
+    "expandChannels": "Expandir canales",
+    "members": "Miembros",
+    "sendFailed": "No se pudo enviar el mensaje. Inténtalo de nuevo.",
+    "dismiss": "Cerrar",
+    "reportRoom": "Reportar sala"
   }
 }

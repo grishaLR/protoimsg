@@ -9,6 +9,7 @@ export interface RoomRow {
   description: string | null;
   purpose: string;
   visibility: string;
+  hidden: boolean;
   min_account_age_days: number;
   slow_mode_seconds: number;
   allowlist_enabled: boolean;
@@ -76,10 +77,17 @@ export async function listRooms(
   const { visibility = 'public', limit = 50, offset = 0 } = options;
   return sql<RoomRow[]>`
     SELECT * FROM rooms
-    WHERE visibility = ${visibility}
+    WHERE visibility = ${visibility} AND hidden = FALSE
     ORDER BY created_at DESC
     LIMIT ${limit} OFFSET ${offset}
   `;
+}
+
+export async function setRoomHidden(sql: Sql, roomId: string, hidden: boolean): Promise<boolean> {
+  const rows = await sql`
+    UPDATE rooms SET hidden = ${hidden} WHERE id = ${roomId} RETURNING id
+  `;
+  return rows.length > 0;
 }
 
 export async function getRoomById(sql: Sql, id: string): Promise<RoomRow | undefined> {
