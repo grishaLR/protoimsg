@@ -1,0 +1,62 @@
+{
+  "composer": {
+    "collapsed": "무슨 생각을 하고 계세요?",
+    "replyingTo": "@{{handle}}에게 답장",
+    "placeholder": "게시글을 작성하세요...",
+    "charCount": "{{count}}/{{max}}",
+    "attachImage": "이미지 첨부",
+    "cancel": "취소",
+    "posting": "게시 중...",
+    "post": "게시",
+    "imageAltText": "이미지를 설명해 주세요...",
+    "gifAltText": "GIF를 설명해 주세요..."
+  },
+
+  "post": {
+    "pinned": "고정됨",
+    "repostedBy": "리포스트",
+    "replyTo": "@{{handle}}에게 답장",
+    "relativeTime": {
+      "seconds": "{{count}}초",
+      "minutes": "{{count}}분",
+      "hours": "{{count}}시간",
+      "days": "{{count}}일",
+      "months": "{{count}}개월"
+    },
+    "translate": "번역",
+    "translatedTo": "{{lang}}(으)로 번역됨",
+    "showOriginal": "원문 보기",
+    "translating": "번역 중..."
+  },
+
+  "feedView": {
+    "loading": "피드 불러오는 중...",
+    "empty": "표시할 게시글이 없습니다",
+    "loadingMore": "더 불러오는 중...",
+    "refresh": "피드 새로고침"
+  },
+
+  "profileView": {
+    "back": "뒤로",
+    "loading": "프로필 불러오는 중...",
+    "error": "프로필을 불러오지 못했습니다",
+    "followers": "팔로워",
+    "following": "팔로잉",
+    "posts": "게시글",
+    "loadingMore": "더 불러오는 중...",
+    "translateBio": "소개 번역",
+    "translating": "번역 중...",
+    "translatedTo": "{{lang}}(으)로 번역됨",
+    "showOriginal": "원문 보기",
+    "messageOnGerm": "Germ에서 메시지 보내기",
+    "germDm": "Germ DM"
+  },
+
+  "threadView": {
+    "back": "뒤로",
+    "loading": "스레드 불러오는 중...",
+    "notFound": "스레드를 찾을 수 없습니다",
+    "viewReplies_one": "답장 {{count}}개 보기",
+    "viewReplies_other": "답장 {{count}}개 보기"
+  }
+}

@@ -1,0 +1,62 @@
+{
+  "composer": {
+    "collapsed": "No que voc\u00ea est\u00e1 pensando?",
+    "replyingTo": "Respondendo a @{{handle}}",
+    "placeholder": "Escreva sua publica\u00e7\u00e3o...",
+    "charCount": "{{count}}/{{max}}",
+    "attachImage": "Anexar imagem",
+    "cancel": "Cancelar",
+    "posting": "Publicando...",
+    "post": "Publicar",
+    "imageAltText": "Descreva esta imagem...",
+    "gifAltText": "Descreva este GIF..."
+  },
+
+  "post": {
+    "pinned": "Fixado",
+    "repostedBy": "Repostado por",
+    "replyTo": "Resposta a @{{handle}}",
+    "relativeTime": {
+      "seconds": "{{count}}s",
+      "minutes": "{{count}}m",
+      "hours": "{{count}}h",
+      "days": "{{count}}d",
+      "months": "{{count}}me"
+    },
+    "translate": "Traduzir",
+    "translatedTo": "Traduzido para {{lang}}",
+    "showOriginal": "Mostrar original",
+    "translating": "Traduzindo..."
+  },
+
+  "feedView": {
+    "loading": "Carregando feed...",
+    "empty": "Nenhuma publica\u00e7\u00e3o para exibir",
+    "loadingMore": "Carregando mais...",
+    "refresh": "Atualizar feed"
+  },
+
+  "profileView": {
+    "back": "Voltar",
+    "loading": "Carregando perfil...",
+    "error": "Falha ao carregar perfil",
+    "followers": "seguidores",
+    "following": "seguindo",
+    "posts": "publica\u00e7\u00f5es",
+    "loadingMore": "Carregando mais...",
+    "translateBio": "Traduzir bio",
+    "translating": "Traduzindo...",
+    "translatedTo": "Traduzido para {{lang}}",
+    "showOriginal": "Mostrar original",
+    "messageOnGerm": "Mensagem no Germ",
+    "germDm": "MD Germ"
+  },
+
+  "threadView": {
+    "back": "Voltar",
+    "loading": "Carregando t\u00f3pico...",
+    "notFound": "T\u00f3pico n\u00e3o encontrado",
+    "viewReplies_one": "Ver {{count}} resposta",
+    "viewReplies_other": "Ver {{count}} respostas"
+  }
+}

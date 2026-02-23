@@ -1,0 +1,59 @@
+{
+  "input": {
+    "placeholder": "พิมพ์ข้อความ...",
+    "ariaLabel": "พิมพ์ข้อความ DM",
+    "send": "ส่ง"
+  },
+
+  "messageList": {
+    "empty": "ยังไม่มีข้อความ ทักทายกันเลย!",
+    "typing": "กำลังพิมพ์..."
+  },
+
+  "popover": {
+    "ariaLabel": "สนทนา DM กับ {{recipientDid}}",
+    "header": {
+      "ariaLabel": {
+        "expand": "DM กับ {{recipientDid}} — คลิกเพื่อขยาย",
+        "minimize": "DM กับ {{recipientDid}} — คลิกเพื่อย่อ"
+      }
+    },
+    "unreadAriaLabel": "{{count}} ข้อความยังไม่ได้อ่าน",
+    "unreadOverflow": "99+",
+    "connecting": "กำลังเชื่อมต่อ…",
+    "connectionFailed": "การเชื่อมต่อล้มเหลว",
+    "retry": "ลองใหม่",
+    "peerClosed": "แชทปิดแล้ว ใช้ Germ สำหรับข้อความออฟไลน์",
+    "closingCountdown": "แชทจบแล้ว ปิดใน {{seconds}} วินาที…",
+    "minimize": {
+      "titleExpand": "ขยาย",
+      "titleMinimize": "ย่อ",
+      "ariaLabel": {
+        "expand": "ขยายการสนทนา",
+        "minimize": "ย่อการสนทนา"
+      }
+    },
+    "close": {
+      "title": "ปิด",
+      "ariaLabel": "ปิดการสนทนา"
+    }
+  },
+
+  "notification": {
+    "ariaLabel": "ข้อความใหม่จาก {{senderDid}}",
+    "incoming": "อยากแชท",
+    "dismiss": {
+      "title": "ปิด",
+      "ariaLabel": "ปิดการแจ้งเตือน"
+    }
+  },
+
+  "popoverContainer": {
+    "ariaLabel": "การแจ้งเตือน DM"
+  },
+
+  "window": {
+    "connecting": "กำลังเชื่อมต่อ…",
+    "waitingForConnection": "กำลังรอการเชื่อมต่อ…"
+  }
+}

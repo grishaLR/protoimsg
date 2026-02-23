@@ -1,0 +1,270 @@
+{
+  "buddyList": {
+    "searchPlaceholder": "친구 검색...",
+    "addBuddyLabel": "친구 추가",
+    "loading": "불러오는 중...",
+    "empty": "아직 친구가 없습니다",
+    "createGroup": {
+      "placeholder": "그룹 이름...",
+      "button": "+ 그룹 만들기"
+    },
+    "footer": {
+      "chatRooms": "채팅방",
+      "feed": "피드"
+    },
+    "unreadIm": "읽지 않은 메시지 {{count}}개",
+    "incomingIm": "새 메시지 수신",
+    "groups": {
+      "innerCircle": "친한 친구",
+      "community": "커뮤니티",
+      "offline": "오프라인",
+      "blocked": "차단됨",
+      "followers": "팔로워",
+      "following": "팔로잉"
+    }
+  },
+
+  "buddyMenu": {
+    "button": {
+      "title": "옵션",
+      "ariaLabel": "친구 옵션"
+    },
+    "sendIm": "메시지 보내기",
+    "addToInnerCircle": "친한 친구에 추가",
+    "removeFromInnerCircle": "친한 친구에서 제거",
+    "moveTo": "이동...",
+    "block": "차단",
+    "unblock": "차단 해제",
+    "remove": "삭제",
+    "messageOnGerm": "Germ에서 메시지 보내기",
+    "addToCommunity": "커뮤니티에 추가",
+    "sendImDisabled": "사용자가 오프라인입니다",
+    "videoCall": "영상 통화",
+    "videoCallDisabled": "사용자가 오프라인입니다",
+    "report": "사용자 신고"
+  },
+
+  "memberMenu": {
+    "button": {
+      "title": "옵션",
+      "ariaLabel": "멤버 옵션"
+    },
+    "addToBuddyList": "친구 목록에 추가",
+    "block": "차단",
+    "unblock": "차단 해제",
+    "feedback": {
+      "added": "추가됨!",
+      "alreadyInList": "이미 친구 목록에 있습니다",
+      "error": "친구 추가 중 오류가 발생했습니다"
+    },
+    "report": "사용자 신고"
+  },
+
+  "messageInput": {
+    "placeholder": {
+      "default": "메시지를 입력하세요... (Enter로 전송, Shift+Enter로 줄바꿈)",
+      "reply": "답장... (Enter로 전송, Esc로 취소)"
+    },
+    "replyingTo": "답장 대상",
+    "cancelReply": {
+      "ariaLabel": "답장 취소"
+    },
+    "ariaLabel": {
+      "default": "메시지 입력",
+      "reply": "답장 입력"
+    },
+    "send": "보내기"
+  },
+
+  "messageItem": {
+    "contentWarning": "콘텐츠 경고",
+    "clickToReveal": "클릭하여 표시",
+    "replyCount_one": "답장 {{count}}개",
+    "replyCount_other": "답장 {{count}}개",
+    "replyButton": "답장",
+    "translate": "번역",
+    "translating": "번역 중...",
+    "translatedTo": "{{lang}}(으)로 번역됨",
+    "showOriginal": "원문 보기",
+    "reportButton": "신고"
+  },
+
+  "messageList": {
+    "loading": "메시지 불러오는 중...",
+    "empty": "아직 메시지가 없습니다. 대화를 시작해 보세요!",
+    "typing": {
+      "one": "입력 중...",
+      "twoAnd": "님과",
+      "twoSuffix": "님이 입력 중...",
+      "many": "{{count}}명이 입력 중..."
+    }
+  },
+
+  "threadPanel": {
+    "ariaLabel": "스레드",
+    "title": "스레드",
+    "backAriaLabel": "상위로 돌아가기",
+    "closeAriaLabel": "스레드 닫기",
+    "loading": "스레드 불러오는 중...",
+    "notFound": "스레드를 찾을 수 없습니다",
+    "replyCount_one": "답장 {{count}}개",
+    "replyCount_other": "답장 {{count}}개",
+    "inputPlaceholder": "스레드에 답장..."
+  },
+
+  "formattingToolbar": {
+    "bold": "굵게",
+    "italic": "기울임",
+    "strikethrough": "취소선",
+    "code": "코드",
+    "blockquote": "인용"
+  },
+
+  "memberList": {
+    "heading": "멤버 ({{count}})"
+  },
+
+  "groupHeader": {
+    "renameGroup": "그룹 이름 변경",
+    "deleteGroup": "그룹 삭제",
+    "expand": "펼치기",
+    "collapse": "접기"
+  },
+
+  "gif": {
+    "title": "GIF",
+    "searchPlaceholder": "GIF 검색...",
+    "noResults": "GIF를 찾을 수 없습니다",
+    "loading": "불러오는 중...",
+    "poweredByGiphy": "Powered by GIPHY",
+    "poweredByKlipy": "Powered by Klipy",
+    "close": "닫기",
+    "altTextPlaceholder": "이 GIF를 설명해 주세요 (대체 텍스트)...",
+    "confirm": "보내기",
+    "back": "뒤로"
+  },
+
+  "videoCall": {
+    "incoming": {
+      "ariaLabel": "수신 영상 통화",
+      "label": "전화 오는 중...",
+      "accept": "통화 수락",
+      "acceptAriaLabel": "수신 통화 수락",
+      "reject": "통화 거절",
+      "rejectAriaLabel": "수신 통화 거절"
+    },
+    "calling": "전화 거는 중...",
+    "ringing": "벨 울리는 중...",
+    "reconnecting": "다시 연결 중...",
+    "mute": "음소거",
+    "unmute": "음소거 해제",
+    "cameraOff": "카메라 끄기",
+    "cameraOn": "카메라 켜기",
+    "flipCamera": "카메라 전환",
+    "connectionFailed": "연결 실패",
+    "retry": "다시 시도",
+    "endCall": "통화 종료",
+    "shareScreen": "화면 공유",
+    "stopSharing": "공유 중지",
+    "error": {
+      "mediaPermission": "영상 통화를 위해 카메라/마이크 권한이 필요합니다"
+    }
+  },
+
+  "channel": {
+    "heading": "채널",
+    "listAriaLabel": "채널 목록",
+    "create": "채널 만들기",
+    "createTitle": "채널 만들기",
+    "nameLabel": "이름",
+    "namePlaceholder": "채널 이름",
+    "descriptionLabel": "설명",
+    "descriptionPlaceholder": "이 채널은 어떤 주제인가요?",
+    "postPolicyLabel": "게시 권한",
+    "postPolicy": {
+      "everyone": "모두",
+      "moderators": "운영자만",
+      "owner": "소유자만"
+    },
+    "cancel": "취소",
+    "creating": "만드는 중...",
+    "createSubmit": "만들기",
+    "error": {
+      "default": "채널 생성에 실패했습니다"
+    }
+  },
+
+  "report": {
+    "title": "사용자 신고",
+    "subjectLabel": "사용자",
+    "categoryLabel": "분류",
+    "categories": {
+      "harassment": "괴롭힘",
+      "spam": "스팸",
+      "impersonation": "사칭",
+      "hateSpeech": "혐오 발언",
+      "other": "기타"
+    },
+    "descriptionLabel": "설명",
+    "descriptionPlaceholder": "무슨 일이 있었나요?",
+    "attachmentsLabel": "스크린샷 (선택)",
+    "attachmentsHint": "최대 2장",
+    "addAttachment": "스크린샷 추가",
+    "submit": "신고 제출",
+    "submitting": "제출 중...",
+    "cancel": "취소",
+    "success": "신고가 접수되었습니다. 확인하겠습니다.",
+    "error": "신고 제출에 실패했습니다.",
+    "removeAttachment": "첨부 파일 제거",
+    "fileSizeError": "파일이 너무 큽니다. 최대 크기는 2 MB입니다."
+  },
+
+  "poll": {
+    "createPoll": "투표 만들기",
+    "questionLabel": "질문",
+    "questionPlaceholder": "질문을 입력하세요...",
+    "optionsLabel": "선택지",
+    "optionPlaceholder": "선택지 {{n}}",
+    "addOption": "선택지 추가",
+    "removeOption": "선택지 제거",
+    "allowMultiple": "복수 선택 허용",
+    "expires": "만료",
+    "expired": "투표 종료",
+    "expiresIn": "{{time}} 후 종료",
+    "totalVotes_one": "{{count}}표",
+    "totalVotes_other": "{{count}}표",
+    "vote": "투표하기",
+    "create": "만들기",
+    "cancel": "취소",
+    "expiry": {
+      "none": "만료 없음",
+      "1h": "1시간",
+      "6h": "6시간",
+      "24h": "24시간",
+      "3d": "3일",
+      "1w": "1주"
+    },
+    "error": {
+      "minOptions": "최소 2개의 선택지가 필요합니다",
+      "default": "투표 생성에 실패했습니다"
+    }
+  },
+
+  "reportContent": {
+    "title": "신고",
+    "subjectLabel": "대상",
+    "categoryLabel": "분류",
+    "descriptionLabel": "설명",
+    "descriptionPlaceholder": "무슨 일이 있었나요?",
+    "attachmentsLabel": "스크린샷 (선택)",
+    "attachmentsHint": "최대 2장",
+    "addAttachment": "스크린샷 추가",
+    "removeAttachment": "제거",
+    "submit": "신고 제출",
+    "submitting": "제출 중...",
+    "cancel": "취소",
+    "success": "신고가 접수되었습니다. 확인하겠습니다.",
+    "error": "신고 제출에 실패했습니다.",
+    "fileSizeError": "파일이 너무 큽니다 (최대 2 MB)"
+  }
+}

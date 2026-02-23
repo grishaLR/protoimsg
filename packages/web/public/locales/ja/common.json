@@ -1,0 +1,121 @@
+{
+  "appName": "proto IM",
+
+  "status": {
+    "online": "オンライン",
+    "away": "離席中",
+    "idle": "待機中"
+  },
+
+  "visibility": {
+    "everyone": "全員",
+    "community": "コミュニティ",
+    "innerCircle": "親しい友達",
+    "noOne": "誰にも見せない"
+  },
+
+  "theme": {
+    "aim": "'98 クラシック",
+    "nytLight": "ミニマル ライト",
+    "nytDark": "ミニマル ダーク",
+    "dracula": "Dracula",
+    "valentine": "バレンタイン",
+    "garden": "ガーデン",
+    "coffee": "コーヒー",
+    "fantasy": "ファンタジー",
+    "nord": "Nord",
+    "retro": "レトロ",
+    "black": "ブラック",
+    "wireframe": "Wireframe"
+  },
+
+  "nav": {
+    "community": "コミュニティ",
+    "rooms": "ルーム",
+    "feed": "フィード"
+  },
+
+  "header": {
+    "menu": "メニュー",
+    "awayMessage": {
+      "label": "離席メッセージ",
+      "placeholder": "例：ちょっとコーヒー買ってきます"
+    },
+    "visibility": {
+      "label": "公開範囲"
+    },
+    "settings": "設定",
+    "minimize": "最小化",
+    "signOut": "ログアウト"
+  },
+
+  "statusSelector": {
+    "awayMessage": {
+      "label": "離席メッセージ",
+      "placeholder": "例：ちょっとコーヒー買ってきます"
+    },
+    "visibility": {
+      "label": "公開範囲"
+    }
+  },
+
+  "connectionBanner": {
+    "message": "接続が切断されました — 再接続中..."
+  },
+
+  "errorBoundary": {
+    "title": "問題が発生しました",
+    "fallbackMessage": "予期しないエラーが発生しました",
+    "tryAgain": "もう一度試す"
+  },
+
+  "button": {
+    "back": "戻る",
+    "cancel": "キャンセル",
+    "send": "送信",
+    "close": "閉じる",
+    "save": "保存",
+    "settings": "設定"
+  },
+
+  "aria": {
+    "expand": "展開",
+    "collapse": "折りたたむ"
+  },
+
+  "feedback": {
+    "menuItem": "フィードバックを送信",
+    "title": "フィードバックを送信",
+    "placeholder": "バグ報告、機能のアイデアなど、何でもどうぞ。",
+    "submit": "送信",
+    "sending": "送信中...",
+    "cancel": "キャンセル",
+    "success": "ありがとうございます！フィードバックを送信しました。",
+    "error": "問題が発生しました。もう一度お試しください。"
+  },
+
+  "serverError": {
+    "unknown": "不明なエラーが発生しました",
+    "unauthorized": "ログインが必要です",
+    "invalidSession": "セッションの有効期限が切れました。再度ログインしてください。",
+    "invalidChallenge": "認証チャレンジの有効期限が切れました。もう一度お試しください。",
+    "handleMismatch": "Handle の検証に失敗しました",
+    "authVerificationFailed": "認証に失敗しました",
+    "authTimeout": "認証がタイムアウトしました",
+    "authRequired": "認証が必要です",
+    "forbidden": "この操作を行う権限がありません",
+    "banned": "このアカウントはサービスの利用が禁止されています",
+    "accessDenied": "アクセスが拒否されました",
+    "notParticipant": "この会話の参加者ではありません",
+    "blockedUser": "このユーザーにメッセージを送信できません",
+    "selfDm": "自分自身にメッセージを送ることはできません",
+    "notFound": "見つかりません",
+    "rateLimited": "リクエストが多すぎます。しばらくしてからもう一度お試しください。",
+    "serverError": "サーバー側で問題が発生しました",
+    "networkError": "ネットワークエラーです。接続を確認してください。",
+    "invalidInput": "入力が無効です",
+    "messageTooLong": "メッセージが長すぎます",
+    "contentFiltered": "メッセージがコンテンツフィルターによりブロックされました",
+    "alreadyExists": "既に存在します"
+  }
+}

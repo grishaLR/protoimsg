@@ -1,0 +1,62 @@
+{
+  "composer": {
+    "collapsed": "有什么想说的？",
+    "replyingTo": "回复 @{{handle}}",
+    "placeholder": "输入你的帖子...",
+    "charCount": "{{count}}/{{max}}",
+    "attachImage": "添加图片",
+    "cancel": "取消",
+    "posting": "发布中...",
+    "post": "发布",
+    "imageAltText": "描述这张图片...",
+    "gifAltText": "描述这个 GIF..."
+  },
+
+  "post": {
+    "pinned": "已置顶",
+    "repostedBy": "转发自",
+    "replyTo": "回复 @{{handle}}",
+    "relativeTime": {
+      "seconds": "{{count}}秒",
+      "minutes": "{{count}}分",
+      "hours": "{{count}}时",
+      "days": "{{count}}天",
+      "months": "{{count}}月"
+    },
+    "translate": "翻译",
+    "translatedTo": "已翻译为{{lang}}",
+    "showOriginal": "显示原文",
+    "translating": "翻译中..."
+  },
+
+  "feedView": {
+    "loading": "加载动态中...",
+    "empty": "暂无帖子",
+    "loadingMore": "加载更多...",
+    "refresh": "刷新动态"
+  },
+
+  "profileView": {
+    "back": "返回",
+    "loading": "加载个人资料中...",
+    "error": "加载个人资料失败",
+    "followers": "粉丝",
+    "following": "关注",
+    "posts": "帖子",
+    "loadingMore": "加载更多...",
+    "translateBio": "翻译简介",
+    "translating": "翻译中...",
+    "translatedTo": "已翻译为{{lang}}",
+    "showOriginal": "显示原文",
+    "messageOnGerm": "在 Germ 上发消息",
+    "germDm": "Germ 私信"
+  },
+
+  "threadView": {
+    "back": "返回",
+    "loading": "加载话题中...",
+    "notFound": "话题未找到",
+    "viewReplies_one": "查看 {{count}} 条回复",
+    "viewReplies_other": "查看 {{count}} 条回复"
+  }
+}

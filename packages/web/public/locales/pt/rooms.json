@@ -1,0 +1,63 @@
+{
+  "createRoom": {
+    "title": "Criar sala",
+    "nameLabel": "Nome",
+    "namePlaceholder": "Nome da sala",
+    "descriptionLabel": "Descri\u00e7\u00e3o",
+    "descriptionPlaceholder": "Sobre o que \u00e9 esta sala?",
+    "topicLabel": "T\u00f3pico",
+    "topicPlaceholder": "T\u00f3pico atual da discuss\u00e3o",
+    "purposeLabel": "Finalidade",
+    "purpose": {
+      "discussion": "Discuss\u00e3o",
+      "event": "Evento",
+      "community": "Comunidade",
+      "support": "Suporte"
+    },
+    "visibilityLabel": "Visibilidade",
+    "visibility": {
+      "public": "P\u00fablica",
+      "unlisted": "N\u00e3o listada",
+      "private": "Privada"
+    },
+    "error": {
+      "default": "Falha ao criar sala"
+    },
+    "cancel": "Cancelar",
+    "submitting": "Criando...",
+    "submit": "Criar"
+  },
+
+  "roomList": {
+    "empty": "Nenhuma sala encontrada. Crie uma para come\u00e7ar!"
+  },
+
+  "roomCard": {
+    "createdDate": "Criada em {{date}}",
+    "translate": "Traduzir",
+    "translating": "Traduzindo...",
+    "translatedTo": "Traduzido para {{lang}}",
+    "showOriginal": "Mostrar original"
+  },
+
+  "directory": {
+    "searchPlaceholder": "Buscar salas...",
+    "createButton": "Criar sala",
+    "loading": "Carregando salas..."
+  },
+
+  "chatRoom": {
+    "invalidId": "ID de sala inv\u00e1lido",
+    "loading": "Configurando a sala...",
+    "notFound": "Sala n\u00e3o encontrada",
+    "backToRooms": "Salas",
+    "members": "Membros",
+    "channelSwitcher": "Selecionar canal",
+    "createChannel": "Criar canal",
+    "collapseChannels": "Recolher canais",
+    "expandChannels": "Expandir canais",
+    "sendFailed": "Falha ao enviar mensagem. Tente novamente.",
+    "dismiss": "Dispensar",
+    "reportRoom": "Denunciar sala"
+  }
+}

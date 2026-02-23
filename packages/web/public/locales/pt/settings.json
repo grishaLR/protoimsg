@@ -1,0 +1,56 @@
+{
+  "back": "Voltar",
+
+  "accountInfo": {
+    "title": "Informa\u00e7\u00f5es da conta",
+    "didLabel": "DID",
+    "handleLabel": "Handle"
+  },
+
+  "editProfile": {
+    "title": "Editar perfil",
+    "loading": "Carregando perfil...",
+    "changeAvatar": "Alterar avatar",
+    "displayNameLabel": "Nome de exibi\u00e7\u00e3o",
+    "bioLabel": "Bio",
+    "saving": "Salvando...",
+    "save": "Salvar"
+  },
+
+  "appearance": {
+    "title": "Apar\u00eancia"
+  },
+
+  "language": {
+    "title": "Idioma"
+  },
+
+  "translation": {
+    "title": "Tradu\u00e7\u00e3o",
+    "autoTranslate": "Traduzir publica\u00e7\u00f5es automaticamente",
+    "autoTranslateHint": "Traduzir automaticamente publica\u00e7\u00f5es e bios para o seu idioma"
+  },
+
+  "notifications": {
+    "title": "Notifica\u00e7\u00f5es",
+    "enableSounds": "Ativar sons",
+    "enableSoundsHint": "Tocar sons para conex\u00f5es/desconex\u00f5es, novas mensagens e chamadas recebidas"
+  },
+
+  "privacy": {
+    "title": "Privacidade",
+    "ipProtectionLabel": "Prote\u00e7\u00e3o de IP para chamadas",
+    "ipProtectionHint": "Conex\u00f5es diretas com o c\u00edrculo \u00edntimo t\u00eam baixa lat\u00eancia e uma imagem n\u00edtida e \u00e1gil, mas exp\u00f5em seu IP ao outro usu\u00e1rio. O relay oculta seu endere\u00e7o IP, mas pode adicionar alguma lat\u00eancia.",
+    "directConnectionInfo": "Uma conex\u00e3o direta \u00e9 puramente ponto a ponto. Sua chamada vai direto para a outra pessoa, sem nenhum servidor no meio, o que significa baixa lat\u00eancia e uma imagem n\u00edtida e r\u00e1pida. A contrapartida \u00e9 que seu endere\u00e7o IP fica vis\u00edvel para ela. Pense no seu endere\u00e7o IP como a porta da frente da sua casa na internet. Seu c\u00edrculo \u00edntimo deve ser composto por pessoas em quem voc\u00ea confiaria seu endere\u00e7o f\u00edsico. Se voc\u00ea se sente confort\u00e1vel com isso, conex\u00f5es diretas s\u00e3o adequadas.",
+    "relayInfo": "Com o relay, sua chamada \u00e9 roteada pelo nosso servidor em vez de ir diretamente para a outra pessoa, ent\u00e3o nenhum dos dois v\u00ea o endere\u00e7o IP do outro. Tecnicamente n\u00e3o \u00e9 ponto a ponto, mas usamos isso exclusivamente para ocultar seu IP. Sua chamada continua criptografada com DTLS-SRTP, o que significa que as chaves de criptografia s\u00e3o negociadas diretamente entre voc\u00ea e o outro. Nosso servidor relay apenas encaminha os pacotes e n\u00e3o pode ver nem ouvir nada.",
+    "options": {
+      "nonInnerCircle": "Direto para o c\u00edrculo \u00edntimo, relay para todos os outros (recomendado)",
+      "all": "Ocultar meu IP de todos"
+    }
+  },
+
+  "actions": {
+    "title": "A\u00e7\u00f5es",
+    "signOut": "Sair"
+  }
+}

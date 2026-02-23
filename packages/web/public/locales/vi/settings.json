@@ -1,0 +1,56 @@
+{
+  "back": "Quay lại",
+
+  "accountInfo": {
+    "title": "Thông tin tài khoản",
+    "didLabel": "DID",
+    "handleLabel": "Handle"
+  },
+
+  "editProfile": {
+    "title": "Chỉnh sửa hồ sơ",
+    "loading": "Đang tải hồ sơ...",
+    "changeAvatar": "Đổi ảnh đại diện",
+    "displayNameLabel": "Tên hiển thị",
+    "bioLabel": "Giới thiệu",
+    "saving": "Đang lưu...",
+    "save": "Lưu"
+  },
+
+  "appearance": {
+    "title": "Giao diện"
+  },
+
+  "language": {
+    "title": "Ngôn ngữ"
+  },
+
+  "translation": {
+    "title": "Dịch thuật",
+    "autoTranslate": "Tự động dịch bài đăng",
+    "autoTranslateHint": "Tự động dịch bài đăng và giới thiệu trong bảng tin sang ngôn ngữ của bạn"
+  },
+
+  "notifications": {
+    "title": "Thông báo",
+    "enableSounds": "Bật âm thanh",
+    "enableSoundsHint": "Phát âm thanh khi có người vào/ra, tin nhắn mới và cuộc gọi đến"
+  },
+
+  "privacy": {
+    "title": "Quyền riêng tư",
+    "ipProtectionLabel": "Bảo vệ IP khi gọi",
+    "ipProtectionHint": "Kết nối trực tiếp với bạn thân có độ trễ thấp và hình ảnh rõ nét nhưng để lộ IP của bạn cho người kia. Chuyển tiếp (relay) ẩn IP nhưng có thể tăng độ trễ.",
+    "directConnectionInfo": "Kết nối trực tiếp là phương thức ngang hàng (peer-to-peer) thuần túy. Cuộc gọi đi thẳng đến người kia mà không qua máy chủ nào, nên độ trễ thấp và hình ảnh sắc nét. Đổi lại, địa chỉ IP của bạn sẽ hiện với họ. Hãy coi địa chỉ IP như địa chỉ nhà của bạn trên internet. Bạn thân nên là những người bạn tin tưởng đến mức có thể cho biết địa chỉ nhà thực. Nếu bạn thoải mái với điều đó, kết nối trực tiếp hoàn toàn phù hợp.",
+    "relayInfo": "Với chuyển tiếp (relay), cuộc gọi được định tuyến qua máy chủ của chúng tôi thay vì đi trực tiếp đến người kia, nên không ai thấy IP của nhau. Về mặt kỹ thuật đây không phải peer-to-peer, nhưng chúng tôi chỉ dùng để ẩn IP. Cuộc gọi vẫn được mã hóa bằng DTLS-SRTP, nghĩa là khóa mã hóa được thỏa thuận trực tiếp giữa bạn và người kia. Máy chủ relay chỉ chuyển tiếp các gói tin và không thể xem hay nghe bất cứ điều gì.",
+    "options": {
+      "nonInnerCircle": "Trực tiếp cho bạn thân, relay cho mọi người khác (khuyến nghị)",
+      "all": "Ẩn IP với tất cả mọi người"
+    }
+  },
+
+  "actions": {
+    "title": "Thao tác",
+    "signOut": "Đăng xuất"
+  }
+}

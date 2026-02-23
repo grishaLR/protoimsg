@@ -1,0 +1,59 @@
+{
+  "input": {
+    "placeholder": "Nachricht eingeben...",
+    "ariaLabel": "DM-Nachricht eingeben",
+    "send": "Senden"
+  },
+
+  "messageList": {
+    "empty": "Noch keine Nachrichten. Sag Hallo!",
+    "typing": "tippt..."
+  },
+
+  "popover": {
+    "ariaLabel": "DM-Unterhaltung mit {{recipientDid}}",
+    "header": {
+      "ariaLabel": {
+        "expand": "DM mit {{recipientDid}} — klicken zum Aufklappen",
+        "minimize": "DM mit {{recipientDid}} — klicken zum Minimieren"
+      }
+    },
+    "unreadAriaLabel": "{{count}} ungelesene Nachrichten",
+    "unreadOverflow": "99+",
+    "connecting": "Verbinden...",
+    "connectionFailed": "Verbindung fehlgeschlagen",
+    "retry": "Erneut versuchen",
+    "peerClosed": "Chat geschlossen. Nutze Germ für Offline-Nachrichten.",
+    "closingCountdown": "Chat beendet. Schließt in {{seconds}}s...",
+    "minimize": {
+      "titleExpand": "Aufklappen",
+      "titleMinimize": "Minimieren",
+      "ariaLabel": {
+        "expand": "Unterhaltung aufklappen",
+        "minimize": "Unterhaltung minimieren"
+      }
+    },
+    "close": {
+      "title": "Schließen",
+      "ariaLabel": "Unterhaltung schließen"
+    }
+  },
+
+  "notification": {
+    "ariaLabel": "Neue Nachricht von {{senderDid}}",
+    "incoming": "möchte chatten",
+    "dismiss": {
+      "title": "Verwerfen",
+      "ariaLabel": "Benachrichtigung verwerfen"
+    }
+  },
+
+  "popoverContainer": {
+    "ariaLabel": "DM-Benachrichtigungen"
+  },
+
+  "window": {
+    "connecting": "Verbinden...",
+    "waitingForConnection": "Warte auf Verbindung..."
+  }
+}

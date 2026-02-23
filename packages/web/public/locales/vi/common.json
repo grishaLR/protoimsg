@@ -1,0 +1,121 @@
+{
+  "appName": "proto IM",
+
+  "status": {
+    "online": "Trực tuyến",
+    "away": "Vắng mặt",
+    "idle": "Không hoạt động"
+  },
+
+  "visibility": {
+    "everyone": "Tất cả",
+    "community": "Cộng đồng",
+    "innerCircle": "Bạn thân",
+    "noOne": "Không ai"
+  },
+
+  "theme": {
+    "aim": "'98 Cổ điển",
+    "nytLight": "Tối giản Sáng",
+    "nytDark": "Tối giản Tối",
+    "dracula": "Dracula",
+    "valentine": "Valentine",
+    "garden": "Vườn",
+    "coffee": "Cà phê",
+    "fantasy": "Huyền ảo",
+    "nord": "Nord",
+    "retro": "Hoài cổ",
+    "black": "Đen",
+    "wireframe": "Wireframe"
+  },
+
+  "nav": {
+    "community": "Cộng đồng",
+    "rooms": "Phòng chat",
+    "feed": "Bảng tin"
+  },
+
+  "header": {
+    "menu": "Menu",
+    "awayMessage": {
+      "label": "Tin nhắn vắng mặt",
+      "placeholder": "VD: Đi pha cà phê, quay lại ngay"
+    },
+    "visibility": {
+      "label": "Ai có thể thấy tôi"
+    },
+    "settings": "Cài đặt",
+    "minimize": "Thu nhỏ",
+    "signOut": "Đăng xuất"
+  },
+
+  "statusSelector": {
+    "awayMessage": {
+      "label": "Tin nhắn vắng mặt",
+      "placeholder": "VD: Đi pha cà phê, quay lại ngay"
+    },
+    "visibility": {
+      "label": "Ai có thể thấy tôi"
+    }
+  },
+
+  "connectionBanner": {
+    "message": "Mất kết nối — đang kết nối lại..."
+  },
+
+  "errorBoundary": {
+    "title": "Đã xảy ra lỗi",
+    "fallbackMessage": "Đã xảy ra lỗi không mong muốn",
+    "tryAgain": "Thử lại"
+  },
+
+  "button": {
+    "back": "Quay lại",
+    "cancel": "Hủy",
+    "send": "Gửi",
+    "close": "Đóng",
+    "save": "Lưu",
+    "settings": "Cài đặt"
+  },
+
+  "aria": {
+    "expand": "Mở rộng",
+    "collapse": "Thu gọn"
+  },
+
+  "feedback": {
+    "menuItem": "Gửi phản hồi",
+    "title": "Gửi phản hồi",
+    "placeholder": "Bạn đang nghĩ gì? Báo lỗi, ý tưởng tính năng, bất cứ điều gì.",
+    "submit": "Gửi",
+    "sending": "Đang gửi...",
+    "cancel": "Hủy",
+    "success": "Cảm ơn! Phản hồi đã được gửi.",
+    "error": "Đã xảy ra lỗi. Vui lòng thử lại."
+  },
+
+  "serverError": {
+    "unknown": "Đã xảy ra lỗi không xác định",
+    "unauthorized": "Bạn cần đăng nhập",
+    "invalidSession": "Phiên đã hết hạn. Vui lòng đăng nhập lại.",
+    "invalidChallenge": "Yêu cầu xác thực đã hết hạn. Vui lòng thử lại.",
+    "handleMismatch": "Xác minh handle thất bại",
+    "authVerificationFailed": "Xác minh danh tính thất bại",
+    "authTimeout": "Xác thực đã hết thời gian",
+    "authRequired": "Cần xác thực",
+    "forbidden": "Bạn không có quyền thực hiện thao tác này",
+    "banned": "Tài khoản này không được phép sử dụng dịch vụ",
+    "accessDenied": "Truy cập bị từ chối",
+    "notParticipant": "Bạn không phải là thành viên của cuộc trò chuyện này",
+    "blockedUser": "Không thể nhắn tin cho người dùng này",
+    "selfDm": "Bạn không thể tự nhắn tin cho chính mình",
+    "notFound": "Không tìm thấy",
+    "rateLimited": "Quá nhiều yêu cầu. Vui lòng đợi và thử lại.",
+    "serverError": "Đã xảy ra lỗi phía máy chủ",
+    "networkError": "Lỗi mạng. Kiểm tra kết nối của bạn.",
+    "invalidInput": "Dữ liệu nhập không hợp lệ",
+    "messageTooLong": "Tin nhắn quá dài",
+    "contentFiltered": "Tin nhắn đã bị chặn bởi bộ lọc nội dung",
+    "alreadyExists": "Đã tồn tại"
+  }
+}

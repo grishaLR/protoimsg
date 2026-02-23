@@ -1,0 +1,62 @@
+{
+  "composer": {
+    "collapsed": "Aklında ne var?",
+    "replyingTo": "@{{handle}} adlı kişiye yanıt",
+    "placeholder": "Gönderini yaz...",
+    "charCount": "{{count}}/{{max}}",
+    "attachImage": "Resim Ekle",
+    "cancel": "İptal",
+    "posting": "Gönderiliyor...",
+    "post": "Paylaş",
+    "imageAltText": "Bu resmi tanımla...",
+    "gifAltText": "Bu GIF'i tanımla..."
+  },
+
+  "post": {
+    "pinned": "Sabitlenmiş",
+    "repostedBy": "Tekrar paylaşan",
+    "replyTo": "@{{handle}} adlı kişiye yanıt",
+    "relativeTime": {
+      "seconds": "{{count}}sn",
+      "minutes": "{{count}}dk",
+      "hours": "{{count}}sa",
+      "days": "{{count}}g",
+      "months": "{{count}}ay"
+    },
+    "translate": "Çevir",
+    "translatedTo": "{{lang}} diline çevrildi",
+    "showOriginal": "Orijinali göster",
+    "translating": "Çevriliyor..."
+  },
+
+  "feedView": {
+    "loading": "Akış yükleniyor...",
+    "empty": "Gösterilecek gönderi yok",
+    "loadingMore": "Daha fazla yükleniyor...",
+    "refresh": "Akışı yenile"
+  },
+
+  "profileView": {
+    "back": "Geri",
+    "loading": "Profil yükleniyor...",
+    "error": "Profil yüklenemedi",
+    "followers": "takipçi",
+    "following": "takip edilen",
+    "posts": "gönderi",
+    "loadingMore": "Daha fazla yükleniyor...",
+    "translateBio": "Biyografiyi çevir",
+    "translating": "Çevriliyor...",
+    "translatedTo": "{{lang}} diline çevrildi",
+    "showOriginal": "Orijinali göster",
+    "messageOnGerm": "Germ'de Mesaj Gönder",
+    "germDm": "Germ DM"
+  },
+
+  "threadView": {
+    "back": "Geri",
+    "loading": "Konu yükleniyor...",
+    "notFound": "Konu bulunamadı",
+    "viewReplies_one": "{{count}} yanıtı gör",
+    "viewReplies_other": "{{count}} yanıtı gör"
+  }
+}

@@ -1,0 +1,63 @@
+{
+  "createRoom": {
+    "title": "채팅방 만들기",
+    "nameLabel": "이름",
+    "namePlaceholder": "채팅방 이름",
+    "descriptionLabel": "설명",
+    "descriptionPlaceholder": "이 채팅방은 어떤 주제인가요?",
+    "topicLabel": "주제",
+    "topicPlaceholder": "현재 토론 주제",
+    "purposeLabel": "목적",
+    "purpose": {
+      "discussion": "토론",
+      "event": "이벤트",
+      "community": "커뮤니티",
+      "support": "지원"
+    },
+    "visibilityLabel": "공개 범위",
+    "visibility": {
+      "public": "공개",
+      "unlisted": "비공개 목록",
+      "private": "비공개"
+    },
+    "error": {
+      "default": "채팅방 생성에 실패했습니다"
+    },
+    "cancel": "취소",
+    "submitting": "만드는 중...",
+    "submit": "만들기"
+  },
+
+  "roomList": {
+    "empty": "채팅방이 없습니다. 하나 만들어 보세요!"
+  },
+
+  "roomCard": {
+    "createdDate": "{{date}} 생성",
+    "translate": "번역",
+    "translating": "번역 중...",
+    "translatedTo": "{{lang}}(으)로 번역됨",
+    "showOriginal": "원문 보기"
+  },
+
+  "directory": {
+    "searchPlaceholder": "채팅방 검색...",
+    "createButton": "채팅방 만들기",
+    "loading": "채팅방 불러오는 중..."
+  },
+
+  "chatRoom": {
+    "invalidId": "잘못된 방 ID입니다",
+    "loading": "방을 준비하는 중...",
+    "notFound": "채팅방을 찾을 수 없습니다",
+    "backToRooms": "채팅방",
+    "members": "멤버",
+    "channelSwitcher": "채널 선택",
+    "createChannel": "채널 만들기",
+    "collapseChannels": "채널 접기",
+    "expandChannels": "채널 펼치기",
+    "sendFailed": "메시지 전송에 실패했습니다. 다시 시도해 주세요.",
+    "dismiss": "닫기",
+    "reportRoom": "채팅방 신고"
+  }
+}

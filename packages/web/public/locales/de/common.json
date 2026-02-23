@@ -1,0 +1,121 @@
+{
+  "appName": "proto IM",
+
+  "status": {
+    "online": "Online",
+    "away": "Abwesend",
+    "idle": "Untätig"
+  },
+
+  "visibility": {
+    "everyone": "Alle",
+    "community": "Community",
+    "innerCircle": "Engster Kreis",
+    "noOne": "Niemand"
+  },
+
+  "theme": {
+    "aim": "'98 Klassik",
+    "nytLight": "Minimal Hell",
+    "nytDark": "Minimal Dunkel",
+    "dracula": "Dracula",
+    "valentine": "Valentinstag",
+    "garden": "Garten",
+    "coffee": "Kaffee",
+    "fantasy": "Fantasy",
+    "nord": "Nord",
+    "retro": "Retro",
+    "black": "Schwarz",
+    "wireframe": "Wireframe"
+  },
+
+  "nav": {
+    "community": "Community",
+    "rooms": "Räume",
+    "feed": "Feed"
+  },
+
+  "header": {
+    "menu": "Menü",
+    "awayMessage": {
+      "label": "Abwesenheitsnachricht",
+      "placeholder": "z. B. Bin gleich zurück, hole Kaffee"
+    },
+    "visibility": {
+      "label": "Wer kann mich sehen"
+    },
+    "settings": "Einstellungen",
+    "minimize": "Minimieren",
+    "signOut": "Abmelden"
+  },
+
+  "statusSelector": {
+    "awayMessage": {
+      "label": "Abwesenheitsnachricht",
+      "placeholder": "z. B. Bin gleich zurück, hole Kaffee"
+    },
+    "visibility": {
+      "label": "Wer kann mich sehen"
+    }
+  },
+
+  "connectionBanner": {
+    "message": "Verbindung verloren — wird wiederhergestellt..."
+  },
+
+  "errorBoundary": {
+    "title": "Etwas ist schiefgelaufen",
+    "fallbackMessage": "Ein unerwarteter Fehler ist aufgetreten",
+    "tryAgain": "Erneut versuchen"
+  },
+
+  "button": {
+    "back": "Zurück",
+    "cancel": "Abbrechen",
+    "send": "Senden",
+    "close": "Schließen",
+    "save": "Speichern",
+    "settings": "Einstellungen"
+  },
+
+  "aria": {
+    "expand": "Aufklappen",
+    "collapse": "Zuklappen"
+  },
+
+  "feedback": {
+    "menuItem": "Feedback senden",
+    "title": "Feedback senden",
+    "placeholder": "Was liegt dir auf dem Herzen? Fehlermeldungen, Ideen, alles ist willkommen.",
+    "submit": "Senden",
+    "sending": "Wird gesendet...",
+    "cancel": "Abbrechen",
+    "success": "Danke! Feedback gesendet.",
+    "error": "Etwas ist schiefgelaufen. Versuch es nochmal."
+  },
+
+  "serverError": {
+    "unknown": "Ein unbekannter Fehler ist aufgetreten",
+    "unauthorized": "Du musst angemeldet sein",
+    "invalidSession": "Deine Sitzung ist abgelaufen. Bitte melde dich erneut an.",
+    "invalidChallenge": "Authentifizierungsanfrage abgelaufen. Bitte versuch es nochmal.",
+    "handleMismatch": "Handle-Überprüfung fehlgeschlagen",
+    "authVerificationFailed": "Authentifizierungsüberprüfung fehlgeschlagen",
+    "authTimeout": "Authentifizierung abgelaufen",
+    "authRequired": "Authentifizierung erforderlich",
+    "forbidden": "Du hast keine Berechtigung dafür",
+    "banned": "Dieses Konto darf diesen Dienst nicht nutzen",
+    "accessDenied": "Zugriff verweigert",
+    "notParticipant": "Du bist kein Teilnehmer dieser Unterhaltung",
+    "blockedUser": "Nachricht an diesen Nutzer nicht möglich",
+    "selfDm": "Du kannst dir nicht selbst eine Nachricht senden",
+    "notFound": "Nicht gefunden",
+    "rateLimited": "Zu viele Anfragen. Bitte warte einen Moment und versuch es erneut.",
+    "serverError": "Auf unserer Seite ist etwas schiefgelaufen",
+    "networkError": "Netzwerkfehler. Überprüfe deine Verbindung.",
+    "invalidInput": "Ungültige Eingabe",
+    "messageTooLong": "Nachricht ist zu lang",
+    "contentFiltered": "Nachricht wurde vom Inhaltsfilter blockiert",
+    "alreadyExists": "Existiert bereits"
+  }
+}

@@ -1,0 +1,63 @@
+{
+  "createRoom": {
+    "title": "สร้างห้อง",
+    "nameLabel": "ชื่อ",
+    "namePlaceholder": "ชื่อห้อง",
+    "descriptionLabel": "คำอธิบาย",
+    "descriptionPlaceholder": "ห้องนี้เกี่ยวกับอะไร?",
+    "topicLabel": "หัวข้อ",
+    "topicPlaceholder": "หัวข้อสนทนาปัจจุบัน",
+    "purposeLabel": "วัตถุประสงค์",
+    "purpose": {
+      "discussion": "พูดคุย",
+      "event": "กิจกรรม",
+      "community": "ชุมชน",
+      "support": "ช่วยเหลือ"
+    },
+    "visibilityLabel": "การมองเห็น",
+    "visibility": {
+      "public": "สาธารณะ",
+      "unlisted": "ไม่อยู่ในรายชื่อ",
+      "private": "ส่วนตัว"
+    },
+    "error": {
+      "default": "สร้างห้องไม่สำเร็จ"
+    },
+    "cancel": "ยกเลิก",
+    "submitting": "กำลังสร้าง...",
+    "submit": "สร้าง"
+  },
+
+  "roomList": {
+    "empty": "ไม่พบห้อง สร้างห้องใหม่เพื่อเริ่มต้น!"
+  },
+
+  "roomCard": {
+    "createdDate": "สร้างเมื่อ {{date}}",
+    "translate": "แปล",
+    "translating": "กำลังแปล...",
+    "translatedTo": "แปลเป็น{{lang}}",
+    "showOriginal": "แสดงต้นฉบับ"
+  },
+
+  "directory": {
+    "searchPlaceholder": "ค้นหาห้อง...",
+    "createButton": "สร้างห้อง",
+    "loading": "กำลังโหลดห้อง..."
+  },
+
+  "chatRoom": {
+    "invalidId": "ID ห้องไม่ถูกต้อง",
+    "loading": "กำลังตั้งค่าห้อง...",
+    "notFound": "ไม่พบห้อง",
+    "backToRooms": "ห้อง",
+    "members": "สมาชิก",
+    "channelSwitcher": "เลือกแชนเนล",
+    "createChannel": "สร้างแชนเนล",
+    "collapseChannels": "ย่อแชนเนล",
+    "expandChannels": "ขยายแชนเนล",
+    "sendFailed": "ส่งข้อความไม่สำเร็จ กรุณาลองใหม่",
+    "dismiss": "ปิด",
+    "reportRoom": "รายงานห้อง"
+  }
+}

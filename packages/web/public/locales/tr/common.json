@@ -1,0 +1,121 @@
+{
+  "appName": "proto IM",
+
+  "status": {
+    "online": "Çevrimiçi",
+    "away": "Uzakta",
+    "idle": "Boşta"
+  },
+
+  "visibility": {
+    "everyone": "Herkes",
+    "community": "Topluluk",
+    "innerCircle": "Yakın Çevre",
+    "noOne": "Kimse"
+  },
+
+  "theme": {
+    "aim": "'98 Klasik",
+    "nytLight": "Minimal Açık",
+    "nytDark": "Minimal Koyu",
+    "dracula": "Dracula",
+    "valentine": "Sevgililer Günü",
+    "garden": "Bahçe",
+    "coffee": "Kahve",
+    "fantasy": "Fantezi",
+    "nord": "Nord",
+    "retro": "Retro",
+    "black": "Siyah",
+    "wireframe": "Wireframe"
+  },
+
+  "nav": {
+    "community": "Topluluk",
+    "rooms": "Odalar",
+    "feed": "Akış"
+  },
+
+  "header": {
+    "menu": "Menü",
+    "awayMessage": {
+      "label": "Uzakta mesajı",
+      "placeholder": "ör. Hemen dönerim, kahve alıyorum"
+    },
+    "visibility": {
+      "label": "Beni kim görebilir"
+    },
+    "settings": "Ayarlar",
+    "minimize": "Küçült",
+    "signOut": "Çıkış Yap"
+  },
+
+  "statusSelector": {
+    "awayMessage": {
+      "label": "Uzakta mesajı",
+      "placeholder": "ör. Hemen dönerim, kahve alıyorum"
+    },
+    "visibility": {
+      "label": "Beni kim görebilir"
+    }
+  },
+
+  "connectionBanner": {
+    "message": "Bağlantı kesildi — yeniden bağlanılıyor..."
+  },
+
+  "errorBoundary": {
+    "title": "Bir şeyler ters gitti",
+    "fallbackMessage": "Beklenmeyen bir hata oluştu",
+    "tryAgain": "Tekrar dene"
+  },
+
+  "button": {
+    "back": "Geri",
+    "cancel": "İptal",
+    "send": "Gönder",
+    "close": "Kapat",
+    "save": "Kaydet",
+    "settings": "Ayarlar"
+  },
+
+  "aria": {
+    "expand": "Genişlet",
+    "collapse": "Daralt"
+  },
+
+  "feedback": {
+    "menuItem": "Geri Bildirim Gönder",
+    "title": "Geri Bildirim Gönder",
+    "placeholder": "Aklında ne var? Hata bildirimleri, öneriler, ne olursa.",
+    "submit": "Gönder",
+    "sending": "Gönderiliyor...",
+    "cancel": "İptal",
+    "success": "Teşekkürler! Geri bildirim gönderildi.",
+    "error": "Bir şeyler ters gitti. Tekrar dene."
+  },
+
+  "serverError": {
+    "unknown": "Bilinmeyen bir hata oluştu",
+    "unauthorized": "Giriş yapmalısın",
+    "invalidSession": "Oturumun sona erdi. Lütfen tekrar giriş yap.",
+    "invalidChallenge": "Kimlik doğrulama süresi doldu. Lütfen tekrar dene.",
+    "handleMismatch": "Handle doğrulaması başarısız oldu",
+    "authVerificationFailed": "Kimlik doğrulaması başarısız oldu",
+    "authTimeout": "Kimlik doğrulama zaman aşımına uğradı",
+    "authRequired": "Kimlik doğrulama gerekli",
+    "forbidden": "Bunu yapmaya yetkin yok",
+    "banned": "Bu hesabın bu hizmeti kullanmasına izin verilmiyor",
+    "accessDenied": "Erişim engellendi",
+    "notParticipant": "Bu sohbetin katılımcısı değilsin",
+    "blockedUser": "Bu kullanıcıya mesaj gönderilemez",
+    "selfDm": "Kendine mesaj gönderemezsin",
+    "notFound": "Bulunamadı",
+    "rateLimited": "Çok fazla istek. Lütfen biraz bekle ve tekrar dene.",
+    "serverError": "Bizim tarafımızda bir sorun oluştu",
+    "networkError": "Ağ hatası. Bağlantını kontrol et.",
+    "invalidInput": "Geçersiz giriş",
+    "messageTooLong": "Mesaj çok uzun",
+    "contentFiltered": "Mesaj içerik filtresi tarafından engellendi",
+    "alreadyExists": "Zaten mevcut"
+  }
+}

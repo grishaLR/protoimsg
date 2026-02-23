@@ -1,0 +1,62 @@
+{
+  "composer": {
+    "collapsed": "Was beschäftigt dich?",
+    "replyingTo": "Antwort an @{{handle}}",
+    "placeholder": "Schreib deinen Beitrag...",
+    "charCount": "{{count}}/{{max}}",
+    "attachImage": "Bild anhängen",
+    "cancel": "Abbrechen",
+    "posting": "Wird gepostet...",
+    "post": "Posten",
+    "imageAltText": "Beschreibe dieses Bild...",
+    "gifAltText": "Beschreibe dieses GIF..."
+  },
+
+  "post": {
+    "pinned": "Angepinnt",
+    "repostedBy": "Repostet von",
+    "replyTo": "Antwort an @{{handle}}",
+    "relativeTime": {
+      "seconds": "{{count}}s",
+      "minutes": "{{count}}m",
+      "hours": "{{count}}h",
+      "days": "{{count}}T",
+      "months": "{{count}}Mo"
+    },
+    "translate": "Übersetzen",
+    "translatedTo": "Übersetzt nach {{lang}}",
+    "showOriginal": "Original anzeigen",
+    "translating": "Wird übersetzt..."
+  },
+
+  "feedView": {
+    "loading": "Feed wird geladen...",
+    "empty": "Keine Beiträge vorhanden",
+    "loadingMore": "Mehr laden...",
+    "refresh": "Feed aktualisieren"
+  },
+
+  "profileView": {
+    "back": "Zurück",
+    "loading": "Profil wird geladen...",
+    "error": "Profil konnte nicht geladen werden",
+    "followers": "Follower",
+    "following": "Folge ich",
+    "posts": "Beiträge",
+    "loadingMore": "Mehr laden...",
+    "translateBio": "Bio übersetzen",
+    "translating": "Wird übersetzt...",
+    "translatedTo": "Übersetzt nach {{lang}}",
+    "showOriginal": "Original anzeigen",
+    "messageOnGerm": "Nachricht über Germ",
+    "germDm": "Germ DM"
+  },
+
+  "threadView": {
+    "back": "Zurück",
+    "loading": "Thread wird geladen...",
+    "notFound": "Thread nicht gefunden",
+    "viewReplies_one": "{{count}} Antwort anzeigen",
+    "viewReplies_other": "{{count}} Antworten anzeigen"
+  }
+}

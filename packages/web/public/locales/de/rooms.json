@@ -1,0 +1,63 @@
+{
+  "createRoom": {
+    "title": "Raum erstellen",
+    "nameLabel": "Name",
+    "namePlaceholder": "Raumname",
+    "descriptionLabel": "Beschreibung",
+    "descriptionPlaceholder": "Worum geht es in diesem Raum?",
+    "topicLabel": "Thema",
+    "topicPlaceholder": "Aktuelles Gesprächsthema",
+    "purposeLabel": "Zweck",
+    "purpose": {
+      "discussion": "Diskussion",
+      "event": "Veranstaltung",
+      "community": "Community",
+      "support": "Support"
+    },
+    "visibilityLabel": "Sichtbarkeit",
+    "visibility": {
+      "public": "Öffentlich",
+      "unlisted": "Nicht gelistet",
+      "private": "Privat"
+    },
+    "error": {
+      "default": "Raum konnte nicht erstellt werden"
+    },
+    "cancel": "Abbrechen",
+    "submitting": "Wird erstellt...",
+    "submit": "Erstellen"
+  },
+
+  "roomList": {
+    "empty": "Keine Räume gefunden. Erstelle einen, um loszulegen!"
+  },
+
+  "roomCard": {
+    "createdDate": "Erstellt am {{date}}",
+    "translate": "Übersetzen",
+    "translating": "Wird übersetzt...",
+    "translatedTo": "Übersetzt nach {{lang}}",
+    "showOriginal": "Original anzeigen"
+  },
+
+  "directory": {
+    "searchPlaceholder": "Räume suchen...",
+    "createButton": "Raum erstellen",
+    "loading": "Räume werden geladen..."
+  },
+
+  "chatRoom": {
+    "invalidId": "Ungültige Raum-ID",
+    "loading": "Raum wird eingerichtet...",
+    "notFound": "Raum nicht gefunden",
+    "backToRooms": "Räume",
+    "members": "Mitglieder",
+    "channelSwitcher": "Kanal auswählen",
+    "createChannel": "Kanal erstellen",
+    "collapseChannels": "Kanäle zuklappen",
+    "expandChannels": "Kanäle aufklappen",
+    "sendFailed": "Nachricht konnte nicht gesendet werden. Bitte versuch es erneut.",
+    "dismiss": "Schließen",
+    "reportRoom": "Raum melden"
+  }
+}

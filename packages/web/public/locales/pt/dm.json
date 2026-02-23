@@ -1,0 +1,59 @@
+{
+  "input": {
+    "placeholder": "Digite uma mensagem...",
+    "ariaLabel": "Digite uma mensagem direta",
+    "send": "Enviar"
+  },
+
+  "messageList": {
+    "empty": "Nenhuma mensagem ainda. Diga ol\u00e1!",
+    "typing": "digitando..."
+  },
+
+  "popover": {
+    "ariaLabel": "Conversa direta com {{recipientDid}}",
+    "header": {
+      "ariaLabel": {
+        "expand": "MD com {{recipientDid}} \u2014 clique para expandir",
+        "minimize": "MD com {{recipientDid}} \u2014 clique para minimizar"
+      }
+    },
+    "unreadAriaLabel": "{{count}} mensagens n\u00e3o lidas",
+    "unreadOverflow": "99+",
+    "connecting": "Conectando\u2026",
+    "connectionFailed": "Falha na conex\u00e3o",
+    "retry": "Tentar novamente",
+    "peerClosed": "Conversa encerrada. Use o Germ para mensagens offline.",
+    "closingCountdown": "Conversa encerrada. Fechando em {{seconds}}s\u2026",
+    "minimize": {
+      "titleExpand": "Expandir",
+      "titleMinimize": "Minimizar",
+      "ariaLabel": {
+        "expand": "Expandir conversa",
+        "minimize": "Minimizar conversa"
+      }
+    },
+    "close": {
+      "title": "Fechar",
+      "ariaLabel": "Fechar conversa"
+    }
+  },
+
+  "notification": {
+    "ariaLabel": "Nova mensagem de {{senderDid}}",
+    "incoming": "quer conversar",
+    "dismiss": {
+      "title": "Dispensar",
+      "ariaLabel": "Dispensar notifica\u00e7\u00e3o"
+    }
+  },
+
+  "popoverContainer": {
+    "ariaLabel": "Notifica\u00e7\u00f5es de mensagens diretas"
+  },
+
+  "window": {
+    "connecting": "Conectando\u2026",
+    "waitingForConnection": "Aguardando conex\u00e3o\u2026"
+  }
+}

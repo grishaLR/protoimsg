@@ -1,0 +1,62 @@
+{
+  "composer": {
+    "collapsed": "आपके मन में क्या है?",
+    "replyingTo": "@{{handle}} को जवाब दे रहे हैं",
+    "placeholder": "अपनी पोस्ट लिखें...",
+    "charCount": "{{count}}/{{max}}",
+    "attachImage": "छवि जोड़ें",
+    "cancel": "रद्द करें",
+    "posting": "पोस्ट हो रहा है...",
+    "post": "पोस्ट करें",
+    "imageAltText": "इस छवि का वर्णन करें...",
+    "gifAltText": "इस GIF का वर्णन करें..."
+  },
+
+  "post": {
+    "pinned": "पिन किया गया",
+    "repostedBy": "रीपोस्ट किया",
+    "replyTo": "@{{handle}} को जवाब",
+    "relativeTime": {
+      "seconds": "{{count}}s",
+      "minutes": "{{count}}m",
+      "hours": "{{count}}h",
+      "days": "{{count}}d",
+      "months": "{{count}}mo"
+    },
+    "translate": "अनुवाद करें",
+    "translatedTo": "{{lang}} में अनुवादित",
+    "showOriginal": "मूल दिखाएँ",
+    "translating": "अनुवाद हो रहा है..."
+  },
+
+  "feedView": {
+    "loading": "फ़ीड लोड हो रहा है...",
+    "empty": "कोई पोस्ट नहीं दिखाने के लिए",
+    "loadingMore": "और लोड हो रहा है...",
+    "refresh": "फ़ीड रिफ़्रेश करें"
+  },
+
+  "profileView": {
+    "back": "वापस",
+    "loading": "प्रोफ़ाइल लोड हो रहा है...",
+    "error": "प्रोफ़ाइल लोड करने में विफल",
+    "followers": "फ़ॉलोअर्स",
+    "following": "फ़ॉलो किए गए",
+    "posts": "पोस्ट",
+    "loadingMore": "और लोड हो रहा है...",
+    "translateBio": "बायो अनुवाद करें",
+    "translating": "अनुवाद हो रहा है...",
+    "translatedTo": "{{lang}} में अनुवादित",
+    "showOriginal": "मूल दिखाएँ",
+    "messageOnGerm": "Germ पर संदेश भेजें",
+    "germDm": "Germ DM"
+  },
+
+  "threadView": {
+    "back": "वापस",
+    "loading": "थ्रेड लोड हो रहा है...",
+    "notFound": "थ्रेड नहीं मिला",
+    "viewReplies_one": "{{count}} जवाब देखें",
+    "viewReplies_other": "{{count}} जवाब देखें"
+  }
+}

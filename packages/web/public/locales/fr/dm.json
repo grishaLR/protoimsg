@@ -1,0 +1,59 @@
+{
+  "input": {
+    "placeholder": "Saisissez un message...",
+    "ariaLabel": "Saisissez un message priv\u00e9",
+    "send": "Envoyer"
+  },
+
+  "messageList": {
+    "empty": "Aucun message pour l'instant. Dites bonjour !",
+    "typing": "est en train d'\u00e9crire..."
+  },
+
+  "popover": {
+    "ariaLabel": "Conversation priv\u00e9e avec {{recipientDid}}",
+    "header": {
+      "ariaLabel": {
+        "expand": "MP avec {{recipientDid}} \u2014 cliquez pour agrandir",
+        "minimize": "MP avec {{recipientDid}} \u2014 cliquez pour r\u00e9duire"
+      }
+    },
+    "unreadAriaLabel": "{{count}} messages non lus",
+    "unreadOverflow": "99+",
+    "connecting": "Connexion\u2026",
+    "connectionFailed": "\u00c9chec de la connexion",
+    "retry": "R\u00e9essayer",
+    "peerClosed": "Discussion ferm\u00e9e. Utilisez Germ pour les messages hors ligne.",
+    "closingCountdown": "Discussion termin\u00e9e. Fermeture dans {{seconds}}s\u2026",
+    "minimize": {
+      "titleExpand": "Agrandir",
+      "titleMinimize": "R\u00e9duire",
+      "ariaLabel": {
+        "expand": "Agrandir la conversation",
+        "minimize": "R\u00e9duire la conversation"
+      }
+    },
+    "close": {
+      "title": "Fermer",
+      "ariaLabel": "Fermer la conversation"
+    }
+  },
+
+  "notification": {
+    "ariaLabel": "Nouveau message de {{senderDid}}",
+    "incoming": "veut discuter",
+    "dismiss": {
+      "title": "Ignorer",
+      "ariaLabel": "Ignorer la notification"
+    }
+  },
+
+  "popoverContainer": {
+    "ariaLabel": "Notifications de messages priv\u00e9s"
+  },
+
+  "window": {
+    "connecting": "Connexion\u2026",
+    "waitingForConnection": "En attente de la connexion\u2026"
+  }
+}

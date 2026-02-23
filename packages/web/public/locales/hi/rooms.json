@@ -1,0 +1,63 @@
+{
+  "createRoom": {
+    "title": "रूम बनाएँ",
+    "nameLabel": "नाम",
+    "namePlaceholder": "रूम का नाम",
+    "descriptionLabel": "विवरण",
+    "descriptionPlaceholder": "यह रूम किस बारे में है?",
+    "topicLabel": "विषय",
+    "topicPlaceholder": "चर्चा का वर्तमान विषय",
+    "purposeLabel": "उद्देश्य",
+    "purpose": {
+      "discussion": "चर्चा",
+      "event": "कार्यक्रम",
+      "community": "समुदाय",
+      "support": "सहायता"
+    },
+    "visibilityLabel": "दृश्यता",
+    "visibility": {
+      "public": "सार्वजनिक",
+      "unlisted": "असूचीबद्ध",
+      "private": "निजी"
+    },
+    "error": {
+      "default": "रूम बनाने में विफल"
+    },
+    "cancel": "रद्द करें",
+    "submitting": "बना रहे हैं...",
+    "submit": "बनाएँ"
+  },
+
+  "roomList": {
+    "empty": "कोई रूम नहीं मिला। शुरू करने के लिए एक बनाएँ!"
+  },
+
+  "roomCard": {
+    "createdDate": "{{date}} को बनाया गया",
+    "translate": "अनुवाद करें",
+    "translating": "अनुवाद हो रहा है...",
+    "translatedTo": "{{lang}} में अनुवादित",
+    "showOriginal": "मूल दिखाएँ"
+  },
+
+  "directory": {
+    "searchPlaceholder": "रूम खोजें...",
+    "createButton": "रूम बनाएँ",
+    "loading": "रूम लोड हो रहे हैं..."
+  },
+
+  "chatRoom": {
+    "invalidId": "अमान्य रूम ID",
+    "loading": "रूम तैयार हो रहा है...",
+    "notFound": "रूम नहीं मिला",
+    "backToRooms": "रूम",
+    "members": "सदस्य",
+    "channelSwitcher": "चैनल चुनें",
+    "createChannel": "चैनल बनाएँ",
+    "collapseChannels": "चैनल संक्षिप्त करें",
+    "expandChannels": "चैनल विस्तार करें",
+    "sendFailed": "संदेश भेजने में विफल। कृपया फिर से कोशिश करें।",
+    "dismiss": "खारिज करें",
+    "reportRoom": "रूम की रिपोर्ट करें"
+  }
+}

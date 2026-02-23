@@ -1,0 +1,56 @@
+{
+  "back": "返回",
+
+  "accountInfo": {
+    "title": "账户信息",
+    "didLabel": "DID",
+    "handleLabel": "Handle"
+  },
+
+  "editProfile": {
+    "title": "编辑个人资料",
+    "loading": "加载个人资料中...",
+    "changeAvatar": "更换头像",
+    "displayNameLabel": "显示名称",
+    "bioLabel": "个人简介",
+    "saving": "保存中...",
+    "save": "保存"
+  },
+
+  "appearance": {
+    "title": "外观"
+  },
+
+  "language": {
+    "title": "语言"
+  },
+
+  "translation": {
+    "title": "翻译",
+    "autoTranslate": "自动翻译帖子",
+    "autoTranslateHint": "自动将动态帖子和个人简介翻译为你的语言"
+  },
+
+  "notifications": {
+    "title": "通知",
+    "enableSounds": "启用提示音",
+    "enableSoundsHint": "在上下线、新消息和来电时播放提示音"
+  },
+
+  "privacy": {
+    "title": "隐私",
+    "ipProtectionLabel": "通话 IP 保护",
+    "ipProtectionHint": "与密友圈的直接连接延迟低、画面清晰流畅，但会向对方暴露你的 IP 地址。中继模式会隐藏你的 IP 地址，但可能增加一些延迟。",
+    "directConnectionInfo": "直接连接是纯粹的点对点通信。通话直接传送到对方，中间没有服务器，这意味着低延迟和清晰流畅的画面。代价是对方可以看到你的 IP 地址。可以把 IP 地址想象成你在互联网上的门牌号。密友圈应该是你信任到愿意告诉他们家庭住址的人。如果你对此没有顾虑，直接连接就很好。",
+    "relayInfo": "使用中继时，通话通过我们的服务器转发而不是直接传送给对方，这样双方都看不到对方的 IP 地址。技术上这不是点对点通信，但我们仅用它来隐藏你的 IP。你的通话仍然使用 DTLS-SRTP 加密，这意味着加密密钥是在你和对方之间直接协商的。我们的中继服务器只是转发数据包，无法看到或听到任何内容。",
+    "options": {
+      "nonInnerCircle": "密友圈直接连接，其他人使用中继（推荐）",
+      "all": "对所有人隐藏我的 IP"
+    }
+  },
+
+  "actions": {
+    "title": "操作",
+    "signOut": "退出登录"
+  }
+}

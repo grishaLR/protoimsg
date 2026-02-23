@@ -25,13 +25,23 @@ void i18n
     supportedLngs: [
       'en',
       'es',
+      'fr',
+      'pt',
+      'de',
+      'tr',
       'ru',
-      'ar',
       'uk',
+      'ar',
+      'hi',
+      'zh',
+      'ja',
+      'ko',
+      'vi',
+      'th',
       'ga',
-      // African languages (NLLB-200)
-      'sw',
-      'ha',
+      // NLLB-only languages — hidden while NLLB is sidelined
+      // 'sw',
+      // 'ha',
     ],
     ns: ['common', 'auth', 'chat', 'dm', 'feed', 'rooms', 'settings', 'atproto'],
 

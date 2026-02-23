@@ -1,0 +1,270 @@
+{
+  "buddyList": {
+    "searchPlaceholder": "Arkadaş ara...",
+    "addBuddyLabel": "Arkadaş Ekle",
+    "loading": "Yükleniyor...",
+    "empty": "Henüz arkadaş yok",
+    "createGroup": {
+      "placeholder": "Grup adı...",
+      "button": "+ Grup Oluştur"
+    },
+    "footer": {
+      "chatRooms": "Sohbet Odaları",
+      "feed": "Akış"
+    },
+    "unreadIm": "{{count}} okunmamış",
+    "incomingIm": "Gelen Mesaj",
+    "groups": {
+      "innerCircle": "Yakın Çevre",
+      "community": "Topluluk",
+      "offline": "Çevrimdışı",
+      "blocked": "Engellenenler",
+      "followers": "Takipçiler",
+      "following": "Takip Edilenler"
+    }
+  },
+
+  "buddyMenu": {
+    "button": {
+      "title": "Seçenekler",
+      "ariaLabel": "Arkadaş seçenekleri"
+    },
+    "sendIm": "Mesaj Gönder",
+    "addToInnerCircle": "Yakın Çevreye Ekle",
+    "removeFromInnerCircle": "Yakın Çevreden Çıkar",
+    "moveTo": "Taşı...",
+    "block": "Engelle",
+    "unblock": "Engeli Kaldır",
+    "remove": "Kaldır",
+    "messageOnGerm": "Germ'de Mesaj Gönder",
+    "addToCommunity": "Topluluğa Ekle",
+    "sendImDisabled": "Kullanıcı çevrimdışı",
+    "videoCall": "Görüntülü Arama",
+    "videoCallDisabled": "Kullanıcı çevrimdışı",
+    "report": "Kullanıcıyı Şikayet Et"
+  },
+
+  "memberMenu": {
+    "button": {
+      "title": "Seçenekler",
+      "ariaLabel": "Üye seçenekleri"
+    },
+    "addToBuddyList": "Arkadaş Listesine Ekle",
+    "block": "Engelle",
+    "unblock": "Engeli Kaldır",
+    "feedback": {
+      "added": "Eklendi!",
+      "alreadyInList": "Zaten arkadaş listesinde",
+      "error": "Arkadaş eklenirken hata oluştu"
+    },
+    "report": "Kullanıcıyı Şikayet Et"
+  },
+
+  "messageInput": {
+    "placeholder": {
+      "default": "Mesaj yaz... (Göndermek için Enter, yeni satır için Shift+Enter)",
+      "reply": "Yanıtla... (Göndermek için Enter, iptal için Esc)"
+    },
+    "replyingTo": "Yanıtlanan",
+    "cancelReply": {
+      "ariaLabel": "Yanıtı iptal et"
+    },
+    "ariaLabel": {
+      "default": "Mesaj yaz",
+      "reply": "Yanıt yaz"
+    },
+    "send": "Gönder"
+  },
+
+  "messageItem": {
+    "contentWarning": "İçerik uyarısı",
+    "clickToReveal": "Görmek için tıkla",
+    "replyCount_one": "{{count}} yanıt",
+    "replyCount_other": "{{count}} yanıt",
+    "replyButton": "Yanıtla",
+    "translate": "Çevir",
+    "translating": "Çevriliyor...",
+    "translatedTo": "{{lang}} diline çevrildi",
+    "showOriginal": "Orijinali göster",
+    "reportButton": "Şikayet Et"
+  },
+
+  "messageList": {
+    "loading": "Mesajlar yükleniyor...",
+    "empty": "Henüz mesaj yok. Sohbeti başlat!",
+    "typing": {
+      "one": "yazıyor...",
+      "twoAnd": "ve",
+      "twoSuffix": "yazıyor...",
+      "many": "{{count}} kişi yazıyor..."
+    }
+  },
+
+  "threadPanel": {
+    "ariaLabel": "Konu",
+    "title": "Konu",
+    "backAriaLabel": "Ana mesaja dön",
+    "closeAriaLabel": "Konuyu kapat",
+    "loading": "Konu yükleniyor...",
+    "notFound": "Konu bulunamadı",
+    "replyCount_one": "{{count}} yanıt",
+    "replyCount_other": "{{count}} yanıt",
+    "inputPlaceholder": "Konuya yanıt yaz..."
+  },
+
+  "formattingToolbar": {
+    "bold": "Kalın",
+    "italic": "İtalik",
+    "strikethrough": "Üstü Çizili",
+    "code": "Kod",
+    "blockquote": "Alıntı"
+  },
+
+  "memberList": {
+    "heading": "Üyeler ({{count}})"
+  },
+
+  "groupHeader": {
+    "renameGroup": "Grubu yeniden adlandır",
+    "deleteGroup": "Grubu sil",
+    "expand": "Genişlet",
+    "collapse": "Daralt"
+  },
+
+  "gif": {
+    "title": "GIF'ler",
+    "searchPlaceholder": "GIF ara...",
+    "noResults": "GIF bulunamadı",
+    "loading": "Yükleniyor...",
+    "poweredByGiphy": "Powered by GIPHY",
+    "poweredByKlipy": "Powered by Klipy",
+    "close": "Kapat",
+    "altTextPlaceholder": "Bu GIF'i tanımla (alt metin)...",
+    "confirm": "Gönder",
+    "back": "Geri"
+  },
+
+  "videoCall": {
+    "incoming": {
+      "ariaLabel": "Gelen görüntülü arama",
+      "label": "Gelen arama...",
+      "accept": "Aramayı kabul et",
+      "acceptAriaLabel": "Gelen aramayı kabul et",
+      "reject": "Aramayı reddet",
+      "rejectAriaLabel": "Gelen aramayı reddet"
+    },
+    "calling": "Aranıyor...",
+    "ringing": "Çalıyor...",
+    "reconnecting": "Yeniden bağlanılıyor...",
+    "mute": "Sessize al",
+    "unmute": "Sesi aç",
+    "cameraOff": "Kamerayı kapat",
+    "cameraOn": "Kamerayı aç",
+    "flipCamera": "Kamerayı çevir",
+    "connectionFailed": "Bağlantı başarısız",
+    "retry": "Tekrar dene",
+    "endCall": "Aramayı bitir",
+    "shareScreen": "Ekranı paylaş",
+    "stopSharing": "Paylaşımı durdur",
+    "error": {
+      "mediaPermission": "Görüntülü arama için kamera/mikrofon izni gerekli"
+    }
+  },
+
+  "channel": {
+    "heading": "Kanallar",
+    "listAriaLabel": "Kanal listesi",
+    "create": "Kanal Oluştur",
+    "createTitle": "Kanal Oluştur",
+    "nameLabel": "Ad",
+    "namePlaceholder": "Kanal adı",
+    "descriptionLabel": "Açıklama",
+    "descriptionPlaceholder": "Bu kanal ne hakkında?",
+    "postPolicyLabel": "Kim paylaşabilir",
+    "postPolicy": {
+      "everyone": "Herkes",
+      "moderators": "Sadece moderatörler",
+      "owner": "Sadece sahibi"
+    },
+    "cancel": "İptal",
+    "creating": "Oluşturuluyor...",
+    "createSubmit": "Oluştur",
+    "error": {
+      "default": "Kanal oluşturulamadı"
+    }
+  },
+
+  "report": {
+    "title": "Kullanıcıyı Şikayet Et",
+    "subjectLabel": "Kullanıcı",
+    "categoryLabel": "Kategori",
+    "categories": {
+      "harassment": "Taciz",
+      "spam": "Spam",
+      "impersonation": "Kimliğe Bürünme",
+      "hateSpeech": "Nefret Söylemi",
+      "other": "Diğer"
+    },
+    "descriptionLabel": "Açıklama",
+    "descriptionPlaceholder": "Ne oldu?",
+    "attachmentsLabel": "Ekran görüntüleri (isteğe bağlı)",
+    "attachmentsHint": "En fazla 2 resim",
+    "addAttachment": "Ekran Görüntüsü Ekle",
+    "submit": "Şikayeti Gönder",
+    "submitting": "Gönderiliyor...",
+    "cancel": "İptal",
+    "success": "Şikayet gönderildi. İnceleyeceğiz.",
+    "error": "Şikayet gönderilemedi.",
+    "removeAttachment": "Eki kaldır",
+    "fileSizeError": "Dosya çok büyük. Maksimum boyut 2 MB."
+  },
+
+  "poll": {
+    "createPoll": "Anket Oluştur",
+    "questionLabel": "Soru",
+    "questionPlaceholder": "Bir soru sor...",
+    "optionsLabel": "Seçenekler",
+    "optionPlaceholder": "Seçenek {{n}}",
+    "addOption": "Seçenek Ekle",
+    "removeOption": "Seçeneği kaldır",
+    "allowMultiple": "Birden fazla seçime izin ver",
+    "expires": "Bitiş",
+    "expired": "Anket sona erdi",
+    "expiresIn": "{{time}} sonra biter",
+    "totalVotes_one": "{{count}} oy",
+    "totalVotes_other": "{{count}} oy",
+    "vote": "Oy Ver",
+    "create": "Oluştur",
+    "cancel": "İptal",
+    "expiry": {
+      "none": "Süresiz",
+      "1h": "1 saat",
+      "6h": "6 saat",
+      "24h": "24 saat",
+      "3d": "3 gün",
+      "1w": "1 hafta"
+    },
+    "error": {
+      "minOptions": "En az 2 seçenek gerekli",
+      "default": "Anket oluşturulamadı"
+    }
+  },
+
+  "reportContent": {
+    "title": "Şikayet Et",
+    "subjectLabel": "Konu",
+    "categoryLabel": "Kategori",
+    "descriptionLabel": "Açıklama",
+    "descriptionPlaceholder": "Ne oldu?",
+    "attachmentsLabel": "Ekran görüntüleri (isteğe bağlı)",
+    "attachmentsHint": "En fazla 2 resim",
+    "addAttachment": "Ekran Görüntüsü Ekle",
+    "removeAttachment": "Kaldır",
+    "submit": "Şikayeti Gönder",
+    "submitting": "Gönderiliyor...",
+    "cancel": "İptal",
+    "success": "Şikayet gönderildi. İnceleyeceğiz.",
+    "error": "Şikayet gönderilemedi.",
+    "fileSizeError": "Dosya çok büyük (maks. 2 MB)"
+  }
+}

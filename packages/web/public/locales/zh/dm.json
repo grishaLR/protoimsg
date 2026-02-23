@@ -1,0 +1,59 @@
+{
+  "input": {
+    "placeholder": "输入消息...",
+    "ariaLabel": "输入私信",
+    "send": "发送"
+  },
+
+  "messageList": {
+    "empty": "还没有消息，打个招呼吧！",
+    "typing": "正在输入..."
+  },
+
+  "popover": {
+    "ariaLabel": "与 {{recipientDid}} 的私信对话",
+    "header": {
+      "ariaLabel": {
+        "expand": "与 {{recipientDid}} 的私信 - 点击展开",
+        "minimize": "与 {{recipientDid}} 的私信 - 点击最小化"
+      }
+    },
+    "unreadAriaLabel": "{{count}} 条未读消息",
+    "unreadOverflow": "99+",
+    "connecting": "连接中…",
+    "connectionFailed": "连接失败",
+    "retry": "重试",
+    "peerClosed": "聊天已关闭。使用 Germ 发送离线消息。",
+    "closingCountdown": "聊天已结束，{{seconds}}秒后关闭…",
+    "minimize": {
+      "titleExpand": "展开",
+      "titleMinimize": "最小化",
+      "ariaLabel": {
+        "expand": "展开对话",
+        "minimize": "最小化对话"
+      }
+    },
+    "close": {
+      "title": "关闭",
+      "ariaLabel": "关闭对话"
+    }
+  },
+
+  "notification": {
+    "ariaLabel": "来自 {{senderDid}} 的新消息",
+    "incoming": "想和你聊天",
+    "dismiss": {
+      "title": "忽略",
+      "ariaLabel": "忽略通知"
+    }
+  },
+
+  "popoverContainer": {
+    "ariaLabel": "私信通知"
+  },
+
+  "window": {
+    "connecting": "连接中…",
+    "waitingForConnection": "等待连接中…"
+  }
+}

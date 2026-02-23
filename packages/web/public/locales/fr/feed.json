@@ -1,0 +1,62 @@
+{
+  "composer": {
+    "collapsed": "Qu'avez-vous en t\u00eate ?",
+    "replyingTo": "En r\u00e9ponse \u00e0 @{{handle}}",
+    "placeholder": "R\u00e9digez votre publication...",
+    "charCount": "{{count}}/{{max}}",
+    "attachImage": "Joindre une image",
+    "cancel": "Annuler",
+    "posting": "Publication en cours...",
+    "post": "Publier",
+    "imageAltText": "D\u00e9crivez cette image...",
+    "gifAltText": "D\u00e9crivez ce GIF..."
+  },
+
+  "post": {
+    "pinned": "\u00c9pingl\u00e9",
+    "repostedBy": "Repartag\u00e9 par",
+    "replyTo": "En r\u00e9ponse \u00e0 @{{handle}}",
+    "relativeTime": {
+      "seconds": "{{count}}s",
+      "minutes": "{{count}}m",
+      "hours": "{{count}}h",
+      "days": "{{count}}j",
+      "months": "{{count}}mo"
+    },
+    "translate": "Traduire",
+    "translatedTo": "Traduit en {{lang}}",
+    "showOriginal": "Afficher l'original",
+    "translating": "Traduction en cours..."
+  },
+
+  "feedView": {
+    "loading": "Chargement du fil...",
+    "empty": "Aucune publication \u00e0 afficher",
+    "loadingMore": "Chargement...",
+    "refresh": "Actualiser le fil"
+  },
+
+  "profileView": {
+    "back": "Retour",
+    "loading": "Chargement du profil...",
+    "error": "\u00c9chec du chargement du profil",
+    "followers": "abonn\u00e9s",
+    "following": "abonnements",
+    "posts": "publications",
+    "loadingMore": "Chargement...",
+    "translateBio": "Traduire la bio",
+    "translating": "Traduction en cours...",
+    "translatedTo": "Traduit en {{lang}}",
+    "showOriginal": "Afficher l'original",
+    "messageOnGerm": "Message sur Germ",
+    "germDm": "MP Germ"
+  },
+
+  "threadView": {
+    "back": "Retour",
+    "loading": "Chargement du fil...",
+    "notFound": "Fil introuvable",
+    "viewReplies_one": "Voir {{count}} r\u00e9ponse",
+    "viewReplies_other": "Voir {{count}} r\u00e9ponses"
+  }
+}
