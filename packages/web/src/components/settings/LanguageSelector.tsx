@@ -3,13 +3,24 @@ import styles from './LanguageSelector.module.css';
 
 const LANGUAGES = [
   { code: 'en', label: 'English' },
-  { code: 'es', label: 'Espa\u00f1ol' },
-  { code: 'ru', label: '\u0420\u0443\u0441\u0441\u043a\u0438\u0439' },
-  { code: 'ar', label: '\u0627\u0644\u0639\u0631\u0628\u064a\u0629' },
+  { code: 'es', label: 'Español' },
+  { code: 'fr', label: 'Français' },
+  { code: 'pt', label: 'Português' },
+  { code: 'de', label: 'Deutsch' },
+  { code: 'tr', label: 'Türkçe' },
+  { code: 'ru', label: 'Русский' },
   { code: 'uk', label: 'Українська' },
+  { code: 'ar', label: 'العربية' },
+  { code: 'hi', label: 'हिन्दी' },
+  { code: 'zh', label: '简体中文 (Mandarin)' },
+  { code: 'ja', label: '日本語' },
+  { code: 'ko', label: '한국어' },
+  { code: 'vi', label: 'Tiếng Việt' },
+  { code: 'th', label: 'ภาษาไทย' },
   { code: 'ga', label: 'Gaeilge' },
-  { code: 'sw', label: 'Kiswahili' },
-  { code: 'ha', label: 'Hausa' },
+  // NLLB-only languages — hidden while NLLB is sidelined
+  // { code: 'sw', label: 'Kiswahili' },
+  // { code: 'ha', label: 'Hausa' },
 ] as const;
 
 export function LanguageSelector() {
