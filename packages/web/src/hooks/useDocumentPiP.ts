@@ -8,23 +8,25 @@ interface DocumentPiPApi {
   requestWindow(options?: { width?: number; height?: number }): Promise<Window>;
 }
 
-/** Copy all stylesheets from the main document into the PiP window. */
+/**
+ * Copy all stylesheets from the main document into the PiP window.
+ * Uses <link> clones instead of inline <style> to stay within CSP `style-src 'self'`.
+ */
 function copyStyles(src: Document, dest: Document) {
-  for (const sheet of src.styleSheets) {
-    try {
-      const rules = [...sheet.cssRules].map((r) => r.cssText).join('\n');
-      const style = dest.createElement('style');
-      style.textContent = rules;
-      dest.head.appendChild(style);
-    } catch {
-      // CORS-blocked stylesheet — fall back to <link>
-      if (sheet.href) {
-        const link = dest.createElement('link');
-        link.rel = 'stylesheet';
-        link.href = sheet.href;
-        dest.head.appendChild(link);
-      }
-    }
+  // Clone <link rel="stylesheet"> tags (production CSS bundles)
+  for (const link of src.querySelectorAll<HTMLLinkElement>('link[rel="stylesheet"]')) {
+    const clone = dest.createElement('link');
+    clone.rel = 'stylesheet';
+    clone.href = link.href;
+    if (link.crossOrigin) clone.crossOrigin = link.crossOrigin;
+    dest.head.appendChild(clone);
+  }
+
+  // Clone <style> tags (Vite dev mode injects CSS this way)
+  for (const style of src.querySelectorAll<HTMLStyleElement>('style')) {
+    const clone = dest.createElement('style');
+    clone.textContent = style.textContent;
+    dest.head.appendChild(clone);
   }
 }
 
