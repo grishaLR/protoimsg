@@ -9,7 +9,7 @@ import {
 } from 'react';
 import { Agent } from '@atproto/api';
 import type { OAuthSession } from '@atproto/oauth-client-browser';
-import { getOAuthClient } from '../lib/oauth';
+import { getOAuthClient, REQUIRED_SCOPES } from '../lib/oauth';
 import {
   AccountBannedError,
   NotOnAllowlistError,
@@ -139,6 +139,27 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             sessionStorage.removeItem('protoimsg:oauth_pending');
             const { session: restoredSession } = result;
             setAuthPhase('authenticating');
+
+            // Verify the PDS granted the scopes we need. Some PDS implementations
+            // may grant fewer scopes than requested — if `atproto` is missing we
+            // can't write records at all (messages, rooms, auth proof), so bail
+            // early with a clear error instead of failing on every createRecord.
+            const tokenInfo = await restoredSession.getTokenInfo();
+            const grantedScopes = tokenInfo.scope.split(' ');
+            const missingScopes = REQUIRED_SCOPES.filter((s) => !grantedScopes.includes(s));
+            if (missingScopes.length > 0) {
+              console.error('OAuth scopes missing:', missingScopes.join(', '));
+              const oauthClient = getOAuthClient();
+              void oauthClient.revoke(restoredSession.did);
+              setAuthError(
+                `Your PDS did not grant the required permissions: ${missingScopes.join(', ')}. ` +
+                  'proto instant messenger needs write access to function. ' +
+                  'Please contact your PDS administrator or try a different account.',
+              );
+              setAuthPhase('idle');
+              return;
+            }
+
             setSession(restoredSession);
             const newAgent = new Agent(restoredSession);
             setAgent(newAgent);
