@@ -71,6 +71,7 @@ jobs:
       nllb: ${{ steps.filter.outputs.nllb }}
       libretranslate: ${{ steps.filter.outputs.libretranslate }}
       coturn: ${{ steps.filter.outputs.coturn }}
+      pds: ${{ steps.filter.outputs.pds }}
     steps:
       - uses: actions/checkout@v4
       - uses: dorny/paths-filter@v3
@@ -96,6 +97,8 @@ jobs:
             coturn:
               - 'docker/coturn/**'
               - 'fly.coturn.toml'
+            pds:
+              - 'fly.pds.toml'
 
   deploy-server:
     needs: changes
@@ -199,5 +202,19 @@ jobs:
 
       - name: Deploy coturn to Fly.io
         run: flyctl deploy --remote-only --config fly.coturn.toml
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+
+  deploy-pds:
+    needs: changes
+    if: needs.changes.outputs.pds == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: superfly/flyctl-actions/setup-flyctl@master
+
+      - name: Deploy PDS to Fly.io
+        run: flyctl deploy --remote-only --config fly.pds.toml
         env:
           FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}

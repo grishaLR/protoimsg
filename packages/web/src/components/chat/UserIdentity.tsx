@@ -27,6 +27,7 @@ export function UserIdentity({ did, showAvatar = false, size = 'sm' }: UserIdent
   const displayText = profile ? `@${profile.handle}` : truncateDid(did);
   const avatarSize = size === 'md' ? styles.avatarMd : styles.avatarSm;
   const initialSize = size === 'md' ? styles.initialAvatarMd : styles.initialAvatarSm;
+  const avatarPx = size === 'md' ? 24 : 20;
   const avatarBlurred = moderation.shouldBlur && !avatarRevealed;
   const hasRealAvatar = profile?.avatarUrl && isSafeUrl(profile.avatarUrl);
   const initial = (profile?.handle[0] ?? did.at(-1) ?? '?').toUpperCase();
@@ -39,6 +40,8 @@ export function UserIdentity({ did, showAvatar = false, size = 'sm' }: UserIdent
             className={`${styles.avatar} ${avatarSize} ${avatarBlurred ? styles.blurred : ''}`}
             // eslint-disable-next-line no-restricted-syntax -- validated by isSafeUrl() above
             src={profile.avatarUrl}
+            width={avatarPx}
+            height={avatarPx}
             alt=""
             onClick={
               avatarBlurred
