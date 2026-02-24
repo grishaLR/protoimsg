@@ -106,8 +106,21 @@ jobs:
         env:
           FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
 
+  deploy-pds:
+    needs: check-label
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: superfly/flyctl-actions/setup-flyctl@master
+
+      - name: Deploy PDS to Fly.io
+        run: flyctl deploy --remote-only --config fly.pds.toml
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+
   comment:
-    needs: [deploy-server, deploy-web, deploy-nllb, deploy-libretranslate, deploy-coturn]
+    needs: [deploy-server, deploy-web, deploy-nllb, deploy-libretranslate, deploy-coturn, deploy-pds]
     if: always() && needs.check-label.result == 'success'
     runs-on: ubuntu-latest
     permissions:
@@ -122,6 +135,7 @@ jobs:
             const nllb = '${{ needs.deploy-nllb.result }}';
             const libretranslate = '${{ needs.deploy-libretranslate.result }}';
             const coturn = '${{ needs.deploy-coturn.result }}';
+            const pds = '${{ needs.deploy-pds.result }}';
             const icon = (s) => s === 'success' ? '✅' : '❌';
 
             const body = [
@@ -132,6 +146,7 @@ jobs:
               `${icon(nllb)} **NLLB** (Fly.io): ${nllb}`,
               `${icon(libretranslate)} **LibreTranslate** (Fly.io): ${libretranslate}`,
               `${icon(coturn)} **coturn** (Fly.io): ${coturn}`,
+              `${icon(pds)} **PDS** (Fly.io): ${pds}`,
               '',
               web === 'success' ? '🔗 https://protoimsg-staging.vercel.app' : '',
             ].filter(Boolean).join('\n');
