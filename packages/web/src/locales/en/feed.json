@@ -2,6 +2,7 @@
   "composer": {
     "collapsed": "What's on your mind?",
     "replyingTo": "Replying to @{{handle}}",
+    "quotingPost": "Quoting @{{handle}}",
     "placeholder": "Type your post...",
     "charCount": "{{count}}/{{max}}",
     "attachImage": "Attach Image",
@@ -26,7 +27,32 @@
     "translate": "Translate",
     "translatedTo": "Translated to {{lang}}",
     "showOriginal": "Show original",
-    "translating": "Translating..."
+    "translating": "Translating...",
+    "quoteDeleted": "This post has been deleted",
+    "quoteBlocked": "This post is from a blocked account",
+    "quoteDetached": "This quote has been detached",
+    "repost": "Repost",
+    "quotePost": "Quote Post",
+    "copyLink": "Copy link",
+    "openInBluesky": "Open in Bluesky",
+    "linkCopied": "Copied!",
+    "moreActions": "More actions",
+    "lightboxClose": "Close",
+    "lightboxPrev": "Previous image",
+    "lightboxNext": "Next image",
+    "lightboxCounter": "{{current}} / {{total}}"
+  },
+
+  "video": {
+    "play": "Play video",
+    "pause": "Pause video",
+    "mute": "Mute",
+    "unmute": "Unmute",
+    "fullscreen": "Fullscreen",
+    "retry": "Retry",
+    "scrubber": "Video progress",
+    "altAvailable": "ALT",
+    "buffering": "Buffering…"
   },
 
   "feedView": {

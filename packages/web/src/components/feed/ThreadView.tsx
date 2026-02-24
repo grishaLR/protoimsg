@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { AppBskyFeedDefs } from '@atproto/api';
 import { useThread } from '../../hooks/useThread';
@@ -7,12 +7,16 @@ import { ArrowLeft } from 'lucide-react';
 import { FeedPost } from './FeedPost';
 import styles from './ThreadView.module.css';
 
+/** Module-level cache: thread URI → scrollTop. Survives unmount/remount. */
+const threadScrollCache = new Map<string, number>();
+
 interface ThreadViewProps {
   uri: string;
   onBack: () => void;
   onNavigateToProfile: (did: string) => void;
   onReply?: (post: AppBskyFeedDefs.PostView) => void;
   onOpenThread?: (post: AppBskyFeedDefs.PostView) => void;
+  onQuotePost?: (post: AppBskyFeedDefs.PostView) => void;
 }
 
 function collectParents(thread: AppBskyFeedDefs.ThreadViewPost): AppBskyFeedDefs.ThreadViewPost[] {
@@ -32,10 +36,37 @@ export function ThreadView({
   onNavigateToProfile,
   onReply,
   onOpenThread,
+  onQuotePost,
 }: ThreadViewProps) {
   const { t } = useTranslation('feed');
   const { thread, loading, error } = useThread(uri);
   const { autoTranslate, requestBatchTranslation, available } = useContentTranslation();
+  const scrollRef = useRef<HTMLDivElement>(null);
+
+  // Restore scroll position when thread loads
+  useEffect(() => {
+    if (!thread || !scrollRef.current) return;
+    const saved = threadScrollCache.get(uri);
+    if (saved) {
+      // Wait for DOM to settle after thread content renders
+      requestAnimationFrame(() => {
+        if (scrollRef.current) {
+          scrollRef.current.scrollTop = saved;
+        }
+      });
+    }
+  }, [uri, thread]);
+
+  // Save scroll position on unmount
+  useEffect(() => {
+    const currentUri = uri;
+    const ref = scrollRef;
+    return () => {
+      if (ref.current) {
+        threadScrollCache.set(currentUri, ref.current.scrollTop);
+      }
+    };
+  }, [uri]);
 
   // Auto-translate all thread posts (parents + main + replies)
   useEffect(() => {
@@ -94,7 +125,7 @@ export function ThreadView({
         <ArrowLeft size={14} /> {t('threadView.back')}
       </button>
 
-      <div className={styles.scrollArea}>
+      <div className={styles.scrollArea} ref={scrollRef}>
         {parents.map((parent) => {
           const parentItem: AppBskyFeedDefs.FeedViewPost = {
             post: parent.post,
@@ -107,13 +138,20 @@ export function ThreadView({
                 onNavigateToProfile={onNavigateToProfile}
                 onReply={onReply}
                 onOpenThread={onOpenThread}
+                onQuotePost={onQuotePost}
               />
             </div>
           );
         })}
 
         <div className={styles.threadHighlight}>
-          <FeedPost item={mainItem} onNavigateToProfile={onNavigateToProfile} onReply={onReply} />
+          <FeedPost
+            item={mainItem}
+            onNavigateToProfile={onNavigateToProfile}
+            onReply={onReply}
+            onOpenThread={onOpenThread}
+            onQuotePost={onQuotePost}
+          />
         </div>
 
         {replies.map((reply) => {
@@ -130,6 +168,7 @@ export function ThreadView({
                 onNavigateToProfile={onNavigateToProfile}
                 onReply={onReply}
                 onOpenThread={onOpenThread}
+                onQuotePost={onQuotePost}
               />
               {hasReplies && (
                 <button

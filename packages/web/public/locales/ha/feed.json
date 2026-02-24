@@ -9,7 +9,8 @@
     "posting": "Ana bugawa...",
     "post": "Buga",
     "imageAltText": "Bayyana wannan hoto...",
-    "gifAltText": "Bayyana wannan GIF..."
+    "gifAltText": "Bayyana wannan GIF...",
+    "quotingPost": "Ana ambaton @{{handle}}"
   },
 
   "post": {
@@ -26,7 +27,32 @@
     "translate": "Fassara",
     "translatedTo": "An fassara zuwa {{lang}}",
     "showOriginal": "Nuna asali",
-    "translating": "Ana fassarawa..."
+    "translating": "Ana fassarawa...",
+    "quoteDeleted": "An goge wannan saƙo",
+    "quoteBlocked": "Wannan saƙo daga asusun da aka toshe ne",
+    "quoteDetached": "An cire wannan ambato",
+    "repost": "Sake bugawa",
+    "quotePost": "Ambaci saƙo",
+    "copyLink": "Kwafi hanyar haɗi",
+    "openInBluesky": "Buɗe a Bluesky",
+    "linkCopied": "An kwafa!",
+    "moreActions": "Ƙarin ayyuka",
+    "lightboxClose": "Rufe",
+    "lightboxPrev": "Hoton da ya gabata",
+    "lightboxNext": "Hoto na gaba",
+    "lightboxCounter": "{{current}} / {{total}}"
+  },
+
+  "video": {
+    "play": "Kunna bidiyo",
+    "pause": "Dakatar da bidiyo",
+    "mute": "Kashe sauti",
+    "unmute": "Kunna sauti",
+    "fullscreen": "Cika allo",
+    "retry": "Sake gwadawa",
+    "scrubber": "Ci gaban bidiyo",
+    "altAvailable": "ALT",
+    "buffering": "Ana loda…"
   },
 
   "feedView": {

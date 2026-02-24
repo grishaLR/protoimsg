@@ -9,7 +9,8 @@
     "posting": "发布中...",
     "post": "发布",
     "imageAltText": "描述这张图片...",
-    "gifAltText": "描述这个 GIF..."
+    "gifAltText": "描述这个 GIF...",
+    "quotingPost": "引用 @{{handle}}"
   },
 
   "post": {
@@ -26,7 +27,32 @@
     "translate": "翻译",
     "translatedTo": "已翻译为{{lang}}",
     "showOriginal": "显示原文",
-    "translating": "翻译中..."
+    "translating": "翻译中...",
+    "quoteDeleted": "此帖子已被删除",
+    "quoteBlocked": "此帖子来自已屏蔽的账号",
+    "quoteDetached": "此引用已被分离",
+    "repost": "转发",
+    "quotePost": "引用帖子",
+    "copyLink": "复制链接",
+    "openInBluesky": "在 Bluesky 中打开",
+    "linkCopied": "已复制！",
+    "moreActions": "更多操作",
+    "lightboxClose": "关闭",
+    "lightboxPrev": "上一张图片",
+    "lightboxNext": "下一张图片",
+    "lightboxCounter": "{{current}} / {{total}}"
+  },
+
+  "video": {
+    "play": "播放视频",
+    "pause": "暂停视频",
+    "mute": "静音",
+    "unmute": "取消静音",
+    "fullscreen": "全屏",
+    "retry": "重试",
+    "scrubber": "视频进度",
+    "altAvailable": "ALT",
+    "buffering": "正在缓冲…"
   },
 
   "feedView": {

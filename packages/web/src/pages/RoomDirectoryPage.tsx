@@ -90,52 +90,69 @@ export function RoomDirectoryPage() {
   useEffect(() => {
     if (locState?.tab) setView(locState.tab);
   }, [locState?.tab]);
-  const [profileTarget, setProfileTarget] = useState<string | null>(null);
-  const [threadStack, setThreadStack] = useState<string[]>([]);
-  const [prevView, setPrevView] = useState<'rooms' | 'feed' | 'buddies'>('feed');
   const [replyTo, setReplyTo] = useState<AppBskyFeedDefs.PostView | null>(null);
+  const [quoteTo, setQuoteTo] = useState<AppBskyFeedDefs.PostView | null>(null);
 
-  const threadUri = threadStack.length > 0 ? (threadStack[threadStack.length - 1] ?? null) : null;
+  // Unified navigation history — each entry is the view + its payload
+  type NavEntry =
+    | { type: 'rooms' }
+    | { type: 'feed' }
+    | { type: 'buddies' }
+    | { type: 'profile'; did: string }
+    | { type: 'thread'; uri: string }
+    | { type: 'settings' };
+  const [navHistory, setNavHistory] = useState<NavEntry[]>([]);
+
+  // Derive current thread/profile targets from the active view
+  const threadUri =
+    view === 'thread'
+      ? ((navHistory[navHistory.length - 1] as { uri: string } | undefined)?.uri ?? null)
+      : null;
+  const profileTarget =
+    view === 'profile'
+      ? ((navHistory[navHistory.length - 1] as { did: string } | undefined)?.did ?? null)
+      : null;
+
+  const goBack = useCallback(() => {
+    setNavHistory((prev) => {
+      if (prev.length <= 1) {
+        const root = prev[0];
+        setView(root ? (root.type as View) : 'feed');
+        return [];
+      }
+      const next = prev.slice(0, -1);
+      const target = next[next.length - 1];
+      if (target) setView(target.type as View);
+      return next;
+    });
+  }, []);
 
   const navigateToProfile = useCallback(
     (did: string) => {
-      setPrevView(view === 'profile' || view === 'thread' || view === 'settings' ? prevView : view);
-      setProfileTarget(did);
+      setNavHistory((prev) => {
+        // If navigating from a root view, seed the history with it
+        if (view !== 'profile' && view !== 'thread' && view !== 'settings') {
+          return [{ type: view }, { type: 'profile', did }];
+        }
+        return [...prev, { type: 'profile', did }];
+      });
       setView('profile');
     },
-    [view, prevView],
+    [view],
   );
-
-  const backFromProfile = useCallback(() => {
-    setView(prevView);
-    setProfileTarget(null);
-  }, [prevView]);
 
   const openThread = useCallback(
     (post: AppBskyFeedDefs.PostView) => {
-      if (view === 'thread') {
-        // Drilling into a reply — push onto stack
-        setThreadStack((prev) => [...prev, post.uri]);
-      } else {
-        // Entering thread from feed/profile
-        setPrevView(view === 'profile' || view === 'settings' ? prevView : view);
-        setThreadStack([post.uri]);
-        setView('thread');
-      }
+      setNavHistory((prev) => {
+        if (view !== 'profile' && view !== 'thread' && view !== 'settings') {
+          return [{ type: view }, { type: 'thread', uri: post.uri }];
+        }
+        return [...prev, { type: 'thread', uri: post.uri }];
+      });
+      setView('thread');
     },
-    [view, prevView],
+    [view],
   );
-
-  const backFromThread = useCallback(() => {
-    if (threadStack.length > 1) {
-      // Pop back to parent thread
-      setThreadStack((prev) => prev.slice(0, -1));
-    } else {
-      // Back to previous view
-      setView(prevView);
-      setThreadStack([]);
-    }
-  }, [prevView, threadStack.length]);
 
   const handleReply = useCallback((post: AppBskyFeedDefs.PostView) => {
     setReplyTo(post);
@@ -146,14 +163,24 @@ export function RoomDirectoryPage() {
     setReplyTo(null);
   }, []);
 
-  const navigateToSettings = useCallback(() => {
-    setPrevView(view === 'profile' || view === 'thread' || view === 'settings' ? prevView : view);
-    setView('settings');
-  }, [view, prevView]);
+  const handleQuotePost = useCallback((post: AppBskyFeedDefs.PostView) => {
+    setQuoteTo(post);
+    setView('feed');
+  }, []);
 
-  const backFromSettings = useCallback(() => {
-    setView(prevView);
-  }, [prevView]);
+  const clearQuote = useCallback(() => {
+    setQuoteTo(null);
+  }, []);
+
+  const navigateToSettings = useCallback(() => {
+    setNavHistory((prev) => {
+      if (view !== 'profile' && view !== 'thread' && view !== 'settings') {
+        return [{ type: view }, { type: 'settings' }];
+      }
+      return [...prev, { type: 'settings' }];
+    });
+    setView('settings');
+  }, [view]);
 
   const filtered = search
     ? rooms.filter((r) => r.name.toLowerCase().includes(search.toLowerCase()))
@@ -233,13 +260,13 @@ export function RoomDirectoryPage() {
           {view === 'profile' && profileTarget ? (
             <ProfileView
               actor={profileTarget}
-              onBack={backFromProfile}
+              onBack={goBack}
               onNavigateToProfile={navigateToProfile}
               onReply={handleReply}
               onOpenThread={openThread}
             />
           ) : view === 'settings' ? (
-            <SettingsView onBack={backFromSettings} />
+            <SettingsView onBack={goBack} />
           ) : (
             <BuddyListPanel {...buddyListProps} />
           )}
@@ -292,32 +319,37 @@ export function RoomDirectoryPage() {
               onNavigateToProfile={navigateToProfile}
               onReply={handleReply}
               onOpenThread={openThread}
+              onQuotePost={handleQuotePost}
               replyTo={replyTo}
+              quoteTo={quoteTo}
               onClearReply={clearReply}
+              onClearQuote={clearQuote}
             />
           )}
 
           {view === 'profile' && profileTarget && (
             <ProfileView
               actor={profileTarget}
-              onBack={backFromProfile}
+              onBack={goBack}
               onNavigateToProfile={navigateToProfile}
               onReply={handleReply}
               onOpenThread={openThread}
+              onQuotePost={handleQuotePost}
             />
           )}
 
           {view === 'thread' && threadUri && (
             <ThreadView
               uri={threadUri}
-              onBack={backFromThread}
+              onBack={goBack}
               onNavigateToProfile={navigateToProfile}
               onReply={handleReply}
               onOpenThread={openThread}
+              onQuotePost={handleQuotePost}
             />
           )}
 
-          {view === 'settings' && <SettingsView onBack={backFromSettings} />}
+          {view === 'settings' && <SettingsView onBack={goBack} />}
         </main>
         {!isMobile && (
           <aside className={styles.sidebar}>

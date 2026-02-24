@@ -9,7 +9,8 @@
     "posting": "Gönderiliyor...",
     "post": "Paylaş",
     "imageAltText": "Bu resmi tanımla...",
-    "gifAltText": "Bu GIF'i tanımla..."
+    "gifAltText": "Bu GIF'i tanımla...",
+    "quotingPost": "@{{handle}} alıntılanıyor"
   },
 
   "post": {
@@ -26,7 +27,32 @@
     "translate": "Çevir",
     "translatedTo": "{{lang}} diline çevrildi",
     "showOriginal": "Orijinali göster",
-    "translating": "Çevriliyor..."
+    "translating": "Çevriliyor...",
+    "quoteDeleted": "Bu gönderi silindi",
+    "quoteBlocked": "Bu gönderi engellenmiş bir hesaptan",
+    "quoteDetached": "Bu alıntı ayrıldı",
+    "repost": "Yeniden paylaş",
+    "quotePost": "Alıntı gönder",
+    "copyLink": "Bağlantıyı kopyala",
+    "openInBluesky": "Bluesky'da aç",
+    "linkCopied": "Kopyalandı!",
+    "moreActions": "Daha fazla işlem",
+    "lightboxClose": "Kapat",
+    "lightboxPrev": "Önceki resim",
+    "lightboxNext": "Sonraki resim",
+    "lightboxCounter": "{{current}} / {{total}}"
+  },
+
+  "video": {
+    "play": "Videoyu oynat",
+    "pause": "Videoyu duraklat",
+    "mute": "Sesi kapat",
+    "unmute": "Sesi aç",
+    "fullscreen": "Tam ekran",
+    "retry": "Tekrar dene",
+    "scrubber": "Video ilerleme",
+    "altAvailable": "ALT",
+    "buffering": "Arabelleğe alınıyor…"
   },
 
   "feedView": {

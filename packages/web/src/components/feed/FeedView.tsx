@@ -16,15 +16,15 @@ const IDLE_SHOW_DELAY_MS = 8000;
 const TRANSLATE_DEBOUNCE_MS = 300;
 const TRANSLATE_BATCH_SIZE = 3;
 
-/** Module-level cache: feed URI → scrollTop. Survives component unmount/remount. */
-const scrollPositionCache = new Map<string, number>();
-
 interface FeedViewProps {
   onNavigateToProfile?: (did: string) => void;
   onReply?: (post: AppBskyFeedDefs.PostView) => void;
   onOpenThread?: (post: AppBskyFeedDefs.PostView) => void;
   replyTo?: AppBskyFeedDefs.PostView | null;
+  quoteTo?: AppBskyFeedDefs.PostView | null;
   onClearReply?: () => void;
+  onClearQuote?: () => void;
+  onQuotePost?: (post: AppBskyFeedDefs.PostView) => void;
 }
 
 export function FeedView({
@@ -32,7 +32,10 @@ export function FeedView({
   onReply,
   onOpenThread,
   replyTo,
+  quoteTo,
   onClearReply,
+  onClearQuote,
+  onQuotePost,
 }: FeedViewProps) {
   const { t } = useTranslation('feed');
   const { feeds } = useSavedFeeds();
@@ -49,6 +52,7 @@ export function FeedView({
     containerRef,
     measureElement,
     handleScroll: virtualizerScroll,
+    scrollToTop,
     data,
   } = useVirtualList({
     data: posts,
@@ -156,37 +160,30 @@ export function FeedView({
     }
   }, [virtualizerScroll, containerRef, hasMore, loadingMore, loadMore]);
 
-  // Restore scroll position when feed changes or component remounts
+  // Scroll to top when switching feeds
+  const prevUriRef = useRef(activeUri);
   useEffect(() => {
-    if (!activeUri) return;
-    const saved = scrollPositionCache.get(activeUri);
-    if (saved) {
-      containerRef.current.scrollTop = saved;
+    if (activeUri !== prevUriRef.current) {
+      prevUriRef.current = activeUri;
+      scrollToTop();
     }
-  }, [activeUri, posts.length, containerRef]); // posts.length ensures DOM is populated before restore
-
-  // Save scroll position on unmount or feed change
-  useEffect(() => {
-    const currentUri = activeUri;
-    const ref = containerRef;
-    return () => {
-      // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- ref.current is null after unmount
-      if (currentUri && ref.current) {
-        scrollPositionCache.set(currentUri, ref.current.scrollTop);
-      }
-    };
-  }, [activeUri, containerRef]);
+  }, [activeUri, scrollToTop]);
 
   const handleRefreshClick = useCallback(() => {
     setShowRefresh(false);
     refresh();
-    containerRef.current.scrollTo({ top: 0 });
-    if (activeUri) scrollPositionCache.delete(activeUri);
-  }, [refresh, activeUri, containerRef]);
+    scrollToTop();
+  }, [refresh, scrollToTop]);
 
   return (
     <div className={styles.feedView}>
-      <FeedComposer replyTo={replyTo ?? null} onClearReply={onClearReply} onPostSuccess={refresh} />
+      <FeedComposer
+        replyTo={replyTo ?? null}
+        quoteTo={quoteTo ?? null}
+        onClearReply={onClearReply}
+        onClearQuote={onClearQuote}
+        onPostSuccess={refresh}
+      />
 
       <FeedTabBar feeds={feeds} activeUri={activeUri} onSelect={setActiveUri} />
 
@@ -220,6 +217,7 @@ export function FeedView({
                       onNavigateToProfile={onNavigateToProfile}
                       onReply={onReply}
                       onOpenThread={onOpenThread}
+                      onQuotePost={onQuotePost}
                     />
                   </div>
                 );

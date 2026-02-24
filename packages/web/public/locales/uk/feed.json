@@ -9,7 +9,8 @@
     "posting": "Публікація...",
     "post": "Опублікувати",
     "imageAltText": "Опишіть це зображення...",
-    "gifAltText": "Опишіть цей GIF..."
+    "gifAltText": "Опишіть цей GIF...",
+    "quotingPost": "Цитування @{{handle}}"
   },
 
   "post": {
@@ -26,7 +27,32 @@
     "translate": "Перекласти",
     "translatedTo": "Перекладено на {{lang}}",
     "showOriginal": "Показати оригінал",
-    "translating": "Переклад..."
+    "translating": "Переклад...",
+    "quoteDeleted": "Цю публікацію було видалено",
+    "quoteBlocked": "Ця публікація від заблокованого облікового запису",
+    "quoteDetached": "Цю цитату було від'єднано",
+    "repost": "Репост",
+    "quotePost": "Цитувати",
+    "copyLink": "Копіювати посилання",
+    "openInBluesky": "Відкрити в Bluesky",
+    "linkCopied": "Скопійовано!",
+    "moreActions": "Більше дій",
+    "lightboxClose": "Закрити",
+    "lightboxPrev": "Попереднє зображення",
+    "lightboxNext": "Наступне зображення",
+    "lightboxCounter": "{{current}} / {{total}}"
+  },
+
+  "video": {
+    "play": "Відтворити відео",
+    "pause": "Призупинити відео",
+    "mute": "Вимкнути звук",
+    "unmute": "Увімкнути звук",
+    "fullscreen": "Повний екран",
+    "retry": "Спробувати знову",
+    "scrubber": "Прогрес відео",
+    "altAvailable": "ALT",
+    "buffering": "Буферизація…"
   },
 
   "feedView": {

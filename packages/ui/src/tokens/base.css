@@ -107,6 +107,7 @@
   --cm-z-dm: 1000;
   --cm-z-videocall: 1100;
   --cm-z-banner: 2000;
+  --cm-z-lightbox: 3000;
 
   /* ── Local stacking (within scoped containers) ──────── */
   --cm-z-local-base: 0;
@@ -120,6 +121,16 @@
   --cm-leading-snug: 1.4;
   --cm-leading-normal: 1.5;
   --cm-leading-relaxed: 1.6;
+
+  /* ── Overlay (forced-dark backgrounds, theme-invariant) ── */
+  --cm-overlay-bg-heavy: rgba(0, 0, 0, 0.9);
+  --cm-overlay-bg: rgba(0, 0, 0, 0.85);
+  --cm-overlay-bg-medium: rgba(0, 0, 0, 0.7);
+  --cm-overlay-bg-light: rgba(0, 0, 0, 0.5);
+  --cm-overlay-bg-hover: rgba(0, 0, 0, 0.8);
+  --cm-overlay-text: #fff;
+  --cm-overlay-btn-size: 36px;
+  --cm-hover-dim: 0.85;
 
   /* ── Filters ────────────────────────────────────────── */
   --cm-blur-base: 4px;

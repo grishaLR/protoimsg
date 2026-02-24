@@ -25,6 +25,8 @@ interface UseComposeResult {
   setGifAlt: (alt: string) => void;
   replyTo: AppBskyFeedDefs.PostView | null;
   setReplyTo: (post: AppBskyFeedDefs.PostView | null) => void;
+  quoteTo: AppBskyFeedDefs.PostView | null;
+  setQuoteTo: (post: AppBskyFeedDefs.PostView | null) => void;
   posting: boolean;
   error: string | null;
   graphemeCount: number;
@@ -50,11 +52,12 @@ export function useCompose(onSuccess?: () => void): UseComposeResult {
   const [gif, setGif] = useState<GifResult | null>(null);
   const [gifAlt, setGifAlt] = useState('');
   const [replyTo, setReplyTo] = useState<AppBskyFeedDefs.PostView | null>(null);
+  const [quoteTo, setQuoteTo] = useState<AppBskyFeedDefs.PostView | null>(null);
   const [posting, setPosting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const graphemeCount = useMemo(() => countGraphemes(text), [text]);
-  const hasContent = graphemeCount > 0 || images.length > 0 || gif !== null;
+  const hasContent = graphemeCount > 0 || images.length > 0 || gif !== null || quoteTo !== null;
   const canPost = hasContent && graphemeCount <= MAX_GRAPHEMES && !posting;
 
   const addImage = useCallback((file: File) => {
@@ -85,6 +88,7 @@ export function useCompose(onSuccess?: () => void): UseComposeResult {
     setGif(null);
     setGifAlt('');
     setReplyTo(null);
+    setQuoteTo(null);
     setError(null);
   }, []);
 
@@ -140,6 +144,29 @@ export function useCompose(onSuccess?: () => void): UseComposeResult {
         };
       }
 
+      // Wrap embed in quote record if quoting a post
+      if (quoteTo) {
+        const quoteRef = {
+          $type: 'com.atproto.repo.strongRef',
+          uri: quoteTo.uri,
+          cid: quoteTo.cid,
+        };
+        if (embed) {
+          // Has media + quote → recordWithMedia
+          embed = {
+            $type: 'app.bsky.embed.recordWithMedia',
+            record: { $type: 'app.bsky.embed.record', record: quoteRef },
+            media: embed,
+          };
+        } else {
+          // Quote only, no media
+          embed = {
+            $type: 'app.bsky.embed.record',
+            record: quoteRef,
+          };
+        }
+      }
+
       // Build reply ref
       let replyRef: Record<string, unknown> | undefined;
       if (replyTo) {
@@ -178,7 +205,7 @@ export function useCompose(onSuccess?: () => void): UseComposeResult {
     } finally {
       setPosting(false);
     }
-  }, [agent, canPost, text, images, imageAlts, gif, gifAlt, replyTo, clear, onSuccess]);
+  }, [agent, canPost, text, images, imageAlts, gif, gifAlt, replyTo, quoteTo, clear, onSuccess]);
 
   return {
     text,
@@ -194,6 +221,8 @@ export function useCompose(onSuccess?: () => void): UseComposeResult {
     setGifAlt,
     replyTo,
     setReplyTo,
+    quoteTo,
+    setQuoteTo,
     posting,
     error,
     graphemeCount,

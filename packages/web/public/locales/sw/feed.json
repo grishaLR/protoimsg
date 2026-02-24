@@ -9,7 +9,8 @@
     "posting": "Inachapisha...",
     "post": "Chapisha",
     "imageAltText": "Eleza picha hii...",
-    "gifAltText": "Eleza GIF hii..."
+    "gifAltText": "Eleza GIF hii...",
+    "quotingPost": "Kunukuu @{{handle}}"
   },
 
   "post": {
@@ -26,7 +27,32 @@
     "translate": "Tafsiri",
     "translatedTo": "Imetafsiriwa kwa {{lang}}",
     "showOriginal": "Onyesha asili",
-    "translating": "Inatafsiri..."
+    "translating": "Inatafsiri...",
+    "quoteDeleted": "Chapisho hili limefutwa",
+    "quoteBlocked": "Chapisho hili ni kutoka kwa akaunti iliyozuiwa",
+    "quoteDetached": "Nukuu hii imetenganishwa",
+    "repost": "Chapisha tena",
+    "quotePost": "Nukuu chapisho",
+    "copyLink": "Nakili kiungo",
+    "openInBluesky": "Fungua katika Bluesky",
+    "linkCopied": "Imenakiliwa!",
+    "moreActions": "Vitendo zaidi",
+    "lightboxClose": "Funga",
+    "lightboxPrev": "Picha iliyotangulia",
+    "lightboxNext": "Picha inayofuata",
+    "lightboxCounter": "{{current}} / {{total}}"
+  },
+
+  "video": {
+    "play": "Cheza video",
+    "pause": "Simamisha video",
+    "mute": "Nyamazisha",
+    "unmute": "Rejesha sauti",
+    "fullscreen": "Skrini kamili",
+    "retry": "Jaribu tena",
+    "scrubber": "Maendeleo ya video",
+    "altAvailable": "ALT",
+    "buffering": "Inapakia…"
   },
 
   "feedView": {

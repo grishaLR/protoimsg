@@ -9,7 +9,8 @@
     "posting": "게시 중...",
     "post": "게시",
     "imageAltText": "이미지를 설명해 주세요...",
-    "gifAltText": "GIF를 설명해 주세요..."
+    "gifAltText": "GIF를 설명해 주세요...",
+    "quotingPost": "@{{handle}} 인용"
   },
 
   "post": {
@@ -26,7 +27,32 @@
     "translate": "번역",
     "translatedTo": "{{lang}}(으)로 번역됨",
     "showOriginal": "원문 보기",
-    "translating": "번역 중..."
+    "translating": "번역 중...",
+    "quoteDeleted": "이 게시물은 삭제되었습니다",
+    "quoteBlocked": "이 게시물은 차단된 계정의 것입니다",
+    "quoteDetached": "이 인용이 분리되었습니다",
+    "repost": "리포스트",
+    "quotePost": "인용 게시",
+    "copyLink": "링크 복사",
+    "openInBluesky": "Bluesky에서 열기",
+    "linkCopied": "복사됨!",
+    "moreActions": "더 많은 작업",
+    "lightboxClose": "닫기",
+    "lightboxPrev": "이전 이미지",
+    "lightboxNext": "다음 이미지",
+    "lightboxCounter": "{{current}} / {{total}}"
+  },
+
+  "video": {
+    "play": "동영상 재생",
+    "pause": "동영상 일시정지",
+    "mute": "음소거",
+    "unmute": "음소거 해제",
+    "fullscreen": "전체 화면",
+    "retry": "다시 시도",
+    "scrubber": "동영상 진행률",
+    "altAvailable": "ALT",
+    "buffering": "버퍼링 중…"
   },
 
   "feedView": {

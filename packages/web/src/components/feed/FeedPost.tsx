@@ -1,4 +1,4 @@
-import { memo, useState } from 'react';
+import { memo, useState, useRef, useEffect, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import type {
   AppBskyFeedDefs,
@@ -8,12 +8,13 @@ import type {
   AppBskyEmbedRecordWithMedia,
   AppBskyEmbedVideo,
 } from '@atproto/api';
-import { MessageCircle, Repeat2, Heart } from 'lucide-react';
+import { MessageCircle, Repeat2, Heart, MoreHorizontal } from 'lucide-react';
 import { RichText, type GenericFacet } from '../chat/RichText';
 import { isSafeUrl } from '../../lib/sanitize';
 import { usePostInteractions } from '../../hooks/usePostInteractions';
 import { useContentTranslation } from '../../hooks/useContentTranslation';
 import { VideoPlayer } from './VideoPlayer';
+import { ImageLightbox } from './ImageLightbox';
 import styles from './FeedPost.module.css';
 
 interface FeedPostProps {
@@ -21,6 +22,7 @@ interface FeedPostProps {
   onNavigateToProfile?: (did: string) => void;
   onReply?: (post: AppBskyFeedDefs.PostView) => void;
   onOpenThread?: (post: AppBskyFeedDefs.PostView) => void;
+  onQuotePost?: (post: AppBskyFeedDefs.PostView) => void;
 }
 
 function RelativeTime({ dateStr }: { dateStr: string }) {
@@ -95,32 +97,51 @@ function MediaPills({ type, alt }: { type: string; alt?: string }) {
 }
 
 function ImageEmbed({ embed }: { embed: AppBskyEmbedImages.View }) {
+  const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
   const count = embed.images.length;
   const gridClass =
     count === 1 ? styles.imageGrid1 : count === 2 ? styles.imageGrid2 : styles.imageGrid4;
 
   return (
-    <div className={`${styles.imageGrid} ${gridClass}`}>
-      {embed.images.map((img, i) => (
-        <div key={i} className={styles.mediaContainer}>
-          {/* eslint-disable no-restricted-syntax -- img URLs validated by isSafeUrl() */}
-          {isSafeUrl(img.fullsize) ? (
-            <a href={img.fullsize} target="_blank" rel="noopener noreferrer">
+    <>
+      <div className={`${styles.imageGrid} ${gridClass}`}>
+        {embed.images.map((img, i) => (
+          <div key={i} className={styles.mediaContainer}>
+            <div
+              role="button"
+              tabIndex={0}
+              onClick={() => {
+                setLightboxIndex(i);
+              }}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault();
+                  setLightboxIndex(i);
+                }
+              }}
+            >
               <img
                 className={styles.embedImage}
+                // eslint-disable-next-line no-restricted-syntax -- thumb from ATProto image embed
                 src={img.thumb}
                 alt={img.alt || ''}
                 loading="lazy"
               />
-            </a>
-          ) : (
-            <img className={styles.embedImage} src={img.thumb} alt={img.alt || ''} loading="lazy" />
-          )}
-          {/* eslint-enable no-restricted-syntax */}
-          <MediaPills type="IMG" alt={img.alt || undefined} />
-        </div>
-      ))}
-    </div>
+            </div>
+            <MediaPills type="IMG" alt={img.alt || undefined} />
+          </div>
+        ))}
+      </div>
+      {lightboxIndex !== null && (
+        <ImageLightbox
+          images={embed.images}
+          initialIndex={lightboxIndex}
+          onClose={() => {
+            setLightboxIndex(null);
+          }}
+        />
+      )}
+    </>
   );
 }
 
@@ -239,17 +260,82 @@ function LinkCardEmbed({ embed }: { embed: AppBskyEmbedExternal.View }) {
   );
 }
 
-function QuoteEmbed({ embed }: { embed: AppBskyEmbedRecord.View }) {
+function QuoteEmbed({
+  embed,
+  onOpenThread,
+  onNavigateToProfile,
+}: {
+  embed: AppBskyEmbedRecord.View;
+  onOpenThread?: (post: AppBskyFeedDefs.PostView) => void;
+  onNavigateToProfile?: (did: string) => void;
+}) {
+  const { t } = useTranslation('feed');
   const record = embed.record;
+
+  // Error states for broken quotes
+  if (record.$type === 'app.bsky.embed.record#viewNotFound') {
+    return (
+      <div className={`${styles.quotePost} ${styles.quoteError}`}>{t('post.quoteDeleted')}</div>
+    );
+  }
+  if (record.$type === 'app.bsky.embed.record#viewBlocked') {
+    return (
+      <div className={`${styles.quotePost} ${styles.quoteError}`}>{t('post.quoteBlocked')}</div>
+    );
+  }
+  if (record.$type === 'app.bsky.embed.record#viewDetached') {
+    return (
+      <div className={`${styles.quotePost} ${styles.quoteError}`}>{t('post.quoteDetached')}</div>
+    );
+  }
+
   if (record.$type !== 'app.bsky.embed.record#viewRecord') return null;
 
   const viewRecord = record as AppBskyEmbedRecord.ViewRecord;
   const author = viewRecord.author;
   const value = viewRecord.value as Record<string, unknown>;
   const text = (value.text as string) || '';
+  const facets = value.facets as GenericFacet[] | undefined;
+
+  // Build a synthetic PostView so onOpenThread can navigate to the quoted post
+  const syntheticPost: AppBskyFeedDefs.PostView = {
+    uri: viewRecord.uri,
+    cid: viewRecord.cid,
+    author: viewRecord.author,
+    record: viewRecord.value,
+    indexedAt: viewRecord.indexedAt,
+    replyCount: viewRecord.replyCount ?? 0,
+    repostCount: viewRecord.repostCount ?? 0,
+    likeCount: viewRecord.likeCount ?? 0,
+    quoteCount: viewRecord.quoteCount ?? 0,
+    labels: viewRecord.labels ?? [],
+    $type: 'app.bsky.feed.defs#postView',
+  };
+
+  // Extract the quoted post's own embeds (images, video, links inside the quoted post)
+  const nestedEmbed = viewRecord.embeds?.[0] as
+    | AppBskyFeedDefs.FeedViewPost['post']['embed']
+    | undefined;
+
+  const handleClick = () => {
+    onOpenThread?.(syntheticPost);
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      handleClick();
+    }
+  };
 
   return (
-    <div className={styles.quotePost}>
+    <div
+      className={`${styles.quotePost} ${onOpenThread ? styles.quoteClickable : ''}`}
+      role={onOpenThread ? 'button' : undefined}
+      tabIndex={onOpenThread ? 0 : undefined}
+      onClick={onOpenThread ? handleClick : undefined}
+      onKeyDown={onOpenThread ? handleKeyDown : undefined}
+    >
       <div className={styles.quoteAuthor}>
         {author.avatar && isSafeUrl(author.avatar) && (
           // eslint-disable-next-line no-restricted-syntax -- validated by isSafeUrl() above
@@ -258,16 +344,45 @@ function QuoteEmbed({ embed }: { embed: AppBskyEmbedRecord.View }) {
         <span className={styles.quoteName}>{author.displayName || author.handle}</span>
         <span className={styles.quoteHandle}>@{author.handle}</span>
       </div>
-      {text && <div className={styles.quoteText}>{text}</div>}
+      {text && (
+        <div className={styles.quoteText}>
+          <RichText text={text} facets={facets} onMentionClick={onNavigateToProfile} />
+        </div>
+      )}
+      {nestedEmbed && (
+        <div
+          className={styles.quoteMedia}
+          onClick={(e) => {
+            e.stopPropagation();
+          }}
+        >
+          <PostEmbed embed={nestedEmbed} />
+        </div>
+      )}
     </div>
   );
 }
 
 function VideoEmbed({ embed }: { embed: AppBskyEmbedVideo.View }) {
-  return <VideoPlayer playlist={embed.playlist} thumbnail={embed.thumbnail} />;
+  return (
+    <VideoPlayer
+      playlist={embed.playlist}
+      thumbnail={embed.thumbnail}
+      aspectRatio={embed.aspectRatio}
+      alt={embed.alt}
+    />
+  );
 }
 
-function PostEmbed({ embed }: { embed: AppBskyFeedDefs.FeedViewPost['post']['embed'] }) {
+function PostEmbed({
+  embed,
+  onOpenThread,
+  onNavigateToProfile,
+}: {
+  embed: AppBskyFeedDefs.FeedViewPost['post']['embed'];
+  onOpenThread?: (post: AppBskyFeedDefs.PostView) => void;
+  onNavigateToProfile?: (did: string) => void;
+}) {
   if (!embed) return null;
 
   switch (embed.$type) {
@@ -276,13 +391,23 @@ function PostEmbed({ embed }: { embed: AppBskyFeedDefs.FeedViewPost['post']['emb
     case 'app.bsky.embed.external#view':
       return <LinkCardEmbed embed={embed as AppBskyEmbedExternal.View} />;
     case 'app.bsky.embed.record#view':
-      return <QuoteEmbed embed={embed as AppBskyEmbedRecord.View} />;
+      return (
+        <QuoteEmbed
+          embed={embed as AppBskyEmbedRecord.View}
+          onOpenThread={onOpenThread}
+          onNavigateToProfile={onNavigateToProfile}
+        />
+      );
     case 'app.bsky.embed.recordWithMedia#view': {
       const rwm = embed as AppBskyEmbedRecordWithMedia.View;
       return (
         <>
           <PostEmbed embed={rwm.media as AppBskyFeedDefs.FeedViewPost['post']['embed']} />
-          <QuoteEmbed embed={rwm.record} />
+          <QuoteEmbed
+            embed={rwm.record}
+            onOpenThread={onOpenThread}
+            onNavigateToProfile={onNavigateToProfile}
+          />
         </>
       );
     }
@@ -293,11 +418,42 @@ function PostEmbed({ embed }: { embed: AppBskyFeedDefs.FeedViewPost['post']['emb
   }
 }
 
+/** Extract rkey from an at:// URI */
+function extractRkeyFromUri(uri: string): string {
+  return uri.split('/').pop() ?? '';
+}
+
+function useDropdown() {
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!open) return;
+    const handleClick = (e: MouseEvent) => {
+      if (ref.current && !ref.current.contains(e.target as Node)) {
+        setOpen(false);
+      }
+    };
+    const handleKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setOpen(false);
+    };
+    document.addEventListener('mousedown', handleClick);
+    document.addEventListener('keydown', handleKey);
+    return () => {
+      document.removeEventListener('mousedown', handleClick);
+      document.removeEventListener('keydown', handleKey);
+    };
+  }, [open]);
+
+  return { open, setOpen, ref };
+}
+
 export const FeedPost = memo(function FeedPost({
   item,
   onNavigateToProfile,
   onReply,
   onOpenThread,
+  onQuotePost,
 }: FeedPostProps) {
   const { t } = useTranslation('feed');
   const { post, reason, reply } = item;
@@ -324,13 +480,44 @@ export const FeedPost = memo(function FeedPost({
   const translatedText = text ? getTranslation(text) : undefined;
   const translating = text ? isTranslating(text) : false;
 
-  const goToProfile = (did: string) => {
-    onNavigateToProfile?.(did);
-  };
+  // Repost dropdown
+  const repostDropdown = useDropdown();
 
-  const handleBodyClick = () => {
+  // More menu dropdown
+  const moreDropdown = useDropdown();
+  const [linkCopied, setLinkCopied] = useState(false);
+  const linkCopiedTimerRef = useRef<ReturnType<typeof setTimeout>>(undefined);
+
+  useEffect(() => {
+    return () => {
+      clearTimeout(linkCopiedTimerRef.current);
+    };
+  }, []);
+
+  const postUrl = `https://bsky.app/profile/${post.author.handle}/post/${extractRkeyFromUri(post.uri)}`;
+
+  const { setOpen: setMoreOpen } = moreDropdown;
+  const handleCopyLink = useCallback(() => {
+    void navigator.clipboard.writeText(postUrl).then(() => {
+      setLinkCopied(true);
+      clearTimeout(linkCopiedTimerRef.current);
+      linkCopiedTimerRef.current = setTimeout(() => {
+        setLinkCopied(false);
+      }, 2000);
+    });
+    setMoreOpen(false);
+  }, [postUrl, setMoreOpen]);
+
+  const goToProfile = useCallback(
+    (did: string) => {
+      onNavigateToProfile?.(did);
+    },
+    [onNavigateToProfile],
+  );
+
+  const handleBodyClick = useCallback(() => {
     onOpenThread?.(post);
-  };
+  }, [onOpenThread, post]);
 
   return (
     <div className={styles.post}>
@@ -484,7 +671,11 @@ export const FeedPost = memo(function FeedPost({
         </div>
       )}
 
-      <PostEmbed embed={post.embed} />
+      <PostEmbed
+        embed={post.embed}
+        onOpenThread={onOpenThread}
+        onNavigateToProfile={onNavigateToProfile}
+      />
 
       <div className={styles.engagement}>
         <button
@@ -496,13 +687,46 @@ export const FeedPost = memo(function FeedPost({
         >
           <MessageCircle size={14} /> {replyCount}
         </button>
-        <button
-          className={`${styles.engagementButton} ${isReposted ? styles.repostActive : ''}`}
-          onClick={toggleRepost}
-          type="button"
-        >
-          <Repeat2 size={14} /> {repostCount}
-        </button>
+
+        {/* Repost dropdown: Repost / Quote Post */}
+        <div className={styles.dropdownWrap} ref={repostDropdown.ref}>
+          <button
+            className={`${styles.engagementButton} ${isReposted ? styles.repostActive : ''}`}
+            onClick={() => {
+              repostDropdown.setOpen((v) => !v);
+            }}
+            type="button"
+          >
+            <Repeat2 size={14} /> {repostCount}
+          </button>
+          {repostDropdown.open && (
+            <div className={styles.dropdown}>
+              <button
+                className={styles.dropdownItem}
+                onClick={() => {
+                  toggleRepost();
+                  repostDropdown.setOpen(false);
+                }}
+                type="button"
+              >
+                <Repeat2 size={14} />
+                {t('post.repost')}
+              </button>
+              <button
+                className={styles.dropdownItem}
+                onClick={() => {
+                  onQuotePost?.(post);
+                  repostDropdown.setOpen(false);
+                }}
+                type="button"
+              >
+                <MessageCircle size={14} />
+                {t('post.quotePost')}
+              </button>
+            </div>
+          )}
+        </div>
+
         <button
           className={`${styles.engagementButton} ${isLiked ? styles.likeActive : ''}`}
           onClick={toggleLike}
@@ -510,6 +734,7 @@ export const FeedPost = memo(function FeedPost({
         >
           <Heart size={14} fill={isLiked ? 'currentColor' : 'none'} /> {likeCount}
         </button>
+
         {translateAvailable && text && (
           <button
             className={styles.engagementButton}
@@ -527,6 +752,39 @@ export const FeedPost = memo(function FeedPost({
             {translating ? t('post.translating') : t('post.translate')}
           </button>
         )}
+
+        {/* More menu: Copy link, Open in Bluesky */}
+        <div className={styles.dropdownWrap} ref={moreDropdown.ref}>
+          <button
+            className={styles.engagementButton}
+            onClick={() => {
+              moreDropdown.setOpen((v) => !v);
+            }}
+            type="button"
+            aria-label={t('post.moreActions')}
+          >
+            <MoreHorizontal size={14} />
+          </button>
+          {moreDropdown.open && (
+            <div className={styles.dropdown}>
+              <button className={styles.dropdownItem} onClick={handleCopyLink} type="button">
+                {linkCopied ? t('post.linkCopied') : t('post.copyLink')}
+              </button>
+              <a
+                className={styles.dropdownItem}
+                // eslint-disable-next-line no-restricted-syntax -- postUrl constructed from safe handle + rkey
+                href={postUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={() => {
+                  moreDropdown.setOpen(false);
+                }}
+              >
+                {t('post.openInBluesky')}
+              </a>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );

@@ -11,29 +11,35 @@ import { VideoCallOverlay } from './components/videocall/VideoCallOverlay';
 import { MentionToastContainer } from './components/mentions/MentionToastContainer';
 import { BlockProvider } from './contexts/BlockContext';
 import { ConnectionBanner } from './components/ConnectionBanner';
+import { ActiveVideoProvider } from './contexts/ActiveVideoContext';
+import { VideoVolumeProvider } from './contexts/VideoVolumeContext';
 
 /** Wraps authenticated content with providers that require auth */
 export function AuthenticatedApp({ children }: { children: ReactNode }) {
   return (
     <ModerationProvider>
       <ProfileProvider>
-        <TranslationProvider>
-          <WebSocketProvider>
-            <ConnectionBanner />
-            <BlockProvider>
-              <DmProvider>
-                <VideoCallProvider>
-                  <MentionNotificationProvider>
-                    {children}
-                    <DmPopoverContainer />
-                    <VideoCallOverlay />
-                    <MentionToastContainer />
-                  </MentionNotificationProvider>
-                </VideoCallProvider>
-              </DmProvider>
-            </BlockProvider>
-          </WebSocketProvider>
-        </TranslationProvider>
+        <ActiveVideoProvider>
+          <VideoVolumeProvider>
+            <TranslationProvider>
+              <WebSocketProvider>
+                <ConnectionBanner />
+                <BlockProvider>
+                  <DmProvider>
+                    <VideoCallProvider>
+                      <MentionNotificationProvider>
+                        {children}
+                        <DmPopoverContainer />
+                        <VideoCallOverlay />
+                        <MentionToastContainer />
+                      </MentionNotificationProvider>
+                    </VideoCallProvider>
+                  </DmProvider>
+                </BlockProvider>
+              </WebSocketProvider>
+            </TranslationProvider>
+          </VideoVolumeProvider>
+        </ActiveVideoProvider>
       </ProfileProvider>
     </ModerationProvider>
   );

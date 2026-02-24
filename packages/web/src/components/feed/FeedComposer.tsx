@@ -8,11 +8,19 @@ import styles from './FeedComposer.module.css';
 
 interface FeedComposerProps {
   replyTo: AppBskyFeedDefs.PostView | null;
+  quoteTo?: AppBskyFeedDefs.PostView | null;
   onClearReply?: () => void;
+  onClearQuote?: () => void;
   onPostSuccess?: () => void;
 }
 
-export function FeedComposer({ replyTo, onClearReply, onPostSuccess }: FeedComposerProps) {
+export function FeedComposer({
+  replyTo,
+  quoteTo: externalQuoteTo,
+  onClearReply,
+  onClearQuote,
+  onPostSuccess,
+}: FeedComposerProps) {
   const { t } = useTranslation('feed');
   const [expanded, setExpanded] = useState(false);
   const [showGifModal, setShowGifModal] = useState(false);
@@ -32,6 +40,8 @@ export function FeedComposer({ replyTo, onClearReply, onPostSuccess }: FeedCompo
     gifAlt,
     setGifAlt,
     setReplyTo,
+    quoteTo,
+    setQuoteTo,
     posting,
     error,
     graphemeCount,
@@ -58,10 +68,23 @@ export function FeedComposer({ replyTo, onClearReply, onPostSuccess }: FeedCompo
     }
   }, [replyTo, setReplyTo]);
 
+  // Sync external quoteTo into compose state
+  useEffect(() => {
+    if (externalQuoteTo) {
+      setQuoteTo(externalQuoteTo);
+      setExpanded(true);
+    }
+  }, [externalQuoteTo, setQuoteTo]);
+
   const handleClearReply = useCallback(() => {
     setReplyTo(null);
     onClearReply?.();
   }, [setReplyTo, onClearReply]);
+
+  const handleClearQuote = useCallback(() => {
+    setQuoteTo(null);
+    onClearQuote?.();
+  }, [setQuoteTo, onClearQuote]);
 
   const handleSubmit = useCallback(async () => {
     await submit();
@@ -104,6 +127,15 @@ export function FeedComposer({ replyTo, onClearReply, onPostSuccess }: FeedCompo
         <div className={styles.replyContext}>
           <span>{t('composer.replyingTo', { handle: replyTo.author.handle })}</span>
           <button className={styles.clearReply} onClick={handleClearReply} type="button">
+            &times;
+          </button>
+        </div>
+      )}
+
+      {quoteTo && (
+        <div className={styles.replyContext}>
+          <span>{t('composer.quotingPost', { handle: quoteTo.author.handle })}</span>
+          <button className={styles.clearReply} onClick={handleClearQuote} type="button">
             &times;
           </button>
         </div>
@@ -221,6 +253,7 @@ export function FeedComposer({ replyTo, onClearReply, onPostSuccess }: FeedCompo
               clear();
               setExpanded(false);
               onClearReply?.();
+              onClearQuote?.();
             }}
             type="button"
           >

@@ -9,7 +9,8 @@
     "posting": "पोस्ट हो रहा है...",
     "post": "पोस्ट करें",
     "imageAltText": "इस छवि का वर्णन करें...",
-    "gifAltText": "इस GIF का वर्णन करें..."
+    "gifAltText": "इस GIF का वर्णन करें...",
+    "quotingPost": "@{{handle}} को उद्धृत कर रहे हैं"
   },
 
   "post": {
@@ -26,7 +27,32 @@
     "translate": "अनुवाद करें",
     "translatedTo": "{{lang}} में अनुवादित",
     "showOriginal": "मूल दिखाएँ",
-    "translating": "अनुवाद हो रहा है..."
+    "translating": "अनुवाद हो रहा है...",
+    "quoteDeleted": "यह पोस्ट हटा दी गई है",
+    "quoteBlocked": "यह पोस्ट एक अवरुद्ध खाते से है",
+    "quoteDetached": "यह उद्धरण अलग कर दिया गया है",
+    "repost": "रीपोस्ट",
+    "quotePost": "उद्धरण पोस्ट",
+    "copyLink": "लिंक कॉपी करें",
+    "openInBluesky": "Bluesky में खोलें",
+    "linkCopied": "कॉपी किया गया!",
+    "moreActions": "और कार्य",
+    "lightboxClose": "बंद करें",
+    "lightboxPrev": "पिछली छवि",
+    "lightboxNext": "अगली छवि",
+    "lightboxCounter": "{{current}} / {{total}}"
+  },
+
+  "video": {
+    "play": "वीडियो चलाएँ",
+    "pause": "वीडियो रोकें",
+    "mute": "म्यूट करें",
+    "unmute": "अनम्यूट करें",
+    "fullscreen": "पूर्ण स्क्रीन",
+    "retry": "पुनः प्रयास करें",
+    "scrubber": "वीडियो प्रगति",
+    "altAvailable": "ALT",
+    "buffering": "बफ़रिंग…"
   },
 
   "feedView": {
