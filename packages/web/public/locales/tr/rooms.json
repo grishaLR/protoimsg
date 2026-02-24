@@ -20,6 +20,9 @@
       "unlisted": "Listelenmemiş",
       "private": "Gizli"
     },
+    "categoryLabel": "Kategori",
+    "categoryPlaceholder": "ör., müzik, teknoloji, oyunlar",
+    "categoryCreate": "Oluştur: {{value}}",
     "error": {
       "default": "Oda oluşturulamadı"
     },
@@ -43,7 +46,8 @@
   "directory": {
     "searchPlaceholder": "Oda ara...",
     "createButton": "Oda Oluştur",
-    "loading": "Odalar yükleniyor..."
+    "loading": "Odalar yükleniyor...",
+    "allCategories": "Tümü"
   },
 
   "chatRoom": {

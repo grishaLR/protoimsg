@@ -131,6 +131,7 @@ export function createHandlers(
         topic: record.topic,
         description: record.description,
         purpose: record.purpose,
+        category: record.category?.toLowerCase().trim() || undefined,
         visibility: record.settings?.visibility ?? 'public',
         minAccountAgeDays: record.settings?.minAccountAgeDays ?? 0,
         slowModeSeconds: record.settings?.slowModeSeconds ?? 0,

@@ -20,6 +20,9 @@
       "unlisted": "非公開リスト",
       "private": "プライベート"
     },
+    "categoryLabel": "カテゴリ",
+    "categoryPlaceholder": "例: 音楽、テクノロジー、ゲーム",
+    "categoryCreate": "作成: {{value}}",
     "error": {
       "default": "ルームの作成に失敗しました"
     },
@@ -43,7 +46,8 @@
   "directory": {
     "searchPlaceholder": "ルームを検索...",
     "createButton": "ルームを作成",
-    "loading": "ルームを読み込み中..."
+    "loading": "ルームを読み込み中...",
+    "allCategories": "すべて"
   },
 
   "chatRoom": {

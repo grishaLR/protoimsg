@@ -1,8 +1,9 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { RoomList } from '../components/rooms/RoomList';
 import { CreateRoomModal } from '../components/rooms/CreateRoomModal';
 import { WindowControls } from '../components/layout/WindowControls';
 import { useRooms } from '../hooks/useRooms';
+import { fetchCategories } from '../lib/api';
 import styles from './RoomDirectoryWindowPage.module.css';
 
 /**
@@ -13,6 +14,19 @@ export function RoomDirectoryWindowPage() {
   const { rooms, loading, error, refresh } = useRooms();
   const [search, setSearch] = useState('');
   const [showCreate, setShowCreate] = useState(false);
+  const [categories, setCategories] = useState<string[]>([]);
+
+  useEffect(() => {
+    const ac = new AbortController();
+    void fetchCategories({ signal: ac.signal })
+      .then((cats) => {
+        if (!ac.signal.aborted) setCategories(cats);
+      })
+      .catch(() => {});
+    return () => {
+      ac.abort();
+    };
+  }, []);
 
   const filtered = search
     ? rooms.filter((r) => r.name.toLowerCase().includes(search.toLowerCase()))
@@ -53,12 +67,16 @@ export function RoomDirectoryWindowPage() {
       </div>
       {showCreate && (
         <CreateRoomModal
+          categories={categories}
           onClose={() => {
             setShowCreate(false);
           }}
           onCreated={() => {
             setShowCreate(false);
             void refresh();
+            void fetchCategories()
+              .then(setCategories)
+              .catch(() => {});
           }}
         />
       )}

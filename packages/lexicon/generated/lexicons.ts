@@ -675,6 +675,12 @@ export const schemaDict = {
               format: 'datetime',
               description: 'Timestamp of room creation.',
             },
+            category: {
+              type: 'string',
+              maxLength: 50,
+              description:
+                'Broad category for room discovery (e.g., music, tech, gaming). Lowercased.',
+            },
             settings: {
               type: 'ref',
               ref: 'lex:app.protoimsg.chat.room#roomSettings',

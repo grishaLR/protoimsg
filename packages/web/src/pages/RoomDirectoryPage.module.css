@@ -71,6 +71,48 @@
   box-shadow: var(--cm-pressed);
 }
 
+.categoryFilters {
+  display: flex;
+  gap: var(--cm-space-2);
+  overflow-x: auto;
+  margin-bottom: var(--cm-space-4);
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.categoryFilters::-webkit-scrollbar {
+  display: none;
+}
+
+.categoryPill {
+  padding: var(--cm-space-2) var(--cm-space-4);
+  background: var(--color-base-200);
+  color: var(--color-base-content);
+  border: none;
+  border-radius: var(--cm-radius-pill);
+  cursor: pointer;
+  font-size: var(--cm-text-sm);
+  white-space: nowrap;
+  box-shadow: var(--cm-raised);
+}
+
+.categoryPill:hover {
+  background: var(--cm-button-hover);
+}
+
+.categoryPill:active {
+  box-shadow: var(--cm-pressed);
+}
+
+.categoryPillActive {
+  background: var(--color-primary);
+  color: var(--color-primary-content);
+}
+
+.categoryPillActive:hover {
+  background: var(--color-primary);
+}
+
 .error {
   color: var(--color-error);
   margin-bottom: var(--cm-space-8);

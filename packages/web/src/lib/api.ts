@@ -215,12 +215,14 @@ async function authFetch(url: string, init?: RequestInit): Promise<Response> {
 
 export async function fetchRooms(opts?: {
   visibility?: string;
+  category?: string;
   limit?: number;
   offset?: number;
   signal?: AbortSignal;
 }): Promise<RoomView[]> {
   const params = new URLSearchParams();
   if (opts?.visibility) params.set('visibility', opts.visibility);
+  if (opts?.category) params.set('category', opts.category);
   if (opts?.limit) params.set('limit', String(opts.limit));
   if (opts?.offset) params.set('offset', String(opts.offset));
 
@@ -230,6 +232,14 @@ export async function fetchRooms(opts?: {
 
   const data = (await res.json()) as { rooms: RoomView[] };
   return data.rooms;
+}
+
+export async function fetchCategories(opts?: { signal?: AbortSignal }): Promise<string[]> {
+  const res = await authFetch('/api/rooms/categories', { signal: opts?.signal });
+  if (!res.ok) throw new Error(`Failed to fetch categories: ${res.status}`);
+
+  const data = (await res.json()) as { categories: string[] };
+  return data.categories;
 }
 
 export async function fetchRoom(id: string, opts?: { signal?: AbortSignal }): Promise<RoomView> {

@@ -20,6 +20,9 @@
       "unlisted": "Nicht gelistet",
       "private": "Privat"
     },
+    "categoryLabel": "Kategorie",
+    "categoryPlaceholder": "z.B. Musik, Technik, Gaming",
+    "categoryCreate": "Erstellen: {{value}}",
     "error": {
       "default": "Raum konnte nicht erstellt werden"
     },
@@ -43,7 +46,8 @@
   "directory": {
     "searchPlaceholder": "Räume suchen...",
     "createButton": "Raum erstellen",
-    "loading": "Räume werden geladen..."
+    "loading": "Räume werden geladen...",
+    "allCategories": "Alle"
   },
 
   "chatRoom": {

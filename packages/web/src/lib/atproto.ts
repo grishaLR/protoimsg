@@ -42,6 +42,7 @@ export interface CreateRoomInput {
   description?: string;
   topic: string;
   purpose: RoomPurpose;
+  category?: string;
   visibility: RoomVisibility;
 }
 
@@ -64,9 +65,10 @@ export async function createRoomRecord(
     record: {
       $type: NSID.Room,
       name: input.name,
-      description: input.description,
+      ...(input.description ? { description: input.description } : {}),
       topic: input.topic,
       purpose: input.purpose,
+      ...(input.category ? { category: input.category.toLowerCase().trim() } : {}),
       createdAt: new Date().toISOString(),
       settings: {
         visibility: input.visibility,

@@ -20,6 +20,9 @@
       "unlisted": "असूचीबद्ध",
       "private": "निजी"
     },
+    "categoryLabel": "श्रेणी",
+    "categoryPlaceholder": "उदा., संगीत, तकनीक, गेमिंग",
+    "categoryCreate": "बनाएँ: {{value}}",
     "error": {
       "default": "रूम बनाने में विफल"
     },
@@ -43,7 +46,8 @@
   "directory": {
     "searchPlaceholder": "रूम खोजें...",
     "createButton": "रूम बनाएँ",
-    "loading": "रूम लोड हो रहे हैं..."
+    "loading": "रूम लोड हो रहे हैं...",
+    "allCategories": "सभी"
   },
 
   "chatRoom": {

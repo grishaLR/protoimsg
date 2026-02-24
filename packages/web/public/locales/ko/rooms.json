@@ -20,6 +20,9 @@
       "unlisted": "비공개 목록",
       "private": "비공개"
     },
+    "categoryLabel": "카테고리",
+    "categoryPlaceholder": "예: 음악, 기술, 게임",
+    "categoryCreate": "만들기: {{value}}",
     "error": {
       "default": "채팅방 생성에 실패했습니다"
     },
@@ -43,7 +46,8 @@
   "directory": {
     "searchPlaceholder": "채팅방 검색...",
     "createButton": "채팅방 만들기",
-    "loading": "채팅방 불러오는 중..."
+    "loading": "채팅방 불러오는 중...",
+    "allCategories": "전체"
   },
 
   "chatRoom": {

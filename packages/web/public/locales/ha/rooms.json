@@ -20,6 +20,9 @@
       "unlisted": "Ba a jera ba",
       "private": "Mai zaman kansa"
     },
+    "categoryLabel": "Rukunin",
+    "categoryPlaceholder": "misali, ki\u0257a, fasaha, wasanni",
+    "categoryCreate": "\u0136ir\u0137ira: {{value}}",
     "error": {
       "default": "Ba a sami damar \u0137ir\u0137irar \u0257aki ba"
     },
@@ -43,7 +46,8 @@
   "directory": {
     "searchPlaceholder": "Nemo \u0257akuna...",
     "createButton": "\u0136ir\u0137iri \u0110aki",
-    "loading": "Ana loda \u0257akuna..."
+    "loading": "Ana loda \u0257akuna...",
+    "allCategories": "Duka"
   },
 
   "chatRoom": {

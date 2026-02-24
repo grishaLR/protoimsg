@@ -20,6 +20,9 @@
       "unlisted": "Непублічна",
       "private": "Приватна"
     },
+    "categoryLabel": "Категорія",
+    "categoryPlaceholder": "напр., музика, технології, ігри",
+    "categoryCreate": "Створити: {{value}}",
     "error": {
       "default": "Не вдалося створити кімнату"
     },
@@ -43,7 +46,8 @@
   "directory": {
     "searchPlaceholder": "Пошук кімнат...",
     "createButton": "Створити кімнату",
-    "loading": "Завантаження кімнат..."
+    "loading": "Завантаження кімнат...",
+    "allCategories": "Усі"
   },
 
   "chatRoom": {

@@ -33,6 +33,8 @@ export const LIMITS = {
   maxRoomTopicLength: 200,
   /** Maximum room description length */
   maxRoomDescriptionLength: 500,
+  /** Maximum room category length */
+  maxRoomCategoryLength: 50,
   /** Maximum away message length */
   maxAwayMessageLength: 300,
   /** Maximum channel name length */

@@ -20,6 +20,9 @@
       "unlisted": "Không liệt kê",
       "private": "Riêng tư"
     },
+    "categoryLabel": "Danh mục",
+    "categoryPlaceholder": "vd., âm nhạc, công nghệ, trò chơi",
+    "categoryCreate": "Tạo: {{value}}",
     "error": {
       "default": "Tạo phòng thất bại"
     },
@@ -43,7 +46,8 @@
   "directory": {
     "searchPlaceholder": "Tìm phòng...",
     "createButton": "Tạo phòng",
-    "loading": "Đang tải danh sách phòng..."
+    "loading": "Đang tải danh sách phòng...",
+    "allCategories": "Tất cả"
   },
 
   "chatRoom": {

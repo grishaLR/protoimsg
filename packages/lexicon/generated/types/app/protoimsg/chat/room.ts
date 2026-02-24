@@ -17,6 +17,8 @@ export interface Record {
   purpose: 'discussion' | 'event' | 'community' | 'support' | (string & {});
   /** Timestamp of room creation. */
   createdAt: string;
+  /** Broad category for room discovery (e.g., music, tech, gaming). Lowercased. */
+  category?: string;
   settings?: RoomSettings;
   [k: string]: unknown;
 }

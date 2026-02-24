@@ -20,6 +20,9 @@
       "unlisted": "N\u00e3o listada",
       "private": "Privada"
     },
+    "categoryLabel": "Categoria",
+    "categoryPlaceholder": "ex., música, tecnologia, jogos",
+    "categoryCreate": "Criar: {{value}}",
     "error": {
       "default": "Falha ao criar sala"
     },
@@ -43,7 +46,8 @@
   "directory": {
     "searchPlaceholder": "Buscar salas...",
     "createButton": "Criar sala",
-    "loading": "Carregando salas..."
+    "loading": "Carregando salas...",
+    "allCategories": "Todas"
   },
 
   "chatRoom": {

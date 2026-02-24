@@ -12,6 +12,7 @@ import { FeedView } from '../components/feed/FeedView';
 import { ProfileView } from '../components/feed/ProfileView';
 import { ThreadView } from '../components/feed/ThreadView';
 import { SettingsView } from '../components/settings/SettingsView';
+import { fetchCategories } from '../lib/api';
 import { useRooms } from '../hooks/useRooms';
 import { useBuddyList } from '../hooks/useBuddyList';
 import { useFollowGraph } from '../hooks/useFollowGraph';
@@ -79,6 +80,8 @@ export function RoomDirectoryPage() {
   const { blockedDids, toggleBlock } = useBlocks();
   const isMobile = useIsMobile();
   const [search, setSearch] = useState('');
+  const [categories, setCategories] = useState<string[]>([]);
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [showCreate, setShowCreate] = useState(false);
   const locState = location.state as { tab?: View } | null;
   const [view, setView] = useState<View>(() => {
@@ -90,6 +93,18 @@ export function RoomDirectoryPage() {
   useEffect(() => {
     if (locState?.tab) setView(locState.tab);
   }, [locState?.tab]);
+
+  useEffect(() => {
+    const ac = new AbortController();
+    void fetchCategories({ signal: ac.signal })
+      .then((cats) => {
+        if (!ac.signal.aborted) setCategories(cats);
+      })
+      .catch(() => {});
+    return () => {
+      ac.abort();
+    };
+  }, []);
   const [replyTo, setReplyTo] = useState<AppBskyFeedDefs.PostView | null>(null);
   const [quoteTo, setQuoteTo] = useState<AppBskyFeedDefs.PostView | null>(null);
 
@@ -182,9 +197,17 @@ export function RoomDirectoryPage() {
     setView('settings');
   }, [view]);
 
-  const filtered = search
-    ? rooms.filter((r) => r.name.toLowerCase().includes(search.toLowerCase()))
-    : rooms;
+  const filtered = useMemo(() => {
+    let result = rooms;
+    if (selectedCategory) {
+      result = result.filter((r) => r.category === selectedCategory);
+    }
+    if (search) {
+      const q = search.toLowerCase();
+      result = result.filter((r) => r.name.toLowerCase().includes(q));
+    }
+    return result;
+  }, [rooms, selectedCategory, search]);
 
   const openTauriRoomDirectory = () => {
     void import('../lib/tauri-windows').then(({ openRoomDirectoryWindow }) => {
@@ -303,6 +326,29 @@ export function RoomDirectoryPage() {
                   {t('directory.createButton')}
                 </button>
               </div>
+              {categories.length > 0 && (
+                <div className={styles.categoryFilters}>
+                  <button
+                    className={`${styles.categoryPill} ${selectedCategory === null ? styles.categoryPillActive : ''}`}
+                    onClick={() => {
+                      setSelectedCategory(null);
+                    }}
+                  >
+                    {t('directory.allCategories')}
+                  </button>
+                  {categories.map((cat) => (
+                    <button
+                      key={cat}
+                      className={`${styles.categoryPill} ${selectedCategory === cat ? styles.categoryPillActive : ''}`}
+                      onClick={() => {
+                        setSelectedCategory(cat);
+                      }}
+                    >
+                      {cat}
+                    </button>
+                  ))}
+                </div>
+              )}
               {error && <p className={styles.error}>{error}</p>}
               {loading ? (
                 <div className={styles.loadingBody}>
@@ -360,12 +406,16 @@ export function RoomDirectoryPage() {
       {isMobile && <MobileTabBar activeTab={mobileTab} onTabChange={handleMobileTabChange} />}
       {showCreate && (
         <CreateRoomModal
+          categories={categories}
           onClose={() => {
             setShowCreate(false);
           }}
           onCreated={() => {
             setShowCreate(false);
             void refresh();
+            void fetchCategories()
+              .then(setCategories)
+              .catch(() => {});
           }}
         />
       )}

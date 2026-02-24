@@ -1,12 +1,13 @@
 import { Router } from 'express';
 import { z } from 'zod';
 import { LIMITS, ERROR_CODES } from '@protoimsg/shared';
-import { getRooms, getRoom } from './service.js';
+import { getRooms, getRoom, getCategories } from './service.js';
 import type { Sql } from '../db/client.js';
 
 const visibilitySchema = z.enum(['public', 'unlisted']);
 const roomListQuerySchema = z.object({
   visibility: visibilitySchema.optional().default('public'),
+  category: z.string().max(50).optional(),
   limit: z.coerce
     .number()
     .min(1)
@@ -19,11 +20,22 @@ const roomListQuerySchema = z.object({
 export function roomsRouter(sql: Sql): Router {
   const router = Router();
 
+  // GET /api/rooms/categories — list distinct room categories
+  router.get('/categories', async (_req, res, next) => {
+    try {
+      const categories = await getCategories(sql);
+      res.json({ categories });
+    } catch (err) {
+      next(err);
+    }
+  });
+
   // GET /api/rooms — list public/unlisted rooms (private rooms never exposed)
   router.get('/', async (req, res, next) => {
     try {
       const parsed = roomListQuerySchema.safeParse({
         visibility: req.query.visibility,
+        category: req.query.category,
         limit: req.query.limit,
         offset: req.query.offset,
       });
@@ -35,9 +47,10 @@ export function roomsRouter(sql: Sql): Router {
         });
         return;
       }
-      const { visibility, limit, offset } = parsed.data;
+      const { visibility, category, limit, offset } = parsed.data;
       const rooms = await getRooms(sql, {
         visibility,
+        category,
         limit,
         offset,
       });
