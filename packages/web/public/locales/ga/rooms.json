@@ -20,6 +20,9 @@
       "unlisted": "Gan Liostú",
       "private": "Príobháideach"
     },
+    "categoryLabel": "Catagóir",
+    "categoryPlaceholder": "m.sh., ceol, teicneolaíocht, cluichí",
+    "categoryCreate": "Cruthaigh: {{value}}",
     "error": {
       "default": "Theip ar chruthú an tseomra"
     },
@@ -43,7 +46,8 @@
   "directory": {
     "searchPlaceholder": "Cuardaigh seomraí...",
     "createButton": "Cruthaigh Seomra",
-    "loading": "Ag lódáil seomraí..."
+    "loading": "Ag lódáil seomraí...",
+    "allCategories": "Gach"
   },
 
   "chatRoom": {

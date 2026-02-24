@@ -39,6 +39,14 @@
   color: var(--color-base-content);
 }
 
+.categoryBadge {
+  font-size: var(--cm-text-sm);
+  padding: var(--cm-space-0.5) var(--cm-space-2);
+  background: var(--color-primary);
+  color: var(--color-primary-content);
+  border-radius: var(--cm-radius-sm);
+}
+
 .mentionBadge {
   margin-inline-start: auto;
   font-size: var(--cm-text-sm);

@@ -8,6 +8,7 @@ export interface RoomRow {
   topic: string;
   description: string | null;
   purpose: string;
+  category: string | null;
   visibility: string;
   hidden: boolean;
   min_account_age_days: number;
@@ -26,6 +27,7 @@ export interface CreateRoomInput {
   topic: string;
   description?: string;
   purpose: string;
+  category?: string;
   visibility: string;
   minAccountAgeDays: number;
   slowModeSeconds: number;
@@ -35,7 +37,7 @@ export interface CreateRoomInput {
 
 export async function createRoom(sql: Sql, input: CreateRoomInput): Promise<void> {
   await sql`
-    INSERT INTO rooms (id, uri, did, cid, name, topic, description, purpose, visibility, min_account_age_days, slow_mode_seconds, allowlist_enabled, created_at)
+    INSERT INTO rooms (id, uri, did, cid, name, topic, description, purpose, category, visibility, min_account_age_days, slow_mode_seconds, allowlist_enabled, created_at)
     VALUES (
       ${input.id},
       ${input.uri},
@@ -45,6 +47,7 @@ export async function createRoom(sql: Sql, input: CreateRoomInput): Promise<void
       ${input.topic},
       ${input.description ?? null},
       ${input.purpose},
+      ${input.category ?? null},
       ${input.visibility},
       ${input.minAccountAgeDays},
       ${input.slowModeSeconds},
@@ -57,6 +60,7 @@ export async function createRoom(sql: Sql, input: CreateRoomInput): Promise<void
       topic = EXCLUDED.topic,
       description = EXCLUDED.description,
       purpose = EXCLUDED.purpose,
+      category = EXCLUDED.category,
       visibility = EXCLUDED.visibility,
       min_account_age_days = EXCLUDED.min_account_age_days,
       slow_mode_seconds = EXCLUDED.slow_mode_seconds,
@@ -72,12 +76,13 @@ export async function deleteRoom(sql: Sql, uri: string): Promise<void> {
 
 export async function listRooms(
   sql: Sql,
-  options: { visibility?: string; limit?: number; offset?: number } = {},
+  options: { visibility?: string; category?: string; limit?: number; offset?: number } = {},
 ): Promise<RoomRow[]> {
-  const { visibility = 'public', limit = 50, offset = 0 } = options;
+  const { visibility = 'public', category, limit = 50, offset = 0 } = options;
   return sql<RoomRow[]>`
     SELECT * FROM rooms
     WHERE visibility = ${visibility} AND hidden = FALSE
+      AND (${category ?? null}::text IS NULL OR category = ${category ?? null})
     ORDER BY created_at DESC
     LIMIT ${limit} OFFSET ${offset}
   `;
@@ -88,6 +93,15 @@ export async function setRoomHidden(sql: Sql, roomId: string, hidden: boolean): 
     UPDATE rooms SET hidden = ${hidden} WHERE id = ${roomId} RETURNING id
   `;
   return rows.length > 0;
+}
+
+export async function listCategories(sql: Sql): Promise<string[]> {
+  const rows = await sql<{ category: string }[]>`
+    SELECT DISTINCT category FROM rooms
+    WHERE category IS NOT NULL AND hidden = FALSE AND visibility = 'public'
+    ORDER BY category
+  `;
+  return rows.map((r) => r.category);
 }
 
 export async function getRoomById(sql: Sql, id: string): Promise<RoomRow | undefined> {

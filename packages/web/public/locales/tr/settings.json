@@ -49,6 +49,33 @@
     }
   },
 
+  "changePassword": {
+    "title": "Şifre Değiştir",
+    "description": "Kimliğinizi doğrulamak için e-postanıza bir kod göndereceğiz.",
+    "emailLabel": "E-posta adresi",
+    "emailPlaceholder": "siz@ornek.com",
+    "requestCode": "Kod İste",
+    "requesting": "Gönderiliyor...",
+    "codeSent": "Sıfırlama kodu için e-postanızı kontrol edin.",
+    "alreadyHaveCode": "Zaten bir kodunuz var mı?",
+    "requestAnother": "Başka bir kod iste",
+    "tokenLabel": "Sıfırlama kodu",
+    "tokenPlaceholder": "E-postadaki kodu yapıştırın",
+    "newPasswordLabel": "Yeni şifre",
+    "newPasswordPlaceholder": "En az 8 karakter",
+    "confirmPasswordLabel": "Yeni şifreyi onayla",
+    "confirmPasswordPlaceholder": "Şifreyi tekrar girin",
+    "submit": "Şifre Değiştir",
+    "submitting": "Değiştiriliyor...",
+    "success": "Şifre başarıyla değiştirildi.",
+    "error": {
+      "default": "Bir şeyler yanlış gitti. Tekrar deneyin.",
+      "invalidToken": "Geçersiz veya süresi dolmuş kod.",
+      "tooShort": "Şifre en az 8 karakter olmalıdır.",
+      "mismatch": "Şifreler eşleşmiyor."
+    }
+  },
+
   "actions": {
     "title": "İşlemler",
     "signOut": "Çıkış Yap"

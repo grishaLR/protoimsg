@@ -3,8 +3,86 @@
   flex-direction: column;
   flex: 1;
   min-height: 0;
+  position: relative;
 }
 
+/* ── Sticky compact bar ──────────────────────────────── */
+.stickyBar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: var(--cm-z-sticky);
+  display: flex;
+  align-items: center;
+  gap: var(--cm-space-3);
+  padding: var(--cm-space-2) var(--cm-space-4);
+  background: var(--cm-surface-content);
+  background-size: cover;
+  background-position: center;
+  box-shadow: var(--cm-raised);
+  transform: translateY(-100%);
+  opacity: 0;
+  transition:
+    transform var(--cm-duration-normal) ease,
+    opacity var(--cm-duration-normal) ease;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.stickyOverlay {
+  position: absolute;
+  inset: 0;
+  background: var(--cm-overlay-bg-medium);
+  pointer-events: none;
+}
+
+.stickyBarVisible {
+  transform: translateY(0);
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.stickyBackButton {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--cm-overlay-text);
+  padding: var(--cm-space-1);
+  border-radius: var(--cm-radius-sm);
+  flex-shrink: 0;
+}
+
+.stickyBackButton:hover {
+  background: var(--cm-overlay-bg-light);
+}
+
+.stickyAvatar {
+  position: relative;
+  width: var(--cm-avatar-sm);
+  height: var(--cm-avatar-sm);
+  border-radius: var(--cm-radius-avatar);
+  object-fit: cover;
+  flex-shrink: 0;
+  background: var(--color-base-200);
+}
+
+.stickyName {
+  position: relative;
+  font-size: var(--cm-text-sm);
+  font-weight: 700;
+  color: var(--cm-overlay-text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
+}
+
+/* ── Back button (inside scroll area) ────────────────── */
 .backButton {
   padding: var(--cm-space-1) var(--cm-space-6);
   background: var(--color-base-200);
@@ -16,6 +94,9 @@
   box-shadow: var(--cm-raised);
   margin-bottom: var(--cm-space-4);
   align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--cm-space-1);
 }
 
 .backButton:hover {
@@ -26,17 +107,18 @@
   box-shadow: var(--cm-pressed);
 }
 
+/* ── Scroll container ────────────────────────────────── */
 .scrollArea {
   flex: 1;
   overflow-y: auto;
   min-height: 0;
 }
 
+/* ── Profile header card ─────────────────────────────── */
 .profileHeader {
   box-shadow: var(--cm-raised);
   background: var(--cm-surface-content);
   margin-bottom: var(--cm-space-4);
-  flex-shrink: 0;
   border-radius: var(--cm-radius-md);
   overflow: hidden;
 }

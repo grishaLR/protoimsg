@@ -49,6 +49,33 @@
     }
   },
 
+  "changePassword": {
+    "title": "Badilisha Nenosiri",
+    "description": "Tutatuma msimbo kwenye barua pepe yako kuthibitisha utambulisho wako.",
+    "emailLabel": "Anwani ya barua pepe",
+    "emailPlaceholder": "wewe@mfano.com",
+    "requestCode": "Omba Msimbo",
+    "requesting": "Inatuma...",
+    "codeSent": "Angalia barua pepe yako kwa msimbo wa kuweka upya.",
+    "alreadyHaveCode": "Tayari una msimbo?",
+    "requestAnother": "Omba msimbo mwingine",
+    "tokenLabel": "Msimbo wa kuweka upya",
+    "tokenPlaceholder": "Bandika msimbo kutoka barua pepe",
+    "newPasswordLabel": "Nenosiri jipya",
+    "newPasswordPlaceholder": "Angalau herufi 8",
+    "confirmPasswordLabel": "Thibitisha nenosiri jipya",
+    "confirmPasswordPlaceholder": "Ingiza nenosiri tena",
+    "submit": "Badilisha Nenosiri",
+    "submitting": "Inabadilisha...",
+    "success": "Nenosiri limebadilishwa kwa mafanikio.",
+    "error": {
+      "default": "Kuna kitu kilienda vibaya. Jaribu tena.",
+      "invalidToken": "Msimbo batili au umekwisha muda.",
+      "tooShort": "Nenosiri lazima liwe na angalau herufi 8.",
+      "mismatch": "Nenosiri hazilingani."
+    }
+  },
+
   "actions": {
     "title": "Vitendo",
     "signOut": "Toka"

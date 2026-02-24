@@ -1,10 +1,12 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { Link } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
 import { useTheme } from '../../hooks/useTheme';
 import { useRotatingPlaceholder } from '../../hooks/useRotatingPlaceholder';
 import { THEME_OPTIONS, type Theme } from '../../contexts/ThemeContext';
 import { AccountBannedError, NotOnAllowlistError, joinWaitlist } from '../../lib/api';
+import { SIGNUP_ENABLED } from '../../lib/config';
 import { ActorSearch, type ActorSearchResult } from '../shared/ActorSearch';
 import { AtprotoInfoModal } from './AtprotoInfoModal';
 import { LanguageSelector } from '../settings/LanguageSelector';
@@ -53,10 +55,8 @@ export function LoginForm() {
       <div className={styles.form}>
         <h1 className={styles.title}>{t('login.title')}</h1>
         <div className={styles.betaSignupBox}>
-          <h2 className={styles.betaSignupTitle}>{t('login.banned.title', 'Account Suspended')}</h2>
-          <p className={styles.betaSignupBody}>
-            {t('login.banned.body', 'This account is not permitted to use this service.')}
-          </p>
+          <h2 className={styles.betaSignupTitle}>{t('login.banned.title')}</h2>
+          <p className={styles.betaSignupBody}>{t('login.banned.body')}</p>
           <button
             className={styles.button}
             type="button"
@@ -114,6 +114,11 @@ export function LoginForm() {
         >
           {t('login.learnMore')}
         </button>
+        {SIGNUP_ENABLED && (
+          <Link to="/signup" className={styles.infoLink}>
+            {t('login.createAccount')}
+          </Link>
+        )}
         <div className={styles.selectors}>
           <label className={styles.selectorLabel}>
             {t('login.theme')}

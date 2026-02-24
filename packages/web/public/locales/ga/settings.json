@@ -49,6 +49,33 @@
     }
   },
 
+  "changePassword": {
+    "title": "Athraigh Pasfhocal",
+    "description": "Seolfaimid cód chuig do ríomhphost chun d'aitheantas a fhíorú.",
+    "emailLabel": "Seoladh ríomhphoist",
+    "emailPlaceholder": "tu@sampla.ie",
+    "requestCode": "Iarr Cód",
+    "requesting": "Á sheoladh...",
+    "codeSent": "Seiceáil do ríomhphost le haghaidh cód athshocraithe.",
+    "alreadyHaveCode": "An bhfuil cód agat cheana?",
+    "requestAnother": "Iarr cód eile",
+    "tokenLabel": "Cód athshocraithe",
+    "tokenPlaceholder": "Greamaigh an cód ón ríomhphost",
+    "newPasswordLabel": "Pasfhocal nua",
+    "newPasswordPlaceholder": "8 gcarachtar ar a laghad",
+    "confirmPasswordLabel": "Deimhnigh pasfhocal nua",
+    "confirmPasswordPlaceholder": "Cuir isteach an pasfhocal arís",
+    "submit": "Athraigh Pasfhocal",
+    "submitting": "Á athrú...",
+    "success": "D'athraíodh an pasfhocal go rathúil.",
+    "error": {
+      "default": "Chuaigh rud éigin mícheart. Bain triail eile as.",
+      "invalidToken": "Cód neamhbhailí nó as dáta.",
+      "tooShort": "Caithfidh 8 gcarachtar ar a laghad a bheith sa phasfhocal.",
+      "mismatch": "Ní hionann na pasfhocail."
+    }
+  },
+
   "actions": {
     "title": "Gníomhartha",
     "signOut": "Sínigh Amach"

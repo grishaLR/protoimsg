@@ -12,6 +12,7 @@ import { FeedView } from '../components/feed/FeedView';
 import { ProfileView } from '../components/feed/ProfileView';
 import { ThreadView } from '../components/feed/ThreadView';
 import { SettingsView } from '../components/settings/SettingsView';
+import { fetchCategories } from '../lib/api';
 import { useRooms } from '../hooks/useRooms';
 import { useBuddyList } from '../hooks/useBuddyList';
 import { useFollowGraph } from '../hooks/useFollowGraph';
@@ -79,6 +80,8 @@ export function RoomDirectoryPage() {
   const { blockedDids, toggleBlock } = useBlocks();
   const isMobile = useIsMobile();
   const [search, setSearch] = useState('');
+  const [categories, setCategories] = useState<string[]>([]);
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [showCreate, setShowCreate] = useState(false);
   const locState = location.state as { tab?: View } | null;
   const [view, setView] = useState<View>(() => {
@@ -90,52 +93,81 @@ export function RoomDirectoryPage() {
   useEffect(() => {
     if (locState?.tab) setView(locState.tab);
   }, [locState?.tab]);
-  const [profileTarget, setProfileTarget] = useState<string | null>(null);
-  const [threadStack, setThreadStack] = useState<string[]>([]);
-  const [prevView, setPrevView] = useState<'rooms' | 'feed' | 'buddies'>('feed');
-  const [replyTo, setReplyTo] = useState<AppBskyFeedDefs.PostView | null>(null);
 
-  const threadUri = threadStack.length > 0 ? (threadStack[threadStack.length - 1] ?? null) : null;
+  useEffect(() => {
+    const ac = new AbortController();
+    void fetchCategories({ signal: ac.signal })
+      .then((cats) => {
+        if (!ac.signal.aborted) setCategories(cats);
+      })
+      .catch(() => {});
+    return () => {
+      ac.abort();
+    };
+  }, []);
+  const [replyTo, setReplyTo] = useState<AppBskyFeedDefs.PostView | null>(null);
+  const [quoteTo, setQuoteTo] = useState<AppBskyFeedDefs.PostView | null>(null);
+
+  // Unified navigation history — each entry is the view + its payload
+  type NavEntry =
+    | { type: 'rooms' }
+    | { type: 'feed' }
+    | { type: 'buddies' }
+    | { type: 'profile'; did: string }
+    | { type: 'thread'; uri: string }
+    | { type: 'settings' };
+  const [navHistory, setNavHistory] = useState<NavEntry[]>([]);
+
+  // Derive current thread/profile targets from the active view
+  const threadUri =
+    view === 'thread'
+      ? ((navHistory[navHistory.length - 1] as { uri: string } | undefined)?.uri ?? null)
+      : null;
+  const profileTarget =
+    view === 'profile'
+      ? ((navHistory[navHistory.length - 1] as { did: string } | undefined)?.did ?? null)
+      : null;
+
+  const goBack = useCallback(() => {
+    setNavHistory((prev) => {
+      if (prev.length <= 1) {
+        const root = prev[0];
+        setView(root ? (root.type as View) : 'feed');
+        return [];
+      }
+      const next = prev.slice(0, -1);
+      const target = next[next.length - 1];
+      if (target) setView(target.type as View);
+      return next;
+    });
+  }, []);
 
   const navigateToProfile = useCallback(
     (did: string) => {
-      setPrevView(view === 'profile' || view === 'thread' || view === 'settings' ? prevView : view);
-      setProfileTarget(did);
+      setNavHistory((prev) => {
+        // If navigating from a root view, seed the history with it
+        if (view !== 'profile' && view !== 'thread' && view !== 'settings') {
+          return [{ type: view }, { type: 'profile', did }];
+        }
+        return [...prev, { type: 'profile', did }];
+      });
       setView('profile');
     },
-    [view, prevView],
+    [view],
   );
-
-  const backFromProfile = useCallback(() => {
-    setView(prevView);
-    setProfileTarget(null);
-  }, [prevView]);
 
   const openThread = useCallback(
     (post: AppBskyFeedDefs.PostView) => {
-      if (view === 'thread') {
-        // Drilling into a reply — push onto stack
-        setThreadStack((prev) => [...prev, post.uri]);
-      } else {
-        // Entering thread from feed/profile
-        setPrevView(view === 'profile' || view === 'settings' ? prevView : view);
-        setThreadStack([post.uri]);
-        setView('thread');
-      }
+      setNavHistory((prev) => {
+        if (view !== 'profile' && view !== 'thread' && view !== 'settings') {
+          return [{ type: view }, { type: 'thread', uri: post.uri }];
+        }
+        return [...prev, { type: 'thread', uri: post.uri }];
+      });
+      setView('thread');
     },
-    [view, prevView],
+    [view],
   );
-
-  const backFromThread = useCallback(() => {
-    if (threadStack.length > 1) {
-      // Pop back to parent thread
-      setThreadStack((prev) => prev.slice(0, -1));
-    } else {
-      // Back to previous view
-      setView(prevView);
-      setThreadStack([]);
-    }
-  }, [prevView, threadStack.length]);
 
   const handleReply = useCallback((post: AppBskyFeedDefs.PostView) => {
     setReplyTo(post);
@@ -146,18 +178,36 @@ export function RoomDirectoryPage() {
     setReplyTo(null);
   }, []);
 
+  const handleQuotePost = useCallback((post: AppBskyFeedDefs.PostView) => {
+    setQuoteTo(post);
+    setView('feed');
+  }, []);
+
+  const clearQuote = useCallback(() => {
+    setQuoteTo(null);
+  }, []);
+
   const navigateToSettings = useCallback(() => {
-    setPrevView(view === 'profile' || view === 'thread' || view === 'settings' ? prevView : view);
+    setNavHistory((prev) => {
+      if (view !== 'profile' && view !== 'thread' && view !== 'settings') {
+        return [{ type: view }, { type: 'settings' }];
+      }
+      return [...prev, { type: 'settings' }];
+    });
     setView('settings');
-  }, [view, prevView]);
+  }, [view]);
 
-  const backFromSettings = useCallback(() => {
-    setView(prevView);
-  }, [prevView]);
-
-  const filtered = search
-    ? rooms.filter((r) => r.name.toLowerCase().includes(search.toLowerCase()))
-    : rooms;
+  const filtered = useMemo(() => {
+    let result = rooms;
+    if (selectedCategory) {
+      result = result.filter((r) => r.category === selectedCategory);
+    }
+    if (search) {
+      const q = search.toLowerCase();
+      result = result.filter((r) => r.name.toLowerCase().includes(q));
+    }
+    return result;
+  }, [rooms, selectedCategory, search]);
 
   const openTauriRoomDirectory = () => {
     void import('../lib/tauri-windows').then(({ openRoomDirectoryWindow }) => {
@@ -233,13 +283,13 @@ export function RoomDirectoryPage() {
           {view === 'profile' && profileTarget ? (
             <ProfileView
               actor={profileTarget}
-              onBack={backFromProfile}
+              onBack={goBack}
               onNavigateToProfile={navigateToProfile}
               onReply={handleReply}
               onOpenThread={openThread}
             />
           ) : view === 'settings' ? (
-            <SettingsView onBack={backFromSettings} />
+            <SettingsView onBack={goBack} />
           ) : (
             <BuddyListPanel {...buddyListProps} />
           )}
@@ -276,6 +326,29 @@ export function RoomDirectoryPage() {
                   {t('directory.createButton')}
                 </button>
               </div>
+              {categories.length > 0 && (
+                <div className={styles.categoryFilters}>
+                  <button
+                    className={`${styles.categoryPill} ${selectedCategory === null ? styles.categoryPillActive : ''}`}
+                    onClick={() => {
+                      setSelectedCategory(null);
+                    }}
+                  >
+                    {t('directory.allCategories')}
+                  </button>
+                  {categories.map((cat) => (
+                    <button
+                      key={cat}
+                      className={`${styles.categoryPill} ${selectedCategory === cat ? styles.categoryPillActive : ''}`}
+                      onClick={() => {
+                        setSelectedCategory(cat);
+                      }}
+                    >
+                      {cat}
+                    </button>
+                  ))}
+                </div>
+              )}
               {error && <p className={styles.error}>{error}</p>}
               {loading ? (
                 <div className={styles.loadingBody}>
@@ -292,32 +365,37 @@ export function RoomDirectoryPage() {
               onNavigateToProfile={navigateToProfile}
               onReply={handleReply}
               onOpenThread={openThread}
+              onQuotePost={handleQuotePost}
               replyTo={replyTo}
+              quoteTo={quoteTo}
               onClearReply={clearReply}
+              onClearQuote={clearQuote}
             />
           )}
 
           {view === 'profile' && profileTarget && (
             <ProfileView
               actor={profileTarget}
-              onBack={backFromProfile}
+              onBack={goBack}
               onNavigateToProfile={navigateToProfile}
               onReply={handleReply}
               onOpenThread={openThread}
+              onQuotePost={handleQuotePost}
             />
           )}
 
           {view === 'thread' && threadUri && (
             <ThreadView
               uri={threadUri}
-              onBack={backFromThread}
+              onBack={goBack}
               onNavigateToProfile={navigateToProfile}
               onReply={handleReply}
               onOpenThread={openThread}
+              onQuotePost={handleQuotePost}
             />
           )}
 
-          {view === 'settings' && <SettingsView onBack={backFromSettings} />}
+          {view === 'settings' && <SettingsView onBack={goBack} />}
         </main>
         {!isMobile && (
           <aside className={styles.sidebar}>
@@ -328,12 +406,16 @@ export function RoomDirectoryPage() {
       {isMobile && <MobileTabBar activeTab={mobileTab} onTabChange={handleMobileTabChange} />}
       {showCreate && (
         <CreateRoomModal
+          categories={categories}
           onClose={() => {
             setShowCreate(false);
           }}
           onCreated={() => {
             setShowCreate(false);
             void refresh();
+            void fetchCategories()
+              .then(setCategories)
+              .catch(() => {});
           }}
         />
       )}

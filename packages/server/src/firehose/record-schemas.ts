@@ -92,6 +92,7 @@ export const roomRecordSchema = z
     topic: z.string().max(200),
     description: z.string().max(500).optional(),
     purpose: z.string(), // knownValues: discussion, event, community, support
+    category: z.string().max(50).optional(),
     createdAt: datetime,
     settings: roomSettings,
   })

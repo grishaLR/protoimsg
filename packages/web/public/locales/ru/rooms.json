@@ -20,6 +20,9 @@
       "unlisted": "Скрытая",
       "private": "Приватная"
     },
+    "categoryLabel": "Категория",
+    "categoryPlaceholder": "напр., музыка, технологии, игры",
+    "categoryCreate": "Создать: {{value}}",
     "error": {
       "default": "Не удалось создать комнату"
     },
@@ -43,7 +46,8 @@
   "directory": {
     "searchPlaceholder": "Поиск комнат...",
     "createButton": "Создать комнату",
-    "loading": "Загрузка комнат..."
+    "loading": "Загрузка комнат...",
+    "allCategories": "Все"
   },
 
   "chatRoom": {

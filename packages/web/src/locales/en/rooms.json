@@ -20,6 +20,9 @@
       "unlisted": "Unlisted",
       "private": "Private"
     },
+    "categoryLabel": "Category",
+    "categoryPlaceholder": "e.g., music, tech, gaming",
+    "categoryCreate": "Create: {{value}}",
     "error": {
       "default": "Failed to create room"
     },
@@ -43,7 +46,8 @@
   "directory": {
     "searchPlaceholder": "Search rooms...",
     "createButton": "Create Room",
-    "loading": "Loading rooms..."
+    "loading": "Loading rooms...",
+    "allCategories": "All"
   },
 
   "chatRoom": {

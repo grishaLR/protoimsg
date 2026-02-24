@@ -10,6 +10,7 @@ import { LoginPage } from './pages/LoginPage';
 import { ConnectingScreen } from './components/auth/ConnectingScreen';
 import { AppErrorBoundary } from './components/AppErrorBoundary';
 import { AppLoader } from './components/AppLoader';
+import { SIGNUP_ENABLED } from './lib/config';
 import styles from './App.module.css';
 
 // Set by login() before redirect, cleared by init() after processing.
@@ -60,6 +61,9 @@ const FeedWindowPage = lazy(() =>
 );
 const BetaSignupPage = lazy(() =>
   reloadOnChunkError(import('./pages/BetaSignupPage').then((m) => ({ default: m.BetaSignupPage }))),
+);
+const SignupPage = lazy(() =>
+  reloadOnChunkError(import('./pages/SignupPage').then((m) => ({ default: m.SignupPage }))),
 );
 
 const queryClient = new QueryClient({
@@ -118,6 +122,18 @@ function AppRoutes() {
           <Suspense fallback={null}>
             <BetaSignupPage />
           </Suspense>
+        }
+      />
+      <Route
+        path="/signup"
+        element={
+          SIGNUP_ENABLED ? (
+            <Suspense fallback={null}>
+              <SignupPage />
+            </Suspense>
+          ) : (
+            <Navigate to="/login" replace />
+          )
         }
       />
       <Route

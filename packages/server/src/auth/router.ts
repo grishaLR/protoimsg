@@ -71,6 +71,18 @@ export function authRouter(
       if (!globalAllowlist.isAllowed(data.did)) {
         log.warn({ did: data.did, handle }, 'auth/preflight rejected: not on allowlist');
 
+        // Auto-insert into waitlist so they appear in the admin panel.
+        // DID has a unique index — ON CONFLICT prevents duplicate inserts.
+        if (sql) {
+          void sql`
+            INSERT INTO waitlist (handle, did, source)
+            VALUES (${handle}, ${data.did}, 'login')
+            ON CONFLICT (did) DO UPDATE SET handle = EXCLUDED.handle
+          `.catch((err: unknown) => {
+            log.warn({ err, did: data.did }, 'auto-waitlist insert failed');
+          });
+        }
+
         res.status(403).json({
           error: 'This account is not yet on the beta allowlist.',
           errorCode: ERROR_CODES.NOT_ON_ALLOWLIST,

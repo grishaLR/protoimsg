@@ -49,6 +49,33 @@
     }
   },
 
+  "changePassword": {
+    "title": "Changer le mot de passe",
+    "description": "Nous enverrons un code à votre e-mail pour vérifier votre identité.",
+    "emailLabel": "Adresse e-mail",
+    "emailPlaceholder": "vous@exemple.fr",
+    "requestCode": "Demander un code",
+    "requesting": "Envoi en cours...",
+    "codeSent": "Vérifiez votre e-mail pour le code de réinitialisation.",
+    "alreadyHaveCode": "Vous avez déjà un code ?",
+    "requestAnother": "Demander un autre code",
+    "tokenLabel": "Code de réinitialisation",
+    "tokenPlaceholder": "Collez le code reçu par e-mail",
+    "newPasswordLabel": "Nouveau mot de passe",
+    "newPasswordPlaceholder": "Au moins 8 caractères",
+    "confirmPasswordLabel": "Confirmer le nouveau mot de passe",
+    "confirmPasswordPlaceholder": "Entrez le mot de passe à nouveau",
+    "submit": "Changer le mot de passe",
+    "submitting": "Modification en cours...",
+    "success": "Mot de passe changé avec succès.",
+    "error": {
+      "default": "Une erreur est survenue. Réessayez.",
+      "invalidToken": "Code invalide ou expiré.",
+      "tooShort": "Le mot de passe doit contenir au moins 8 caractères.",
+      "mismatch": "Les mots de passe ne correspondent pas."
+    }
+  },
+
   "actions": {
     "title": "Actions",
     "signOut": "Se d\u00e9connecter"

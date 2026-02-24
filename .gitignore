@@ -40,6 +40,9 @@ coverage/
 npm-debug.log*
 pnpm-debug.log*
 
+# Lexicon schemas copied during web build
+packages/web/public/lexicon/
+
 # Storybook
 storybook-static/
 

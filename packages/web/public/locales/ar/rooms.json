@@ -20,6 +20,9 @@
       "unlisted": "غير مدرج",
       "private": "خاص"
     },
+    "categoryLabel": "الفئة",
+    "categoryPlaceholder": "مثال: موسيقى، تقنية، ألعاب",
+    "categoryCreate": "إنشاء: {{value}}",
     "error": {
       "default": "فشل إنشاء الغرفة"
     },
@@ -43,7 +46,8 @@
   "directory": {
     "searchPlaceholder": "البحث عن الغرف...",
     "createButton": "إنشاء غرفة",
-    "loading": "جارٍ تحميل الغرف..."
+    "loading": "جارٍ تحميل الغرف...",
+    "allCategories": "الكل"
   },
 
   "chatRoom": {

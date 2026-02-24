@@ -8,6 +8,7 @@ export interface RoomView {
   description: string | null;
   topic: string;
   purpose: string;
+  category: string | null;
   visibility: string;
   min_account_age_days: number;
   slow_mode_seconds: number;

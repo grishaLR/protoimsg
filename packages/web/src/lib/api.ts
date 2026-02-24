@@ -1,5 +1,5 @@
 import type { RoomView, ChannelView, MessageView, PollView } from '../types';
-import { API_URL } from './config.js';
+import { API_URL, PDS_URL } from './config.js';
 
 // -- Token management --
 // Token is kept in-memory and also in localStorage so Tauri child windows
@@ -121,6 +121,62 @@ export async function joinWaitlist(email: string, handle: string): Promise<{ suc
   return (await res.json()) as { success: boolean };
 }
 
+// -- PDS account creation --
+
+export interface CreatePdsAccountParams {
+  handle: string;
+  email: string;
+  password: string;
+  dob: string;
+}
+
+export interface CreatePdsAccountResult {
+  did: string;
+  handle: string;
+}
+
+/** Check if a handle is available on the PDS. */
+export async function checkHandleAvailability(
+  handle: string,
+  signal?: AbortSignal,
+): Promise<boolean> {
+  const res = await fetch(
+    `${PDS_URL}/xrpc/com.atproto.identity.resolveHandle?handle=${encodeURIComponent(handle)}`,
+    { signal },
+  );
+  // 400 = handle doesn't exist on this PDS = available
+  if (res.status === 400) return true;
+  // 200 = handle resolves = taken
+  if (res.ok) return false;
+  // Any other status (500, 429, etc.) = assume unavailable to be safe
+  return false;
+}
+
+/** Create a new account on the protoimsg PDS. */
+export async function createPdsAccount(
+  params: CreatePdsAccountParams,
+): Promise<CreatePdsAccountResult> {
+  const res = await fetch(`${PDS_URL}/xrpc/com.atproto.server.createAccount`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      handle: params.handle,
+      email: params.email,
+      password: params.password,
+      birthDate: params.dob,
+    }),
+  });
+
+  if (!res.ok) {
+    const data = (await res.json().catch(() => ({}))) as { error?: string; message?: string };
+    const message = data.message ?? data.error ?? 'Account creation failed';
+    throw new Error(message);
+  }
+
+  const data = (await res.json()) as { did: string; handle: string };
+  return { did: data.did, handle: data.handle };
+}
+
 // -- Translate types --
 
 export interface TranslateResponseItem {
@@ -159,12 +215,14 @@ async function authFetch(url: string, init?: RequestInit): Promise<Response> {
 
 export async function fetchRooms(opts?: {
   visibility?: string;
+  category?: string;
   limit?: number;
   offset?: number;
   signal?: AbortSignal;
 }): Promise<RoomView[]> {
   const params = new URLSearchParams();
   if (opts?.visibility) params.set('visibility', opts.visibility);
+  if (opts?.category) params.set('category', opts.category);
   if (opts?.limit) params.set('limit', String(opts.limit));
   if (opts?.offset) params.set('offset', String(opts.offset));
 
@@ -174,6 +232,14 @@ export async function fetchRooms(opts?: {
 
   const data = (await res.json()) as { rooms: RoomView[] };
   return data.rooms;
+}
+
+export async function fetchCategories(opts?: { signal?: AbortSignal }): Promise<string[]> {
+  const res = await authFetch('/api/rooms/categories', { signal: opts?.signal });
+  if (!res.ok) throw new Error(`Failed to fetch categories: ${res.status}`);
+
+  const data = (await res.json()) as { categories: string[] };
+  return data.categories;
 }
 
 export async function fetchRoom(id: string, opts?: { signal?: AbortSignal }): Promise<RoomView> {

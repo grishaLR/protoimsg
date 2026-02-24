@@ -9,7 +9,8 @@
     "posting": "Đang đăng...",
     "post": "Đăng",
     "imageAltText": "Mô tả ảnh này...",
-    "gifAltText": "Mô tả GIF này..."
+    "gifAltText": "Mô tả GIF này...",
+    "quotingPost": "Trích dẫn @{{handle}}"
   },
 
   "post": {
@@ -26,7 +27,32 @@
     "translate": "Dịch",
     "translatedTo": "Đã dịch sang {{lang}}",
     "showOriginal": "Xem bản gốc",
-    "translating": "Đang dịch..."
+    "translating": "Đang dịch...",
+    "quoteDeleted": "Bài viết này đã bị xóa",
+    "quoteBlocked": "Bài viết này từ tài khoản đã bị chặn",
+    "quoteDetached": "Trích dẫn này đã bị tách",
+    "repost": "Đăng lại",
+    "quotePost": "Trích dẫn bài viết",
+    "copyLink": "Sao chép liên kết",
+    "openInBluesky": "Mở trong Bluesky",
+    "linkCopied": "Đã sao chép!",
+    "moreActions": "Hành động khác",
+    "lightboxClose": "Đóng",
+    "lightboxPrev": "Ảnh trước",
+    "lightboxNext": "Ảnh tiếp theo",
+    "lightboxCounter": "{{current}} / {{total}}"
+  },
+
+  "video": {
+    "play": "Phát video",
+    "pause": "Tạm dừng video",
+    "mute": "Tắt tiếng",
+    "unmute": "Bật tiếng",
+    "fullscreen": "Toàn màn hình",
+    "retry": "Thử lại",
+    "scrubber": "Tiến trình video",
+    "altAvailable": "ALT",
+    "buffering": "Đang tải…"
   },
 
   "feedView": {

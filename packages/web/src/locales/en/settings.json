@@ -49,6 +49,33 @@
     }
   },
 
+  "changePassword": {
+    "title": "Change Password",
+    "description": "We'll send a code to your email to verify your identity.",
+    "emailLabel": "Email address",
+    "emailPlaceholder": "you@example.com",
+    "requestCode": "Request Code",
+    "requesting": "Sending...",
+    "codeSent": "Check your email for a reset code.",
+    "alreadyHaveCode": "Already have a code?",
+    "requestAnother": "Request another code",
+    "tokenLabel": "Reset code",
+    "tokenPlaceholder": "Paste code from email",
+    "newPasswordLabel": "New password",
+    "newPasswordPlaceholder": "At least 8 characters",
+    "confirmPasswordLabel": "Confirm new password",
+    "confirmPasswordPlaceholder": "Enter password again",
+    "submit": "Change Password",
+    "submitting": "Changing...",
+    "success": "Password changed successfully.",
+    "error": {
+      "default": "Something went wrong. Try again.",
+      "invalidToken": "Invalid or expired code.",
+      "tooShort": "Password must be at least 8 characters.",
+      "mismatch": "Passwords do not match."
+    }
+  },
+
   "actions": {
     "title": "Actions",
     "signOut": "Sign Out"

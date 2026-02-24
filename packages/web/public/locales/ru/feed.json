@@ -9,7 +9,8 @@
     "posting": "Публикация...",
     "post": "Опубликовать",
     "imageAltText": "Опишите это изображение...",
-    "gifAltText": "Опишите этот GIF..."
+    "gifAltText": "Опишите этот GIF...",
+    "quotingPost": "Цитирование @{{handle}}"
   },
 
   "post": {
@@ -26,7 +27,32 @@
     "translate": "Перевести",
     "translatedTo": "Переведено на {{lang}}",
     "showOriginal": "Показать оригинал",
-    "translating": "Перевод..."
+    "translating": "Перевод...",
+    "quoteDeleted": "Эта публикация была удалена",
+    "quoteBlocked": "Эта публикация от заблокированного аккаунта",
+    "quoteDetached": "Эта цитата была отсоединена",
+    "repost": "Репост",
+    "quotePost": "Цитировать",
+    "copyLink": "Копировать ссылку",
+    "openInBluesky": "Открыть в Bluesky",
+    "linkCopied": "Скопировано!",
+    "moreActions": "Ещё действия",
+    "lightboxClose": "Закрыть",
+    "lightboxPrev": "Предыдущее изображение",
+    "lightboxNext": "Следующее изображение",
+    "lightboxCounter": "{{current}} / {{total}}"
+  },
+
+  "video": {
+    "play": "Воспроизвести видео",
+    "pause": "Поставить на паузу",
+    "mute": "Выключить звук",
+    "unmute": "Включить звук",
+    "fullscreen": "Полный экран",
+    "retry": "Повторить",
+    "scrubber": "Прогресс видео",
+    "altAvailable": "ALT",
+    "buffering": "Буферизация…"
   },
 
   "feedView": {

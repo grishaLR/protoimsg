@@ -49,6 +49,33 @@
     }
   },
 
+  "changePassword": {
+    "title": "Змінити пароль",
+    "description": "Ми надішлемо код на вашу електронну пошту для підтвердження особи.",
+    "emailLabel": "Електронна пошта",
+    "emailPlaceholder": "you@example.com",
+    "requestCode": "Запросити код",
+    "requesting": "Надсилання...",
+    "codeSent": "Перевірте пошту на наявність коду скидання.",
+    "alreadyHaveCode": "Вже маєте код?",
+    "requestAnother": "Запросити інший код",
+    "tokenLabel": "Код скидання",
+    "tokenPlaceholder": "Вставте код з листа",
+    "newPasswordLabel": "Новий пароль",
+    "newPasswordPlaceholder": "Мінімум 8 символів",
+    "confirmPasswordLabel": "Підтвердіть новий пароль",
+    "confirmPasswordPlaceholder": "Введіть пароль ще раз",
+    "submit": "Змінити пароль",
+    "submitting": "Зміна...",
+    "success": "Пароль успішно змінено.",
+    "error": {
+      "default": "Щось пішло не так. Спробуйте ще раз.",
+      "invalidToken": "Недійсний або прострочений код.",
+      "tooShort": "Пароль повинен містити мінімум 8 символів.",
+      "mismatch": "Паролі не збігаються."
+    }
+  },
+
   "actions": {
     "title": "Дії",
     "signOut": "Вийти"

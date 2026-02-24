@@ -5,14 +5,16 @@ import { LIMITS } from '@protoimsg/shared';
 import type { RoomPurpose, RoomVisibility } from '@protoimsg/shared';
 import { createRoomRecord, createChannelRecord } from '../../lib/atproto';
 import { useAuth } from '../../hooks/useAuth';
+import { CategoryCombobox } from './CategoryCombobox';
 import styles from './CreateRoomModal.module.css';
 
 interface CreateRoomModalProps {
+  categories: string[];
   onClose: () => void;
   onCreated: () => void;
 }
 
-export function CreateRoomModal({ onClose, onCreated }: CreateRoomModalProps) {
+export function CreateRoomModal({ categories, onClose, onCreated }: CreateRoomModalProps) {
   const { t } = useTranslation('rooms');
   const dialogRef = useRef<HTMLDialogElement>(null);
   const { agent } = useAuth();
@@ -21,6 +23,7 @@ export function CreateRoomModal({ onClose, onCreated }: CreateRoomModalProps) {
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [topic, setTopic] = useState('');
+  const [category, setCategory] = useState('');
   const [purpose, setPurpose] = useState<RoomPurpose>('discussion');
   const [visibility, setVisibility] = useState<RoomVisibility>('public');
   const [error, setError] = useState<string | null>(null);
@@ -51,6 +54,7 @@ export function CreateRoomModal({ onClose, onCreated }: CreateRoomModalProps) {
       description: description.trim() || undefined,
       topic: topic.trim(),
       purpose,
+      category: category || undefined,
       visibility,
     })
       .then(async (result) => {
@@ -86,6 +90,18 @@ export function CreateRoomModal({ onClose, onCreated }: CreateRoomModalProps) {
             placeholder={t('createRoom.namePlaceholder')}
             required
             autoFocus
+          />
+        </label>
+
+        <label className={styles.label}>
+          {t('createRoom.categoryLabel')}
+          <CategoryCombobox
+            categories={categories}
+            value={category}
+            onChange={(val) => {
+              setCategory(val.slice(0, LIMITS.maxRoomCategoryLength));
+            }}
+            placeholder={t('createRoom.categoryPlaceholder')}
           />
         </label>
 

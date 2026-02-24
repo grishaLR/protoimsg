@@ -49,6 +49,33 @@
     }
   },
 
+  "changePassword": {
+    "title": "تغيير كلمة المرور",
+    "description": "سنرسل رمزًا إلى بريدك الإلكتروني للتحقق من هويتك.",
+    "emailLabel": "عنوان البريد الإلكتروني",
+    "emailPlaceholder": "you@example.com",
+    "requestCode": "طلب رمز",
+    "requesting": "جارٍ الإرسال...",
+    "codeSent": "تحقق من بريدك الإلكتروني للحصول على رمز إعادة التعيين.",
+    "alreadyHaveCode": "لديك رمز بالفعل؟",
+    "requestAnother": "طلب رمز آخر",
+    "tokenLabel": "رمز إعادة التعيين",
+    "tokenPlaceholder": "الصق الرمز من البريد الإلكتروني",
+    "newPasswordLabel": "كلمة المرور الجديدة",
+    "newPasswordPlaceholder": "8 أحرف على الأقل",
+    "confirmPasswordLabel": "تأكيد كلمة المرور الجديدة",
+    "confirmPasswordPlaceholder": "أدخل كلمة المرور مرة أخرى",
+    "submit": "تغيير كلمة المرور",
+    "submitting": "جارٍ التغيير...",
+    "success": "تم تغيير كلمة المرور بنجاح.",
+    "error": {
+      "default": "حدث خطأ ما. حاول مرة أخرى.",
+      "invalidToken": "رمز غير صالح أو منتهي الصلاحية.",
+      "tooShort": "يجب أن تكون كلمة المرور 8 أحرف على الأقل.",
+      "mismatch": "كلمتا المرور غير متطابقتين."
+    }
+  },
+
   "actions": {
     "title": "الإجراءات",
     "signOut": "تسجيل الخروج"

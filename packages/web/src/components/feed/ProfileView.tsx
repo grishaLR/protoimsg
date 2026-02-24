@@ -11,7 +11,52 @@ import { FeedPost } from './FeedPost';
 import { RichText, type GenericFacet } from '../chat/RichText';
 import styles from './ProfileView.module.css';
 
+/** Hook: observe when an element leaves the scroll viewport */
+function useHeaderPinned(scrollRef: React.RefObject<HTMLDivElement | null>) {
+  const [pinned, setPinned] = useState(false);
+  const observerRef = useRef<IntersectionObserver | null>(null);
+
+  // Callback ref — fires when the sentinel DOM node mounts/unmounts
+  const sentinelRef = useCallback(
+    (node: HTMLDivElement | null) => {
+      if (observerRef.current) {
+        observerRef.current.disconnect();
+        observerRef.current = null;
+      }
+
+      const root = scrollRef.current;
+      if (!node || !root) {
+        setPinned(false);
+        return;
+      }
+
+      const observer = new IntersectionObserver(
+        (entries) => {
+          const entry = entries[0];
+          if (entry) setPinned(!entry.isIntersecting);
+        },
+        { root, threshold: 0.5 },
+      );
+      observer.observe(node);
+      observerRef.current = observer;
+    },
+    [scrollRef],
+  );
+
+  // Clean up on unmount
+  useEffect(() => {
+    return () => {
+      observerRef.current?.disconnect();
+    };
+  }, []);
+
+  return { sentinelRef, pinned };
+}
+
 const SCROLL_BOTTOM_THRESHOLD = 200;
+
+/** Module-level cache: profile DID → scrollTop. Survives unmount/remount. */
+const profileScrollCache = new Map<string, number>();
 
 interface ProfileViewProps {
   actor: string;
@@ -19,6 +64,7 @@ interface ProfileViewProps {
   onNavigateToProfile: (did: string) => void;
   onReply?: (post: AppBskyFeedDefs.PostView) => void;
   onOpenThread?: (post: AppBskyFeedDefs.PostView) => void;
+  onQuotePost?: (post: AppBskyFeedDefs.PostView) => void;
 }
 
 export function ProfileView({
@@ -27,6 +73,7 @@ export function ProfileView({
   onNavigateToProfile,
   onReply,
   onOpenThread,
+  onQuotePost,
 }: ProfileViewProps) {
   const { t } = useTranslation('feed');
   const { agent } = useAuth();
@@ -116,6 +163,32 @@ export function ProfileView({
   const loading = profileLoading || feedLoading;
   const error = profileError ? t('profileView.error') : null;
 
+  const { sentinelRef, pinned } = useHeaderPinned(scrollRef);
+
+  // Restore scroll position when profile loads
+  useEffect(() => {
+    if (!profile || !scrollRef.current) return;
+    const saved = profileScrollCache.get(actor);
+    if (saved) {
+      requestAnimationFrame(() => {
+        if (scrollRef.current) {
+          scrollRef.current.scrollTop = saved;
+        }
+      });
+    }
+  }, [actor, profile]);
+
+  // Save scroll position on unmount
+  useEffect(() => {
+    const currentActor = actor;
+    const ref = scrollRef;
+    return () => {
+      if (ref.current) {
+        profileScrollCache.set(currentActor, ref.current.scrollTop);
+      }
+    };
+  }, [actor]);
+
   // Auto-translate bio on load
   const bioText = profile?.description ?? '';
   const translatedBio = bioText ? getTranslation(bioText) : undefined;
@@ -156,128 +229,156 @@ export function ProfileView({
 
   return (
     <div className={styles.profileView}>
-      <button className={styles.backButton} onClick={onBack}>
-        <ArrowLeft size={14} /> {t('profileView.back')}
-      </button>
-
-      {loading && <div className={styles.loading}>{t('profileView.loading')}</div>}
-      {error && <div className={styles.error}>{error}</div>}
-
+      {/* Sticky compact bar — appears when full header scrolls out */}
       {profile && (
-        <div className={styles.profileHeader}>
-          {profile.banner && isSafeUrl(profile.banner) ? (
-            // eslint-disable-next-line no-restricted-syntax -- validated by isSafeUrl() above
-            <img className={styles.banner} src={profile.banner} alt="" />
+        <div
+          className={`${styles.stickyBar} ${pinned ? styles.stickyBarVisible : ''}`}
+          style={
+            profile.banner && isSafeUrl(profile.banner)
+              ? { backgroundImage: `url(${profile.banner})` }
+              : undefined
+          }
+        >
+          <div className={styles.stickyOverlay} />
+          <button className={styles.stickyBackButton} onClick={onBack} type="button">
+            <ArrowLeft size={14} />
+          </button>
+          {profile.avatar && isSafeUrl(profile.avatar) ? (
+            <img
+              className={styles.stickyAvatar}
+              // eslint-disable-next-line no-restricted-syntax -- validated by isSafeUrl() above
+              src={profile.avatar}
+              alt=""
+            />
           ) : (
-            <div className={styles.banner} />
+            <div className={styles.stickyAvatar} />
           )}
-          <div className={styles.profileInfo}>
-            <div className={styles.avatarRow}>
-              {profile.avatar && isSafeUrl(profile.avatar) ? (
-                // eslint-disable-next-line no-restricted-syntax -- validated by isSafeUrl() above
-                <img className={styles.profileAvatar} src={profile.avatar} alt="" />
-              ) : (
-                <div className={styles.profileAvatar} />
-              )}
-              <div className={styles.names}>
-                <div className={styles.profileDisplayName}>
-                  {profile.displayName || profile.handle}
-                </div>
-                <div className={styles.profileHandle}>@{profile.handle}</div>
-              </div>
-            </div>
-
-            {profile.description && (
-              <div className={styles.bio}>
-                {showTranslatedBio && translatedBio ? (
-                  <>
-                    {translatedBio}
-                    <div className={styles.translationLabel}>
-                      {t('profileView.translatedTo', { lang: targetLang })}
-                      {' \u00B7 '}
-                      <button
-                        type="button"
-                        className={styles.showOriginal}
-                        onClick={() => {
-                          setShowTranslatedBio(false);
-                        }}
-                      >
-                        {t('profileView.showOriginal')}
-                      </button>
-                    </div>
-                  </>
-                ) : (
-                  <>
-                    <RichText
-                      text={profile.description}
-                      facets={profile.detectedFacets}
-                      onMentionClick={onNavigateToProfile}
-                    />
-                    {translateAvailable && (
-                      <button
-                        type="button"
-                        className={styles.translateBioButton}
-                        onClick={() => {
-                          if (translatedBio) {
-                            setShowTranslatedBio(true);
-                          } else {
-                            requestTranslation(profile.description ?? '');
-                            setShowTranslatedBio(true);
-                          }
-                        }}
-                        disabled={bioTranslating}
-                      >
-                        {bioTranslating
-                          ? t('profileView.translating')
-                          : t('profileView.translateBio')}
-                      </button>
-                    )}
-                  </>
-                )}
-              </div>
-            )}
-
-            <div className={styles.stats}>
-              <span>
-                <span className={styles.statCount}>{profile.followersCount ?? 0}</span>{' '}
-                {t('profileView.followers')}
-              </span>
-              <span>
-                <span className={styles.statCount}>{profile.followsCount ?? 0}</span>{' '}
-                {t('profileView.following')}
-              </span>
-              <span>
-                <span className={styles.statCount}>{profile.postsCount ?? 0}</span>{' '}
-                {t('profileView.posts')}
-              </span>
-            </div>
-
-            {germAvailable && germUrl && (
-              <div className={styles.profileActions}>
-                <a
-                  className={styles.germButton}
-                  // eslint-disable-next-line no-restricted-syntax -- germUrl validated by isSafeUrl() in useGermDeclaration
-                  href={germUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  <img
-                    className={styles.germLogo}
-                    src="/images/germ_logo.webp"
-                    alt=""
-                    width={16}
-                    height={16}
-                  />
-                  {t('profileView.germDm')}
-                  <ExternalLink size={14} aria-hidden="true" />
-                </a>
-              </div>
-            )}
-          </div>
+          <span className={styles.stickyName}>{profile.displayName || profile.handle}</span>
         </div>
       )}
 
       <div className={styles.scrollArea} ref={scrollRef} onScroll={onScroll}>
+        <button className={styles.backButton} onClick={onBack} type="button">
+          <ArrowLeft size={14} /> {t('profileView.back')}
+        </button>
+
+        {loading && <div className={styles.loading}>{t('profileView.loading')}</div>}
+        {error && <div className={styles.error}>{error}</div>}
+
+        {profile && (
+          <div className={styles.profileHeader} ref={sentinelRef}>
+            {profile.banner && isSafeUrl(profile.banner) ? (
+              // eslint-disable-next-line no-restricted-syntax -- validated by isSafeUrl() above
+              <img className={styles.banner} src={profile.banner} alt="" />
+            ) : (
+              <div className={styles.banner} />
+            )}
+            <div className={styles.profileInfo}>
+              <div className={styles.avatarRow}>
+                {profile.avatar && isSafeUrl(profile.avatar) ? (
+                  // eslint-disable-next-line no-restricted-syntax -- validated by isSafeUrl() above
+                  <img className={styles.profileAvatar} src={profile.avatar} alt="" />
+                ) : (
+                  <div className={styles.profileAvatar} />
+                )}
+                <div className={styles.names}>
+                  <div className={styles.profileDisplayName}>
+                    {profile.displayName || profile.handle}
+                  </div>
+                  <div className={styles.profileHandle}>@{profile.handle}</div>
+                </div>
+              </div>
+
+              {profile.description && (
+                <div className={styles.bio}>
+                  {showTranslatedBio && translatedBio ? (
+                    <>
+                      {translatedBio}
+                      <div className={styles.translationLabel}>
+                        {t('profileView.translatedTo', { lang: targetLang })}
+                        {' \u00B7 '}
+                        <button
+                          type="button"
+                          className={styles.showOriginal}
+                          onClick={() => {
+                            setShowTranslatedBio(false);
+                          }}
+                        >
+                          {t('profileView.showOriginal')}
+                        </button>
+                      </div>
+                    </>
+                  ) : (
+                    <>
+                      <RichText
+                        text={profile.description}
+                        facets={profile.detectedFacets}
+                        onMentionClick={onNavigateToProfile}
+                      />
+                      {translateAvailable && (
+                        <button
+                          type="button"
+                          className={styles.translateBioButton}
+                          onClick={() => {
+                            if (translatedBio) {
+                              setShowTranslatedBio(true);
+                            } else {
+                              requestTranslation(profile.description ?? '');
+                              setShowTranslatedBio(true);
+                            }
+                          }}
+                          disabled={bioTranslating}
+                        >
+                          {bioTranslating
+                            ? t('profileView.translating')
+                            : t('profileView.translateBio')}
+                        </button>
+                      )}
+                    </>
+                  )}
+                </div>
+              )}
+
+              <div className={styles.stats}>
+                <span>
+                  <span className={styles.statCount}>{profile.followersCount ?? 0}</span>{' '}
+                  {t('profileView.followers')}
+                </span>
+                <span>
+                  <span className={styles.statCount}>{profile.followsCount ?? 0}</span>{' '}
+                  {t('profileView.following')}
+                </span>
+                <span>
+                  <span className={styles.statCount}>{profile.postsCount ?? 0}</span>{' '}
+                  {t('profileView.posts')}
+                </span>
+              </div>
+
+              {germAvailable && germUrl && (
+                <div className={styles.profileActions}>
+                  <a
+                    className={styles.germButton}
+                    // eslint-disable-next-line no-restricted-syntax -- germUrl validated by isSafeUrl() in useGermDeclaration
+                    href={germUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    <img
+                      className={styles.germLogo}
+                      src="/images/germ_logo.webp"
+                      alt=""
+                      width={16}
+                      height={16}
+                    />
+                    {t('profileView.germDm')}
+                    <ExternalLink size={14} aria-hidden="true" />
+                  </a>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
         <div className={styles.postsSection}>
           {pinnedPostData && (
             <FeedPost
@@ -290,6 +391,7 @@ export function ProfileView({
               onNavigateToProfile={onNavigateToProfile}
               onReply={onReply}
               onOpenThread={onOpenThread}
+              onQuotePost={onQuotePost}
             />
           )}
           {posts.map((item) => (
@@ -299,6 +401,7 @@ export function ProfileView({
               onNavigateToProfile={onNavigateToProfile}
               onReply={onReply}
               onOpenThread={onOpenThread}
+              onQuotePost={onQuotePost}
             />
           ))}
 

@@ -20,6 +20,9 @@
       "unlisted": "Isiyoorodheshwa",
       "private": "Binafsi"
     },
+    "categoryLabel": "Kategoria",
+    "categoryPlaceholder": "mfano, muziki, teknolojia, michezo",
+    "categoryCreate": "Unda: {{value}}",
     "error": {
       "default": "Imeshindwa kuunda chumba"
     },
@@ -43,7 +46,8 @@
   "directory": {
     "searchPlaceholder": "Tafuta vyumba...",
     "createButton": "Unda Chumba",
-    "loading": "Inapakia vyumba..."
+    "loading": "Inapakia vyumba...",
+    "allCategories": "Zote"
   },
 
   "chatRoom": {

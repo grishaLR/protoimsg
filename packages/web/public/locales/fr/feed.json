@@ -9,7 +9,8 @@
     "posting": "Publication en cours...",
     "post": "Publier",
     "imageAltText": "D\u00e9crivez cette image...",
-    "gifAltText": "D\u00e9crivez ce GIF..."
+    "gifAltText": "D\u00e9crivez ce GIF...",
+    "quotingPost": "Citation de @{{handle}}"
   },
 
   "post": {
@@ -26,7 +27,32 @@
     "translate": "Traduire",
     "translatedTo": "Traduit en {{lang}}",
     "showOriginal": "Afficher l'original",
-    "translating": "Traduction en cours..."
+    "translating": "Traduction en cours...",
+    "quoteDeleted": "Cette publication a été supprimée",
+    "quoteBlocked": "Cette publication provient d'un compte bloqué",
+    "quoteDetached": "Cette citation a été détachée",
+    "repost": "Republier",
+    "quotePost": "Citer la publication",
+    "copyLink": "Copier le lien",
+    "openInBluesky": "Ouvrir dans Bluesky",
+    "linkCopied": "Copié !",
+    "moreActions": "Plus d'actions",
+    "lightboxClose": "Fermer",
+    "lightboxPrev": "Image précédente",
+    "lightboxNext": "Image suivante",
+    "lightboxCounter": "{{current}} / {{total}}"
+  },
+
+  "video": {
+    "play": "Lire la vidéo",
+    "pause": "Mettre en pause",
+    "mute": "Couper le son",
+    "unmute": "Rétablir le son",
+    "fullscreen": "Plein écran",
+    "retry": "Réessayer",
+    "scrubber": "Progression de la vidéo",
+    "altAvailable": "ALT",
+    "buffering": "Mise en mémoire tampon…"
   },
 
   "feedView": {

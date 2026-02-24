@@ -9,7 +9,8 @@
     "posting": "Wird gepostet...",
     "post": "Posten",
     "imageAltText": "Beschreibe dieses Bild...",
-    "gifAltText": "Beschreibe dieses GIF..."
+    "gifAltText": "Beschreibe dieses GIF...",
+    "quotingPost": "Zitiert @{{handle}}"
   },
 
   "post": {
@@ -26,7 +27,32 @@
     "translate": "Übersetzen",
     "translatedTo": "Übersetzt nach {{lang}}",
     "showOriginal": "Original anzeigen",
-    "translating": "Wird übersetzt..."
+    "translating": "Wird übersetzt...",
+    "quoteDeleted": "Dieser Beitrag wurde gelöscht",
+    "quoteBlocked": "Dieser Beitrag stammt von einem blockierten Konto",
+    "quoteDetached": "Dieses Zitat wurde getrennt",
+    "repost": "Reposten",
+    "quotePost": "Beitrag zitieren",
+    "copyLink": "Link kopieren",
+    "openInBluesky": "In Bluesky öffnen",
+    "linkCopied": "Kopiert!",
+    "moreActions": "Mehr Aktionen",
+    "lightboxClose": "Schließen",
+    "lightboxPrev": "Vorheriges Bild",
+    "lightboxNext": "Nächstes Bild",
+    "lightboxCounter": "{{current}} / {{total}}"
+  },
+
+  "video": {
+    "play": "Video abspielen",
+    "pause": "Video pausieren",
+    "mute": "Stummschalten",
+    "unmute": "Stummschaltung aufheben",
+    "fullscreen": "Vollbild",
+    "retry": "Erneut versuchen",
+    "scrubber": "Videofortschritt",
+    "altAvailable": "ALT",
+    "buffering": "Puffern…"
   },
 
   "feedView": {

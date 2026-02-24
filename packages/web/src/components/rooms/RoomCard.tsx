@@ -61,6 +61,7 @@ export function RoomCard({ room, mentionCount }: RoomCardProps) {
           {showTranslated && translatedName ? translatedName : room.name}
         </h3>
         <span className={styles.badge}>{room.purpose}</span>
+        {room.category && <span className={styles.categoryBadge}>{room.category}</span>}
         {mentionCount != null && mentionCount > 0 && (
           <span className={styles.mentionBadge}>@{mentionCount}</span>
         )}

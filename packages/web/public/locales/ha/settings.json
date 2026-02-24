@@ -49,6 +49,33 @@
     }
   },
 
+  "changePassword": {
+    "title": "Canja Kalmar Sirri",
+    "description": "Za mu aika lambar zuwa imelinka don tabbatar da asalinka.",
+    "emailLabel": "Adireshin imel",
+    "emailPlaceholder": "kai@misali.com",
+    "requestCode": "Nemi Lambar",
+    "requesting": "Ana aikawa...",
+    "codeSent": "Duba imelinka don lambar sake saiti.",
+    "alreadyHaveCode": "Kana da lambar tukuna?",
+    "requestAnother": "Nemi wata lambar",
+    "tokenLabel": "Lambar sake saiti",
+    "tokenPlaceholder": "Manna lambar daga imel",
+    "newPasswordLabel": "Sabuwar kalmar sirri",
+    "newPasswordPlaceholder": "Aƙalla haruffa 8",
+    "confirmPasswordLabel": "Tabbatar da sabuwar kalmar sirri",
+    "confirmPasswordPlaceholder": "Sake shigar da kalmar sirri",
+    "submit": "Canja Kalmar Sirri",
+    "submitting": "Ana canjawa...",
+    "success": "An canja kalmar sirri cikin nasara.",
+    "error": {
+      "default": "Wani abu ya faru. Sake gwadawa.",
+      "invalidToken": "Lambar ba ta inganta ba ko ta ƙare.",
+      "tooShort": "Kalmar sirri dole ta kasance aƙalla haruffa 8.",
+      "mismatch": "Kalmomin sirri ba su dace ba."
+    }
+  },
+
   "actions": {
     "title": "Ayyuka",
     "signOut": "Fita"

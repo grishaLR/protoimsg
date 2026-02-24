@@ -20,6 +20,9 @@
       "unlisted": "Non r\u00e9f\u00e9renc\u00e9",
       "private": "Priv\u00e9"
     },
+    "categoryLabel": "Cat\u00e9gorie",
+    "categoryPlaceholder": "ex., musique, tech, jeux",
+    "categoryCreate": "Cr\u00e9er : {{value}}",
     "error": {
       "default": "\u00c9chec de la cr\u00e9ation du salon"
     },
@@ -43,7 +46,8 @@
   "directory": {
     "searchPlaceholder": "Rechercher des salons...",
     "createButton": "Cr\u00e9er un salon",
-    "loading": "Chargement des salons..."
+    "loading": "Chargement des salons...",
+    "allCategories": "Toutes"
   },
 
   "chatRoom": {

@@ -49,6 +49,33 @@
     }
   },
 
+  "changePassword": {
+    "title": "Изменить пароль",
+    "description": "Мы отправим код на вашу электронную почту для подтверждения личности.",
+    "emailLabel": "Электронная почта",
+    "emailPlaceholder": "you@example.com",
+    "requestCode": "Запросить код",
+    "requesting": "Отправка...",
+    "codeSent": "Проверьте почту на наличие кода сброса.",
+    "alreadyHaveCode": "Уже есть код?",
+    "requestAnother": "Запросить другой код",
+    "tokenLabel": "Код сброса",
+    "tokenPlaceholder": "Вставьте код из письма",
+    "newPasswordLabel": "Новый пароль",
+    "newPasswordPlaceholder": "Минимум 8 символов",
+    "confirmPasswordLabel": "Подтвердите новый пароль",
+    "confirmPasswordPlaceholder": "Введите пароль ещё раз",
+    "submit": "Изменить пароль",
+    "submitting": "Изменение...",
+    "success": "Пароль успешно изменён.",
+    "error": {
+      "default": "Что-то пошло не так. Попробуйте ещё раз.",
+      "invalidToken": "Неверный или просроченный код.",
+      "tooShort": "Пароль должен содержать минимум 8 символов.",
+      "mismatch": "Пароли не совпадают."
+    }
+  },
+
   "actions": {
     "title": "Действия",
     "signOut": "Выйти"

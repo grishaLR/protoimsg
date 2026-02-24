@@ -20,6 +20,9 @@
       "unlisted": "不公开列出",
       "private": "私密"
     },
+    "categoryLabel": "分类",
+    "categoryPlaceholder": "例如：音乐、科技、游戏",
+    "categoryCreate": "创建：{{value}}",
     "error": {
       "default": "创建聊天室失败"
     },
@@ -43,7 +46,8 @@
   "directory": {
     "searchPlaceholder": "搜索聊天室...",
     "createButton": "创建聊天室",
-    "loading": "加载聊天室中..."
+    "loading": "加载聊天室中...",
+    "allCategories": "全部"
   },
 
   "chatRoom": {

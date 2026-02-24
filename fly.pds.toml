@@ -1,0 +1,58 @@
+app = 'protoimsg-pds'
+primary_region = 'iad'
+
+[build]
+  # Custom fork of bluesky-social/pds — adds SMTP via Resend + email template tweaks.
+  # See https://github.com/grishalr/pds for changes vs upstream.
+  image = 'ghcr.io/grishalr/pds:latest'
+
+[env]
+  PDS_HOSTNAME = 'pds.protoimsg.app'
+  PDS_SERVICE_HANDLE_DOMAINS = '.protoimsg.app'
+  PDS_DID_PLC_URL = 'https://plc.directory'
+  PDS_BSKY_APP_VIEW_URL = 'https://api.bsky.app'
+  PDS_BSKY_APP_VIEW_DID = 'did:web:api.bsky.app'
+  PDS_REPORT_SERVICE_URL = 'https://mod.bsky.app'
+  PDS_REPORT_SERVICE_DID = 'did:plc:ar7c4by46qjdydhdevvrndac'
+  PDS_CRAWLERS = 'https://bsky.network'
+  PDS_DATA_DIRECTORY = '/pds'
+  PDS_BLOBSTORE_DISK_LOCATION = '/pds/blocks'
+  PDS_PORT = '3000'
+  PDS_INVITE_REQUIRED = 'false'
+  PDS_SQLITE_DISABLE_WAL_AUTO_CHECKPOINT = '1'
+  LOG_LEVEL = 'debug'
+
+[mounts]
+  source = 'pds_data'
+  destination = '/pds'
+
+[metrics]
+  port = 3000
+  path = '/metrics'
+
+[[services]]
+  internal_port = 3000
+  protocol = 'tcp'
+  auto_stop_machines = false
+  auto_start_machines = true
+  min_machines_running = 1
+
+  [[services.ports]]
+    port = 443
+    handlers = ['tls', 'http']
+
+  [[services.ports]]
+    port = 80
+    handlers = ['http']
+
+  [[services.http_checks]]
+    interval = 15000
+    timeout = 5000
+    grace_period = '5m'
+    method = 'GET'
+    path = '/xrpc/_health'
+
+[[vm]]
+  memory = '512mb'
+  cpu_kind = 'shared'
+  cpus = 1

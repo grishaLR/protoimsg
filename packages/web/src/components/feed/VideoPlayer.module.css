@@ -1,35 +1,221 @@
-.poster {
+.container {
   position: relative;
   margin-bottom: var(--cm-space-3);
-  cursor: pointer;
-}
-
-.posterImg {
-  width: 100%;
   border-radius: var(--cm-radius-sm);
+  overflow: hidden;
+  background: var(--color-neutral);
+}
+
+.container:focus {
+  outline: none;
+}
+
+/* ── Aspect ratio box ────────────────────────────────── */
+.aspectBox {
+  position: relative;
+  width: 100%;
   max-height: var(--cm-image-max-h);
-  object-fit: cover;
-  display: block;
-}
-
-.playIcon {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  font-size: var(--cm-text-2xl);
-  color: var(--cm-chrome-text);
-  text-shadow: var(--cm-shadow-md);
-  pointer-events: none;
-}
-
-.playerWrap {
-  margin-bottom: var(--cm-space-3);
+  overflow: hidden;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
 }
 
 .video {
   width: 100%;
+  display: block;
+  object-fit: contain;
   max-height: var(--cm-image-max-h);
-  border-radius: var(--cm-radius-sm);
   background: var(--color-neutral);
+}
+
+.videoHidden {
+  position: absolute;
+  width: 0;
+  height: 0;
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* ── Big play button (idle) ──────────────────────────── */
+.bigPlayButton {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--cm-overlay-bg-light);
+  border: none;
+  cursor: pointer;
+  color: var(--cm-overlay-text);
+  transition: background var(--cm-duration-fast);
+}
+
+.bigPlayButton:hover {
+  background: var(--cm-overlay-bg-medium);
+}
+
+/* ── Loading / error overlay ─────────────────────────── */
+.overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--cm-overlay-bg-light);
+  color: var(--cm-overlay-text);
+}
+
+/* ── Buffering overlay (non-interactive, on top of video) ── */
+.bufferingOverlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--cm-overlay-bg-light);
+  color: var(--cm-overlay-text);
+  pointer-events: none;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.spinner {
+  animation: spin 1s linear infinite;
+}
+
+.retryButton {
+  display: flex;
+  align-items: center;
+  gap: var(--cm-space-2);
+  padding: var(--cm-space-3) var(--cm-space-5);
+  background: var(--cm-overlay-bg-medium);
+  color: var(--cm-overlay-text);
+  border: none;
+  border-radius: var(--cm-radius-sm);
+  cursor: pointer;
+  font-size: var(--cm-text-sm);
+}
+
+.retryButton:hover {
+  background: var(--cm-overlay-bg-hover);
+}
+
+/* ── Tap area (play/pause zone) ──────────────────────── */
+.tapArea {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: var(--cm-overlay-text);
+}
+
+.tapAreaVisible {
+  /* No background change on visible — the control bar handles the gradient */
+}
+
+.bigPlayIcon {
+  background: var(--cm-overlay-bg-medium);
+  border-radius: var(--cm-radius-pill);
+  width: var(--cm-overlay-btn-size);
+  height: var(--cm-overlay-btn-size);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ── Control bar ─────────────────────────────────────── */
+.controlBar {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: linear-gradient(transparent, var(--cm-overlay-bg-medium));
+  padding: var(--cm-space-8) var(--cm-space-3) var(--cm-space-2);
+  opacity: 0;
+  transition: opacity var(--cm-duration-normal);
+  pointer-events: none;
+}
+
+.controlBarVisible {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* ── Scrubber ────────────────────────────────────────── */
+.scrubber {
+  width: 100%;
+  padding: var(--cm-space-2) 0;
+  cursor: pointer;
+  touch-action: none;
+}
+
+.scrubberTrack {
+  width: 100%;
+  height: 3px;
+  background: var(--cm-overlay-bg-light);
+  border-radius: 2px;
+  overflow: hidden;
+  transition: height var(--cm-duration-fast);
+}
+
+.scrubber:hover .scrubberTrack {
+  height: 6px;
+}
+
+.scrubberFill {
+  height: 100%;
+  background: var(--cm-overlay-text);
+  border-radius: 2px;
+}
+
+/* ── Control row ─────────────────────────────────────── */
+.controlRow {
+  display: flex;
+  align-items: center;
+  gap: var(--cm-space-2);
+}
+
+.controlButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  color: var(--cm-overlay-text);
+  cursor: pointer;
+  padding: var(--cm-space-1);
+  border-radius: var(--cm-radius-sm);
+  flex-shrink: 0;
+}
+
+.controlButton:hover {
+  background: var(--cm-overlay-bg-light);
+}
+
+.timeDisplay {
+  font-size: var(--cm-text-2xs);
+  color: var(--cm-overlay-text);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  user-select: none;
+}
+
+.controlSpacer {
+  flex: 1;
+}
+
+/* ── Alt text label ──────────────────────────────────── */
+.altLabel {
+  font-size: var(--cm-text-2xs);
+  color: var(--cm-border-dark);
+  margin-top: var(--cm-space-1);
 }

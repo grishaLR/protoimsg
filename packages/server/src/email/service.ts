@@ -30,7 +30,7 @@ export class EmailService {
   async sendWaitlistConfirmation(to: string, handle?: string): Promise<void> {
     const greeting = handle ? `Hey @${escapeHtml(handle)}` : 'Hey';
     try {
-      await this.client.emails.send({
+      const { data, error } = await this.client.emails.send({
         from: this.from,
         to,
         subject: "You're on the list — proto instant messenger",
@@ -52,7 +52,11 @@ export class EmailService {
           </div>
         `,
       });
-      log.info({ to }, 'Waitlist confirmation email sent');
+      if (error) {
+        log.error({ err: error, to }, 'Failed to send waitlist confirmation email');
+        return;
+      }
+      log.info({ to, id: data.id }, 'Waitlist confirmation email sent');
     } catch (err) {
       log.error({ err, to }, 'Failed to send waitlist confirmation email');
     }
@@ -64,7 +68,7 @@ export class EmailService {
     const safeMessage = escapeHtml(message);
 
     try {
-      await this.client.emails.send({
+      const { data, error } = await this.client.emails.send({
         from: this.from,
         to: 'protoimsg@gmail.com',
         subject: sanitizeSubject(`Feedback from @${fromHandle}`),
@@ -81,7 +85,11 @@ ${safeMessage}
           </div>
         `,
       });
-      log.info({ fromDid }, 'Feedback email sent');
+      if (error) {
+        log.error({ err: error, fromDid }, 'Failed to send feedback email');
+        throw new Error(error.message);
+      }
+      log.info({ fromDid, id: data.id }, 'Feedback email sent');
     } catch (err) {
       log.error({ err, fromDid }, 'Failed to send feedback email');
       throw err;
@@ -117,7 +125,7 @@ ${safeMessage}
       .join('');
 
     try {
-      await this.client.emails.send({
+      const { data, error } = await this.client.emails.send({
         from: this.from,
         to: 'protoimsg@gmail.com',
         subject: sanitizeSubject(`User Report — @${report.subjectHandle ?? 'unknown'}`),
@@ -134,7 +142,14 @@ ${safeMessage}
           </div>
         `,
       });
-      log.info({ fromDid, subjectDid: report.subjectDid }, 'Report email sent');
+      if (error) {
+        log.error(
+          { err: error, fromDid, subjectDid: report.subjectDid },
+          'Failed to send report email',
+        );
+        throw new Error(error.message);
+      }
+      log.info({ fromDid, subjectDid: report.subjectDid, id: data.id }, 'Report email sent');
     } catch (err) {
       log.error({ err, fromDid, subjectDid: report.subjectDid }, 'Failed to send report email');
       throw err;
@@ -167,7 +182,7 @@ ${safeMessage}
       .join('');
 
     try {
-      await this.client.emails.send({
+      const { data, error } = await this.client.emails.send({
         from: this.from,
         to: 'protoimsg@gmail.com',
         subject: sanitizeSubject(`Content Report — ${report.subjectUri.slice(0, 60)}`),
@@ -185,7 +200,17 @@ ${safeMessage}
           </div>
         `,
       });
-      log.info({ fromDid, subjectUri: report.subjectUri }, 'Content report email sent');
+      if (error) {
+        log.error(
+          { err: error, fromDid, subjectUri: report.subjectUri },
+          'Failed to send content report email',
+        );
+        throw new Error(error.message);
+      }
+      log.info(
+        { fromDid, subjectUri: report.subjectUri, id: data.id },
+        'Content report email sent',
+      );
     } catch (err) {
       log.error(
         { err, fromDid, subjectUri: report.subjectUri },
@@ -198,7 +223,7 @@ ${safeMessage}
   async sendApprovalNotification(to: string, handle?: string): Promise<void> {
     const greeting = handle ? `Hey @${escapeHtml(handle)}` : 'Hey';
     try {
-      await this.client.emails.send({
+      const { data, error } = await this.client.emails.send({
         from: this.from,
         to,
         subject: "You're in — proto instant messenger",
@@ -216,7 +241,6 @@ ${safeMessage}
               <a href="https://bsky.app/profile/protoimsg.myatproto.social" style="color: #6366f1;">Bluesky</a> or
               email <a href="mailto:protoimsg@gmail.com" style="color: #6366f1;">protoimsg@gmail.com</a>.
               Your feedback helps shape a platform built to protect your privacy and keep you connected peer-to-peer and on your terms.
-
             </p>
             <p style="line-height: 1.6; color: #333;">
               See you in the rooms.
@@ -227,7 +251,11 @@ ${safeMessage}
           </div>
         `,
       });
-      log.info({ to }, 'Approval notification email sent');
+      if (error) {
+        log.error({ err: error, to }, 'Failed to send approval notification email');
+        return;
+      }
+      log.info({ to, id: data.id }, 'Approval notification email sent');
     } catch (err) {
       log.error({ err, to }, 'Failed to send approval notification email');
     }

@@ -9,7 +9,8 @@
     "posting": "กำลังโพสต์...",
     "post": "โพสต์",
     "imageAltText": "อธิบายรูปภาพนี้...",
-    "gifAltText": "อธิบาย GIF นี้..."
+    "gifAltText": "อธิบาย GIF นี้...",
+    "quotingPost": "อ้างอิง @{{handle}}"
   },
 
   "post": {
@@ -26,7 +27,32 @@
     "translate": "แปล",
     "translatedTo": "แปลเป็น{{lang}}",
     "showOriginal": "แสดงต้นฉบับ",
-    "translating": "กำลังแปล..."
+    "translating": "กำลังแปล...",
+    "quoteDeleted": "โพสต์นี้ถูกลบแล้ว",
+    "quoteBlocked": "โพสต์นี้มาจากบัญชีที่ถูกบล็อก",
+    "quoteDetached": "การอ้างอิงนี้ถูกแยกออก",
+    "repost": "รีโพสต์",
+    "quotePost": "โพสต์อ้างอิง",
+    "copyLink": "คัดลอกลิงก์",
+    "openInBluesky": "เปิดใน Bluesky",
+    "linkCopied": "คัดลอกแล้ว!",
+    "moreActions": "การดำเนินการเพิ่มเติม",
+    "lightboxClose": "ปิด",
+    "lightboxPrev": "รูปก่อนหน้า",
+    "lightboxNext": "รูปถัดไป",
+    "lightboxCounter": "{{current}} / {{total}}"
+  },
+
+  "video": {
+    "play": "เล่นวิดีโอ",
+    "pause": "หยุดวิดีโอชั่วคราว",
+    "mute": "ปิดเสียง",
+    "unmute": "เปิดเสียง",
+    "fullscreen": "เต็มจอ",
+    "retry": "ลองอีกครั้ง",
+    "scrubber": "ความคืบหน้าวิดีโอ",
+    "altAvailable": "ALT",
+    "buffering": "กำลังบัฟเฟอร์…"
   },
 
   "feedView": {

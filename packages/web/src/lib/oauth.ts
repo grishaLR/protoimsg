@@ -1,5 +1,8 @@
 import { BrowserOAuthClient, type OAuthClientMetadata } from '@atproto/oauth-client-browser';
 
+/** Scopes that protoimsg requires to function. Checked after OAuth callback. */
+export const REQUIRED_SCOPES = ['atproto'] as const;
+
 let client: BrowserOAuthClient | null = null;
 
 /** Build OAuth client metadata from a given origin URL. */
