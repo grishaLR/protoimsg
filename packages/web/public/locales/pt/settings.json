@@ -49,6 +49,33 @@
     }
   },
 
+  "changePassword": {
+    "title": "Alterar Senha",
+    "description": "Enviaremos um código para seu e-mail para verificar sua identidade.",
+    "emailLabel": "Endereço de e-mail",
+    "emailPlaceholder": "voce@exemplo.com",
+    "requestCode": "Solicitar Código",
+    "requesting": "Enviando...",
+    "codeSent": "Verifique seu e-mail para o código de redefinição.",
+    "alreadyHaveCode": "Já tem um código?",
+    "requestAnother": "Solicitar outro código",
+    "tokenLabel": "Código de redefinição",
+    "tokenPlaceholder": "Cole o código do e-mail",
+    "newPasswordLabel": "Nova senha",
+    "newPasswordPlaceholder": "Pelo menos 8 caracteres",
+    "confirmPasswordLabel": "Confirmar nova senha",
+    "confirmPasswordPlaceholder": "Digite a senha novamente",
+    "submit": "Alterar Senha",
+    "submitting": "Alterando...",
+    "success": "Senha alterada com sucesso.",
+    "error": {
+      "default": "Algo deu errado. Tente novamente.",
+      "invalidToken": "Código inválido ou expirado.",
+      "tooShort": "A senha deve ter pelo menos 8 caracteres.",
+      "mismatch": "As senhas não coincidem."
+    }
+  },
+
   "actions": {
     "title": "A\u00e7\u00f5es",
     "signOut": "Sair"

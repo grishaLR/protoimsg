@@ -49,6 +49,33 @@
     }
   },
 
+  "changePassword": {
+    "title": "비밀번호 변경",
+    "description": "본인 확인을 위해 이메일로 코드를 보내드립니다.",
+    "emailLabel": "이메일 주소",
+    "emailPlaceholder": "you@example.com",
+    "requestCode": "코드 요청",
+    "requesting": "전송 중...",
+    "codeSent": "재설정 코드가 포함된 이메일을 확인하세요.",
+    "alreadyHaveCode": "이미 코드가 있으신가요?",
+    "requestAnother": "다른 코드 요청",
+    "tokenLabel": "재설정 코드",
+    "tokenPlaceholder": "이메일의 코드를 붙여넣기",
+    "newPasswordLabel": "새 비밀번호",
+    "newPasswordPlaceholder": "8자 이상",
+    "confirmPasswordLabel": "새 비밀번호 확인",
+    "confirmPasswordPlaceholder": "비밀번호를 다시 입력",
+    "submit": "비밀번호 변경",
+    "submitting": "변경 중...",
+    "success": "비밀번호가 성공적으로 변경되었습니다.",
+    "error": {
+      "default": "문제가 발생했습니다. 다시 시도해 주세요.",
+      "invalidToken": "유효하지 않거나 만료된 코드입니다.",
+      "tooShort": "비밀번호는 최소 8자 이상이어야 합니다.",
+      "mismatch": "비밀번호가 일치하지 않습니다."
+    }
+  },
+
   "actions": {
     "title": "작업",
     "signOut": "로그아웃"

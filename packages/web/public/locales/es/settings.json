@@ -49,6 +49,33 @@
     }
   },
 
+  "changePassword": {
+    "title": "Cambiar contraseña",
+    "description": "Te enviaremos un código a tu correo para verificar tu identidad.",
+    "emailLabel": "Correo electrónico",
+    "emailPlaceholder": "tu@ejemplo.com",
+    "requestCode": "Solicitar código",
+    "requesting": "Enviando...",
+    "codeSent": "Revisa tu correo para obtener el código de restablecimiento.",
+    "alreadyHaveCode": "¿Ya tienes un código?",
+    "requestAnother": "Solicitar otro código",
+    "tokenLabel": "Código de restablecimiento",
+    "tokenPlaceholder": "Pega el código del correo",
+    "newPasswordLabel": "Nueva contraseña",
+    "newPasswordPlaceholder": "Al menos 8 caracteres",
+    "confirmPasswordLabel": "Confirmar nueva contraseña",
+    "confirmPasswordPlaceholder": "Ingresa la contraseña nuevamente",
+    "submit": "Cambiar contraseña",
+    "submitting": "Cambiando...",
+    "success": "Contraseña cambiada exitosamente.",
+    "error": {
+      "default": "Algo salió mal. Inténtalo de nuevo.",
+      "invalidToken": "Código inválido o expirado.",
+      "tooShort": "La contraseña debe tener al menos 8 caracteres.",
+      "mismatch": "Las contraseñas no coinciden."
+    }
+  },
+
   "actions": {
     "title": "Acciones",
     "signOut": "Cerrar sesión"

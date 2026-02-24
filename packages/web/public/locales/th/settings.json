@@ -49,6 +49,33 @@
     }
   },
 
+  "changePassword": {
+    "title": "เปลี่ยนรหัสผ่าน",
+    "description": "เราจะส่งรหัสไปยังอีเมลของคุณเพื่อยืนยันตัวตน",
+    "emailLabel": "ที่อยู่อีเมล",
+    "emailPlaceholder": "you@example.com",
+    "requestCode": "ขอรหัส",
+    "requesting": "กำลังส่ง...",
+    "codeSent": "ตรวจสอบอีเมลของคุณสำหรับรหัสรีเซ็ต",
+    "alreadyHaveCode": "มีรหัสอยู่แล้ว?",
+    "requestAnother": "ขอรหัสใหม่",
+    "tokenLabel": "รหัสรีเซ็ต",
+    "tokenPlaceholder": "วางรหัสจากอีเมล",
+    "newPasswordLabel": "รหัสผ่านใหม่",
+    "newPasswordPlaceholder": "อย่างน้อย 8 ตัวอักษร",
+    "confirmPasswordLabel": "ยืนยันรหัสผ่านใหม่",
+    "confirmPasswordPlaceholder": "กรอกรหัสผ่านอีกครั้ง",
+    "submit": "เปลี่ยนรหัสผ่าน",
+    "submitting": "กำลังเปลี่ยน...",
+    "success": "เปลี่ยนรหัสผ่านสำเร็จแล้ว",
+    "error": {
+      "default": "เกิดข้อผิดพลาด ลองอีกครั้ง",
+      "invalidToken": "รหัสไม่ถูกต้องหรือหมดอายุ",
+      "tooShort": "รหัสผ่านต้องมีอย่างน้อย 8 ตัวอักษร",
+      "mismatch": "รหัสผ่านไม่ตรงกัน"
+    }
+  },
+
   "actions": {
     "title": "การกระทำ",
     "signOut": "ออกจากระบบ"

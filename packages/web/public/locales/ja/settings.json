@@ -49,6 +49,33 @@
     }
   },
 
+  "changePassword": {
+    "title": "パスワードを変更",
+    "description": "本人確認のためにメールにコードを送信します。",
+    "emailLabel": "メールアドレス",
+    "emailPlaceholder": "you@example.com",
+    "requestCode": "コードをリクエスト",
+    "requesting": "送信中...",
+    "codeSent": "リセットコードが記載されたメールを確認してください。",
+    "alreadyHaveCode": "コードをお持ちですか？",
+    "requestAnother": "別のコードをリクエスト",
+    "tokenLabel": "リセットコード",
+    "tokenPlaceholder": "メールのコードを貼り付け",
+    "newPasswordLabel": "新しいパスワード",
+    "newPasswordPlaceholder": "8文字以上",
+    "confirmPasswordLabel": "新しいパスワードの確認",
+    "confirmPasswordPlaceholder": "パスワードを再入力",
+    "submit": "パスワードを変更",
+    "submitting": "変更中...",
+    "success": "パスワードが正常に変更されました。",
+    "error": {
+      "default": "問題が発生しました。もう一度お試しください。",
+      "invalidToken": "無効または期限切れのコードです。",
+      "tooShort": "パスワードは8文字以上必要です。",
+      "mismatch": "パスワードが一致しません。"
+    }
+  },
+
   "actions": {
     "title": "アクション",
     "signOut": "ログアウト"

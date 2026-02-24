@@ -49,6 +49,33 @@
     }
   },
 
+  "changePassword": {
+    "title": "Đổi Mật Khẩu",
+    "description": "Chúng tôi sẽ gửi mã đến email của bạn để xác minh danh tính.",
+    "emailLabel": "Địa chỉ email",
+    "emailPlaceholder": "ban@vidu.com",
+    "requestCode": "Yêu Cầu Mã",
+    "requesting": "Đang gửi...",
+    "codeSent": "Kiểm tra email của bạn để lấy mã đặt lại.",
+    "alreadyHaveCode": "Đã có mã?",
+    "requestAnother": "Yêu cầu mã khác",
+    "tokenLabel": "Mã đặt lại",
+    "tokenPlaceholder": "Dán mã từ email",
+    "newPasswordLabel": "Mật khẩu mới",
+    "newPasswordPlaceholder": "Ít nhất 8 ký tự",
+    "confirmPasswordLabel": "Xác nhận mật khẩu mới",
+    "confirmPasswordPlaceholder": "Nhập lại mật khẩu",
+    "submit": "Đổi Mật Khẩu",
+    "submitting": "Đang đổi...",
+    "success": "Đổi mật khẩu thành công.",
+    "error": {
+      "default": "Đã xảy ra lỗi. Vui lòng thử lại.",
+      "invalidToken": "Mã không hợp lệ hoặc đã hết hạn.",
+      "tooShort": "Mật khẩu phải có ít nhất 8 ký tự.",
+      "mismatch": "Mật khẩu không khớp."
+    }
+  },
+
   "actions": {
     "title": "Thao tác",
     "signOut": "Đăng xuất"

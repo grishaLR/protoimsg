@@ -12,7 +12,7 @@
       "headers": [
         {
           "key": "Content-Security-Policy",
-          "value": "default-src 'none'; script-src 'self'; connect-src 'self' https: wss://api.protoimsg.app wss://protoimsg.fly.dev wss://protoimsg-staging.fly.dev https://*.ingest.sentry.io https://va.vercel-scripts.com; img-src 'self' https://*.bsky.app https://video.bsky.app https://media0.giphy.com https://media1.giphy.com https://media2.giphy.com https://media3.giphy.com https://media4.giphy.com https://i.giphy.com https://media.tenor.com https://*.klipy.com data:; style-src 'self'; font-src 'self'; media-src 'self' https:; frame-src 'none'; frame-ancestors 'none'; worker-src 'self'; child-src 'none'; object-src 'none'; base-uri 'self'; form-action 'self'; upgrade-insecure-requests"
+          "value": "default-src 'none'; script-src 'self'; connect-src 'self' https: wss://api.protoimsg.app wss://protoimsg.fly.dev wss://protoimsg-staging.fly.dev https://pds.protoimsg.app https://*.ingest.sentry.io https://va.vercel-scripts.com; img-src 'self' https://*.bsky.app https://video.bsky.app https://media0.giphy.com https://media1.giphy.com https://media2.giphy.com https://media3.giphy.com https://media4.giphy.com https://i.giphy.com https://media.tenor.com https://*.klipy.com data:; style-src 'self'; font-src 'self'; media-src 'self' https:; frame-src 'none'; frame-ancestors 'none'; worker-src 'self'; child-src 'none'; object-src 'none'; base-uri 'self'; form-action 'self'; upgrade-insecure-requests"
         },
         {
           "key": "X-Content-Type-Options",

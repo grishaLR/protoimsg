@@ -1,5 +1,5 @@
 import type { RoomView, ChannelView, MessageView, PollView } from '../types';
-import { API_URL } from './config.js';
+import { API_URL, PDS_URL } from './config.js';
 
 // -- Token management --
 // Token is kept in-memory and also in localStorage so Tauri child windows
@@ -119,6 +119,62 @@ export async function joinWaitlist(email: string, handle: string): Promise<{ suc
     throw new Error(data.error ?? 'Failed to join waitlist');
   }
   return (await res.json()) as { success: boolean };
+}
+
+// -- PDS account creation --
+
+export interface CreatePdsAccountParams {
+  handle: string;
+  email: string;
+  password: string;
+  dob: string;
+}
+
+export interface CreatePdsAccountResult {
+  did: string;
+  handle: string;
+}
+
+/** Check if a handle is available on the PDS. */
+export async function checkHandleAvailability(
+  handle: string,
+  signal?: AbortSignal,
+): Promise<boolean> {
+  const res = await fetch(
+    `${PDS_URL}/xrpc/com.atproto.identity.resolveHandle?handle=${encodeURIComponent(handle)}`,
+    { signal },
+  );
+  // 400 = handle doesn't exist on this PDS = available
+  if (res.status === 400) return true;
+  // 200 = handle resolves = taken
+  if (res.ok) return false;
+  // Any other status (500, 429, etc.) = assume unavailable to be safe
+  return false;
+}
+
+/** Create a new account on the protoimsg PDS. */
+export async function createPdsAccount(
+  params: CreatePdsAccountParams,
+): Promise<CreatePdsAccountResult> {
+  const res = await fetch(`${PDS_URL}/xrpc/com.atproto.server.createAccount`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      handle: params.handle,
+      email: params.email,
+      password: params.password,
+      birthDate: params.dob,
+    }),
+  });
+
+  if (!res.ok) {
+    const data = (await res.json().catch(() => ({}))) as { error?: string; message?: string };
+    const message = data.message ?? data.error ?? 'Account creation failed';
+    throw new Error(message);
+  }
+
+  const data = (await res.json()) as { did: string; handle: string };
+  return { did: data.did, handle: data.handle };
 }
 
 // -- Translate types --

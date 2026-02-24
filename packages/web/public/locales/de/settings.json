@@ -49,6 +49,33 @@
     }
   },
 
+  "changePassword": {
+    "title": "Passwort ändern",
+    "description": "Wir senden einen Code an deine E-Mail, um deine Identität zu bestätigen.",
+    "emailLabel": "E-Mail-Adresse",
+    "emailPlaceholder": "du@beispiel.de",
+    "requestCode": "Code anfordern",
+    "requesting": "Wird gesendet...",
+    "codeSent": "Prüfe deine E-Mail auf einen Zurücksetzungscode.",
+    "alreadyHaveCode": "Hast du bereits einen Code?",
+    "requestAnother": "Neuen Code anfordern",
+    "tokenLabel": "Zurücksetzungscode",
+    "tokenPlaceholder": "Code aus der E-Mail einfügen",
+    "newPasswordLabel": "Neues Passwort",
+    "newPasswordPlaceholder": "Mindestens 8 Zeichen",
+    "confirmPasswordLabel": "Neues Passwort bestätigen",
+    "confirmPasswordPlaceholder": "Passwort erneut eingeben",
+    "submit": "Passwort ändern",
+    "submitting": "Wird geändert...",
+    "success": "Passwort erfolgreich geändert.",
+    "error": {
+      "default": "Etwas ist schiefgelaufen. Versuche es erneut.",
+      "invalidToken": "Ungültiger oder abgelaufener Code.",
+      "tooShort": "Das Passwort muss mindestens 8 Zeichen lang sein.",
+      "mismatch": "Die Passwörter stimmen nicht überein."
+    }
+  },
+
   "actions": {
     "title": "Aktionen",
     "signOut": "Abmelden"

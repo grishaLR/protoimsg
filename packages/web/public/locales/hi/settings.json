@@ -49,6 +49,33 @@
     }
   },
 
+  "changePassword": {
+    "title": "पासवर्ड बदलें",
+    "description": "हम आपकी पहचान सत्यापित करने के लिए आपके ईमेल पर एक कोड भेजेंगे।",
+    "emailLabel": "ईमेल पता",
+    "emailPlaceholder": "aap@example.com",
+    "requestCode": "कोड का अनुरोध करें",
+    "requesting": "भेजा जा रहा है...",
+    "codeSent": "रीसेट कोड के लिए अपना ईमेल जांचें।",
+    "alreadyHaveCode": "पहले से कोड है?",
+    "requestAnother": "दूसरा कोड का अनुरोध करें",
+    "tokenLabel": "रीसेट कोड",
+    "tokenPlaceholder": "ईमेल से कोड पेस्ट करें",
+    "newPasswordLabel": "नया पासवर्ड",
+    "newPasswordPlaceholder": "कम से कम 8 अक्षर",
+    "confirmPasswordLabel": "नए पासवर्ड की पुष्टि करें",
+    "confirmPasswordPlaceholder": "पासवर्ड दोबारा दर्ज करें",
+    "submit": "पासवर्ड बदलें",
+    "submitting": "बदला जा रहा है...",
+    "success": "पासवर्ड सफलतापूर्वक बदल दिया गया।",
+    "error": {
+      "default": "कुछ गलत हो गया। फिर से प्रयास करें।",
+      "invalidToken": "अमान्य या समय-सीमा समाप्त कोड।",
+      "tooShort": "पासवर्ड कम से कम 8 अक्षर का होना चाहिए।",
+      "mismatch": "पासवर्ड मेल नहीं खाते।"
+    }
+  },
+
   "actions": {
     "title": "कार्य",
     "signOut": "साइन आउट"

@@ -25,10 +25,12 @@ export function waitlistRouter(sql: Sql, emailService: EmailService | null): Rou
 
       const { email, handle } = parsed.data;
 
+      // If this user was auto-inserted via a login attempt (has DID, no email),
+      // update that row with their email. Otherwise insert new.
       const rows = await sql`
         INSERT INTO waitlist (email, handle, source)
         VALUES (${email}, ${handle}, 'web')
-        ON CONFLICT (email) DO NOTHING
+        ON CONFLICT (email) WHERE email IS NOT NULL DO NOTHING
         RETURNING id
       `;
 

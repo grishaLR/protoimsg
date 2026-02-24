@@ -229,6 +229,27 @@
   line-height: var(--cm-leading-snug);
 }
 
+.successText {
+  color: var(--color-success, #22c55e);
+  font-size: var(--cm-text-sm);
+  margin-top: var(--cm-space-2);
+}
+
+.linkButton {
+  background: none;
+  border: none;
+  color: var(--color-primary, var(--cm-focus));
+  cursor: pointer;
+  font-size: var(--cm-text-xs);
+  padding: 0;
+  margin-top: var(--cm-space-2);
+  text-decoration: underline;
+}
+
+.linkButton:hover {
+  opacity: 0.8;
+}
+
 .signOutButton {
   padding: var(--cm-space-1) var(--cm-space-8);
   background: var(--color-base-200);
