@@ -84,7 +84,7 @@
   padding: var(--cm-space-1.5) var(--cm-space-4);
   border: none;
   border-radius: var(--cm-radius-sm);
-  font-size: var(--cm-text-md);
+  font-size: max(var(--cm-text-md), 16px);
   background: var(--cm-surface-content);
   box-shadow: var(--cm-sunken);
   color: var(--color-base-content);
@@ -101,7 +101,7 @@
   padding: var(--cm-space-2) var(--cm-space-4);
   border: none;
   border-radius: var(--cm-radius-sm);
-  font-size: var(--cm-text-md);
+  font-size: max(var(--cm-text-md), 16px);
   font-family: inherit;
   resize: vertical;
   background: var(--cm-surface-content);
@@ -191,7 +191,7 @@
   color: var(--color-base-content);
   border: none;
   border-radius: var(--cm-radius-sm);
-  font-size: var(--cm-text-md);
+  font-size: max(var(--cm-text-md), 16px);
   font-family: inherit;
   cursor: pointer;
   box-shadow: var(--cm-sunken);

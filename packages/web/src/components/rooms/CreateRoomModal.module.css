@@ -9,6 +9,7 @@
   max-width: var(--cm-modal-max-w-sm);
   width: 90%;
   margin: auto;
+  color: var(--color-base-content);
   background: var(--color-base-100);
   box-shadow: var(--cm-raised), var(--cm-window-shadow);
 }
