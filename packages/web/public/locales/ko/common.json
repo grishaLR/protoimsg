@@ -63,6 +63,11 @@
     "message": "연결이 끊어졌습니다 — 다시 연결하는 중..."
   },
 
+  "betaBanner": {
+    "message": "아직 초기 단계라 문제가 발생할 수 있습니다! 연락처:",
+    "dismiss": "닫기"
+  },
+
   "errorBoundary": {
     "title": "문제가 발생했습니다",
     "fallbackMessage": "예기치 않은 오류가 발생했습니다",

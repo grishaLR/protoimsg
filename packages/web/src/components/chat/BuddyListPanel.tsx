@@ -74,7 +74,7 @@ export function BuddyListPanel({
   onSendIm,
   onVideoCall,
   onBuddyClick,
-  onCreateGroup,
+  onCreateGroup: _onCreateGroup,
   onRenameGroup,
   onDeleteGroup,
   onMoveBuddy,
@@ -99,8 +99,6 @@ export function BuddyListPanel({
   } = useContentTranslation();
   const lastAwayMsgHash = useRef('');
   const [reportDid, setReportDid] = useState<string | null>(null);
-  const [creatingGroup, setCreatingGroup] = useState(false);
-  const [newGroupName, setNewGroupName] = useState('');
   const [renamingGroup, setRenamingGroup] = useState<string | null>(null);
   const [renameValue, setRenameValue] = useState('');
 
@@ -242,17 +240,6 @@ export function BuddyListPanel({
         row.type === 'group-header' ? `gh:${row.groupName}` : `b:${row.groupName}:${row.buddy.did}`,
       estimatedItemHeight: 28,
     });
-
-  const handleCreateGroup = useCallback(async () => {
-    const trimmed = newGroupName.trim();
-    if (!trimmed) {
-      setCreatingGroup(false);
-      return;
-    }
-    await onCreateGroup(trimmed);
-    setNewGroupName('');
-    setCreatingGroup(false);
-  }, [newGroupName, onCreateGroup]);
 
   const handleRenameGroup = useCallback(async () => {
     if (!renamingGroup) return;
@@ -560,37 +547,7 @@ export function BuddyListPanel({
         </>
       )}
 
-      {/* Create group UI */}
-      {creatingGroup ? (
-        <div className={styles.addSection}>
-          <input
-            className={styles.createGroupInput}
-            autoFocus
-            placeholder={t('buddyList.createGroup.placeholder')}
-            value={newGroupName}
-            onChange={(e) => {
-              setNewGroupName(e.target.value);
-            }}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter') void handleCreateGroup();
-              if (e.key === 'Escape') {
-                setCreatingGroup(false);
-                setNewGroupName('');
-              }
-            }}
-            onBlur={() => void handleCreateGroup()}
-          />
-        </div>
-      ) : (
-        <button
-          className={styles.createGroupBtn}
-          onClick={() => {
-            setCreatingGroup(true);
-          }}
-        >
-          {t('buddyList.createGroup.button')}
-        </button>
-      )}
+      {/* Create group UI — hidden until feature is ready */}
 
       {(onOpenChatRooms || onOpenFeed) && (
         <div className={styles.footer}>

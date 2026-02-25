@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { useLocation } from 'react-router-dom';
 import type { AppBskyFeedDefs } from '@atproto/api';
 import { Header } from '../components/layout/Header';
+import { BetaBanner } from '../components/BetaBanner';
 import { MobileTabBar } from '../components/layout/MobileTabBar';
 import type { MobileTab } from '../components/layout/MobileTabBar';
 import { RoomList } from '../components/rooms/RoomList';
@@ -279,6 +280,7 @@ export function RoomDirectoryPage() {
     return (
       <div className={styles.page}>
         <Header onOpenSettings={navigateToSettings} />
+        <BetaBanner />
         <div className={styles.tauriBody}>
           {view === 'profile' && profileTarget ? (
             <ProfileView
@@ -301,6 +303,7 @@ export function RoomDirectoryPage() {
   return (
     <div className={styles.page}>
       <Header onOpenSettings={navigateToSettings} />
+      <BetaBanner />
       <div className={styles.body}>
         <main className={styles.main}>
           {view === 'buddies' && isMobile && <BuddyListPanel {...buddyListProps} />}

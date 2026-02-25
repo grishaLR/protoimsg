@@ -63,6 +63,11 @@
     "message": "Mất kết nối — đang kết nối lại..."
   },
 
+  "betaBanner": {
+    "message": "Chúng tôi đang ở giai đoạn đầu và mọi thứ có thể gặp lỗi! Liên hệ với chúng tôi tại",
+    "dismiss": "Đóng"
+  },
+
   "errorBoundary": {
     "title": "Đã xảy ra lỗi",
     "fallbackMessage": "Đã xảy ra lỗi không mong muốn",

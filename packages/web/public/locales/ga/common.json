@@ -63,6 +63,11 @@
     "message": "Ceangal caillte — ag athcheangal..."
   },
 
+  "betaBanner": {
+    "message": "Táimid sna céimeanna tosaigh agus d'fhéadfadh rudaí briseadh! Déan teagmháil linn ag",
+    "dismiss": "Dún"
+  },
+
   "errorBoundary": {
     "title": "Chuaigh rud éigin mícheart",
     "fallbackMessage": "Tharla earráid gan choinne",

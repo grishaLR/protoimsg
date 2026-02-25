@@ -63,6 +63,11 @@
     "message": "Conex\u00e3o perdida \u2014 reconectando..."
   },
 
+  "betaBanner": {
+    "message": "Estamos em estágios iniciais e as coisas podem quebrar! Entre em contato conosco em",
+    "dismiss": "Fechar"
+  },
+
   "errorBoundary": {
     "title": "Algo deu errado",
     "fallbackMessage": "Ocorreu um erro inesperado",

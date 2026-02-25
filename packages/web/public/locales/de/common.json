@@ -63,6 +63,11 @@
     "message": "Verbindung verloren — wird wiederhergestellt..."
   },
 
+  "betaBanner": {
+    "message": "Wir sind noch in der Anfangsphase und es kann zu Fehlern kommen! Kontaktiert uns unter",
+    "dismiss": "Schließen"
+  },
+
   "errorBoundary": {
     "title": "Etwas ist schiefgelaufen",
     "fallbackMessage": "Ein unerwarteter Fehler ist aufgetreten",
