@@ -47,7 +47,9 @@
     "searchPlaceholder": "Tìm phòng...",
     "createButton": "Tạo phòng",
     "loading": "Đang tải danh sách phòng...",
-    "allCategories": "Tất cả"
+    "allCategories": "Tất cả",
+    "publicRoomsHeader": "Phòng chat công khai",
+    "publicRoomsInfo": "Phòng chat là không gian công cộng — giống như ra ngoài nơi công cộng. Tin nhắn được lưu trữ trên giao thức AT và bất kỳ ai cũng có thể xem, ngay cả khi trạng thái danh sách bạn bè của bạn được đặt thành ẩn."
   },
 
   "chatRoom": {

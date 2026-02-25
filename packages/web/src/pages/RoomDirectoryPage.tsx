@@ -22,6 +22,7 @@ import { LoadingBars } from '../components/LoadingBars';
 import { useDm } from '../contexts/DmContext';
 import { useVideoCall, setInnerCircleDidsForCalls } from '../contexts/VideoCallContext';
 import { useBlocks } from '../contexts/BlockContext';
+import { InfoTip } from '@protoimsg/ui/InfoTip';
 import { IS_TAURI } from '../lib/config';
 import styles from './RoomDirectoryPage.module.css';
 
@@ -329,6 +330,10 @@ export function RoomDirectoryPage() {
                   {t('directory.createButton')}
                 </button>
               </div>
+              <h2 className={styles.sectionHeader}>
+                {t('directory.publicRoomsHeader')}
+                <InfoTip text={t('directory.publicRoomsInfo')} placement="below" />
+              </h2>
               {categories.length > 0 && (
                 <div className={styles.categoryFilters}>
                   <button

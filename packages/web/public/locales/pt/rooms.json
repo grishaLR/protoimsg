@@ -47,7 +47,9 @@
     "searchPlaceholder": "Buscar salas...",
     "createButton": "Criar sala",
     "loading": "Carregando salas...",
-    "allCategories": "Todas"
+    "allCategories": "Todas",
+    "publicRoomsHeader": "Salas de chat públicas",
+    "publicRoomsInfo": "Salas de chat são espaços públicos — como sair na rua. As mensagens são armazenadas no protocolo AT e visíveis para qualquer pessoa, mesmo que seu status na lista de amigos esteja como invisível."
   },
 
   "chatRoom": {

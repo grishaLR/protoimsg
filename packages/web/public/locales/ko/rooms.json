@@ -47,7 +47,9 @@
     "searchPlaceholder": "채팅방 검색...",
     "createButton": "채팅방 만들기",
     "loading": "채팅방 불러오는 중...",
-    "allCategories": "전체"
+    "allCategories": "전체",
+    "publicRoomsHeader": "공개 채팅방",
+    "publicRoomsInfo": "채팅방은 공개 공간입니다 — 밖에 나가 공공장소에 있는 것과 같습니다. 메시지는 AT 프로토콜에 저장되며, 친구 목록 상태가 숨김이더라도 누구나 볼 수 있습니다."
   },
 
   "chatRoom": {

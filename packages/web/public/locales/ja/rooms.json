@@ -47,7 +47,9 @@
     "searchPlaceholder": "ルームを検索...",
     "createButton": "ルームを作成",
     "loading": "ルームを読み込み中...",
-    "allCategories": "すべて"
+    "allCategories": "すべて",
+    "publicRoomsHeader": "公開チャットルーム",
+    "publicRoomsInfo": "チャットルームは公共の場です — 外出して人前にいるようなものです。メッセージはATプロトコルに保存され、バディリストのステータスが非表示でも誰でも見ることができます。"
   },
 
   "chatRoom": {

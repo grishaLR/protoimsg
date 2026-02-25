@@ -47,7 +47,9 @@
     "searchPlaceholder": "Nemo \u0257akuna...",
     "createButton": "\u0136ir\u0137iri \u0110aki",
     "loading": "Ana loda \u0257akuna...",
-    "allCategories": "Duka"
+    "allCategories": "Duka",
+    "publicRoomsHeader": "Ɗakunan Hira na Jama'a",
+    "publicRoomsInfo": "Ɗakunan hira wurare ne na jama'a — kamar fitowa waje a bainar jama'a. Ana adana saƙonni a kan AT Protocol kuma kowa zai iya ganinsu, ko da yanayin ku a jerin abokai yana a ɓoye."
   },
 
   "chatRoom": {
