@@ -41,7 +41,7 @@
 
 .categoryBadge {
   font-size: var(--cm-text-sm);
-  padding: var(--cm-space-0.5) var(--cm-space-2);
+  padding: var(--cm-space-1) var(--cm-space-3);
   background: var(--color-primary);
   color: var(--color-primary-content);
   border-radius: var(--cm-radius-sm);

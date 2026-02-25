@@ -63,6 +63,11 @@
     "message": "Connexion perdue \u2014 reconnexion en cours..."
   },
 
+  "betaBanner": {
+    "message": "Nous en sommes aux premiers stades et des bugs peuvent survenir ! Contactez-nous à",
+    "dismiss": "Fermer"
+  },
+
   "errorBoundary": {
     "title": "Un probl\u00e8me est survenu",
     "fallbackMessage": "Une erreur inattendue s'est produite",

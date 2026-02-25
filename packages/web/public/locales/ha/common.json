@@ -63,6 +63,11 @@
     "message": "An rasa ha\u0257in yanar gizo \u2014 ana sake ha\u0257awa..."
   },
 
+  "betaBanner": {
+    "message": "Muna cikin matakin farko kuma abubuwa na iya lalacewa! Tuntuɓe mu a",
+    "dismiss": "Rufe"
+  },
+
   "errorBoundary": {
     "title": "Wani abu ya lalace",
     "fallbackMessage": "Kuskure maras tsammani ya faru",

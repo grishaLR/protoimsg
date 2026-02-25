@@ -63,6 +63,11 @@
     "message": "Muunganisho umepotea \u2014 inaunganisha tena..."
   },
 
+  "betaBanner": {
+    "message": "Tuko katika hatua za mapema na mambo yanaweza kuvunjika! Wasiliana nasi kupitia",
+    "dismiss": "Funga"
+  },
+
   "errorBoundary": {
     "title": "Kuna tatizo limetokea",
     "fallbackMessage": "Hitilafu isiyotarajiwa imetokea",

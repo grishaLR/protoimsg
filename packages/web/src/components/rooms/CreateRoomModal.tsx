@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { LIMITS } from '@protoimsg/shared';
 import type { RoomPurpose, RoomVisibility } from '@protoimsg/shared';
-import { createRoomRecord, createChannelRecord } from '../../lib/atproto';
+import { createRoomRecord } from '../../lib/atproto';
 import { useAuth } from '../../hooks/useAuth';
 import { CategoryCombobox } from './CategoryCombobox';
 import styles from './CreateRoomModal.module.css';
@@ -25,7 +25,7 @@ export function CreateRoomModal({ categories, onClose, onCreated }: CreateRoomMo
   const [topic, setTopic] = useState('');
   const [category, setCategory] = useState('');
   const [purpose, setPurpose] = useState<RoomPurpose>('discussion');
-  const [visibility, setVisibility] = useState<RoomVisibility>('public');
+  const visibility: RoomVisibility = 'public';
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const previousActiveRef = useRef<HTMLElement | null>(null);
@@ -57,13 +57,8 @@ export function CreateRoomModal({ categories, onClose, onCreated }: CreateRoomMo
       category: category || undefined,
       visibility,
     })
-      .then(async (result) => {
-        // Create default "general" channel (server also auto-creates as fallback)
-        try {
-          await createChannelRecord(agent, { roomUri: result.uri, name: 'general' });
-        } catch {
-          // Server's ensureDefaultChannel will handle it
-        }
+      .then((result) => {
+        // Server's ensureDefaultChannel creates the "general" channel automatically
         onCreated();
         void navigate(`/rooms/${result.rkey}`);
       })
@@ -144,21 +139,6 @@ export function CreateRoomModal({ categories, onClose, onCreated }: CreateRoomMo
             <option value="event">{t('createRoom.purpose.event')}</option>
             <option value="community">{t('createRoom.purpose.community')}</option>
             <option value="support">{t('createRoom.purpose.support')}</option>
-          </select>
-        </label>
-
-        <label className={styles.label}>
-          {t('createRoom.visibilityLabel')}
-          <select
-            className={styles.select}
-            value={visibility}
-            onChange={(e) => {
-              setVisibility(e.target.value as RoomVisibility);
-            }}
-          >
-            <option value="public">{t('createRoom.visibility.public')}</option>
-            <option value="unlisted">{t('createRoom.visibility.unlisted')}</option>
-            <option value="private">{t('createRoom.visibility.private')}</option>
           </select>
         </label>
 

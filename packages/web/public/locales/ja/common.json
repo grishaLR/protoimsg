@@ -63,6 +63,11 @@
     "message": "接続が切断されました — 再接続中..."
   },
 
+  "betaBanner": {
+    "message": "まだ初期段階のため、不具合が発生する可能性があります。お問い合わせは",
+    "dismiss": "閉じる"
+  },
+
   "errorBoundary": {
     "title": "問題が発生しました",
     "fallbackMessage": "予期しないエラーが発生しました",

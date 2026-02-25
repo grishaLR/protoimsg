@@ -63,6 +63,11 @@
     "message": "Connection lost \u2014 reconnecting..."
   },
 
+  "betaBanner": {
+    "message": "We're in early stages and things might break! Reach out to us at",
+    "dismiss": "Dismiss"
+  },
+
   "errorBoundary": {
     "title": "Something went wrong",
     "fallbackMessage": "An unexpected error occurred",

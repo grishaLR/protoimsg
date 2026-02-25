@@ -39,6 +39,7 @@
   gap: var(--cm-space-1);
   font-size: var(--cm-text-md);
   font-weight: 700;
+  color: var(--color-base-content);
 }
 
 .input,
@@ -49,6 +50,7 @@
   border-radius: var(--cm-radius-sm);
   font-size: max(var(--cm-text-md), 16px);
   font-family: inherit;
+  color: var(--color-base-content);
   background: var(--cm-surface-content);
   box-shadow: var(--cm-sunken);
   box-sizing: border-box;

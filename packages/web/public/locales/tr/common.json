@@ -63,6 +63,11 @@
     "message": "Bağlantı kesildi — yeniden bağlanılıyor..."
   },
 
+  "betaBanner": {
+    "message": "Erken aşamadayız ve bazı şeyler bozulabilir! Bize ulaşın:",
+    "dismiss": "Kapat"
+  },
+
   "errorBoundary": {
     "title": "Bir şeyler ters gitti",
     "fallbackMessage": "Beklenmeyen bir hata oluştu",
