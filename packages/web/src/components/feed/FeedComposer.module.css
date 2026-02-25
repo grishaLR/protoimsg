@@ -54,7 +54,7 @@
   padding: var(--cm-space-3);
   border: none;
   border-radius: var(--cm-radius-sm);
-  font-size: var(--cm-text-md);
+  font-size: max(var(--cm-text-md), 16px);
   font-family: inherit;
   resize: vertical;
   background: var(--cm-surface-content);
@@ -132,7 +132,7 @@
   padding: var(--cm-space-1) var(--cm-space-2);
   border: none;
   border-radius: var(--cm-radius-sm);
-  font-size: var(--cm-text-xs);
+  font-size: max(var(--cm-text-xs), 16px);
   font-family: inherit;
   background: var(--cm-surface-content);
   box-shadow: var(--cm-sunken);

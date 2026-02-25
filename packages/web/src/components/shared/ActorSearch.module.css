@@ -9,7 +9,7 @@
   padding: var(--cm-space-1) var(--cm-space-2);
   border: none;
   border-radius: var(--cm-radius-sm);
-  font-size: var(--cm-text-base);
+  font-size: max(var(--cm-text-base), 16px);
   min-width: 0;
   background: var(--cm-surface-content);
   color: var(--color-base-content);
@@ -33,7 +33,7 @@
   padding-inline-end: var(--cm-space-4);
   border: none;
   border-radius: var(--cm-radius-sm);
-  font-size: var(--cm-text-lg);
+  font-size: max(var(--cm-text-lg), 16px);
   background: var(--cm-surface-content);
   color: var(--color-base-content);
   box-shadow: var(--cm-sunken);
