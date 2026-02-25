@@ -47,7 +47,9 @@
     "searchPlaceholder": "Räume suchen...",
     "createButton": "Raum erstellen",
     "loading": "Räume werden geladen...",
-    "allCategories": "Alle"
+    "allCategories": "Alle",
+    "publicRoomsHeader": "Öffentliche Chaträume",
+    "publicRoomsInfo": "Chaträume sind öffentliche Bereiche — wie draußen in der Öffentlichkeit. Nachrichten werden im AT-Protokoll gespeichert und sind für alle sichtbar, auch wenn dein Status in der Freundesliste auf unsichtbar steht."
   },
 
   "chatRoom": {

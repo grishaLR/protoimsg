@@ -47,7 +47,9 @@
     "searchPlaceholder": "Rechercher des salons...",
     "createButton": "Cr\u00e9er un salon",
     "loading": "Chargement des salons...",
-    "allCategories": "Toutes"
+    "allCategories": "Toutes",
+    "publicRoomsHeader": "Salons de discussion publics",
+    "publicRoomsInfo": "Les salons de discussion sont des espaces publics — comme sortir dans la rue. Les messages sont stockés sur le protocole AT et visibles par tous, même si votre statut dans la liste d'amis est réglé sur invisible."
   },
 
   "chatRoom": {

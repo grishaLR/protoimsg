@@ -47,7 +47,9 @@
     "searchPlaceholder": "Tafuta vyumba...",
     "createButton": "Unda Chumba",
     "loading": "Inapakia vyumba...",
-    "allCategories": "Zote"
+    "allCategories": "Zote",
+    "publicRoomsHeader": "Vyumba vya Mazungumzo vya Umma",
+    "publicRoomsInfo": "Vyumba vya mazungumzo ni maeneo ya umma — kama kutoka nje hadharani. Ujumbe huhifadhiwa kwenye itifaki ya AT na unaonekana na mtu yeyote, hata kama hali yako kwenye orodha ya marafiki imewekwa kuwa haionekani."
   },
 
   "chatRoom": {

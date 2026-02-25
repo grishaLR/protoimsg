@@ -47,7 +47,9 @@
     "searchPlaceholder": "Oda ara...",
     "createButton": "Oda Oluştur",
     "loading": "Odalar yükleniyor...",
-    "allCategories": "Tümü"
+    "allCategories": "Tümü",
+    "publicRoomsHeader": "Herkese Açık Sohbet Odaları",
+    "publicRoomsInfo": "Sohbet odaları herkese açık alanlardır — dışarıda herkesin içinde olmak gibi. Mesajlar AT Protokolü'nde saklanır ve arkadaş listesindeki durumunuz görünmez olsa bile herkes tarafından görülebilir."
   },
 
   "chatRoom": {

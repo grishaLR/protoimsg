@@ -47,7 +47,9 @@
     "searchPlaceholder": "Cuardaigh seomraí...",
     "createButton": "Cruthaigh Seomra",
     "loading": "Ag lódáil seomraí...",
-    "allCategories": "Gach"
+    "allCategories": "Gach",
+    "publicRoomsHeader": "Seomraí Comhrá Poiblí",
+    "publicRoomsInfo": "Is spásanna poiblí iad seomraí comhrá — cosúil le bheith amuigh ar an tsráid. Stóráiltear teachtaireachtaí ar Phrótacal AT agus tá siad le feiceáil ag cách, fiú má tá do stádas ar liosta na gcairde socraithe mar dofheicthe."
   },
 
   "chatRoom": {

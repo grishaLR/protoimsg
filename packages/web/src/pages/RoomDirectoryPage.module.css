@@ -40,7 +40,7 @@
   padding: var(--cm-space-1.5) var(--cm-space-4);
   border: none;
   border-radius: var(--cm-radius-sm);
-  font-size: var(--cm-text-md);
+  font-size: max(var(--cm-text-md), 16px);
   background: var(--cm-surface-content);
   box-shadow: var(--cm-sunken);
   box-sizing: border-box;
@@ -69,6 +69,16 @@
 
 .createButton:active {
   box-shadow: var(--cm-pressed);
+}
+
+.sectionHeader {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--cm-space-2);
+  font-size: var(--cm-text-md);
+  font-weight: 600;
+  margin: 0 0 var(--cm-space-4);
 }
 
 .categoryFilters {

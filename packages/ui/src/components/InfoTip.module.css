@@ -16,7 +16,6 @@
 
 .popover {
   position: fixed;
-  transform: translate(-50%, -100%);
   width: 320px;
   max-width: 90vw;
   padding: var(--cm-space-4);
@@ -27,6 +26,6 @@
   line-height: var(--cm-leading-normal);
   border-radius: var(--cm-radius-sm);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
-  pointer-events: none;
+  pointer-events: auto;
   z-index: 99999;
 }
