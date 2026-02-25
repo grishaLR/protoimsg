@@ -86,7 +86,25 @@
     "translating": "Traduzindo...",
     "translatedTo": "Traduzido para {{lang}}",
     "showOriginal": "Mostrar original",
-    "reportButton": "Denunciar"
+    "reportButton": "Denunciar",
+    "addBuddy": "Adicionar contato",
+    "addBuddyFeedback": {
+      "added": "Adicionado!",
+      "alreadyInList": "Já está na lista de contatos",
+      "error": "Erro"
+    }
+  },
+
+  "userContextMenu": {
+    "addToBuddyList": "Adicionar à lista de contatos",
+    "block": "Bloquear",
+    "unblock": "Desbloquear",
+    "report": "Denunciar usuário",
+    "feedback": {
+      "added": "Adicionado!",
+      "alreadyInList": "Já está na lista de contatos",
+      "error": "Erro"
+    }
   },
 
   "messageList": {

@@ -126,6 +126,27 @@
   color: var(--color-error);
 }
 
+.addBuddyBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--cm-space-1);
+  background: none;
+  border: none;
+  color: var(--cm-border-dark);
+  font-size: var(--cm-text-sm);
+  cursor: pointer;
+  padding: 0;
+}
+
+.addBuddyBtn:hover {
+  color: var(--color-primary);
+}
+
+.addBuddyFeedback {
+  font-size: var(--cm-text-sm);
+  color: var(--cm-border-dark);
+}
+
 .translateBtn {
   background: none;
   border: none;

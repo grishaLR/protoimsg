@@ -88,7 +88,25 @@
     "translating": "Перевод...",
     "translatedTo": "Переведено на {{lang}}",
     "showOriginal": "Показать оригинал",
-    "reportButton": "Пожаловаться"
+    "reportButton": "Пожаловаться",
+    "addBuddy": "Добавить друга",
+    "addBuddyFeedback": {
+      "added": "Добавлен!",
+      "alreadyInList": "Уже в списке друзей",
+      "error": "Ошибка"
+    }
+  },
+
+  "userContextMenu": {
+    "addToBuddyList": "Добавить в список друзей",
+    "block": "Заблокировать",
+    "unblock": "Разблокировать",
+    "report": "Пожаловаться",
+    "feedback": {
+      "added": "Добавлен!",
+      "alreadyInList": "Уже в списке друзей",
+      "error": "Ошибка"
+    }
   },
 
   "messageList": {

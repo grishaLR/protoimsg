@@ -89,7 +89,25 @@
     "translating": "جارٍ الترجمة...",
     "translatedTo": "مترجم إلى {{lang}}",
     "showOriginal": "إظهار الأصلي",
-    "reportButton": "إبلاغ"
+    "reportButton": "إبلاغ",
+    "addBuddy": "إضافة صديق",
+    "addBuddyFeedback": {
+      "added": "تمت الإضافة!",
+      "alreadyInList": "موجود بالفعل في قائمة الأصدقاء",
+      "error": "خطأ"
+    }
+  },
+
+  "userContextMenu": {
+    "addToBuddyList": "إضافة إلى قائمة الأصدقاء",
+    "block": "حظر",
+    "unblock": "إلغاء الحظر",
+    "report": "الإبلاغ عن مستخدم",
+    "feedback": {
+      "added": "تمت الإضافة!",
+      "alreadyInList": "موجود بالفعل في قائمة الأصدقاء",
+      "error": "خطأ"
+    }
   },
 
   "messageList": {

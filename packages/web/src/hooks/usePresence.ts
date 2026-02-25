@@ -20,7 +20,7 @@ export function getCachedVisibility(): PresenceVisibility {
   } catch {
     // localStorage unavailable
   }
-  return 'everyone';
+  return 'community';
 }
 
 function setCachedVisibility(v: PresenceVisibility): void {

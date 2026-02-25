@@ -86,7 +86,25 @@
     "translating": "Ana fassarawa...",
     "translatedTo": "An fassara zuwa {{lang}}",
     "showOriginal": "Nuna asali",
-    "reportButton": "Rahoto"
+    "reportButton": "Rahoto",
+    "addBuddy": "Ƙara aboki",
+    "addBuddyFeedback": {
+      "added": "An ƙara!",
+      "alreadyInList": "Ya riga yana cikin jerin abokai",
+      "error": "Kuskure"
+    }
+  },
+
+  "userContextMenu": {
+    "addToBuddyList": "Ƙara zuwa Jerin Abokai",
+    "block": "Toshe",
+    "unblock": "Cire toshe",
+    "report": "Kai rahoto",
+    "feedback": {
+      "added": "An ƙara!",
+      "alreadyInList": "Ya riga yana cikin jerin abokai",
+      "error": "Kuskure"
+    }
   },
 
   "messageList": {

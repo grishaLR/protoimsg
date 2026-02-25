@@ -86,7 +86,25 @@
     "translating": "翻訳中...",
     "translatedTo": "{{lang}}に翻訳済み",
     "showOriginal": "原文を表示",
-    "reportButton": "通報"
+    "reportButton": "通報",
+    "addBuddy": "フレンドを追加",
+    "addBuddyFeedback": {
+      "added": "追加しました！",
+      "alreadyInList": "既にフレンドリストにいます",
+      "error": "エラー"
+    }
+  },
+
+  "userContextMenu": {
+    "addToBuddyList": "フレンドリストに追加",
+    "block": "ブロック",
+    "unblock": "ブロック解除",
+    "report": "ユーザーを通報",
+    "feedback": {
+      "added": "追加しました！",
+      "alreadyInList": "既にフレンドリストにいます",
+      "error": "エラー"
+    }
   },
 
   "messageList": {

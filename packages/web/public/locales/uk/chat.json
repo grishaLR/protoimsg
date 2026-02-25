@@ -88,7 +88,25 @@
     "translating": "Переклад...",
     "translatedTo": "Перекладено на {{lang}}",
     "showOriginal": "Показати оригінал",
-    "reportButton": "Поскаржитись"
+    "reportButton": "Поскаржитись",
+    "addBuddy": "Додати друга",
+    "addBuddyFeedback": {
+      "added": "Додано!",
+      "alreadyInList": "Вже у списку друзів",
+      "error": "Помилка"
+    }
+  },
+
+  "userContextMenu": {
+    "addToBuddyList": "Додати до списку друзів",
+    "block": "Заблокувати",
+    "unblock": "Розблокувати",
+    "report": "Поскаржитися",
+    "feedback": {
+      "added": "Додано!",
+      "alreadyInList": "Вже у списку друзів",
+      "error": "Помилка"
+    }
   },
 
   "messageList": {
