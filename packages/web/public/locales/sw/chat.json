@@ -86,7 +86,25 @@
     "translating": "Inatafsiri...",
     "translatedTo": "Imetafsiriwa kwa {{lang}}",
     "showOriginal": "Onyesha asili",
-    "reportButton": "Ripoti"
+    "reportButton": "Ripoti",
+    "addBuddy": "Ongeza rafiki",
+    "addBuddyFeedback": {
+      "added": "Ameongezwa!",
+      "alreadyInList": "Tayari yumo kwenye orodha ya marafiki",
+      "error": "Hitilafu"
+    }
+  },
+
+  "userContextMenu": {
+    "addToBuddyList": "Ongeza kwa Orodha ya Marafiki",
+    "block": "Zuia",
+    "unblock": "Ondoa kuzuia",
+    "report": "Ripoti mtumiaji",
+    "feedback": {
+      "added": "Ameongezwa!",
+      "alreadyInList": "Tayari yumo kwenye orodha ya marafiki",
+      "error": "Hitilafu"
+    }
   },
 
   "messageList": {

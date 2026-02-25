@@ -86,7 +86,25 @@
     "translating": "翻译中...",
     "translatedTo": "已翻译为{{lang}}",
     "showOriginal": "显示原文",
-    "reportButton": "举报"
+    "reportButton": "举报",
+    "addBuddy": "添加好友",
+    "addBuddyFeedback": {
+      "added": "已添加！",
+      "alreadyInList": "已在好友列表中",
+      "error": "错误"
+    }
+  },
+
+  "userContextMenu": {
+    "addToBuddyList": "添加到好友列表",
+    "block": "屏蔽",
+    "unblock": "取消屏蔽",
+    "report": "举报用户",
+    "feedback": {
+      "added": "已添加！",
+      "alreadyInList": "已在好友列表中",
+      "error": "错误"
+    }
   },
 
   "messageList": {

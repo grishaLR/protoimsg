@@ -1,5 +1,6 @@
-import { useState, memo, useCallback } from 'react';
+import { useState, useRef, memo, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
+import { UserPlus } from 'lucide-react';
 import type { MessageView } from '../../types';
 import { useModeration } from '../../hooks/useModeration';
 import { useContentTranslation } from '../../hooks/useContentTranslation';
@@ -16,10 +17,14 @@ interface MessageItemProps {
   onOpenThread?: (rootUri: string) => void;
   /** Called when user clicks Report — opens the content report modal */
   onReport?: (messageUri: string, preview: string) => void;
+  /** Called when user clicks Add Buddy — adds the message author to buddy list */
+  onAddBuddy?: (did: string) => Promise<'added' | 'already'>;
   /** Whether to hide the reply/thread actions (e.g. inside thread panel) */
   hideActions?: boolean;
   /** Whether this message mentions the current user */
   isMentioned?: boolean;
+  /** Current user's DID — used to hide add buddy on own messages */
+  currentUserDid?: string;
 }
 
 function formatTime(dateStr: string): string {
@@ -32,12 +37,16 @@ export const MessageItem = memo(function MessageItem({
   replyCount,
   onOpenThread,
   onReport,
+  onAddBuddy,
   hideActions,
   isMentioned,
+  currentUserDid,
 }: MessageItemProps) {
   const { t } = useTranslation('chat');
   const moderation = useModeration(message.did);
   const [revealed, setRevealed] = useState(false);
+  const [buddyFeedback, setBuddyFeedback] = useState<string | null>(null);
+  const buddyTimerRef = useRef<ReturnType<typeof setTimeout>>(undefined);
 
   const {
     autoTranslate,
@@ -55,11 +64,30 @@ export const MessageItem = memo(function MessageItem({
     onOpenThread?.(message.uri);
   }, [onOpenThread, message.uri]);
 
+  const handleAddBuddy = useCallback(async () => {
+    if (!onAddBuddy) return;
+    try {
+      const result = await onAddBuddy(message.did);
+      setBuddyFeedback(
+        result === 'added'
+          ? t('messageItem.addBuddyFeedback.added')
+          : t('messageItem.addBuddyFeedback.alreadyInList'),
+      );
+    } catch {
+      setBuddyFeedback(t('messageItem.addBuddyFeedback.error'));
+    }
+    clearTimeout(buddyTimerRef.current);
+    buddyTimerRef.current = setTimeout(() => {
+      setBuddyFeedback(null);
+    }, 2000);
+  }, [onAddBuddy, message.did, t]);
+
   if (moderation.shouldFilter) return null;
 
   const blurred = moderation.shouldBlur && !revealed;
   const hasReplies = (replyCount ?? 0) > 0;
   const showReplyActions = !hideActions && !!onOpenThread;
+  const showAddBuddy = !!onAddBuddy && message.did !== currentUserDid;
 
   // When a message has an inline embed (e.g. GIF), the text is just a fallback URL — hide it
   const hasInlineEmbed =
@@ -74,7 +102,7 @@ export const MessageItem = memo(function MessageItem({
     >
       <span className={styles.meta}>
         <span className={styles.did}>
-          <UserIdentity did={message.did} showAvatar />
+          <UserIdentity did={message.did} showAvatar enableContextMenu />
         </span>
         <span className={styles.time}>{formatTime(message.created_at)}</span>
       </span>
@@ -115,7 +143,7 @@ export const MessageItem = memo(function MessageItem({
         </span>
       )}
       {message.embed != null && <EmbedRenderer embed={message.embed} />}
-      {(showReplyActions || showTranslateBtn || onReport) && (
+      {(showReplyActions || showTranslateBtn || onReport || showAddBuddy) && (
         <div className={styles.actions}>
           {showReplyActions && hasReplies && (
             <button className={styles.threadBtn} onClick={handleOpenThread} type="button">
@@ -144,6 +172,20 @@ export const MessageItem = memo(function MessageItem({
               {translating ? t('messageItem.translating') : t('messageItem.translate')}
             </button>
           )}
+          {showAddBuddy &&
+            (buddyFeedback ? (
+              <span className={styles.addBuddyFeedback}>{buddyFeedback}</span>
+            ) : (
+              <button
+                className={styles.addBuddyBtn}
+                onClick={() => void handleAddBuddy()}
+                type="button"
+                title={t('messageItem.addBuddy')}
+                aria-label={t('messageItem.addBuddy')}
+              >
+                <UserPlus size={12} /> {t('messageItem.addBuddy')}
+              </button>
+            ))}
           {onReport && (
             <button
               className={styles.reportBtn}

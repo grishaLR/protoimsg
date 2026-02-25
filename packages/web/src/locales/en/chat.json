@@ -86,7 +86,25 @@
     "translating": "Translating...",
     "translatedTo": "Translated to {{lang}}",
     "showOriginal": "Show original",
-    "reportButton": "Report"
+    "reportButton": "Report",
+    "addBuddy": "Add Buddy",
+    "addBuddyFeedback": {
+      "added": "Added!",
+      "alreadyInList": "Already in buddy list",
+      "error": "Error"
+    }
+  },
+
+  "userContextMenu": {
+    "addToBuddyList": "Add to Buddy List",
+    "block": "Block",
+    "unblock": "Unblock",
+    "report": "Report User",
+    "feedback": {
+      "added": "Added!",
+      "alreadyInList": "Already in buddy list",
+      "error": "Error"
+    }
   },
 
   "messageList": {

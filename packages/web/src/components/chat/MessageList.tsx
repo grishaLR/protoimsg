@@ -20,6 +20,8 @@ interface MessageListProps {
   onOpenThread?: (rootUri: string) => void;
   /** Called when user clicks Report on a message */
   onReport?: (messageUri: string, preview: string) => void;
+  /** Called when user clicks Add Buddy on a message */
+  onAddBuddy?: (did: string) => Promise<'added' | 'already'>;
   /** Called when user votes on a poll */
   onVote?: (pollId: string, pollUri: string, selectedOptions: number[]) => void;
 }
@@ -34,6 +36,7 @@ export function MessageList({
   replyCounts,
   onOpenThread,
   onReport,
+  onAddBuddy,
   onVote,
 }: MessageListProps) {
   const { t } = useTranslation('chat');
@@ -113,6 +116,8 @@ export function MessageList({
                   replyCount={replyCounts?.[item.uri]}
                   onOpenThread={onOpenThread}
                   onReport={onReport}
+                  onAddBuddy={onAddBuddy}
+                  currentUserDid={did ?? undefined}
                   isMentioned={!!did && hasMentionOf(item.facets, did)}
                 />
               )}

@@ -9,6 +9,8 @@ import { useBlocks } from '../contexts/BlockContext';
 import { useMentionNotifications } from '../contexts/MentionNotificationContext';
 import { useContentTranslation } from '../hooks/useContentTranslation';
 import { useAuth } from '../hooks/useAuth';
+import { addToBuddyList } from '../lib/atproto';
+import { useWebSocket } from '../contexts/WebSocketContext';
 import { MessageList } from '../components/chat/MessageList';
 import { MessageInput } from '../components/chat/MessageInput';
 import { MemberList } from '../components/chat/MemberList';
@@ -33,7 +35,8 @@ export function ChatRoomPage() {
 
 function ChatRoomContent({ roomId }: { roomId: string }) {
   const { t } = useTranslation('rooms');
-  const { did } = useAuth();
+  const { did, agent } = useAuth();
+  const { send } = useWebSocket();
   const {
     room,
     members,
@@ -156,6 +159,14 @@ function ChatRoomContent({ roomId }: { roomId: string }) {
     [roomId],
   );
 
+  const handleAddBuddy = useCallback(
+    async (buddyDid: string) => {
+      if (!agent) throw new Error('Not authenticated');
+      return addToBuddyList(agent, send, buddyDid);
+    },
+    [agent, send],
+  );
+
   // Close thread when switching channels
   useEffect(() => {
     setActiveThread(null);
@@ -268,6 +279,7 @@ function ChatRoomContent({ roomId }: { roomId: string }) {
             replyCounts={replyCounts}
             onOpenThread={handleOpenThread}
             onReport={handleReport}
+            onAddBuddy={handleAddBuddy}
             onVote={(pollId, pollUri, opts) => {
               void castVote(pollId, pollUri, opts);
             }}

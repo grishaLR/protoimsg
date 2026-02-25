@@ -1,0 +1,50 @@
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: var(--cm-z-modal);
+}
+
+.menu {
+  position: fixed;
+  background: var(--color-base-100);
+  border-radius: var(--cm-radius-md);
+  box-shadow: var(--cm-raised), var(--cm-window-shadow);
+  min-width: var(--cm-dropdown-min-w-sm);
+  z-index: var(--cm-z-modal);
+  padding: var(--cm-space-1);
+}
+
+.menuItem {
+  display: block;
+  width: 100%;
+  padding: var(--cm-space-2) var(--cm-space-3);
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: var(--cm-text-base);
+  color: var(--color-base-content);
+  text-align: start;
+  white-space: nowrap;
+}
+
+.menuItem:hover {
+  background: var(--cm-selection);
+  color: var(--cm-chrome-text);
+}
+
+.menuItemDanger {
+  color: var(--color-error);
+}
+
+.menuItemDanger:hover {
+  background: var(--color-error);
+  color: var(--cm-chrome-text);
+}
+
+.menuFeedback {
+  display: block;
+  padding: var(--cm-space-2) var(--cm-space-3);
+  font-size: var(--cm-text-base);
+  color: var(--cm-border-dark);
+  white-space: nowrap;
+}

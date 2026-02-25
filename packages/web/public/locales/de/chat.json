@@ -86,7 +86,25 @@
     "translating": "Wird übersetzt...",
     "translatedTo": "Übersetzt nach {{lang}}",
     "showOriginal": "Original anzeigen",
-    "reportButton": "Melden"
+    "reportButton": "Melden",
+    "addBuddy": "Buddy hinzufügen",
+    "addBuddyFeedback": {
+      "added": "Hinzugefügt!",
+      "alreadyInList": "Bereits in der Buddyliste",
+      "error": "Fehler"
+    }
+  },
+
+  "userContextMenu": {
+    "addToBuddyList": "Zur Buddyliste hinzufügen",
+    "block": "Blockieren",
+    "unblock": "Entblocken",
+    "report": "Nutzer melden",
+    "feedback": {
+      "added": "Hinzugefügt!",
+      "alreadyInList": "Bereits in der Buddyliste",
+      "error": "Fehler"
+    }
   },
 
   "messageList": {

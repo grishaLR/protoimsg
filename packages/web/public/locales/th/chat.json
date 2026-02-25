@@ -86,7 +86,25 @@
     "translating": "กำลังแปล...",
     "translatedTo": "แปลเป็น{{lang}}",
     "showOriginal": "แสดงต้นฉบับ",
-    "reportButton": "รายงาน"
+    "reportButton": "รายงาน",
+    "addBuddy": "เพิ่มเพื่อน",
+    "addBuddyFeedback": {
+      "added": "เพิ่มแล้ว!",
+      "alreadyInList": "อยู่ในรายชื่อเพื่อนแล้ว",
+      "error": "ข้อผิดพลาด"
+    }
+  },
+
+  "userContextMenu": {
+    "addToBuddyList": "เพิ่มในรายชื่อเพื่อน",
+    "block": "บล็อก",
+    "unblock": "เลิกบล็อก",
+    "report": "รายงานผู้ใช้",
+    "feedback": {
+      "added": "เพิ่มแล้ว!",
+      "alreadyInList": "อยู่ในรายชื่อเพื่อนแล้ว",
+      "error": "ข้อผิดพลาด"
+    }
   },
 
   "messageList": {

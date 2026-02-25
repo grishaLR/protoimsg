@@ -86,7 +86,25 @@
     "translating": "Đang dịch...",
     "translatedTo": "Đã dịch sang {{lang}}",
     "showOriginal": "Xem bản gốc",
-    "reportButton": "Báo cáo"
+    "reportButton": "Báo cáo",
+    "addBuddy": "Thêm bạn",
+    "addBuddyFeedback": {
+      "added": "Đã thêm!",
+      "alreadyInList": "Đã có trong danh sách bạn bè",
+      "error": "Lỗi"
+    }
+  },
+
+  "userContextMenu": {
+    "addToBuddyList": "Thêm vào danh sách bạn bè",
+    "block": "Chặn",
+    "unblock": "Bỏ chặn",
+    "report": "Báo cáo người dùng",
+    "feedback": {
+      "added": "Đã thêm!",
+      "alreadyInList": "Đã có trong danh sách bạn bè",
+      "error": "Lỗi"
+    }
   },
 
   "messageList": {

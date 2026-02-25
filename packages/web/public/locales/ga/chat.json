@@ -86,7 +86,25 @@
     "translating": "Ag aistriú...",
     "translatedTo": "Aistrithe go {{lang}}",
     "showOriginal": "Taispeáin an bunleagan",
-    "reportButton": "Tuairiscigh"
+    "reportButton": "Tuairiscigh",
+    "addBuddy": "Cuir cara leis",
+    "addBuddyFeedback": {
+      "added": "Curtha leis!",
+      "alreadyInList": "Ar an liosta cairde cheana féin",
+      "error": "Earráid"
+    }
+  },
+
+  "userContextMenu": {
+    "addToBuddyList": "Cuir le Liosta Cairde",
+    "block": "Coisc",
+    "unblock": "Díchoisc",
+    "report": "Tuairiscigh úsáideoir",
+    "feedback": {
+      "added": "Curtha leis!",
+      "alreadyInList": "Ar an liosta cairde cheana féin",
+      "error": "Earráid"
+    }
   },
 
   "messageList": {

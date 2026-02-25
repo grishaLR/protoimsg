@@ -86,7 +86,25 @@
     "translating": "Çevriliyor...",
     "translatedTo": "{{lang}} diline çevrildi",
     "showOriginal": "Orijinali göster",
-    "reportButton": "Şikayet Et"
+    "reportButton": "Şikayet Et",
+    "addBuddy": "Arkadaş Ekle",
+    "addBuddyFeedback": {
+      "added": "Eklendi!",
+      "alreadyInList": "Zaten arkadaş listesinde",
+      "error": "Hata"
+    }
+  },
+
+  "userContextMenu": {
+    "addToBuddyList": "Arkadaş Listesine Ekle",
+    "block": "Engelle",
+    "unblock": "Engeli Kaldır",
+    "report": "Kullanıcıyı Şikayet Et",
+    "feedback": {
+      "added": "Eklendi!",
+      "alreadyInList": "Zaten arkadaş listesinde",
+      "error": "Hata"
+    }
   },
 
   "messageList": {

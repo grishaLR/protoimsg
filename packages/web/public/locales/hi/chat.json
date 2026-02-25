@@ -86,7 +86,25 @@
     "translating": "अनुवाद हो रहा है...",
     "translatedTo": "{{lang}} में अनुवादित",
     "showOriginal": "मूल दिखाएँ",
-    "reportButton": "रिपोर्ट करें"
+    "reportButton": "रिपोर्ट करें",
+    "addBuddy": "दोस्त जोड़ें",
+    "addBuddyFeedback": {
+      "added": "जोड़ दिया!",
+      "alreadyInList": "पहले से दोस्तों की सूची में है",
+      "error": "त्रुटि"
+    }
+  },
+
+  "userContextMenu": {
+    "addToBuddyList": "दोस्तों की सूची में जोड़ें",
+    "block": "ब्लॉक करें",
+    "unblock": "अनब्लॉक करें",
+    "report": "उपयोगकर्ता की रिपोर्ट करें",
+    "feedback": {
+      "added": "जोड़ दिया!",
+      "alreadyInList": "पहले से दोस्तों की सूची में है",
+      "error": "त्रुटि"
+    }
   },
 
   "messageList": {
