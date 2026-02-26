@@ -2,7 +2,7 @@ import type { WebSocket } from 'ws';
 import type { PresenceVisibility } from '@protoimsg/shared';
 import type { Sql } from '../db/client.js';
 import type { BlockService } from '../moderation/block-service.js';
-import { isCommunityMember, isInnerCircle } from '../community/queries.js';
+import { batchIsCommunityMember, batchIsInnerCircleMember } from '../community/queries.js';
 import { resolveVisibleStatus } from '../presence/visibility.js';
 
 /**
@@ -91,7 +91,7 @@ export class CommunityWatchers {
         if (ws.readyState !== ws.OPEN) continue;
         try {
           const watcherDid = this.socketDids.get(ws);
-          if (watcherDid && this.blockService.doesBlock(did, watcherDid)) {
+          if (watcherDid && this.blockService.isBlocked(did, watcherDid)) {
             ws.send(offlineMsg);
           } else {
             ws.send(realMsg);
@@ -114,30 +114,58 @@ export class CommunityWatchers {
     visibility: PresenceVisibility,
     sockets: Set<WebSocket>,
   ): Promise<void> {
-    for (const ws of sockets) {
-      if (ws.readyState !== ws.OPEN) continue;
+    // Snapshot the set so watch()/unwatchAll() can't mutate it between the
+    // DID-collection loop and the send loop (which are separated by awaits).
+    const socketSnapshot = [...sockets];
 
+    // Collect unique watcher DIDs (O(1) Set lookup), filtering blocked ones upfront
+    const blockedWatcherDids = new Set<string>();
+    const eligibleSet = new Set<string>();
+
+    for (const ws of socketSnapshot) {
+      if (ws.readyState !== ws.OPEN) continue;
+      const watcherDid = this.socketDids.get(ws);
+      if (!watcherDid) continue;
+      if (this.blockService.isBlocked(did, watcherDid)) {
+        blockedWatcherDids.add(watcherDid);
+      } else {
+        eligibleSet.add(watcherDid);
+      }
+    }
+    const eligibleWatcherDids = [...eligibleSet];
+
+    // 2 batch queries (or 1) instead of N×2
+    const needCommunity = visibility === 'community' || visibility === 'inner-circle';
+    const needInnerCircle = visibility === 'inner-circle';
+
+    const [communityMembers, innerCircleMembers] = await Promise.all([
+      needCommunity
+        ? batchIsCommunityMember(this.sql, did, eligibleWatcherDids)
+        : new Set<string>(),
+      needInnerCircle
+        ? batchIsInnerCircleMember(this.sql, did, eligibleWatcherDids)
+        : new Set<string>(),
+    ]);
+
+    // Send to each socket using pre-computed Sets
+    const offlineMsg = JSON.stringify({
+      type: 'community_presence',
+      data: [{ did, status: 'offline' }],
+    });
+
+    for (const ws of socketSnapshot) {
+      if (ws.readyState !== ws.OPEN) continue;
       const watcherDid = this.socketDids.get(ws);
       if (!watcherDid) continue;
 
       try {
-        // If the user blocked this watcher, always show offline
-        if (this.blockService.doesBlock(did, watcherDid)) {
-          ws.send(
-            JSON.stringify({
-              type: 'community_presence',
-              data: [{ did, status: 'offline' }],
-            }),
-          );
+        if (blockedWatcherDids.has(watcherDid)) {
+          ws.send(offlineMsg);
           continue;
         }
 
-        const isMember =
-          visibility === 'community' || visibility === 'inner-circle'
-            ? await isCommunityMember(this.sql, did, watcherDid)
-            : false;
-        const isFriend =
-          visibility === 'inner-circle' ? await isInnerCircle(this.sql, did, watcherDid) : false;
+        const isMember = communityMembers.has(watcherDid);
+        const isFriend = innerCircleMembers.has(watcherDid);
 
         const effectiveStatus = resolveVisibleStatus(
           visibility,
