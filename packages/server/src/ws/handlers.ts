@@ -25,7 +25,12 @@ import {
 import { getRoomById } from '../rooms/queries.js';
 import { insertMessage } from '../messages/queries.js';
 import { isUserModerator, getRoomRoles } from '../moderation/queries.js';
-import { syncCommunityMembers, upsertCommunityList } from '../community/queries.js';
+import {
+  syncCommunityMembers,
+  upsertCommunityList,
+  batchCheckMembership,
+  batchCheckInnerCircle,
+} from '../community/queries.js';
 import { computeConversationId, sortDids } from '../dms/queries.js';
 import { resolveVisibleStatus } from '../presence/visibility.js';
 import { resolvePdsEndpoint } from '../auth/verify.js';
@@ -198,14 +203,15 @@ export async function handleClientMessage(
     case 'request_community_presence': {
       const rawPresence = await service.getBulkPresence(data.dids);
 
-      // Resolve visibility for all DIDs, then batch-query community/inner-circle
-      const visibilityMap = new Map<string, PresenceVisibility>();
+      // Bulk-resolve all visibilities in one call (1 Redis pipeline instead of N)
+      const visibilityMap = await service.getVisibleToBulk(data.dids);
       const communityCheckDids: string[] = [];
       const innerCircleCheckDids: string[] = [];
 
       for (const p of rawPresence) {
-        const v = await service.getVisibleTo(p.did);
-        visibilityMap.set(p.did, v);
+        // Skip blocked DIDs — they'll be mapped to offline in the result anyway
+        if (blockService.isBlocked(p.did, did)) continue;
+        const v = visibilityMap.get(p.did) ?? 'no-one';
         if (v === 'community' || v === 'inner-circle') {
           communityCheckDids.push(p.did);
         }
@@ -216,16 +222,12 @@ export async function handleClientMessage(
 
       // Two batch queries instead of N individual ones
       const [communityMembers, innerCircleSets] = await Promise.all([
-        communityCheckDids.length > 0
-          ? batchCommunityCheck(sql, communityCheckDids, did)
-          : new Set<string>(),
-        innerCircleCheckDids.length > 0
-          ? batchInnerCircleCheck(sql, innerCircleCheckDids, did)
-          : new Set<string>(),
+        batchCheckMembership(sql, communityCheckDids, did),
+        batchCheckInnerCircle(sql, innerCircleCheckDids, did),
       ]);
 
       const presenceList = rawPresence.map((p) => {
-        if (blockService.doesBlock(p.did, did)) {
+        if (blockService.isBlocked(p.did, did)) {
           return { did: p.did, status: 'offline' as const };
         }
         const visibility = visibilityMap.get(p.did) ?? 'no-one';
@@ -984,48 +986,4 @@ export async function handleClientMessage(
       break;
     }
   }
-}
-
-/**
- * Batch check which of `ownerDids` consider `queryDid` a community member.
- * Returns a Set of owner DIDs that include queryDid in their community.
- */
-async function batchCommunityCheck(
-  sql: Sql,
-  ownerDids: string[],
-  queryDid: string,
-): Promise<Set<string>> {
-  if (ownerDids.length === 0) return new Set();
-  const rows = await sql<Array<{ owner_did: string }>>`
-    SELECT owner_did FROM community_members
-    WHERE owner_did = ANY(${ownerDids}) AND member_did = ${queryDid}
-  `;
-  return new Set(rows.map((r) => r.owner_did));
-}
-
-/**
- * Batch check which of `ownerDids` consider `queryDid` in their inner circle.
- * Scans the JSONB `groups` column for inner-circle groups containing queryDid.
- * Returns a Set of owner DIDs whose inner circle includes queryDid.
- */
-async function batchInnerCircleCheck(
-  sql: Sql,
-  ownerDids: string[],
-  queryDid: string,
-): Promise<Set<string>> {
-  if (ownerDids.length === 0) return new Set();
-  const rows = await sql<Array<{ did: string }>>`
-    SELECT DISTINCT community_lists.did
-    FROM community_lists,
-         jsonb_array_elements(groups) AS g
-    WHERE community_lists.did = ANY(${ownerDids})
-      AND jsonb_typeof(groups) = 'array'
-      AND (g->>'isInnerCircle')::boolean = true
-      AND jsonb_typeof(g->'members') = 'array'
-      AND EXISTS (
-        SELECT 1 FROM jsonb_array_elements(g->'members') AS m
-        WHERE m->>'did' = ${queryDid}
-      )
-  `;
-  return new Set(rows.map((r) => r.did));
 }

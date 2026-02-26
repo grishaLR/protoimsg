@@ -4,11 +4,12 @@ import { CommunityWatchers } from './buddy-watchers.js';
 import type { WebSocket } from 'ws';
 
 vi.mock('../community/queries.js', () => ({
-  isCommunityMember: vi.fn(),
-  isInnerCircle: vi.fn(),
+  batchIsCommunityMember: vi.fn(),
+  batchIsInnerCircleMember: vi.fn(),
 }));
 
-const { isCommunityMember, isInnerCircle } = await import('../community/queries.js');
+const { batchIsCommunityMember, batchIsInnerCircleMember } =
+  await import('../community/queries.js');
 
 function createMockWs(): WebSocket {
   const ws = {
@@ -34,8 +35,9 @@ function parseSentMessage(ws: WebSocket): {
 }
 
 const mockSql = {} as never;
+const mockIsBlocked = vi.fn().mockReturnValue(false);
 const mockBlockService = {
-  doesBlock: vi.fn().mockReturnValue(false),
+  isBlocked: mockIsBlocked,
 } as never;
 
 describe('CommunityWatchers', () => {
@@ -43,6 +45,7 @@ describe('CommunityWatchers', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
+    mockIsBlocked.mockReturnValue(false);
     watchers = new CommunityWatchers(mockSql, mockBlockService);
   });
 
@@ -98,8 +101,8 @@ describe('CommunityWatchers', () => {
   });
 
   it('resolves inner-circle visibility per watcher', async () => {
-    vi.mocked(isCommunityMember).mockResolvedValue(true);
-    vi.mocked(isInnerCircle).mockResolvedValue(true);
+    vi.mocked(batchIsCommunityMember).mockResolvedValue(new Set(['did:plc:friend']));
+    vi.mocked(batchIsInnerCircleMember).mockResolvedValue(new Set(['did:plc:friend']));
 
     const ws = createMockWs();
     watchers.watch(ws, 'did:plc:friend', ['did:plc:alice']);
@@ -110,8 +113,8 @@ describe('CommunityWatchers', () => {
   });
 
   it('shows offline for non-friends with inner-circle visibility', async () => {
-    vi.mocked(isCommunityMember).mockResolvedValue(true);
-    vi.mocked(isInnerCircle).mockResolvedValue(false);
+    vi.mocked(batchIsCommunityMember).mockResolvedValue(new Set(['did:plc:stranger']));
+    vi.mocked(batchIsInnerCircleMember).mockResolvedValue(new Set());
 
     const ws = createMockWs();
     watchers.watch(ws, 'did:plc:stranger', ['did:plc:alice']);
@@ -119,5 +122,74 @@ describe('CommunityWatchers', () => {
 
     const payload = parseSentMessage(ws);
     expect(payload.data[0]?.status).toBe('offline');
+  });
+
+  it('shows offline to blocked watchers (everyone visibility)', async () => {
+    mockIsBlocked.mockReturnValue(true);
+
+    const ws = createMockWs();
+    watchers.watch(ws, 'did:plc:blocked', ['did:plc:alice']);
+    await watchers.notify('did:plc:alice', 'online', undefined, 'everyone');
+
+    const payload = parseSentMessage(ws);
+    expect(payload.data[0]?.status).toBe('offline');
+  });
+
+  it('shows offline to blocked watchers (community visibility)', async () => {
+    mockIsBlocked.mockReturnValue(true);
+
+    const ws = createMockWs();
+    watchers.watch(ws, 'did:plc:blocked', ['did:plc:alice']);
+    await watchers.notify('did:plc:alice', 'online', undefined, 'community');
+
+    const payload = parseSentMessage(ws);
+    expect(payload.data[0]?.status).toBe('offline');
+    // Batch queries called with empty array — blocked watchers are excluded
+    expect(batchIsCommunityMember).toHaveBeenCalledWith(mockSql, 'did:plc:alice', []);
+  });
+
+  it('resolves community visibility — member sees online, non-member sees offline', async () => {
+    vi.mocked(batchIsCommunityMember).mockResolvedValue(new Set(['did:plc:member']));
+
+    const wsMember = createMockWs();
+    const wsStranger = createMockWs();
+    watchers.watch(wsMember, 'did:plc:member', ['did:plc:alice']);
+    watchers.watch(wsStranger, 'did:plc:stranger', ['did:plc:alice']);
+    await watchers.notify('did:plc:alice', 'online', undefined, 'community');
+
+    const memberPayload = parseSentMessage(wsMember);
+    expect(memberPayload.data[0]?.status).toBe('online');
+
+    const strangerPayload = parseSentMessage(wsStranger);
+    expect(strangerPayload.data[0]?.status).toBe('offline');
+  });
+
+  it('shows offline to everyone with no-one visibility', async () => {
+    const ws = createMockWs();
+    watchers.watch(ws, 'did:plc:watcher', ['did:plc:alice']);
+    await watchers.notify('did:plc:alice', 'online', undefined, 'no-one');
+
+    const payload = parseSentMessage(ws);
+    expect(payload.data[0]?.status).toBe('offline');
+    // No batch queries needed for no-one visibility
+    expect(batchIsCommunityMember).not.toHaveBeenCalled();
+    expect(batchIsInnerCircleMember).not.toHaveBeenCalled();
+  });
+
+  it('calls batch functions with correct arguments', async () => {
+    vi.mocked(batchIsCommunityMember).mockResolvedValue(new Set());
+    vi.mocked(batchIsInnerCircleMember).mockResolvedValue(new Set());
+
+    const ws = createMockWs();
+    watchers.watch(ws, 'did:plc:watcher', ['did:plc:alice']);
+    await watchers.notify('did:plc:alice', 'online', undefined, 'inner-circle');
+
+    // ownerDid is the target, queryDids are the watchers
+    expect(batchIsCommunityMember).toHaveBeenCalledWith(mockSql, 'did:plc:alice', [
+      'did:plc:watcher',
+    ]);
+    expect(batchIsInnerCircleMember).toHaveBeenCalledWith(mockSql, 'did:plc:alice', [
+      'did:plc:watcher',
+    ]);
   });
 });

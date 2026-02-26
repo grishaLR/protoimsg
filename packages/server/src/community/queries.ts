@@ -61,7 +61,14 @@ export async function getCommunityList(
   return rows[0];
 }
 
-/** Batch check which DIDs from a list are in the owner's community. Returns a Set of member DIDs. */
+/**
+ * Batch check which DIDs from a list are in the owner's community.
+ * One owner, many candidate members.
+ * Returns a Set of member DIDs that are in the owner's community.
+ *
+ * @example batchIsCommunityMember(sql, aliceDid, [bobDid, carolDid])
+ * // → Set of DIDs from [bob, carol] that are in alice's community
+ */
 export async function batchIsCommunityMember(
   sql: Sql,
   ownerDid: string,
@@ -73,6 +80,34 @@ export async function batchIsCommunityMember(
     WHERE owner_did = ${ownerDid} AND member_did = ANY(${queryDids})
   `;
   return new Set(rows.map((r) => r.member_did));
+}
+
+/**
+ * Batch check which DIDs from a list are in the owner's inner circle.
+ * One owner, many candidate members. Uses JSONB scan on the `groups` column.
+ * Returns a Set of DIDs from `queryDids` that appear in the owner's inner-circle groups.
+ *
+ * @example batchIsInnerCircleMember(sql, aliceDid, [bobDid, carolDid])
+ * // → Set of DIDs from [bob, carol] that are in alice's inner circle
+ */
+export async function batchIsInnerCircleMember(
+  sql: Sql,
+  ownerDid: string,
+  queryDids: string[],
+): Promise<Set<string>> {
+  if (queryDids.length === 0) return new Set();
+  const rows = await sql<Array<{ did: string }>>`
+    SELECT DISTINCT m->>'did' AS did
+    FROM community_lists,
+         jsonb_array_elements(groups) AS g,
+         jsonb_array_elements(g->'members') AS m
+    WHERE community_lists.did = ${ownerDid}
+      AND jsonb_typeof(groups) = 'array'
+      AND (g->>'isInnerCircle')::boolean = true
+      AND jsonb_typeof(g->'members') = 'array'
+      AND m->>'did' = ANY(${queryDids})
+  `;
+  return new Set(rows.map((r) => r.did));
 }
 
 /** Get all DIDs in the owner's inner circle groups. */
@@ -90,45 +125,54 @@ export async function getInnerCircleDids(sql: Sql, ownerDid: string): Promise<Se
   return new Set(rows.map((r) => r.did));
 }
 
-/** Check if `queryDid` is in any of `ownerDid`'s community groups. */
-export async function isCommunityMember(
+/**
+ * Batch check which of `ownerDids` consider `queryDid` a community member.
+ * Many owners, one candidate member — the inverse of `batchIsCommunityMember`.
+ * Returns a Set of owner DIDs that include queryDid in their community.
+ *
+ * @example batchCheckMembership(sql, [aliceDid, bobDid], carolDid)
+ * // → Set of owner DIDs from [alice, bob] whose community includes carol
+ */
+export async function batchCheckMembership(
   sql: Sql,
-  ownerDid: string,
+  ownerDids: string[],
   queryDid: string,
-): Promise<boolean> {
-  const rows = await sql<Array<{ found: boolean }>>`
-    SELECT EXISTS (
-      SELECT 1 FROM community_members
-      WHERE owner_did = ${ownerDid} AND member_did = ${queryDid}
-    ) AS found
+): Promise<Set<string>> {
+  if (ownerDids.length === 0) return new Set();
+  const rows = await sql<Array<{ owner_did: string }>>`
+    SELECT owner_did FROM community_members
+    WHERE owner_did = ANY(${ownerDids}) AND member_did = ${queryDid}
   `;
-  return rows[0]?.found ?? false;
+  return new Set(rows.map((r) => r.owner_did));
 }
 
 /**
- * Check if `queryDid` is in any of `ownerDid`'s inner circle groups.
- * Scans the JSONB `groups` array for groups with `isInnerCircle: true`
- * that contain `queryDid` in their members.
+ * Batch check which of `ownerDids` consider `queryDid` in their inner circle.
+ * Many owners, one candidate member — the inverse of `batchIsInnerCircleMember`.
+ * Scans the JSONB `groups` column for inner-circle groups containing queryDid.
+ * Returns a Set of owner DIDs whose inner circle includes queryDid.
+ *
+ * @example batchCheckInnerCircle(sql, [aliceDid, bobDid], carolDid)
+ * // → Set of owner DIDs from [alice, bob] whose inner circle includes carol
  */
-export async function isInnerCircle(
+export async function batchCheckInnerCircle(
   sql: Sql,
-  ownerDid: string,
+  ownerDids: string[],
   queryDid: string,
-): Promise<boolean> {
-  const rows = await sql<Array<{ found: boolean }>>`
-    SELECT EXISTS (
-      SELECT 1
-      FROM community_lists,
-           jsonb_array_elements(groups) AS g
-      WHERE did = ${ownerDid}
-        AND jsonb_typeof(groups) = 'array'
-        AND (g->>'isInnerCircle')::boolean = true
-        AND jsonb_typeof(g->'members') = 'array'
-        AND EXISTS (
-          SELECT 1 FROM jsonb_array_elements(g->'members') AS m
-          WHERE m->>'did' = ${queryDid}
-        )
-    ) AS found
+): Promise<Set<string>> {
+  if (ownerDids.length === 0) return new Set();
+  const rows = await sql<Array<{ did: string }>>`
+    SELECT DISTINCT community_lists.did
+    FROM community_lists,
+         jsonb_array_elements(groups) AS g
+    WHERE community_lists.did = ANY(${ownerDids})
+      AND jsonb_typeof(groups) = 'array'
+      AND (g->>'isInnerCircle')::boolean = true
+      AND jsonb_typeof(g->'members') = 'array'
+      AND EXISTS (
+        SELECT 1 FROM jsonb_array_elements(g->'members') AS m
+        WHERE m->>'did' = ${queryDid}
+      )
   `;
-  return rows[0]?.found ?? false;
+  return new Set(rows.map((r) => r.did));
 }

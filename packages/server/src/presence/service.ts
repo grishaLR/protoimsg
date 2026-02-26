@@ -15,6 +15,7 @@ export interface PresenceService {
   getUserStatus(did: string): Promise<PresenceStatus>;
   getPresence(did: string): Promise<{ status: PresenceStatus; awayMessage?: string }>;
   getVisibleTo(did: string): Promise<PresenceVisibility>;
+  getVisibleToBulk(dids: string[]): Promise<Map<string, PresenceVisibility>>;
   getRoomPresence(roomId: string): Promise<string[]>;
   getBulkPresence(
     dids: string[],
@@ -59,6 +60,10 @@ export function createPresenceService(tracker: PresenceTrackerStore): PresenceSe
 
     async getVisibleTo(did: string): Promise<PresenceVisibility> {
       return tracker.getVisibleTo(did);
+    },
+
+    async getVisibleToBulk(dids: string[]): Promise<Map<string, PresenceVisibility>> {
+      return tracker.getVisibleToBulk(dids);
     },
 
     async getRoomPresence(roomId: string): Promise<string[]> {

@@ -106,6 +106,14 @@ export class InMemoryPresenceTracker implements PresenceTrackerStore {
     return Promise.resolve(this.users.get(did)?.visibleTo ?? 'no-one');
   }
 
+  getVisibleToBulk(dids: string[]): Promise<Map<string, PresenceVisibility>> {
+    const result = new Map<string, PresenceVisibility>();
+    for (const did of dids) {
+      result.set(did, this.users.get(did)?.visibleTo ?? 'no-one');
+    }
+    return Promise.resolve(result);
+  }
+
   getPresenceBulk(
     dids: string[],
   ): Promise<Map<string, { status: PresenceStatus; awayMessage?: string }>> {
