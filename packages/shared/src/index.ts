@@ -47,6 +47,7 @@ export type {
   NewIceCandidateMessage,
   ClientMessage,
   ChannelInfo,
+  RoomRoleInfo,
   NewMessageEvent,
   PresenceUpdateEvent,
   CommunityPresenceEvent,
@@ -68,5 +69,7 @@ export type {
   AcceptCallEvent,
   RejectCallEvent,
   NewIceCandidateEvent,
+  RoomBanEvent,
+  RoomRoleUpdateEvent,
   ServerMessage,
 } from './ws-types.js';

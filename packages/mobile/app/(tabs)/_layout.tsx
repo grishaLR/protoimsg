@@ -1,15 +1,19 @@
 import { Tabs } from 'expo-router';
 import { useAuth } from '@/services/auth';
+import { useDm } from '@/services/DmContext';
 import { useTheme } from '@/theme';
 import LoginScreen from '@/components/LoginScreen';
 
 export default function TabLayout() {
   const { session } = useAuth();
   const { colors } = useTheme();
+  const { notifications } = useDm();
 
   if (!session) {
     return <LoginScreen />;
   }
+
+  const badgeCount = notifications.length;
 
   return (
     <Tabs
@@ -28,6 +32,8 @@ export default function TabLayout() {
         options={{
           title: 'Buddies',
           tabBarIcon: (_props) => null, // TODO: icon
+          tabBarBadge: badgeCount > 0 ? badgeCount : undefined,
+          tabBarBadgeStyle: badgeCount > 0 ? { backgroundColor: colors.error } : undefined,
         }}
       />
       <Tabs.Screen

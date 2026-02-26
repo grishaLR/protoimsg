@@ -64,6 +64,7 @@
     "expandChannels": "Expand channels",
     "sendFailed": "Message failed to send. Please try again.",
     "dismiss": "Dismiss",
-    "reportRoom": "Report Room"
+    "reportRoom": "Report Room",
+    "settings": "Room Settings"
   }
 }

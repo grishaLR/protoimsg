@@ -32,6 +32,16 @@
   color: var(--cm-chrome-text);
 }
 
+.menuItem:focus-visible {
+  outline: var(--cm-focus-thin) solid var(--cm-focus);
+  outline-offset: var(--cm-focus-offset);
+}
+
+.menuItem:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
 .menuItemDanger {
   color: var(--color-error);
 }

@@ -1,10 +1,15 @@
-import React, { useMemo, useCallback, useState } from 'react';
+import React, { useEffect, useMemo, useCallback, useState } from 'react';
 import { View, Text, SectionList, Pressable, ActivityIndicator, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import { useBuddyList } from '@/hooks/useBuddyList';
 import { usePresence } from '@/hooks/usePresence';
 import { useWebSocket } from '@/services/WebSocketContext';
+import { useProfile } from '@/services/ProfileContext';
+import { setInnerCircleDids } from '@/services/DmContext';
+import { useVideoCall } from '@/services/VideoCallContext';
+import { isWebRTCAvailable } from '@/services/datachannel';
+import { Avatar } from '@/components/Avatar';
 import { useTheme } from '@/theme';
 import { spacing, dotSize, radius, fontSize } from '@/theme/tokens';
 import type { MemberWithPresence, DoorEvent } from '@/types';
@@ -24,12 +29,21 @@ function StatusDot({ status, doorEvent }: { status: string; doorEvent?: DoorEven
 const BuddyRow = React.memo(function BuddyRow({
   buddy,
   doorEvent,
+  onCall,
+  showCallButton,
 }: {
   buddy: MemberWithPresence;
   doorEvent?: DoorEvent;
+  onCall?: (did: string) => void;
+  showCallButton?: boolean;
 }) {
   const { colors } = useTheme();
-  const displayName = buddy.did.split(':').pop()?.split('.')[0] ?? buddy.did;
+  const profile = useProfile(buddy.did);
+  const displayName =
+    profile?.displayName ??
+    profile?.handle ??
+    buddy.did.split(':').pop()?.split('.')[0] ??
+    buddy.did;
 
   return (
     <Pressable
@@ -40,17 +54,41 @@ const BuddyRow = React.memo(function BuddyRow({
       accessibilityRole="button"
       accessibilityLabel={`Message ${displayName}, ${buddy.status}`}
     >
-      <StatusDot status={buddy.status} doorEvent={doorEvent} />
+      <View style={styles.avatarWrapper}>
+        <Avatar url={profile?.avatarUrl} name={displayName} size="sm" />
+        <View style={styles.dotOverlay}>
+          <StatusDot status={buddy.status} doorEvent={doorEvent} />
+        </View>
+      </View>
       <View style={styles.buddyInfo}>
         <Text style={[styles.buddyName, { color: colors.baseContent }]} numberOfLines={1}>
           {displayName}
         </Text>
+        {profile?.handle ? (
+          <Text style={[styles.buddyHandle, { color: colors.chromeTextMuted }]} numberOfLines={1}>
+            @{profile.handle}
+          </Text>
+        ) : null}
         {buddy.awayMessage ? (
           <Text style={[styles.awayMessage, { color: colors.chromeTextMuted }]} numberOfLines={1}>
             {buddy.awayMessage}
           </Text>
         ) : null}
       </View>
+      {showCallButton && buddy.status !== 'offline' ? (
+        <Pressable
+          style={[styles.callIconButton, { backgroundColor: colors.base200 }]}
+          onPress={(e) => {
+            e.stopPropagation();
+            onCall?.(buddy.did);
+          }}
+          accessibilityRole="button"
+          accessibilityLabel={`Call ${displayName}`}
+          hitSlop={8}
+        >
+          <Text style={[styles.callIconText, { color: colors.primary }]}>C</Text>
+        </Pressable>
+      ) : null}
       {buddy.isInnerCircle ? (
         <Text
           style={[
@@ -66,11 +104,26 @@ const BuddyRow = React.memo(function BuddyRow({
 });
 
 export default function BuddyListScreen() {
-  const { buddies, groups, doorEvents, loading, error } = useBuddyList();
+  const { buddies, groups, doorEvents, loading, error, innerCircleDids } = useBuddyList();
   const { status, visibleTo } = usePresence();
   const { connected } = useWebSocket();
+  const { videoCall } = useVideoCall();
   const { colors } = useTheme();
   const [collapsedGroups, setCollapsedGroups] = useState<Set<string>>(new Set());
+  const webrtcReady = isWebRTCAvailable();
+
+  const handleCall = useCallback(
+    (did: string) => {
+      videoCall(did);
+      router.push(`/call/${encodeURIComponent(did)}`);
+    },
+    [videoCall],
+  );
+
+  // Sync inner-circle DIDs to DmContext for IP protection decisions
+  useEffect(() => {
+    setInnerCircleDids(innerCircleDids);
+  }, [innerCircleDids]);
 
   const toggleGroup = useCallback((name: string) => {
     setCollapsedGroups((prev) => {
@@ -151,7 +204,14 @@ export default function BuddyListScreen() {
       <SectionList
         sections={sections}
         keyExtractor={(item) => item.did}
-        renderItem={({ item }) => <BuddyRow buddy={item} doorEvent={doorEvents[item.did]} />}
+        renderItem={({ item }) => (
+          <BuddyRow
+            buddy={item}
+            doorEvent={doorEvents[item.did]}
+            onCall={handleCall}
+            showCallButton={webrtcReady}
+          />
+        )}
         renderSectionHeader={({ section }) => (
           <Pressable
             style={styles.sectionHeader}
@@ -269,6 +329,14 @@ const styles = StyleSheet.create({
     paddingLeft: spacing[16],
     gap: spacing[5],
   },
+  avatarWrapper: {
+    position: 'relative',
+  },
+  dotOverlay: {
+    position: 'absolute',
+    bottom: -1,
+    right: -1,
+  },
   dot: {
     width: dotSize.sm,
     height: dotSize.sm,
@@ -280,10 +348,25 @@ const styles = StyleSheet.create({
   buddyName: {
     fontSize: fontSize.lg,
   },
+  buddyHandle: {
+    fontSize: fontSize.xs,
+  },
   awayMessage: {
     fontSize: fontSize.sm,
     fontStyle: 'italic',
     marginTop: spacing[0.5],
+  },
+  callIconButton: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: spacing[2],
+  },
+  callIconText: {
+    fontSize: fontSize.sm,
+    fontWeight: '700',
   },
   innerCircleBadge: {
     fontSize: fontSize['2xs'],

@@ -15,9 +15,10 @@
   "dependencies": {
     "@atproto/api": "^0.13.0",
     "@atproto/oauth-client-expo": "^0.0.10",
+    "@config-plugins/react-native-webrtc": "^13.0.0",
+    "@expo/metro-runtime": "~55.0.0",
     "@protoimsg/lexicon": "workspace:*",
     "@protoimsg/shared": "workspace:*",
-    "@expo/metro-runtime": "~55.0.0",
     "expo": "~55.0.0",
     "expo-haptics": "~14.0.0",
     "expo-linking": "~55.0.0",
@@ -29,7 +30,8 @@
     "react-native-mmkv": "^3.3.0",
     "react-native-safe-area-context": "~5.4.0",
     "react-native-screens": "~4.24.0",
-    "react-native-url-polyfill": "^3.0.0"
+    "react-native-url-polyfill": "^3.0.0",
+    "react-native-webrtc": "^124.0.7"
   },
   "devDependencies": {
     "@babel/core": "^7.25.0",

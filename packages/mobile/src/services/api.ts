@@ -1,5 +1,6 @@
 import { API_URL } from './config';
 import { getStoredToken, setStoredToken } from './storage';
+import type { RoomView, MessageView } from '@/types';
 
 // -- In-memory token cache (mirrors stored value) --
 
@@ -115,4 +116,66 @@ export async function authFetch(path: string, init?: RequestInit): Promise<Respo
     onSessionExpired?.();
   }
   return res;
+}
+
+// -- ICE servers --
+
+export interface IceServer {
+  urls: string | string[];
+  username?: string;
+  credential?: string;
+}
+
+export async function fetchIceServers(): Promise<IceServer[]> {
+  try {
+    const res = await authFetch('/api/ice-servers');
+    if (!res.ok) throw new Error(`ICE server request failed: ${res.status}`);
+    const data = (await res.json()) as { iceServers: IceServer[] };
+    return data.iceServers;
+  } catch {
+    // No fallback to third-party STUN — prevents IP address leaks
+    return [];
+  }
+}
+
+// -- Rooms --
+
+export async function fetchRoom(id: string, opts?: { signal?: AbortSignal }): Promise<RoomView> {
+  const res = await authFetch(`/api/rooms/${encodeURIComponent(id)}`, { signal: opts?.signal });
+  if (!res.ok) {
+    if (res.status === 404) throw new NotFoundError('Room not found');
+    throw new Error(`Failed to fetch room: ${res.status}`);
+  }
+  const data = (await res.json()) as { room: RoomView };
+  return data.room;
+}
+
+// -- Channel messages --
+
+export interface FetchMessagesResult {
+  messages: MessageView[];
+  replyCounts: Record<string, number>;
+}
+
+export async function fetchChannelMessages(
+  roomId: string,
+  channelId: string,
+  opts?: { limit?: number; before?: string; signal?: AbortSignal },
+): Promise<FetchMessagesResult> {
+  const params = new URLSearchParams();
+  if (opts?.limit) params.set('limit', String(opts.limit));
+  if (opts?.before) params.set('before', opts.before);
+
+  const qs = params.toString();
+  const res = await authFetch(
+    `/api/rooms/${encodeURIComponent(roomId)}/channels/${encodeURIComponent(channelId)}/messages${qs ? `?${qs}` : ''}`,
+    { signal: opts?.signal },
+  );
+  if (!res.ok) throw new Error(`Failed to fetch channel messages: ${res.status}`);
+
+  const data = (await res.json()) as {
+    messages: MessageView[];
+    replyCounts?: Record<string, number>;
+  };
+  return { messages: data.messages, replyCounts: data.replyCounts ?? {} };
 }

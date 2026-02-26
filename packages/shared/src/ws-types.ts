@@ -215,11 +215,17 @@ export interface ChannelInfo {
   createdAt: string;
 }
 
+export interface RoomRoleInfo {
+  did: string;
+  role: 'owner' | 'moderator';
+}
+
 export interface RoomJoinedEvent extends WsMessageBase {
   type: 'room_joined';
   roomId: string;
   members: string[];
   channels: ChannelInfo[];
+  roles: RoomRoleInfo[];
 }
 
 export interface PongEvent extends WsMessageBase {
@@ -396,6 +402,26 @@ export interface ChannelDeletedEvent extends WsMessageBase {
   };
 }
 
+export interface RoomBanEvent extends WsMessageBase {
+  type: 'room_ban';
+  data: {
+    roomId: string;
+    subjectDid: string;
+    actorDid: string;
+    action: 'ban' | 'unban';
+  };
+}
+
+export interface RoomRoleUpdateEvent extends WsMessageBase {
+  type: 'room_role_update';
+  data: {
+    roomId: string;
+    subjectDid: string;
+    role: 'owner' | 'moderator';
+    action: 'add' | 'remove';
+  };
+}
+
 export type ServerMessage =
   | AuthSuccessEvent
   | NewMessageEvent
@@ -420,4 +446,6 @@ export type ServerMessage =
   | IncomingCallEvent
   | RejectCallEvent
   | AcceptCallEvent
-  | NewIceCandidateEvent;
+  | NewIceCandidateEvent
+  | RoomBanEvent
+  | RoomRoleUpdateEvent;

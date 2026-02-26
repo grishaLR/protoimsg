@@ -81,6 +81,18 @@
   }
 }
 
+.roleBadge {
+  display: inline-block;
+  vertical-align: middle;
+  margin-inline-start: var(--cm-space-1);
+  color: var(--cm-border-dark);
+  flex-shrink: 0;
+}
+
+.member:hover .roleBadge {
+  color: var(--cm-chrome-text-muted);
+}
+
 .awayMsg {
   font-size: var(--cm-text-sm);
   color: var(--cm-border-dark);

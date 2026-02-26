@@ -89,7 +89,7 @@ export function pruneSlowModeTracker(): void {
   }
 }
 
-function isSlowModeViolation(roomId: string, did: string, slowModeSeconds: number): boolean {
+export function isSlowModeViolation(roomId: string, did: string, slowModeSeconds: number): boolean {
   if (slowModeSeconds <= 0) return false;
   const key = `${roomId}:${did}`;
   const last = slowModeTracker.get(key);
@@ -351,7 +351,22 @@ export function createHandlers(
 
     [NSID.Ban]: async (event) => {
       if (event.operation === 'delete') {
+        // Look up ban before deleting so we can broadcast the unban
+        const [existing] = await db<{ room_id: string; subject_did: string }[]>`
+          SELECT room_id, subject_did FROM mod_actions WHERE uri = ${event.uri} AND action = 'ban'
+        `;
         await deleteModActionByUri(db, event.uri);
+        if (existing) {
+          wss.broadcastToRoom(existing.room_id, {
+            type: 'room_ban',
+            data: {
+              roomId: existing.room_id,
+              subjectDid: existing.subject_did,
+              actorDid: event.did,
+              action: 'unban',
+            },
+          });
+        }
         log.info({ rkey: event.rkey }, 'Ban deleted');
         return;
       }
@@ -378,6 +393,12 @@ export function createHandlers(
         return;
       }
 
+      // Cannot ban the room owner
+      if (record.subject === room.did) {
+        log.warn({ did: event.did, roomId }, 'Cannot ban room owner — skipping');
+        return;
+      }
+
       await recordModAction(db, {
         uri: event.uri,
         roomId,
@@ -386,12 +407,38 @@ export function createHandlers(
         action: 'ban',
         reason: record.reason,
       });
+
+      wss.broadcastToRoom(roomId, {
+        type: 'room_ban',
+        data: {
+          roomId,
+          subjectDid: record.subject,
+          actorDid: event.did,
+          action: 'ban',
+        },
+      });
+
       log.info({ subject: record.subject, roomId }, 'Ban indexed');
     },
 
     [NSID.Role]: async (event) => {
       if (event.operation === 'delete') {
+        // Look up role before deleting so we can broadcast the removal
+        const [existing] = await db<{ room_id: string; subject_did: string; role: string }[]>`
+          SELECT room_id, subject_did, role FROM room_roles WHERE uri = ${event.uri}
+        `;
         await deleteRoomRoleByUri(db, event.uri);
+        if (existing) {
+          wss.broadcastToRoom(existing.room_id, {
+            type: 'room_role_update',
+            data: {
+              roomId: existing.room_id,
+              subjectDid: existing.subject_did,
+              role: existing.role as 'owner' | 'moderator',
+              action: 'remove',
+            },
+          });
+        }
         log.info({ rkey: event.rkey }, 'Role deleted');
         return;
       }
@@ -406,6 +453,12 @@ export function createHandlers(
       }
       const record = parsed.data;
       const roomId = extractRkey(record.room);
+
+      // Validate role is a known value
+      if (record.role !== 'moderator' && record.role !== 'owner') {
+        log.warn({ did: event.did, roomId, role: record.role }, 'Unknown role value — skipping');
+        return;
+      }
 
       // Auth: only room creator can assign roles
       const room = await getRoomById(db, roomId);
@@ -427,6 +480,17 @@ export function createHandlers(
         cid: event.cid,
         createdAt: record.createdAt,
       });
+
+      wss.broadcastToRoom(roomId, {
+        type: 'room_role_update',
+        data: {
+          roomId,
+          subjectDid: record.subject,
+          role: record.role,
+          action: 'add',
+        },
+      });
+
       log.info({ subject: record.subject, role: record.role, roomId }, 'Role indexed');
     },
 

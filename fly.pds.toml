@@ -21,6 +21,7 @@ primary_region = 'iad'
   PDS_INVITE_REQUIRED = 'false'
   PDS_SQLITE_DISABLE_WAL_AUTO_CHECKPOINT = '1'
   LOG_LEVEL = 'debug'
+  LOG_ENABLED = 'true'
 
 [mounts]
   source = 'pds_data'

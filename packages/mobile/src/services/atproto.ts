@@ -74,6 +74,53 @@ export async function putCommunityListRecord(
 
 // -- Presence --
 
+// -- Messages --
+
+export interface CreateMessageInput {
+  channelUri: string;
+  text: string;
+  facets?: Record<string, unknown>[];
+  reply?: { root: string; parent: string };
+  embed?: Record<string, unknown>;
+}
+
+export interface CreateMessageResult {
+  uri: string;
+  cid: string;
+  rkey: string;
+}
+
+export async function createMessageRecord(
+  agent: Agent,
+  input: CreateMessageInput,
+  existingRkey?: string,
+): Promise<CreateMessageResult> {
+  const rkey = existingRkey ?? generateTid();
+
+  const response = await agent.com.atproto.repo.createRecord({
+    repo: agent.assertDid,
+    collection: NSID.Message,
+    rkey,
+    record: {
+      $type: NSID.Message,
+      channel: input.channelUri,
+      text: input.text,
+      facets: input.facets?.length ? input.facets : undefined,
+      reply: input.reply,
+      embed: input.embed,
+      createdAt: new Date().toISOString(),
+    },
+  });
+
+  return {
+    uri: response.data.uri,
+    cid: response.data.cid,
+    rkey,
+  };
+}
+
+// -- Presence --
+
 export async function putPresenceRecord(
   agent: Agent,
   status: PresenceStatus,

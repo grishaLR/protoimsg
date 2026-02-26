@@ -24,13 +24,13 @@ import {
 } from '../channels/queries.js';
 import { getRoomById } from '../rooms/queries.js';
 import { insertMessage } from '../messages/queries.js';
-import { isUserModerator } from '../moderation/queries.js';
+import { isUserModerator, getRoomRoles } from '../moderation/queries.js';
 import { syncCommunityMembers, upsertCommunityList } from '../community/queries.js';
 import { computeConversationId, sortDids } from '../dms/queries.js';
 import { resolveVisibleStatus } from '../presence/visibility.js';
 import { resolvePdsEndpoint } from '../auth/verify.js';
 import { messageRecordSchema } from '../firehose/record-schemas.js';
-import { extractMentionedDids, extractRkey } from '../firehose/handlers.js';
+import { extractMentionedDids, extractRkey, isSlowModeViolation } from '../firehose/handlers.js';
 
 /**
  * Per-user-per-room typing throttle. Prevents a single client from flooding
@@ -113,9 +113,10 @@ export async function handleClientMessage(
 
       roomSubs.subscribe(data.roomId, ws);
       await service.handleJoinRoom(did, data.roomId);
-      const [members, initialChannelRows] = await Promise.all([
+      const [members, initialChannelRows, roleRows] = await Promise.all([
         service.getRoomPresence(data.roomId),
         getChannelsByRoom(sql, data.roomId),
+        getRoomRoles(sql, data.roomId),
       ]);
 
       // Self-healing: create default channel for rooms that predate the channels feature
@@ -146,12 +147,14 @@ export async function handleClientMessage(
         isDefault: ch.is_default,
         createdAt: ch.created_at.toISOString(),
       }));
+      const roles = roleRows.map((r) => ({ did: r.subject_did, role: r.role }));
       ws.send(
         JSON.stringify({
           type: 'room_joined',
           roomId: data.roomId,
           members,
           channels,
+          roles,
         }),
       );
       // Notify room of new member (include awayMessage if present).
@@ -881,6 +884,9 @@ export async function handleClientMessage(
           }
         }
 
+        // Slow mode enforcement (shared tracker with firehose handler)
+        const slowModeViolation = isSlowModeViolation(roomId, did, room.slow_mode_seconds);
+
         // Index message (ON CONFLICT = idempotent)
         await insertMessage(sql, {
           id: rkey,
@@ -907,6 +913,11 @@ export async function handleClientMessage(
             json = EXCLUDED.json,
             indexed_at = NOW()
         `;
+
+        if (slowModeViolation) {
+          log.info({ did, roomId }, 'notify_record: slow mode violation — skipping broadcast');
+          break;
+        }
 
         // Broadcast to room subscribers
         roomSubs.broadcast(roomId, {

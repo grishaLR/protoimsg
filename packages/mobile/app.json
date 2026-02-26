@@ -29,7 +29,7 @@
       "package": "app.protoimsg.mobile",
       "permissions": ["CAMERA", "RECORD_AUDIO"]
     },
-    "plugins": ["expo-router"],
+    "plugins": ["expo-router", "@config-plugins/react-native-webrtc"],
     "experiments": {
       "typedRoutes": true
     }

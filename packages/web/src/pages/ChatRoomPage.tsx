@@ -11,6 +11,7 @@ import { useContentTranslation } from '../hooks/useContentTranslation';
 import { useAuth } from '../hooks/useAuth';
 import { addToBuddyList } from '../lib/atproto';
 import { useWebSocket } from '../contexts/WebSocketContext';
+import { RoomModContext } from '../contexts/RoomModContext';
 import { MessageList } from '../components/chat/MessageList';
 import { MessageInput } from '../components/chat/MessageInput';
 import { MemberList } from '../components/chat/MemberList';
@@ -18,8 +19,9 @@ import { ThreadPanel } from '../components/chat/ThreadPanel';
 import { ChannelList } from '../components/chat/ChannelList';
 import { ChannelSwitcher } from '../components/chat/ChannelSwitcher';
 import { CreateChannelModal } from '../components/chat/CreateChannelModal';
+import { RoomSettingsModal } from '../components/rooms/RoomSettingsModal';
 import { ReportContentModal } from '../components/feedback/ReportContentModal';
-import { ArrowLeft, Flag, PanelLeftOpen } from 'lucide-react';
+import { ArrowLeft, Flag, PanelLeftOpen, Settings } from 'lucide-react';
 import { WindowControls } from '../components/layout/WindowControls';
 import { LoadingBars } from '../components/LoadingBars';
 import type { ChatThreadState } from '../hooks/useChatThread';
@@ -41,6 +43,7 @@ function ChatRoomContent({ roomId }: { roomId: string }) {
     room,
     members,
     channels,
+    roles,
     doorEvents,
     loading: roomLoading,
     error: roomError,
@@ -116,6 +119,7 @@ function ChatRoomContent({ roomId }: { roomId: string }) {
     roomId?: string;
   } | null>(null);
   const [showCreateChannel, setShowCreateChannel] = useState(false);
+  const [showSettings, setShowSettings] = useState(false);
   const [channelSidebarOpen, setChannelSidebarOpen] = useState(() => {
     const stored = localStorage.getItem('protoimsg:channelSidebarOpen');
     return stored !== 'false';
@@ -174,6 +178,22 @@ function ChatRoomContent({ roomId }: { roomId: string }) {
 
   const isOwner = room?.did === did;
 
+  // Compute moderator set from roles (all roles grant moderation access)
+  const moderatorDids = useMemo(() => new Set(roles.map((r) => r.did)), [roles]);
+
+  const isCurrentUserOwnerOrMod = isOwner || (did ? moderatorDids.has(did) : false);
+
+  // Room moderation context value
+  const roomModValue = useMemo(
+    () => ({
+      roomUri: room?.uri,
+      roomOwnerDid: room?.did,
+      isCurrentUserOwner: isOwner,
+      isCurrentUserOwnerOrMod,
+    }),
+    [room?.uri, room?.did, isOwner, isCurrentUserOwnerOrMod],
+  );
+
   if (roomLoading)
     return (
       <div className={styles.page}>
@@ -193,173 +213,201 @@ function ChatRoomContent({ roomId }: { roomId: string }) {
   if (!room) return <div className={styles.error}>{t('chatRoom.notFound')}</div>;
 
   return (
-    <div className={styles.page}>
-      <header className={styles.header} data-tauri-drag-region="">
-        {!IS_TAURI && (
-          <Link to="/" state={{ tab: 'rooms' }} className={styles.back}>
-            <ArrowLeft size={14} /> {t('chatRoom.backToRooms')}
-          </Link>
-        )}
-        <h1 className={styles.roomName}>
-          {(autoTranslate && getTranslation(room.name)) || room.name}
-        </h1>
-        <ChannelSwitcher
-          channels={channels}
-          activeChannel={activeChannel}
-          onSelect={setActiveChannelId}
-          onCreateChannel={
-            isOwner
-              ? () => {
-                  setShowCreateChannel(true);
-                }
-              : undefined
-          }
-        />
-        {room.description && (
-          <span className={styles.description}>
-            {(autoTranslate && getTranslation(room.description)) || room.description}
-          </span>
-        )}
-        <button
-          className={styles.membersBtn}
-          type="button"
-          onClick={() => {
-            setShowMembers((v) => !v);
-          }}
-        >
-          {t('chatRoom.members')}
-        </button>
-        {!isOwner && (
-          <button
-            className={styles.reportRoomBtn}
-            type="button"
-            onClick={() => {
-              setReportTarget({ uri: room.uri, label: room.name, roomId });
-            }}
-            title={t('chatRoom.reportRoom')}
-            aria-label={t('chatRoom.reportRoom')}
-          >
-            <Flag size={14} />
-          </button>
-        )}
-        <WindowControls />
-      </header>
-      <div className={styles.content}>
-        {channels.length > 1 &&
-          (channelSidebarOpen ? (
-            <aside className={styles.channelSidebar}>
-              <ChannelList
-                channels={channels}
-                activeChannelId={activeChannelId}
-                onSelect={setActiveChannelId}
-                canCreate={isOwner}
-                onCreateChannel={() => {
-                  setShowCreateChannel(true);
-                }}
-                onCollapse={toggleChannelSidebar}
-              />
-            </aside>
-          ) : (
-            <button
-              className={styles.expandSidebarBtn}
-              type="button"
-              onClick={toggleChannelSidebar}
-              aria-label={t('chatRoom.expandChannels')}
-              title={t('chatRoom.expandChannels')}
-            >
-              <PanelLeftOpen size={14} />
-            </button>
-          ))}
-        <div className={styles.chatArea}>
-          <MessageList
-            messages={filteredMessages}
-            polls={polls}
-            loading={msgLoading}
-            typingUsers={filteredTyping}
-            replyCounts={replyCounts}
-            onOpenThread={handleOpenThread}
-            onReport={handleReport}
-            onAddBuddy={handleAddBuddy}
-            onVote={(pollId, pollUri, opts) => {
-              void castVote(pollId, pollUri, opts);
-            }}
-          />
-          {sendError && (
-            <div className={styles.sendError} role="alert">
-              {sendError}
-              <button
-                type="button"
-                onClick={() => {
-                  setSendError(null);
-                }}
-              >
-                {t('chatRoom.dismiss')}
-              </button>
-            </div>
+    <RoomModContext.Provider value={roomModValue}>
+      <div className={styles.page}>
+        <header className={styles.header} data-tauri-drag-region="">
+          {!IS_TAURI && (
+            <Link to="/" state={{ tab: 'rooms' }} className={styles.back}>
+              <ArrowLeft size={14} /> {t('chatRoom.backToRooms')}
+            </Link>
           )}
-          <MessageInput
-            onSend={(text) => {
-              if (activeChannel) {
-                setSendError(null);
-                sendMessage(text, activeChannel.uri).catch(() => {
-                  setSendError(t('chatRoom.sendFailed'));
-                });
-              }
-            }}
-            onTyping={sendTyping}
-            onCreatePoll={(input) => {
-              if (activeChannel) void createPoll(input, activeChannel.uri);
-            }}
-            onSendWithEmbed={(text, embed) => {
-              if (activeChannel) {
-                setSendError(null);
-                sendMessage(text, activeChannel.uri, undefined, embed).catch(() => {
-                  setSendError(t('chatRoom.sendFailed'));
-                });
-              }
-            }}
+          <h1 className={styles.roomName}>
+            {(autoTranslate && getTranslation(room.name)) || room.name}
+          </h1>
+          <ChannelSwitcher
+            channels={channels}
+            activeChannel={activeChannel}
+            onSelect={setActiveChannelId}
+            onCreateChannel={
+              isOwner
+                ? () => {
+                    setShowCreateChannel(true);
+                  }
+                : undefined
+            }
           />
-        </div>
-        {activeThread && activeChannel && (
-          <ThreadPanel
-            thread={activeThread}
-            channelUri={activeChannel.uri}
-            liveMessages={messages}
-            onClose={handleCloseThread}
-            onReport={handleReport}
-          />
-        )}
-        <aside className={`${styles.sidebar} ${showMembers ? styles.sidebarOpen : ''}`}>
+          {room.description && (
+            <span className={styles.description}>
+              {(autoTranslate && getTranslation(room.description)) || room.description}
+            </span>
+          )}
+          {isCurrentUserOwnerOrMod && (
+            <button
+              className={styles.settingsBtn}
+              type="button"
+              onClick={() => {
+                setShowSettings(true);
+              }}
+              title={t('chatRoom.settings')}
+              aria-label={t('chatRoom.settings')}
+            >
+              <Settings size={14} />
+            </button>
+          )}
           <button
-            className={styles.membersPanelClose}
+            className={styles.membersBtn}
             type="button"
             onClick={() => {
-              setShowMembers(false);
+              setShowMembers((v) => !v);
             }}
           >
-            <ArrowLeft size={14} />
+            {t('chatRoom.members')}
           </button>
-          <MemberList members={members} doorEvents={doorEvents} />
-        </aside>
+          {!isOwner && (
+            <button
+              className={styles.reportRoomBtn}
+              type="button"
+              onClick={() => {
+                setReportTarget({ uri: room.uri, label: room.name, roomId });
+              }}
+              title={t('chatRoom.reportRoom')}
+              aria-label={t('chatRoom.reportRoom')}
+            >
+              <Flag size={14} />
+            </button>
+          )}
+          <WindowControls />
+        </header>
+        <div className={styles.content}>
+          {channels.length > 1 &&
+            (channelSidebarOpen ? (
+              <aside className={styles.channelSidebar}>
+                <ChannelList
+                  channels={channels}
+                  activeChannelId={activeChannelId}
+                  onSelect={setActiveChannelId}
+                  canCreate={isOwner}
+                  onCreateChannel={() => {
+                    setShowCreateChannel(true);
+                  }}
+                  onCollapse={toggleChannelSidebar}
+                />
+              </aside>
+            ) : (
+              <button
+                className={styles.expandSidebarBtn}
+                type="button"
+                onClick={toggleChannelSidebar}
+                aria-label={t('chatRoom.expandChannels')}
+                title={t('chatRoom.expandChannels')}
+              >
+                <PanelLeftOpen size={14} />
+              </button>
+            ))}
+          <div className={styles.chatArea}>
+            <MessageList
+              messages={filteredMessages}
+              polls={polls}
+              loading={msgLoading}
+              typingUsers={filteredTyping}
+              replyCounts={replyCounts}
+              onOpenThread={handleOpenThread}
+              onReport={handleReport}
+              onAddBuddy={handleAddBuddy}
+              onVote={(pollId, pollUri, opts) => {
+                void castVote(pollId, pollUri, opts);
+              }}
+            />
+            {sendError && (
+              <div className={styles.sendError} role="alert">
+                {sendError}
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSendError(null);
+                  }}
+                >
+                  {t('chatRoom.dismiss')}
+                </button>
+              </div>
+            )}
+            <MessageInput
+              onSend={(text) => {
+                if (activeChannel) {
+                  setSendError(null);
+                  sendMessage(text, activeChannel.uri).catch(() => {
+                    setSendError(t('chatRoom.sendFailed'));
+                  });
+                }
+              }}
+              onTyping={sendTyping}
+              onCreatePoll={(input) => {
+                if (activeChannel) void createPoll(input, activeChannel.uri);
+              }}
+              onSendWithEmbed={(text, embed) => {
+                if (activeChannel) {
+                  setSendError(null);
+                  sendMessage(text, activeChannel.uri, undefined, embed).catch(() => {
+                    setSendError(t('chatRoom.sendFailed'));
+                  });
+                }
+              }}
+            />
+          </div>
+          {activeThread && activeChannel && (
+            <ThreadPanel
+              thread={activeThread}
+              channelUri={activeChannel.uri}
+              liveMessages={messages}
+              onClose={handleCloseThread}
+              onReport={handleReport}
+            />
+          )}
+          <aside className={`${styles.sidebar} ${showMembers ? styles.sidebarOpen : ''}`}>
+            <button
+              className={styles.membersPanelClose}
+              type="button"
+              onClick={() => {
+                setShowMembers(false);
+              }}
+            >
+              <ArrowLeft size={14} />
+            </button>
+            <MemberList
+              members={members}
+              doorEvents={doorEvents}
+              roomOwnerDid={room.did}
+              moderatorDids={moderatorDids}
+            />
+          </aside>
+        </div>
+        {showCreateChannel && (
+          <CreateChannelModal
+            roomUri={room.uri}
+            onClose={() => {
+              setShowCreateChannel(false);
+            }}
+          />
+        )}
+        {showSettings && (
+          <RoomSettingsModal
+            room={room}
+            onClose={() => {
+              setShowSettings(false);
+            }}
+          />
+        )}
+        {reportTarget && (
+          <ReportContentModal
+            subjectUri={reportTarget.uri}
+            subjectLabel={reportTarget.label}
+            roomId={reportTarget.roomId}
+            onClose={() => {
+              setReportTarget(null);
+            }}
+          />
+        )}
       </div>
-      {showCreateChannel && (
-        <CreateChannelModal
-          roomUri={room.uri}
-          onClose={() => {
-            setShowCreateChannel(false);
-          }}
-        />
-      )}
-      {reportTarget && (
-        <ReportContentModal
-          subjectUri={reportTarget.uri}
-          subjectLabel={reportTarget.label}
-          roomId={reportTarget.roomId}
-          onClose={() => {
-            setReportTarget(null);
-          }}
-        />
-      )}
-    </div>
+    </RoomModContext.Provider>
   );
 }
