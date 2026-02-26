@@ -4,9 +4,10 @@
   "license": "MIT",
   "type": "module",
   "scripts": {
-    "dev": "turbo dev --filter=!@protoimsg/desktop",
-    "dev:up": "docker compose up -d && docker compose wait postgres redis && pnpm --filter @protoimsg/server db:migrate && turbo dev --filter=!@protoimsg/desktop",
-    "dev:up:all": "docker compose up -d --wait && pnpm --filter @protoimsg/server db:migrate && turbo dev --filter=!@protoimsg/desktop",
+    "dev": "turbo dev --filter=!@protoimsg/desktop --filter=!@protoimsg/mobile",
+    "dev:up": "docker compose up -d && docker compose wait postgres redis && pnpm --filter @protoimsg/server db:migrate && turbo dev --filter=!@protoimsg/desktop --filter=!@protoimsg/mobile",
+    "dev:up:all": "docker compose up -d --wait && pnpm --filter @protoimsg/server db:migrate && turbo dev --filter=!@protoimsg/desktop --filter=!@protoimsg/mobile",
+    "dev:mobile": "pnpm --filter @protoimsg/mobile dev",
     "build": "turbo build",
     "lint": "turbo lint",
     "lint:fix": "turbo run lint -- --fix",
@@ -42,7 +43,8 @@
     "overrides": {
       "typescript": "$typescript",
       "minimatch": ">=10.2.1",
-      "qs": ">=6.14.2"
+      "qs": ">=6.14.2",
+      "rollup": ">=4.59.0"
     }
   },
   "packageManager": "pnpm@9.15.4",
