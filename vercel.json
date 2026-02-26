@@ -4,7 +4,10 @@
   "installCommand": "pnpm install",
   "framework": "vite",
   "rewrites": [
-    { "source": "/((?!assets/|lexicon/|client-metadata.json).*)", "destination": "/index.html" }
+    {
+      "source": "/((?!assets/|lexicon/|client-metadata.json|manifest\\.webmanifest|robots\\.txt|sitemap\\.xml).*)",
+      "destination": "/index.html"
+    }
   ],
   "headers": [
     {
