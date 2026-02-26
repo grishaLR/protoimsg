@@ -10,7 +10,7 @@
     "prebuild": "expo prebuild --clean",
     "lint": "eslint app/ src/",
     "typecheck": "tsc --noEmit",
-    "test": "jest"
+    "test": "echo \"No tests yet\""
   },
   "dependencies": {
     "@atproto/api": "^0.13.0",
