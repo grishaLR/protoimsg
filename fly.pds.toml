@@ -6,6 +6,9 @@ primary_region = 'iad'
   # See https://github.com/grishalr/pds for changes vs upstream.
   image = 'ghcr.io/grishalr/pds:latest'
 
+[deploy]
+  strategy = 'rolling'
+
 [env]
   PDS_HOSTNAME = 'pds.protoimsg.app'
   PDS_SERVICE_HANDLE_DOMAINS = '.protoimsg.app'
