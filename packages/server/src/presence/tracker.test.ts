@@ -110,6 +110,22 @@ describe('InMemoryPresenceTracker', () => {
     expect(await tracker.getUserRooms('did:plc:unknown')).toEqual(new Set());
   });
 
+  it('getVisibleToBulk returns visibilities for multiple users', async () => {
+    await tracker.setOnline('did:plc:alice');
+    await tracker.setOnline('did:plc:bob');
+    await tracker.setStatus('did:plc:alice', 'online', undefined, 'everyone');
+    await tracker.setStatus('did:plc:bob', 'online', undefined, 'inner-circle');
+
+    const bulk = await tracker.getVisibleToBulk([
+      'did:plc:alice',
+      'did:plc:bob',
+      'did:plc:unknown',
+    ]);
+    expect(bulk.get('did:plc:alice')).toBe('everyone');
+    expect(bulk.get('did:plc:bob')).toBe('inner-circle');
+    expect(bulk.get('did:plc:unknown')).toBe('no-one');
+  });
+
   it('re-setting online preserves existing user', async () => {
     await tracker.setOnline('did:plc:alice');
     await tracker.setStatus('did:plc:alice', 'away', 'brb');

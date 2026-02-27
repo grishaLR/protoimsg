@@ -31,12 +31,13 @@ export async function checkUserAccess(
   did: string,
   labelerService?: LabelerService,
 ): Promise<AccessResult> {
-  const banned = await isUserBanned(sql, roomId, did);
+  const [banned, room] = await Promise.all([
+    isUserBanned(sql, roomId, did),
+    getRoomById(sql, roomId),
+  ]);
   if (banned) {
     return { allowed: false, reason: 'User is banned from this room' };
   }
-
-  const room = await getRoomById(sql, roomId);
   if (!room) {
     return { allowed: false, reason: 'Room not found' };
   }

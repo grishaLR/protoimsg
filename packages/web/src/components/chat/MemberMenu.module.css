@@ -21,6 +21,11 @@
   background: var(--cm-chrome-hover);
 }
 
+.menuBtn:focus-visible {
+  outline: var(--cm-focus-thin) solid var(--cm-focus);
+  outline-offset: var(--cm-focus-offset);
+}
+
 .menuDropdown {
   position: absolute;
   inset-inline-end: 0;
@@ -51,6 +56,16 @@
 .menuItem:hover {
   background: var(--cm-selection);
   color: var(--cm-chrome-text);
+}
+
+.menuItem:focus-visible {
+  outline: var(--cm-focus-thin) solid var(--cm-focus);
+  outline-offset: var(--cm-focus-offset);
+}
+
+.menuItem:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 .menuItemDanger {

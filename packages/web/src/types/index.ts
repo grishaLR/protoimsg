@@ -12,6 +12,7 @@ export interface RoomView {
   visibility: string;
   min_account_age_days: number;
   slow_mode_seconds: number;
+  allowlist_enabled: boolean;
   created_at: string;
   indexed_at: string;
 }

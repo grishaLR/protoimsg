@@ -1,4 +1,5 @@
 import { useTranslation } from 'react-i18next';
+import { Crown, ShieldCheck } from 'lucide-react';
 import { StatusIndicator } from './StatusIndicator';
 import { UserIdentity } from './UserIdentity';
 import { MemberMenu } from './MemberMenu';
@@ -10,9 +11,16 @@ import styles from './MemberList.module.css';
 interface MemberListProps {
   members: MemberPresence[];
   doorEvents?: Record<string, DoorEvent>;
+  roomOwnerDid?: string;
+  moderatorDids?: Set<string>;
 }
 
-export function MemberList({ members, doorEvents = {} }: MemberListProps) {
+export function MemberList({
+  members,
+  doorEvents = {},
+  roomOwnerDid,
+  moderatorDids,
+}: MemberListProps) {
   const { t } = useTranslation('chat');
   const { did: myDid } = useAuth();
 
@@ -23,6 +31,8 @@ export function MemberList({ members, doorEvents = {} }: MemberListProps) {
         {members.map((member) => {
           const door = doorEvents[member.did];
           const isSelf = member.did === myDid;
+          const isMemberOwner = member.did === roomOwnerDid;
+          const isMemberMod = !isMemberOwner && (moderatorDids?.has(member.did) ?? false);
           return (
             <li
               key={member.did}
@@ -38,6 +48,12 @@ export function MemberList({ members, doorEvents = {} }: MemberListProps) {
               <div className={styles.memberInfo}>
                 <span className={styles.memberDid}>
                   <UserIdentity did={member.did} showAvatar />
+                  {isMemberOwner && (
+                    <Crown size={12} className={styles.roleBadge} aria-label="Owner" />
+                  )}
+                  {isMemberMod && (
+                    <ShieldCheck size={12} className={styles.roleBadge} aria-label="Moderator" />
+                  )}
                 </span>
                 {member.awayMessage && <span className={styles.awayMsg}>{member.awayMessage}</span>}
               </div>

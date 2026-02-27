@@ -3,7 +3,7 @@ import { fetchRoom, NotFoundError } from '../lib/api';
 import { useWebSocket } from '../contexts/WebSocketContext';
 import { playDoorOpen, playDoorClose } from '../lib/sounds';
 import type { RoomView, ChannelView, MemberPresence } from '../types';
-import type { ServerMessage, ChannelInfo } from '@protoimsg/shared';
+import type { ServerMessage, ChannelInfo, RoomRoleInfo } from '@protoimsg/shared';
 
 export type DoorEvent = 'join' | 'leave';
 
@@ -26,6 +26,7 @@ export function useRoom(roomId: string) {
   const [room, setRoom] = useState<RoomView | null>(null);
   const [members, setMembers] = useState<MemberPresence[]>([]);
   const [channels, setChannels] = useState<ChannelView[]>([]);
+  const [roles, setRoles] = useState<RoomRoleInfo[]>([]);
   const [doorEvents, setDoorEvents] = useState<Record<string, DoorEvent>>({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -99,6 +100,7 @@ export function useRoom(roomId: string) {
           knownDidsRef.current = new Set(msg.members);
           setMembers(msg.members.map((did) => ({ did, status: 'online' })));
           setChannels(msg.channels.map(channelInfoToView));
+          setRoles(Array.isArray(msg.roles) ? msg.roles : []);
         }
       } else if (msg.type === 'channel_created') {
         if (msg.data.roomId === roomId) {
@@ -110,6 +112,26 @@ export function useRoom(roomId: string) {
       } else if (msg.type === 'channel_deleted') {
         if (msg.data.roomId === roomId) {
           setChannels((prev) => prev.filter((ch) => ch.id !== msg.data.channelId));
+        }
+      } else if (msg.type === 'room_ban') {
+        if (msg.data.roomId === roomId) {
+          if (msg.data.action === 'ban') {
+            // Remove banned user from member list
+            setMembers((prev) => prev.filter((m) => m.did !== msg.data.subjectDid));
+            knownDidsRef.current.delete(msg.data.subjectDid);
+          }
+        }
+      } else if (msg.type === 'room_role_update') {
+        if (msg.data.roomId === roomId) {
+          if (msg.data.action === 'add') {
+            setRoles((prev) => {
+              // Replace existing role for this user or add new
+              const filtered = prev.filter((r) => r.did !== msg.data.subjectDid);
+              return [...filtered, { did: msg.data.subjectDid, role: msg.data.role }];
+            });
+          } else {
+            setRoles((prev) => prev.filter((r) => r.did !== msg.data.subjectDid));
+          }
         }
       } else if (msg.type === 'presence') {
         const { did, status: s, awayMessage: away } = msg.data;
@@ -145,5 +167,5 @@ export function useRoom(roomId: string) {
     };
   }, [room, roomId, send, subscribe]);
 
-  return { room, members, channels, doorEvents, loading, error };
+  return { room, members, channels, roles, doorEvents, loading, error };
 }

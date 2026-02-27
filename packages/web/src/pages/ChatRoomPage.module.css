@@ -93,6 +93,27 @@
   display: none;
 }
 
+.settingsBtn {
+  background: none;
+  border: none;
+  color: var(--cm-chrome-text);
+  cursor: pointer;
+  padding: var(--cm-space-1);
+  opacity: 0.5;
+  display: flex;
+  align-items: center;
+}
+
+.settingsBtn:hover {
+  opacity: 1;
+}
+
+.settingsBtn:focus-visible {
+  outline: var(--cm-focus-thin) solid var(--cm-focus);
+  outline-offset: var(--cm-focus-offset);
+  opacity: 1;
+}
+
 .reportRoomBtn {
   background: none;
   border: none;

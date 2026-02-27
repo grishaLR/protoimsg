@@ -322,6 +322,102 @@ export async function addToBuddyList(
   return 'added';
 }
 
+// -- Ban PDS helpers --
+
+export interface CreateBanInput {
+  roomUri: string;
+  subjectDid: string;
+  reason?: string;
+}
+
+export interface CreateBanResult {
+  uri: string;
+  cid: string;
+  rkey: string;
+}
+
+export async function createBanRecord(
+  agent: Agent,
+  input: CreateBanInput,
+): Promise<CreateBanResult> {
+  const rkey = generateTid();
+
+  const response = await agent.com.atproto.repo.createRecord({
+    repo: agent.assertDid,
+    collection: NSID.Ban,
+    rkey,
+    record: {
+      $type: NSID.Ban,
+      room: input.roomUri,
+      subject: input.subjectDid,
+      ...(input.reason ? { reason: input.reason } : {}),
+      createdAt: new Date().toISOString(),
+    },
+  });
+
+  return {
+    uri: response.data.uri,
+    cid: response.data.cid,
+    rkey,
+  };
+}
+
+export async function deleteBanRecord(agent: Agent, rkey: string): Promise<void> {
+  await agent.com.atproto.repo.deleteRecord({
+    repo: agent.assertDid,
+    collection: NSID.Ban,
+    rkey,
+  });
+}
+
+// -- Role PDS helpers --
+
+export interface CreateRoleInput {
+  roomUri: string;
+  subjectDid: string;
+  role: string;
+}
+
+export interface CreateRoleResult {
+  uri: string;
+  cid: string;
+  rkey: string;
+}
+
+export async function createRoleRecord(
+  agent: Agent,
+  input: CreateRoleInput,
+): Promise<CreateRoleResult> {
+  const rkey = generateTid();
+
+  const response = await agent.com.atproto.repo.createRecord({
+    repo: agent.assertDid,
+    collection: NSID.Role,
+    rkey,
+    record: {
+      $type: NSID.Role,
+      room: input.roomUri,
+      subject: input.subjectDid,
+      role: input.role,
+      createdAt: new Date().toISOString(),
+    },
+  });
+
+  return {
+    uri: response.data.uri,
+    cid: response.data.cid,
+    rkey,
+  };
+}
+
+export async function deleteRoleRecord(agent: Agent, rkey: string): Promise<void> {
+  await agent.com.atproto.repo.deleteRecord({
+    repo: agent.assertDid,
+    collection: NSID.Role,
+    rkey,
+  });
+}
+
 // -- Presence PDS helpers --
 
 export async function getPresenceRecord(agent: Agent): Promise<{ awayMessage?: string } | null> {

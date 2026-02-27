@@ -109,6 +109,29 @@ export class RedisPresenceTracker implements PresenceTrackerStore {
     return visibleTo ? (visibleTo as PresenceVisibility) : 'no-one';
   }
 
+  async getVisibleToBulk(dids: string[]): Promise<Map<string, PresenceVisibility>> {
+    const result = new Map<string, PresenceVisibility>();
+    if (dids.length === 0) return result;
+
+    const pipeline = this.redis.pipeline();
+    for (const did of dids) {
+      pipeline.hget(userKey(did), 'visibleTo');
+    }
+    const responses = await pipeline.exec();
+
+    for (let i = 0; i < dids.length; i++) {
+      const did = dids[i];
+      if (!did) continue;
+      const [err, data] = responses?.[i] ?? [null, null];
+      if (err || !data) {
+        result.set(did, 'no-one');
+        continue;
+      }
+      result.set(did, data as PresenceVisibility);
+    }
+    return result;
+  }
+
   async getPresenceBulk(
     dids: string[],
   ): Promise<Map<string, { status: PresenceStatus; awayMessage?: string }>> {

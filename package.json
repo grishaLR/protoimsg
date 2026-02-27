@@ -42,7 +42,7 @@
   "pnpm": {
     "overrides": {
       "typescript": "$typescript",
-      "minimatch": ">=10.2.1",
+      "minimatch": ">=10.2.3",
       "qs": ">=6.14.2",
       "rollup": ">=4.59.0"
     }

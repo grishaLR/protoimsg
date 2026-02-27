@@ -1,0 +1,37 @@
+{
+  "expo": {
+    "name": "protoimsg",
+    "slug": "protoimsg",
+    "scheme": "app.protoimsg",
+    "version": "0.0.1",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "automatic",
+    "newArchEnabled": true,
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#282a36"
+    },
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "app.protoimsg.mobile",
+      "infoPlist": {
+        "NSCameraUsageDescription": "protoimsg needs camera access for video calls",
+        "NSMicrophoneUsageDescription": "protoimsg needs microphone access for voice and video calls"
+      }
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#1a1a2e"
+      },
+      "package": "app.protoimsg.mobile",
+      "permissions": ["CAMERA", "RECORD_AUDIO"]
+    },
+    "plugins": ["expo-router", "@config-plugins/react-native-webrtc"],
+    "experiments": {
+      "typedRoutes": true
+    }
+  }
+}

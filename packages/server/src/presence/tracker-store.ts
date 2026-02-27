@@ -14,6 +14,7 @@ export interface PresenceTrackerStore {
   getStatus(did: string): Promise<PresenceStatus>;
   getPresence(did: string): Promise<{ status: PresenceStatus; awayMessage?: string }>;
   getVisibleTo(did: string): Promise<PresenceVisibility>;
+  getVisibleToBulk(dids: string[]): Promise<Map<string, PresenceVisibility>>;
   getPresenceBulk(
     dids: string[],
   ): Promise<Map<string, { status: PresenceStatus; awayMessage?: string }>>;

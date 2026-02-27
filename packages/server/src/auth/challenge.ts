@@ -1,4 +1,4 @@
-import { randomBytes } from 'crypto';
+import { randomBytes, timingSafeEqual } from 'crypto';
 
 const CHALLENGE_TTL_MS = 60_000; // 60 seconds
 
@@ -30,7 +30,10 @@ export class ChallengeStore implements ChallengeStoreInterface {
     if (!challenge) return false;
     this.challenges.delete(did);
     if (Date.now() >= challenge.expiresAt) return false;
-    return challenge.nonce === nonce;
+    const expected = Buffer.from(challenge.nonce);
+    const received = Buffer.from(nonce);
+    if (expected.length !== received.length) return false;
+    return timingSafeEqual(expected, received);
   }
 
   prune(): number {

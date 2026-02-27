@@ -68,6 +68,7 @@ jobs:
     outputs:
       server: ${{ steps.filter.outputs.server }}
       web: ${{ steps.filter.outputs.web }}
+      mobile: ${{ steps.filter.outputs.mobile }}
       nllb: ${{ steps.filter.outputs.nllb }}
       libretranslate: ${{ steps.filter.outputs.libretranslate }}
       coturn: ${{ steps.filter.outputs.coturn }}
@@ -97,6 +98,10 @@ jobs:
             coturn:
               - 'docker/coturn/**'
               - 'fly.coturn.toml'
+            mobile:
+              - 'packages/mobile/**'
+              - 'packages/shared/**'
+              - 'packages/lexicon/**'
             pds:
               - 'fly.pds.toml'
 
