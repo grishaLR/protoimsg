@@ -15,6 +15,8 @@ interface HealthResponse {
   };
 }
 
+const HEALTH_CHECK_TIMEOUT_MS = 3000;
+
 export async function checkHealth(
   sql: Sql,
   redis: Redis | null,
@@ -25,10 +27,17 @@ export async function checkHealth(
     db: { status: 'error', latencyMs: 0 },
   };
 
-  // DB check
+  // DB check (with timeout so health endpoint never hangs)
   const dbStart = performance.now();
   try {
-    await sql`SELECT 1`;
+    await Promise.race([
+      sql`SELECT 1`,
+      new Promise((_, reject) =>
+        setTimeout(() => {
+          reject(new Error('DB health check timeout'));
+        }, HEALTH_CHECK_TIMEOUT_MS),
+      ),
+    ]);
     checks.db = { status: 'ok', latencyMs: Math.round(performance.now() - dbStart) };
   } catch {
     checks.db = {
@@ -37,11 +46,18 @@ export async function checkHealth(
     };
   }
 
-  // Redis check (if configured)
+  // Redis check (if configured, with timeout)
   if (redis) {
     const redisStart = performance.now();
     try {
-      await redis.ping();
+      await Promise.race([
+        redis.ping(),
+        new Promise((_, reject) =>
+          setTimeout(() => {
+            reject(new Error('Redis health check timeout'));
+          }, HEALTH_CHECK_TIMEOUT_MS),
+        ),
+      ]);
       checks.redis = { status: 'ok', latencyMs: Math.round(performance.now() - redisStart) };
     } catch {
       checks.redis = {

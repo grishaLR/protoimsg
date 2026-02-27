@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { useQuery, useQueryClient, keepPreviousData } from '@tanstack/react-query';
 import { RichText as RichTextAPI } from '@atproto/api';
 import { fetchChannelMessages } from '../lib/api';
 import { NSID } from '@protoimsg/shared';
@@ -14,57 +15,55 @@ import { Sentry } from '../sentry';
 const MAX_MESSAGES = 500;
 const PENDING_MESSAGE_TIMEOUT_MS = 15_000;
 
+interface ChannelData {
+  messages: MessageView[];
+  replyCounts: Record<string, number>;
+}
+
+function channelQueryKey(roomId: string, channelId: string) {
+  return ['channelMessages', roomId, channelId] as const;
+}
+
 export function useMessages(roomId: string, channelId: string | null) {
-  const [messages, setMessages] = useState<MessageView[]>([]);
-  const [replyCounts, setReplyCounts] = useState<Record<string, number>>({});
-  const [loading, setLoading] = useState(true);
+  const queryClient = useQueryClient();
   const [typingUsers, setTypingUsers] = useState<string[]>([]);
   const { send, subscribe } = useWebSocket();
   const { agent, did } = useAuth();
   const typingTimers = useRef<Map<string, ReturnType<typeof setTimeout>>>(new Map());
   const lastTypingSent = useRef(0);
 
-  // Load message history — reset when channelId changes
+  // Fetch messages via React Query — cached across room navigation
+  const { data, isLoading } = useQuery({
+    queryKey: channelId ? channelQueryKey(roomId, channelId) : ['channelMessages', roomId, null],
+    queryFn: async ({ signal }) => {
+      // channelId is guaranteed non-null by enabled: !!channelId
+      const result = await fetchChannelMessages(roomId, channelId as string, { signal });
+      return { messages: result.messages.reverse(), replyCounts: result.replyCounts };
+    },
+    enabled: !!channelId,
+    staleTime: 5 * 60_000,
+    placeholderData: keepPreviousData,
+  });
+
+  const messages = data?.messages ?? [];
+  const replyCounts = data?.replyCounts ?? {};
+  const loading = !!channelId && isLoading;
+
+  // Reset typing users when switching channels
   useEffect(() => {
-    if (!channelId) {
-      setMessages([]);
-      setReplyCounts({});
-      setLoading(false);
-      return;
-    }
-
-    const ac = new AbortController();
-    setLoading(true);
-    setMessages([]);
-    setReplyCounts({});
     setTypingUsers([]);
-
-    async function load() {
-      try {
-        const result = await fetchChannelMessages(roomId, channelId as string, {
-          signal: ac.signal,
-        });
-        if (!ac.signal.aborted) {
-          setMessages(result.messages.reverse());
-          setReplyCounts(result.replyCounts);
-        }
-      } catch (err) {
-        if (err instanceof Error && err.name === 'AbortError') return;
-        console.error('Failed to load messages:', err);
-      } finally {
-        if (!ac.signal.aborted) setLoading(false);
-      }
-    }
-
-    void load();
     return () => {
-      ac.abort();
+      for (const timer of typingTimers.current.values()) {
+        clearTimeout(timer);
+      }
+      typingTimers.current.clear();
     };
   }, [roomId, channelId]);
 
   // Listen for real-time messages + typing via WS
   useEffect(() => {
     if (!channelId) return;
+    const qk = channelQueryKey(roomId, channelId);
 
     const unsub = subscribe((msg) => {
       if (msg.type === 'message') {
@@ -84,57 +83,44 @@ export function useMessages(roomId: string, channelId: string | null) {
           playImNotify();
         }
 
-        // If this is a reply, increment the reply count for its root
-        const replyRoot = event.data.reply?.root;
-        if (replyRoot) {
-          setReplyCounts((prev) => ({
-            ...prev,
-            [replyRoot]: (prev[replyRoot] ?? 0) + 1,
-          }));
-        }
+        const incoming: MessageView = {
+          id: event.data.id,
+          uri: event.data.uri,
+          did: event.data.did,
+          room_id: event.data.roomId,
+          channel_id: event.data.channelId,
+          text: event.data.text,
+          facets: event.data.facets,
+          embed: event.data.embed,
+          reply_parent: event.data.reply?.parent ?? null,
+          reply_root: event.data.reply?.root ?? null,
+          created_at: event.data.createdAt,
+          indexed_at: event.data.createdAt,
+        };
 
-        setMessages((prev) => {
+        queryClient.setQueryData<ChannelData>(qk, (prev) => {
+          if (!prev) return { messages: [incoming], replyCounts: {} };
+
+          // If this is a reply, increment the reply count for its root
+          const replyRoot = event.data.reply?.root;
+          const nextReplyCounts = replyRoot
+            ? { ...prev.replyCounts, [replyRoot]: (prev.replyCounts[replyRoot] ?? 0) + 1 }
+            : prev.replyCounts;
+
           // Dedup: if we have a pending message with same id (rkey), replace it
-          const existing = prev.findIndex((m) => m.id === event.data.id);
+          const existing = prev.messages.findIndex((m) => m.id === event.data.id);
           if (existing !== -1) {
-            const updated = [...prev];
-            updated[existing] = {
-              id: event.data.id,
-              uri: event.data.uri,
-              did: event.data.did,
-              room_id: event.data.roomId,
-              channel_id: event.data.channelId,
-              text: event.data.text,
-              facets: event.data.facets,
-              embed: event.data.embed,
-              reply_parent: event.data.reply?.parent ?? null,
-              reply_root: event.data.reply?.root ?? null,
-              created_at: event.data.createdAt,
-              indexed_at: event.data.createdAt,
-              pending: false,
-            };
-            return updated;
+            const updated = [...prev.messages];
+            updated[existing] = { ...incoming, pending: false };
+            return { messages: updated, replyCounts: nextReplyCounts };
           }
 
-          // New message from another user or server — cap to prevent OOM
-          const next = [
-            ...prev,
-            {
-              id: event.data.id,
-              uri: event.data.uri,
-              did: event.data.did,
-              room_id: event.data.roomId,
-              channel_id: event.data.channelId,
-              text: event.data.text,
-              facets: event.data.facets,
-              embed: event.data.embed,
-              reply_parent: event.data.reply?.parent ?? null,
-              reply_root: event.data.reply?.root ?? null,
-              created_at: event.data.createdAt,
-              indexed_at: event.data.createdAt,
-            },
-          ];
-          return next.length > MAX_MESSAGES ? next.slice(-MAX_MESSAGES) : next;
+          // New message — cap to prevent OOM
+          const next = [...prev.messages, incoming];
+          return {
+            messages: next.length > MAX_MESSAGES ? next.slice(-MAX_MESSAGES) : next,
+            replyCounts: nextReplyCounts,
+          };
         });
       } else if (msg.type === 'channel_typing') {
         const { roomId: typingRoomId, channelId: typingChannelId, did: typingDid } = msg.data;
@@ -156,12 +142,8 @@ export function useMessages(roomId: string, channelId: string | null) {
 
     return () => {
       unsub();
-      for (const timer of typingTimers.current.values()) {
-        clearTimeout(timer);
-      }
-      typingTimers.current.clear();
     };
-  }, [roomId, channelId, subscribe, did]);
+  }, [roomId, channelId, subscribe, did, queryClient]);
 
   // Send a message with optimistic update
   const sendMessage = useCallback(
@@ -172,6 +154,7 @@ export function useMessages(roomId: string, channelId: string | null) {
       embed?: Record<string, unknown>,
     ) => {
       if (!agent || !did || !channelId) return;
+      const qk = channelQueryKey(roomId, channelId);
 
       // Parse markdown → cleaned text + formatting facets
       const { text: cleaned, facets: mdFacets } = parseMarkdownFacets(text);
@@ -187,25 +170,27 @@ export function useMessages(roomId: string, channelId: string | null) {
       const rkey = generateTid();
       const uri = `at://${did}/${NSID.Message}/${rkey}`;
 
+      const optimistic: MessageView = {
+        id: rkey,
+        uri,
+        did,
+        room_id: roomId,
+        channel_id: channelId,
+        text: cleaned,
+        facets: allFacets.length > 0 ? allFacets : undefined,
+        embed,
+        reply_parent: reply?.parent ?? null,
+        reply_root: reply?.root ?? null,
+        created_at: new Date().toISOString(),
+        indexed_at: new Date().toISOString(),
+        pending: true,
+      };
+
       // Optimistic: add pending message BEFORE the API call
-      setMessages((prev) => [
-        ...prev,
-        {
-          id: rkey,
-          uri,
-          did,
-          room_id: roomId,
-          channel_id: channelId,
-          text: cleaned,
-          facets: allFacets.length > 0 ? allFacets : undefined,
-          embed,
-          reply_parent: reply?.parent ?? null,
-          reply_root: reply?.root ?? null,
-          created_at: new Date().toISOString(),
-          indexed_at: new Date().toISOString(),
-          pending: true,
-        },
-      ]);
+      queryClient.setQueryData<ChannelData>(qk, (prev) => {
+        if (!prev) return { messages: [optimistic], replyCounts: {} };
+        return { ...prev, messages: [...prev.messages, optimistic] };
+      });
 
       const input: CreateMessageInput = {
         channelUri,
@@ -222,7 +207,10 @@ export function useMessages(roomId: string, channelId: string | null) {
           tags: { component: 'useMessages' },
           extra: { roomId, channelId, rkey },
         });
-        setMessages((prev) => prev.filter((m) => m.id !== rkey || !m.pending));
+        queryClient.setQueryData<ChannelData>(qk, (prev) => {
+          if (!prev) return prev;
+          return { ...prev, messages: prev.messages.filter((m) => m.id !== rkey || !m.pending) };
+        });
       }, PENDING_MESSAGE_TIMEOUT_MS);
 
       try {
@@ -230,14 +218,17 @@ export function useMessages(roomId: string, channelId: string | null) {
         send({ type: 'notify_record', uri: result.uri, cid: result.cid });
       } catch (err) {
         // Rollback optimistic message on failure
-        setMessages((prev) => prev.filter((m) => m.id !== rkey));
+        queryClient.setQueryData<ChannelData>(qk, (prev) => {
+          if (!prev) return prev;
+          return { ...prev, messages: prev.messages.filter((m) => m.id !== rkey) };
+        });
         console.error('Failed to send message:', err);
         throw err;
       } finally {
         clearTimeout(pendingTimer);
       }
     },
-    [agent, did, roomId, channelId],
+    [agent, did, roomId, channelId, queryClient, send],
   );
 
   const sendTyping = useCallback(() => {

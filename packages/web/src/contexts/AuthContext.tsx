@@ -168,17 +168,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             // Persist DID/handle for Tauri child windows
             localStorage.setItem('protoimsg:did', restoredSession.did);
 
-            // Resolve real handle via profile
+            // Resolve handle + fetch challenge in parallel (both only need DID)
             try {
               setAuthPhase('resolving');
-              const profile = await newAgent.getProfile({ actor: restoredSession.did });
+              const [profile, { nonce }] = await Promise.all([
+                newAgent.getProfile({ actor: restoredSession.did }),
+                fetchChallenge(restoredSession.did),
+              ]);
               const resolvedHandle = profile.data.handle;
               setHandle(resolvedHandle);
               localStorage.setItem('protoimsg:handle', resolvedHandle);
 
-              // Create server session via challenge-response proof
               setAuthPhase('connecting');
-              const { nonce } = await fetchChallenge(restoredSession.did);
 
               // Write nonce to ATProto repo — proves we have OAuth write access
               const authResult = await newAgent.com.atproto.repo.createRecord({
