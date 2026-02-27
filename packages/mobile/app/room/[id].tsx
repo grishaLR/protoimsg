@@ -291,7 +291,7 @@ export default function RoomScreen() {
       />
 
       {/* Messages */}
-      {messagesLoading ? (
+      {messagesLoading || !channelId ? (
         <View style={styles.center}>
           <ActivityIndicator size="small" color={colors.primary} />
         </View>

@@ -9,6 +9,18 @@ import type { MessageView } from '@/types';
 
 const MAX_MESSAGES = 500;
 const PENDING_MESSAGE_TIMEOUT_MS = 15_000;
+const STALE_MS = 5 * 60_000;
+
+// Module-level cache — survives unmounts, cleared on app restart
+interface CacheEntry {
+  messages: MessageView[];
+  ts: number;
+}
+const channelCache = new Map<string, CacheEntry>();
+
+function cacheKey(roomId: string, channelId: string): string {
+  return `${roomId}:${channelId}`;
+}
 
 export function useMessages(roomId: string, channelId: string | null) {
   const [messages, setMessages] = useState<MessageView[]>([]);
@@ -19,7 +31,14 @@ export function useMessages(roomId: string, channelId: string | null) {
   const typingTimers = useRef<Map<string, ReturnType<typeof setTimeout>>>(new Map());
   const lastTypingSent = useRef(0);
 
-  // Load message history — reset when channelId changes
+  // Sync messages back to cache whenever they change
+  useEffect(() => {
+    if (!channelId || messages.length === 0) return;
+    const key = cacheKey(roomId, channelId);
+    channelCache.set(key, { messages, ts: Date.now() });
+  }, [messages, roomId, channelId]);
+
+  // Load message history — show cache immediately, refresh in background
   useEffect(() => {
     if (!channelId) {
       setMessages([]);
@@ -27,10 +46,23 @@ export function useMessages(roomId: string, channelId: string | null) {
       return;
     }
 
-    const ac = new AbortController();
-    setLoading(true);
-    setMessages([]);
+    const key = cacheKey(roomId, channelId);
+    const cached = channelCache.get(key);
+    const isStale = !cached || Date.now() - cached.ts > STALE_MS;
+
+    // Show cached messages immediately (no loading spinner)
+    if (cached) {
+      setMessages(cached.messages);
+      setLoading(false);
+    } else {
+      setMessages([]);
+      setLoading(true);
+    }
+
     setTypingUsers([]);
+
+    // Fetch fresh data in background (or foreground if no cache)
+    const ac = new AbortController();
 
     async function load() {
       try {
@@ -38,7 +70,9 @@ export function useMessages(roomId: string, channelId: string | null) {
           signal: ac.signal,
         });
         if (!ac.signal.aborted) {
-          setMessages(result.messages.reverse());
+          const fresh = result.messages.reverse();
+          setMessages(fresh);
+          channelCache.set(key, { messages: fresh, ts: Date.now() });
         }
       } catch (err) {
         if (err instanceof Error && err.name === 'AbortError') return;
@@ -48,7 +82,10 @@ export function useMessages(roomId: string, channelId: string | null) {
       }
     }
 
-    void load();
+    if (isStale) {
+      void load();
+    }
+
     return () => {
       ac.abort();
     };
