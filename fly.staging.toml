@@ -6,6 +6,7 @@ primary_region = 'iad'
 
 [deploy]
   release_command = 'node dist/db/migrate.js'
+  strategy = 'rolling'
 
 [env]
   HOST = '0.0.0.0'
@@ -25,6 +26,7 @@ primary_region = 'iad'
     type = 'http'
     interval = '15s'
     timeout = '5s'
+    grace_period = '30s'
     path = '/health'
 
 [metrics]
