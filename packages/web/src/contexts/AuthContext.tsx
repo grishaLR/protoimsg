@@ -9,6 +9,7 @@ import {
 } from 'react';
 import { Agent } from '@atproto/api';
 import type { OAuthSession } from '@atproto/oauth-client-browser';
+import { buildOAuthScope, type OptionalScopeGroup } from '@protoimsg/shared';
 import { getOAuthClient, REQUIRED_SCOPES } from '../lib/oauth';
 import {
   AccountBannedError,
@@ -39,7 +40,10 @@ export interface AuthContextValue {
   isLoading: boolean;
   authPhase: AuthPhase;
   authError: string | null;
-  login: (handle: string) => Promise<void>;
+  hasFeed: boolean;
+  hasProfileEdit: boolean;
+  grantedScopes: string[];
+  login: (handle: string, optionalGroups?: OptionalScopeGroup[]) => Promise<void>;
   logout: () => void;
 }
 
@@ -53,8 +57,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [serverToken, setServerTokenState] = useState<string | null>(null);
   const [authPhase, setAuthPhase] = useState<AuthPhase>('initializing');
   const [authError, setAuthError] = useState<string | null>(null);
+  const [grantedScopes, setGrantedScopes] = useState<string[]>(() => {
+    const stored = localStorage.getItem('protoimsg:grantedScopes');
+    if (!stored) return [];
+    try {
+      return JSON.parse(stored) as string[];
+    } catch {
+      return [];
+    }
+  });
 
   const isLoading = useMemo(() => authPhase !== 'ready' && authPhase !== 'idle', [authPhase]);
+
+  // transition:generic grants everything — treat as all features enabled
+  const hasGenericScope = grantedScopes.includes('transition:generic');
+  const hasFeed = hasGenericScope || grantedScopes.some((s) => s.startsWith('repo:app.bsky.feed.'));
+  const hasProfileEdit = hasGenericScope || grantedScopes.includes('repo:app.bsky.actor.profile');
 
   const clearAuth = useCallback(() => {
     setSession(null);
@@ -65,6 +83,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setServerToken(null);
     setAuthError(null);
     setAuthPhase('idle');
+    setGrantedScopes([]);
+    localStorage.removeItem('protoimsg:grantedScopes');
   }, []);
 
   // Guard against StrictMode double-mount: OAuth callback processing consumes
@@ -145,8 +165,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             // can't write records at all (messages, rooms, auth proof), so bail
             // early with a clear error instead of failing on every createRecord.
             const tokenInfo = await restoredSession.getTokenInfo();
-            const grantedScopes = tokenInfo.scope.split(' ');
-            const missingScopes = REQUIRED_SCOPES.filter((s) => !grantedScopes.includes(s));
+            const granted = tokenInfo.scope.split(' ');
+            setGrantedScopes(granted);
+            localStorage.setItem('protoimsg:grantedScopes', JSON.stringify(granted));
+            const missingScopes = REQUIRED_SCOPES.filter((s) => !granted.includes(s));
             if (missingScopes.length > 0) {
               console.error('OAuth scopes missing:', missingScopes.join(', '));
               const oauthClient = getOAuthClient();
@@ -245,7 +267,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, [clearAuth]);
 
-  const login = useCallback(async (inputHandle: string) => {
+  const login = useCallback(async (inputHandle: string, optionalGroups?: OptionalScopeGroup[]) => {
     setAuthError(null);
 
     // Pre-OAuth ban check — throws AccountBannedError if banned.
@@ -262,7 +284,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     sessionStorage.setItem('protoimsg:oauth_pending', '1');
     const oauthClient = getOAuthClient();
     await oauthClient.signIn(inputHandle, {
-      scope: 'atproto transition:generic',
+      scope: buildOAuthScope(optionalGroups),
     });
     // This redirects to PDS — execution won't continue here.
     // On return, init() in the useEffect above catches the callback.
@@ -273,6 +295,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     void deleteServerSession();
     localStorage.removeItem('protoimsg:did');
     localStorage.removeItem('protoimsg:handle');
+    localStorage.removeItem('protoimsg:grantedScopes');
     clearAuth();
     if (sub) {
       const oauthClient = getOAuthClient();
@@ -290,10 +313,27 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       isLoading,
       authPhase,
       authError,
+      hasFeed,
+      hasProfileEdit,
+      grantedScopes,
       login,
       logout,
     }),
-    [session, agent, did, handle, serverToken, isLoading, authPhase, authError, login, logout],
+    [
+      session,
+      agent,
+      did,
+      handle,
+      serverToken,
+      isLoading,
+      authPhase,
+      authError,
+      hasFeed,
+      hasProfileEdit,
+      grantedScopes,
+      login,
+      logout,
+    ],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

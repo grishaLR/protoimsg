@@ -1,6 +1,7 @@
 import { defineConfig, type Plugin } from 'vite';
 import react from '@vitejs/plugin-react';
 import { sentryVitePlugin } from '@sentry/vite-plugin';
+import { OAUTH_SCOPE_ALL } from '@protoimsg/shared';
 
 /**
  * Generate and serve client-metadata.json for ATProto OAuth PDS discovery.
@@ -16,7 +17,7 @@ function oauthMetadataPlugin(): Plugin {
         client_name: 'proto instant messenger',
         client_uri: siteUrl,
         redirect_uris: [`${siteUrl}/`],
-        scope: 'atproto transition:generic',
+        scope: OAUTH_SCOPE_ALL,
         grant_types: ['authorization_code', 'refresh_token'],
         response_types: ['code'],
         token_endpoint_auth_method: 'none',

@@ -1,6 +1,7 @@
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
+import { OPTIONAL_SCOPE_GROUPS, type OptionalScopeGroup } from '@protoimsg/shared';
 import { useAuth } from '../../hooks/useAuth';
 import { useTheme } from '../../hooks/useTheme';
 import { useRotatingPlaceholder } from '../../hooks/useRotatingPlaceholder';
@@ -9,6 +10,7 @@ import { AccountBannedError, NotOnAllowlistError, joinWaitlist } from '../../lib
 import { SIGNUP_ENABLED } from '../../lib/config';
 import { ActorSearch, type ActorSearchResult } from '../shared/ActorSearch';
 import { AtprotoInfoModal } from './AtprotoInfoModal';
+import { ScopePickerPanel } from './ScopePickerPanel';
 import { LanguageSelector } from '../settings/LanguageSelector';
 import styles from './LoginForm.module.css';
 
@@ -23,7 +25,16 @@ export function LoginForm() {
   const [notOnAllowlist, setNotOnAllowlist] = useState(false);
   const [loading, setLoading] = useState(false);
   const [showInfo, setShowInfo] = useState(false);
+  const [optionalGroups, setOptionalGroups] = useState<OptionalScopeGroup[]>([
+    ...OPTIONAL_SCOPE_GROUPS,
+  ]);
   const placeholder = useRotatingPlaceholder('login');
+
+  const toggleScopeGroup = useCallback((group: OptionalScopeGroup) => {
+    setOptionalGroups((prev) =>
+      prev.includes(group) ? prev.filter((g) => g !== group) : [...prev, group],
+    );
+  }, []);
 
   function handleSubmit(e: React.SyntheticEvent) {
     e.preventDefault();
@@ -34,7 +45,7 @@ export function LoginForm() {
     setBanned(false);
     setNotOnAllowlist(false);
     setLoading(true);
-    login(trimmed).catch((err: unknown) => {
+    login(trimmed, optionalGroups).catch((err: unknown) => {
       if (err instanceof NotOnAllowlistError) {
         setNotOnAllowlist(true);
       } else if (err instanceof AccountBannedError) {
@@ -101,6 +112,7 @@ export function LoginForm() {
           disabled={loading}
           autoFocus
         />
+        <ScopePickerPanel selectedGroups={optionalGroups} onToggle={toggleScopeGroup} />
         {error && <p className={styles.error}>{error}</p>}
         <button className={styles.button} type="submit" disabled={loading || !handle.trim()}>
           {loading ? t('login.submitLoading') : t('login.submit')}

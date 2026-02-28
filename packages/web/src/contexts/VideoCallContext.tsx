@@ -150,42 +150,39 @@ export function VideoCallProvider({ children }: { children: ReactNode }) {
   }, []);
 
   /** Handle ICE connection state changes — surface reconnecting/failed to UI */
-  const onIceConnectionStateChange = useCallback(
-    (state: RTCIceConnectionState) => {
-      if (state === 'disconnected') {
-        setActiveCall((prev) =>
-          prev && prev.status === 'active' ? { ...prev, status: 'reconnecting' } : prev,
-        );
-      } else if (state === 'connected' || state === 'completed') {
-        setActiveCall((prev) =>
-          prev && prev.status === 'reconnecting' ? { ...prev, status: 'active' } : prev,
-        );
-      } else if (state === 'failed') {
-        // Release media + peer connection but keep call metadata for retry UI
-        if (peerConnection.current) {
-          peerConnection.current.pc.close();
-          peerConnection.current = null;
-        }
-        if (localStream.current) {
-          localStream.current.getTracks().forEach((track) => {
-            track.stop();
-          });
-          localStream.current = null;
-        }
-        if (screenTrack.current) {
-          screenTrack.current.onended = null;
-          screenTrack.current.stop();
-          screenTrack.current = null;
-        }
-        savedCameraTrack.current = null;
-        setIsScreenSharing(false);
-        setActiveCall((prev) =>
-          prev ? { ...prev, status: 'failed', localStream: null, remoteStream: undefined } : prev,
-        );
+  const onIceConnectionStateChange = useCallback((state: RTCIceConnectionState) => {
+    if (state === 'disconnected') {
+      setActiveCall((prev) =>
+        prev && prev.status === 'active' ? { ...prev, status: 'reconnecting' } : prev,
+      );
+    } else if (state === 'connected' || state === 'completed') {
+      setActiveCall((prev) =>
+        prev && prev.status === 'reconnecting' ? { ...prev, status: 'active' } : prev,
+      );
+    } else if (state === 'failed') {
+      // Release media + peer connection but keep call metadata for retry UI
+      if (peerConnection.current) {
+        peerConnection.current.pc.close();
+        peerConnection.current = null;
       }
-    },
-    [cleanUp],
-  );
+      if (localStream.current) {
+        localStream.current.getTracks().forEach((track) => {
+          track.stop();
+        });
+        localStream.current = null;
+      }
+      if (screenTrack.current) {
+        screenTrack.current.onended = null;
+        screenTrack.current.stop();
+        screenTrack.current = null;
+      }
+      savedCameraTrack.current = null;
+      setIsScreenSharing(false);
+      setActiveCall((prev) =>
+        prev ? { ...prev, status: 'failed', localStream: null, remoteStream: undefined } : prev,
+      );
+    }
+  }, []);
 
   /** Show a temporary error message (auto-clears after 5s) */
   const showCallError = useCallback((message: string) => {
@@ -681,8 +678,12 @@ export function VideoCallProvider({ children }: { children: ReactNode }) {
 
           // Native notification + bring window to front in Tauri
           if (IS_TAURI) {
-            void import('../lib/tauri-notifications').then(({ sendNativeNotification }) => {
-              void sendNativeNotification('Incoming Video Call', `${senderDid} is calling you`);
+            void Promise.all([
+              import('../lib/tauri-notifications'),
+              import('../lib/resolve-display-name'),
+            ]).then(async ([{ sendNativeNotification }, { resolveDisplayName }]) => {
+              const name = await resolveDisplayName(senderDid);
+              void sendNativeNotification('Incoming Video Call', `${name} is calling you`);
             });
             void import('@tauri-apps/api/webviewWindow').then(({ getCurrentWebviewWindow }) => {
               const win = getCurrentWebviewWindow();
@@ -781,8 +782,10 @@ export function VideoCallProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     if (!IS_TAURI) return;
     let unlisten: (() => void) | null = null;
+    let aborted = false;
 
     void import('@tauri-apps/api/event').then(({ listen }) => {
+      if (aborted) return;
       void listen('app://window-hiding', () => {
         const call = activeCallRef.current;
         if (call) {
@@ -790,11 +793,16 @@ export function VideoCallProvider({ children }: { children: ReactNode }) {
           cleanUp();
         }
       }).then((fn) => {
-        unlisten = fn;
+        if (aborted) {
+          fn();
+        } else {
+          unlisten = fn;
+        }
       });
     });
 
     return () => {
+      aborted = true;
       if (unlisten) unlisten();
     };
   }, [send, cleanUp]);
@@ -847,22 +855,53 @@ export function VideoCallProvider({ children }: { children: ReactNode }) {
     [send, doAcceptCall],
   );
 
-  // Tauri: listen for child video call window closing so we reset delegation
+  // Tauri: listen for child video call window closing so we reset delegation.
+  // Two mechanisms — belt-and-suspenders:
+  // 1. Child emits 'videocall-child-close' on unmount (may not fire if webview torn down)
+  // 2. Main window listens for 'tauri://destroyed' on child window labels
   useEffect(() => {
     if (!IS_TAURI || !isTauriMainWindow) return;
-    let unlisten: (() => void) | null = null;
+    let unlistenChildClose: (() => void) | null = null;
+    let unlistenDestroyed: (() => void) | null = null;
+    let aborted = false;
+
+    const resetDelegation = () => {
+      delegatedToChild.current = false;
+      localStorage.removeItem('protoimsg:pending-videocall');
+    };
 
     void import('@tauri-apps/api/event').then(({ listen }) => {
-      void listen('videocall-child-close', () => {
-        delegatedToChild.current = false;
-        localStorage.removeItem('protoimsg:pending-videocall');
+      if (aborted) return;
+
+      // Mechanism 1: explicit child emit
+      void listen('videocall-child-close', resetDelegation).then((fn) => {
+        if (aborted) {
+          fn();
+        } else {
+          unlistenChildClose = fn;
+        }
+      });
+
+      // Mechanism 2: Tauri fires this when any webview is destroyed
+      void listen('tauri://destroyed', (event) => {
+        const payload = event.payload as Record<string, unknown> | undefined;
+        const label = (payload?.label as string | undefined) ?? '';
+        if (label.startsWith('videocall-')) {
+          resetDelegation();
+        }
       }).then((fn) => {
-        unlisten = fn;
+        if (aborted) {
+          fn();
+        } else {
+          unlistenDestroyed = fn;
+        }
       });
     });
 
     return () => {
-      if (unlisten) unlisten();
+      aborted = true;
+      if (unlistenChildClose) unlistenChildClose();
+      if (unlistenDestroyed) unlistenDestroyed();
     };
   }, []);
 

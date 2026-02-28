@@ -546,11 +546,12 @@ export function DmProvider({ children }: { children: ReactNode }) {
                 }
               });
               // Native notification so user sees it even when minimized to tray
-              void import('../lib/tauri-notifications').then(({ sendNativeNotification }) => {
-                void sendNativeNotification(
-                  'New Direct Message',
-                  `${senderDid} sent you a message`,
-                );
+              void Promise.all([
+                import('../lib/tauri-notifications'),
+                import('../lib/resolve-display-name'),
+              ]).then(async ([{ sendNativeNotification }, { resolveDisplayName }]) => {
+                const name = await resolveDisplayName(senderDid);
+                void sendNativeNotification('New Direct Message', `${name} sent you a message`);
               });
             } else {
               setNotifications((n) => {

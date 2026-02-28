@@ -24,6 +24,7 @@ import { useVideoCall, setInnerCircleDidsForCalls } from '../contexts/VideoCallC
 import { useMentionNotifications } from '../contexts/MentionNotificationContext';
 import { useBlocks } from '../contexts/BlockContext';
 import { InfoTip } from '@protoimsg/ui/InfoTip';
+import { useAuth } from '../hooks/useAuth';
 import { IS_TAURI } from '../lib/config';
 import styles from './RoomDirectoryPage.module.css';
 
@@ -96,6 +97,7 @@ export function RoomDirectoryPage() {
   }, [buddies, totalUnreadMentions, activeCall]);
 
   const { blockedDids, toggleBlock } = useBlocks();
+  const { hasFeed } = useAuth();
   const isMobile = useIsMobile();
   const [search, setSearch] = useState('');
   const [categories, setCategories] = useState<string[]>([]);
@@ -273,11 +275,13 @@ export function RoomDirectoryPage() {
       : () => {
           setView('rooms');
         },
-    onOpenFeed: IS_TAURI
-      ? openTauriFeed
-      : () => {
-          setView('feed');
-        },
+    onOpenFeed: hasFeed
+      ? IS_TAURI
+        ? openTauriFeed
+        : () => {
+            setView('feed');
+          }
+      : undefined,
     followers,
     following,
     fetchMoreFollowers,
@@ -384,7 +388,7 @@ export function RoomDirectoryPage() {
             </>
           )}
 
-          {view === 'feed' && (
+          {view === 'feed' && hasFeed && (
             <FeedView
               onNavigateToProfile={navigateToProfile}
               onReply={handleReply}

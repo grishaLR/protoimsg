@@ -21,7 +21,7 @@ interface SettingsViewProps {
 export function SettingsView({ onBack }: SettingsViewProps) {
   const { t } = useTranslation('settings');
   const { t: tc } = useTranslation('common');
-  const { did, handle, agent, logout } = useAuth();
+  const { did, handle, agent, logout, hasProfileEdit } = useAuth();
   const { theme, setTheme } = useTheme();
   const {
     autoTranslate,
@@ -237,72 +237,74 @@ export function SettingsView({ onBack }: SettingsViewProps) {
           </div>
         </div>
 
-        {/* Edit Profile */}
-        <div className={styles.section}>
-          <div className={styles.sectionTitle}>{t('editProfile.title')}</div>
-          <div className={styles.sectionBody}>
-            {loading ? (
-              <div className={styles.loadingText}>{t('editProfile.loading')}</div>
-            ) : (
-              <>
-                <div className={styles.avatarRow}>
-                  {avatarPreview && (
-                    // eslint-disable-next-line no-restricted-syntax -- blob URL from local file upload
-                    <img className={styles.avatarPreview} src={avatarPreview} alt="" />
-                  )}
-                  <button
-                    className={styles.changeAvatarButton}
-                    onClick={() => {
-                      fileInputRef.current?.click();
+        {/* Edit Profile — only shown when profile edit scope was granted */}
+        {hasProfileEdit && (
+          <div className={styles.section}>
+            <div className={styles.sectionTitle}>{t('editProfile.title')}</div>
+            <div className={styles.sectionBody}>
+              {loading ? (
+                <div className={styles.loadingText}>{t('editProfile.loading')}</div>
+              ) : (
+                <>
+                  <div className={styles.avatarRow}>
+                    {avatarPreview && (
+                      // eslint-disable-next-line no-restricted-syntax -- blob URL from local file upload
+                      <img className={styles.avatarPreview} src={avatarPreview} alt="" />
+                    )}
+                    <button
+                      className={styles.changeAvatarButton}
+                      onClick={() => {
+                        fileInputRef.current?.click();
+                      }}
+                      type="button"
+                    >
+                      {t('editProfile.changeAvatar')}
+                    </button>
+                    <input
+                      ref={fileInputRef}
+                      type="file"
+                      accept="image/*"
+                      style={{ display: 'none' }}
+                      onChange={handleAvatarChange}
+                    />
+                  </div>
+
+                  <label className={styles.label}>{t('editProfile.displayNameLabel')}</label>
+                  <input
+                    className={styles.input}
+                    value={displayName}
+                    onChange={(e) => {
+                      setDisplayName(e.target.value);
                     }}
+                  />
+
+                  <label className={styles.label}>{t('editProfile.bioLabel')}</label>
+                  <textarea
+                    className={styles.textarea}
+                    value={description}
+                    onChange={(e) => {
+                      setDescription(e.target.value);
+                    }}
+                    rows={4}
+                  />
+
+                  {error && <div className={styles.error}>{error}</div>}
+
+                  <button
+                    className={styles.saveButton}
+                    onClick={() => {
+                      void save();
+                    }}
+                    disabled={saving}
                     type="button"
                   >
-                    {t('editProfile.changeAvatar')}
+                    {saving ? t('editProfile.saving') : t('editProfile.save')}
                   </button>
-                  <input
-                    ref={fileInputRef}
-                    type="file"
-                    accept="image/*"
-                    style={{ display: 'none' }}
-                    onChange={handleAvatarChange}
-                  />
-                </div>
-
-                <label className={styles.label}>{t('editProfile.displayNameLabel')}</label>
-                <input
-                  className={styles.input}
-                  value={displayName}
-                  onChange={(e) => {
-                    setDisplayName(e.target.value);
-                  }}
-                />
-
-                <label className={styles.label}>{t('editProfile.bioLabel')}</label>
-                <textarea
-                  className={styles.textarea}
-                  value={description}
-                  onChange={(e) => {
-                    setDescription(e.target.value);
-                  }}
-                  rows={4}
-                />
-
-                {error && <div className={styles.error}>{error}</div>}
-
-                <button
-                  className={styles.saveButton}
-                  onClick={() => {
-                    void save();
-                  }}
-                  disabled={saving}
-                  type="button"
-                >
-                  {saving ? t('editProfile.saving') : t('editProfile.save')}
-                </button>
-              </>
-            )}
+                </>
+              )}
+            </div>
           </div>
-        </div>
+        )}
 
         {/* Language & Translation */}
         <div className={styles.section}>
