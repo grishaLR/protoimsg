@@ -25,12 +25,12 @@ export function BetaBanner() {
         </a>
         {' or '}
         <a
-          href="https://bsky.app/profile/grishalr.bsky.app"
+          href="https://bsky.app/profile/grishalr.protoimsg.app"
           target="_blank"
           rel="noopener noreferrer"
           className={styles.link}
         >
-          @grishalr.bsky.app
+          @grishalr.protoimsg.app
         </a>
       </span>
       <button
