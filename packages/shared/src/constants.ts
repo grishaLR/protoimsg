@@ -90,36 +90,22 @@ export const DM_LIMITS = {
 /* -------------------------------------------------------------------------- */
 
 const BSKY_AUD = 'did:web:api.bsky.app%23bsky_appview';
-const rpc = (method: string) => `rpc:${method}?aud=${BSKY_AUD}`;
+const bskyInclude = (nsid: string) => `include:${nsid}?aud=${BSKY_AUD}`;
+const bskyViewAll = bskyInclude('app.bsky.authViewAll');
 
 export const OAUTH_SCOPE_GROUPS = {
   core: ['atproto'],
   /** Permission-set bundles all app.protoimsg.chat.* repo scopes into one include: */
   chat: ['include:app.protoimsg.chat.authFull'],
-  /** app.bsky scopes stay granular — namespace authority prevents bundling cross-namespace */
-  socialGraph: [
-    'repo:app.bsky.graph.block',
-    rpc('app.bsky.graph.getBlocks'),
-    rpc('app.bsky.graph.getMutes'),
-    rpc('app.bsky.graph.getFollowers'),
-    rpc('app.bsky.graph.getFollows'),
-    rpc('app.bsky.graph.getRelationships'),
-    rpc('app.bsky.actor.getProfile'),
-    rpc('app.bsky.actor.getPreferences'),
-  ],
+  /** authViewAll covers all read RPCs; block write stays individual (no permission-set for it) */
+  socialGraph: [bskyViewAll, 'repo:app.bsky.graph.block'],
   feed: [
-    'repo:app.bsky.feed.post',
+    bskyInclude('app.bsky.authCreatePosts'),
     'repo:app.bsky.feed.like',
     'repo:app.bsky.feed.repost',
-    rpc('app.bsky.feed.getTimeline'),
-    rpc('app.bsky.feed.getFeed'),
-    rpc('app.bsky.feed.getPostThread'),
-    rpc('app.bsky.feed.getPosts'),
-    rpc('app.bsky.feed.getAuthorFeed'),
-    rpc('app.bsky.feed.getFeedGenerators'),
     'blob:image/*',
   ],
-  profileEdit: ['repo:app.bsky.actor.profile', 'blob:image/*'],
+  profileEdit: ['include:app.bsky.authManageProfile', 'blob:image/*'],
 } as const;
 
 export const REQUIRED_SCOPE_GROUPS = ['core', 'chat', 'socialGraph'] as const;

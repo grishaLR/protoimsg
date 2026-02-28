@@ -3,7 +3,7 @@
   "client_name": "proto instant messenger",
   "client_uri": "https://protoimsg.app",
   "redirect_uris": ["app.protoimsg:/auth/callback"],
-  "scope": "atproto include:app.protoimsg.chat.authFull repo:app.bsky.graph.block rpc:app.bsky.graph.getBlocks?aud=did:web:api.bsky.app%23bsky_appview rpc:app.bsky.graph.getMutes?aud=did:web:api.bsky.app%23bsky_appview rpc:app.bsky.graph.getFollowers?aud=did:web:api.bsky.app%23bsky_appview rpc:app.bsky.graph.getFollows?aud=did:web:api.bsky.app%23bsky_appview rpc:app.bsky.graph.getRelationships?aud=did:web:api.bsky.app%23bsky_appview rpc:app.bsky.actor.getProfile?aud=did:web:api.bsky.app%23bsky_appview rpc:app.bsky.actor.getPreferences?aud=did:web:api.bsky.app%23bsky_appview repo:app.bsky.feed.post repo:app.bsky.feed.like repo:app.bsky.feed.repost rpc:app.bsky.feed.getTimeline?aud=did:web:api.bsky.app%23bsky_appview rpc:app.bsky.feed.getFeed?aud=did:web:api.bsky.app%23bsky_appview rpc:app.bsky.feed.getPostThread?aud=did:web:api.bsky.app%23bsky_appview rpc:app.bsky.feed.getPosts?aud=did:web:api.bsky.app%23bsky_appview rpc:app.bsky.feed.getAuthorFeed?aud=did:web:api.bsky.app%23bsky_appview rpc:app.bsky.feed.getFeedGenerators?aud=did:web:api.bsky.app%23bsky_appview blob:image/* repo:app.bsky.actor.profile",
+  "scope": "atproto include:app.protoimsg.chat.authFull include:app.bsky.authViewAll?aud=did:web:api.bsky.app%23bsky_appview repo:app.bsky.graph.block include:app.bsky.authCreatePosts?aud=did:web:api.bsky.app%23bsky_appview repo:app.bsky.feed.like repo:app.bsky.feed.repost blob:image/* include:app.bsky.authManageProfile",
   "grant_types": ["authorization_code", "refresh_token"],
   "response_types": ["code"],
   "token_endpoint_auth_method": "none",
