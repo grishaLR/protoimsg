@@ -97,8 +97,8 @@ export const OAUTH_SCOPE_GROUPS = {
   core: ['atproto'],
   /** Permission-set bundles all app.protoimsg.chat.* repo scopes into one include: */
   chat: ['include:app.protoimsg.chat.authFull'],
-  /** authViewAll covers all read RPCs; block write stays individual (no permission-set for it) */
-  socialGraph: [bskyViewAll, 'repo:app.bsky.graph.block'],
+  /** authViewAll covers all read RPCs (blocks, mutes, follows, profiles, preferences) */
+  socialGraph: [bskyViewAll],
   feed: [
     bskyInclude('app.bsky.authCreatePosts'),
     'repo:app.bsky.feed.like',

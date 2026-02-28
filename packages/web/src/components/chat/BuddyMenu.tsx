@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import type { CommunityGroup } from '@protoimsg/lexicon';
 import { MoreVertical, Video, ChevronUp, ChevronDown } from 'lucide-react';
 import { useGermDeclaration } from '../../hooks/useGermDeclaration';
+import { useBlocks } from '../../contexts/BlockContext';
 import type { MemberWithPresence } from '../../types';
 import styles from './BuddyListPanel.module.css';
 
@@ -89,6 +90,7 @@ export function BuddyMenu({
   onReport,
 }: BuddyMenuProps) {
   const { t } = useTranslation('chat');
+  const { canWriteBlocks } = useBlocks();
   const [open, setOpen] = useState(false);
   const [moveOpen, setMoveOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
@@ -140,15 +142,17 @@ export function BuddyMenu({
                   {t('buddyMenu.addToCommunity')}
                 </button>
               )}
-              <button
-                className={styles.menuItem}
-                onClick={() => {
-                  onBlock();
-                  setOpen(false);
-                }}
-              >
-                {isBlocked ? t('buddyMenu.unblock') : t('buddyMenu.block')}
-              </button>
+              {canWriteBlocks && (
+                <button
+                  className={styles.menuItem}
+                  onClick={() => {
+                    onBlock();
+                    setOpen(false);
+                  }}
+                >
+                  {isBlocked ? t('buddyMenu.unblock') : t('buddyMenu.block')}
+                </button>
+              )}
               {onReport && (
                 <ReportButton
                   onReport={onReport}
@@ -235,15 +239,17 @@ export function BuddyMenu({
                     ))}
                 </div>
               )}
-              <button
-                className={styles.menuItem}
-                onClick={() => {
-                  onBlock();
-                  setOpen(false);
-                }}
-              >
-                {isBlocked ? t('buddyMenu.unblock') : t('buddyMenu.block')}
-              </button>
+              {canWriteBlocks && (
+                <button
+                  className={styles.menuItem}
+                  onClick={() => {
+                    onBlock();
+                    setOpen(false);
+                  }}
+                >
+                  {isBlocked ? t('buddyMenu.unblock') : t('buddyMenu.block')}
+                </button>
+              )}
               {onReport && (
                 <ReportButton
                   onReport={onReport}

@@ -18,7 +18,7 @@ export function MemberMenu({ did, className }: MemberMenuProps) {
   const { t } = useTranslation('chat');
   const { agent } = useAuth();
   const { send } = useWebSocket();
-  const { blockedDids, toggleBlock } = useBlocks();
+  const { blockedDids, canWriteBlocks, toggleBlock } = useBlocks();
   const { roomUri, roomOwnerDid, isCurrentUserOwner, isCurrentUserOwnerOrMod } = useRoomMod();
   const [open, setOpen] = useState(false);
   const [feedback, setFeedback] = useState<string | null>(null);
@@ -183,13 +183,15 @@ export function MemberMenu({ did, className }: MemberMenuProps) {
               >
                 {t('memberMenu.addToBuddyList')}
               </button>
-              <button
-                className={`${styles.menuItem} ${styles.menuItemDanger}`}
-                onClick={handleBlock}
-                role="menuitem"
-              >
-                {isBlocked ? t('memberMenu.unblock') : t('memberMenu.block')}
-              </button>
+              {canWriteBlocks && (
+                <button
+                  className={`${styles.menuItem} ${styles.menuItemDanger}`}
+                  onClick={handleBlock}
+                  role="menuitem"
+                >
+                  {isBlocked ? t('memberMenu.unblock') : t('memberMenu.block')}
+                </button>
+              )}
               <button
                 className={`${styles.menuItem} ${styles.menuItemDanger}`}
                 onClick={() => {
