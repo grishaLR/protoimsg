@@ -50,9 +50,11 @@ export function WebSocketProvider({ children }: { children: ReactNode }) {
           const { installRelay } = await import('../lib/ws-ipc-relay');
           relayCleanupRef.current = installRelay(client);
         } else {
-          // Child window: use virtual WsClient backed by IPC events
+          // Child window: use virtual WsClient backed by IPC events.
+          // Await so the IPC listener is ready before we mark as connected
+          // (fixes video-call timing race where server messages were dropped).
           const { createIpcWsClient } = await import('../lib/ws-ipc-relay');
-          client = createIpcWsClient();
+          client = await createIpcWsClient();
           setConnected(true);
         }
       } else {

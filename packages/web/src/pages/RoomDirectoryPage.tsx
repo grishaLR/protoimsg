@@ -282,6 +282,7 @@ export function RoomDirectoryPage() {
             setView('feed');
           }
       : undefined,
+    tauriMode: IS_TAURI,
     followers,
     following,
     fetchMoreFollowers,

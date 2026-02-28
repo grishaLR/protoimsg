@@ -40,6 +40,8 @@ interface BuddyListPanelProps {
   onMoveBuddy: (did: string, fromGroup: string, toGroup: string) => Promise<void>;
   onOpenChatRooms?: () => void;
   onOpenFeed?: () => void;
+  /** When true, force footer visible even at narrow widths (Tauri main window). */
+  tauriMode?: boolean;
   followers?: FollowGraphEntry[];
   following?: FollowGraphEntry[];
   fetchMoreFollowers?: () => void;
@@ -80,6 +82,7 @@ export function BuddyListPanel({
   onMoveBuddy,
   onOpenChatRooms,
   onOpenFeed,
+  tauriMode,
   error,
   followers = [],
   following = [],
@@ -550,7 +553,7 @@ export function BuddyListPanel({
       {/* Create group UI — hidden until feature is ready */}
 
       {(onOpenChatRooms || onOpenFeed) && (
-        <div className={styles.footer}>
+        <div className={`${styles.footer}${tauriMode ? ` ${styles.tauriFooter}` : ''}`}>
           {onOpenChatRooms && (
             <button className={styles.footerBtn} onClick={onOpenChatRooms}>
               {t('buddyList.footer.chatRooms')}

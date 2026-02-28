@@ -10,7 +10,7 @@ import {
 import { Agent } from '@atproto/api';
 import type { OAuthSession } from '@atproto/oauth-client-browser';
 import { buildOAuthScope, type OptionalScopeGroup } from '@protoimsg/shared';
-import { getOAuthClient, REQUIRED_SCOPES } from '../lib/oauth';
+import { getOAuthClient, REQUIRED_SCOPES, AUTH_VERSION } from '../lib/oauth';
 import {
   AccountBannedError,
   NotOnAllowlistError,
@@ -22,6 +22,7 @@ import {
   getServerToken,
 } from '../lib/api';
 import { IS_TAURI } from '../lib/config';
+import { Sentry } from '../sentry';
 
 export type AuthPhase =
   | 'initializing'
@@ -42,6 +43,7 @@ export interface AuthContextValue {
   authError: string | null;
   hasFeed: boolean;
   hasProfileEdit: boolean;
+  hasBskyReads: boolean;
   grantedScopes: string[];
   login: (handle: string, optionalGroups?: OptionalScopeGroup[]) => Promise<void>;
   logout: () => void;
@@ -69,10 +71,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const isLoading = useMemo(() => authPhase !== 'ready' && authPhase !== 'idle', [authPhase]);
 
-  // transition:generic grants everything — treat as all features enabled
-  const hasGenericScope = grantedScopes.includes('transition:generic');
-  const hasFeed = hasGenericScope || grantedScopes.some((s) => s.startsWith('repo:app.bsky.feed.'));
-  const hasProfileEdit = hasGenericScope || grantedScopes.includes('repo:app.bsky.actor.profile');
+  const hasFeed = grantedScopes.some(
+    (s) => s.startsWith('repo:app.bsky.feed.') || s.startsWith('include:app.bsky.authCreatePosts'),
+  );
+  const hasProfileEdit = grantedScopes.some(
+    (s) =>
+      s === 'repo:app.bsky.actor.profile' || s.startsWith('include:app.bsky.authManageProfile'),
+  );
+  // True when the token has individual rpc: scopes (PDS expanded the include: permission-set).
+  // If only include:app.bsky.authViewAll is present, the appview won't recognize it → 403.
+  const hasBskyReads = grantedScopes.some((s) => s.startsWith('rpc:app.bsky.'));
 
   const clearAuth = useCallback(() => {
     setSession(null);
@@ -95,6 +103,36 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     if (initCalled.current) return;
     initCalled.current = true;
+
+    // Force re-login when OAuth scopes change. Bump AUTH_VERSION in oauth.ts
+    // to invalidate all existing sessions. Only check when a session exists —
+    // otherwise we'd intercept the OAuth callback redirect on first login.
+    const hasExistingSession = !!localStorage.getItem('protoimsg:did');
+    const storedVersion = Number(localStorage.getItem('protoimsg:authVersion') ?? '1');
+    if (hasExistingSession && storedVersion !== AUTH_VERSION) {
+      console.info('[Auth] auth version mismatch, clearing session for re-login');
+      localStorage.removeItem('protoimsg:did');
+      localStorage.removeItem('protoimsg:handle');
+      localStorage.removeItem('protoimsg:grantedScopes');
+      localStorage.setItem('protoimsg:authVersion', String(AUTH_VERSION));
+      clearAuth();
+      // Clear IndexedDB OAuth session so init() returns null
+      const oauthClient = getOAuthClient();
+      void oauthClient
+        .init()
+        .then((result) => {
+          if (result) void oauthClient.revoke(result.session.did);
+        })
+        .catch((err: unknown) =>
+          Sentry.captureException(err, {
+            tags: { component: 'AuthContext', action: 'revoke_stale_session' },
+          }),
+        )
+        .finally(() => {
+          setAuthPhase('idle');
+        });
+      return;
+    }
 
     // Tauri child windows: restore auth from localStorage immediately (covers
     // DM/room windows that only need server token), then try OAuth in the
@@ -168,6 +206,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             const granted = tokenInfo.scope.split(' ');
             setGrantedScopes(granted);
             localStorage.setItem('protoimsg:grantedScopes', JSON.stringify(granted));
+            localStorage.setItem('protoimsg:authVersion', String(AUTH_VERSION));
             const missingScopes = REQUIRED_SCOPES.filter((s) => !granted.includes(s));
             if (missingScopes.length > 0) {
               console.error('OAuth scopes missing:', missingScopes.join(', '));
@@ -296,6 +335,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     localStorage.removeItem('protoimsg:did');
     localStorage.removeItem('protoimsg:handle');
     localStorage.removeItem('protoimsg:grantedScopes');
+    localStorage.removeItem('protoimsg:authVersion');
     clearAuth();
     if (sub) {
       const oauthClient = getOAuthClient();
@@ -315,6 +355,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       authError,
       hasFeed,
       hasProfileEdit,
+      hasBskyReads,
       grantedScopes,
       login,
       logout,
@@ -330,6 +371,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       authError,
       hasFeed,
       hasProfileEdit,
+      hasBskyReads,
       grantedScopes,
       login,
       logout,

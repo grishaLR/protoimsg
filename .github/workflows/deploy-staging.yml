@@ -62,7 +62,7 @@ jobs:
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
 
       - name: Alias to staging
-        run: vercel alias set ${{ steps.deploy.outputs.url }} protoimsg-staging.vercel.app --token=${{ secrets.VERCEL_TOKEN }}
+        run: vercel alias set ${{ steps.deploy.outputs.url }} staging.protoimsg.app --token=${{ secrets.VERCEL_TOKEN }}
         env:
           VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
@@ -148,7 +148,7 @@ jobs:
               `${icon(coturn)} **coturn** (Fly.io): ${coturn}`,
               `${icon(pds)} **PDS** (Fly.io): ${pds}`,
               '',
-              web === 'success' ? '🔗 https://protoimsg-staging.vercel.app' : '',
+              web === 'success' ? '🔗 https://staging.protoimsg.app' : '',
             ].filter(Boolean).join('\n');
 
             await github.rest.issues.createComment({

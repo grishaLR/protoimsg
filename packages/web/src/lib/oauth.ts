@@ -4,6 +4,12 @@ import { OAUTH_SCOPE_ALL } from '@protoimsg/shared';
 /** Scopes that protoimsg requires to function. Checked after OAuth callback. */
 export const REQUIRED_SCOPES = ['atproto'] as const;
 
+/**
+ * Bump this whenever the OAuth scope set changes and all users must re-authenticate.
+ * On load, AuthContext compares this against localStorage — mismatch → clear session.
+ */
+export const AUTH_VERSION = 2;
+
 let client: BrowserOAuthClient | null = null;
 
 /** Build OAuth client metadata from a given origin URL. */

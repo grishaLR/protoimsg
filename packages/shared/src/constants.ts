@@ -86,7 +86,7 @@ export const DM_LIMITS = {
 
 /* -------------------------------------------------------------------------- */
 /*  OAuth scope groups — collection-scoped permissions replacing              */
-/*  transition:generic. Keep in sync with client-metadata JSON files.         */
+/*  collection-scoped permissions. Keep in sync with client-metadata JSON.    */
 /* -------------------------------------------------------------------------- */
 
 const BSKY_AUD = 'did:web:api.bsky.app%23bsky_appview';
@@ -103,6 +103,7 @@ export const OAUTH_SCOPE_GROUPS = {
     bskyInclude('app.bsky.authCreatePosts'),
     'repo:app.bsky.feed.like',
     'repo:app.bsky.feed.repost',
+    'repo:app.bsky.graph.block',
     'blob:image/*',
   ],
   profileEdit: ['include:app.bsky.authManageProfile', 'blob:image/*'],

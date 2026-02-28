@@ -7,7 +7,7 @@ import { useWebSocket } from '../contexts/WebSocketContext';
  * Also exposes the set of blocked DIDs for client-side filtering.
  */
 export function useBlockSync() {
-  const { agent, did } = useAuth();
+  const { agent, did, hasBskyReads } = useAuth();
   const { send, connected } = useWebSocket();
   const [blockedDids, setBlockedDids] = useState<Set<string>>(new Set());
   const hasSynced = useRef(false);
@@ -15,7 +15,7 @@ export function useBlockSync() {
   sendRef.current = send;
 
   const fetchAndSync = useCallback(async () => {
-    if (!agent || !did) return;
+    if (!agent || !did || !hasBskyReads) return;
 
     try {
       const blocked: string[] = [];
@@ -47,7 +47,7 @@ export function useBlockSync() {
     } catch (err) {
       console.error('Failed to sync block list:', err);
     }
-  }, [agent, did]);
+  }, [agent, did, hasBskyReads]);
 
   // Sync on initial connect
   useEffect(() => {

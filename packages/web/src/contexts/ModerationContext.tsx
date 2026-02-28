@@ -5,11 +5,11 @@ import { useAuth } from '../hooks/useAuth';
 const ModerationContext = createContext<ModerationOpts | null>(null);
 
 export function ModerationProvider({ children }: { children: ReactNode }) {
-  const { agent, did } = useAuth();
+  const { agent, did, hasBskyReads } = useAuth();
   const [opts, setOpts] = useState<ModerationOpts | null>(null);
 
   useEffect(() => {
-    if (!agent || !did) {
+    if (!agent || !did || !hasBskyReads) {
       setOpts(null);
       return;
     }
@@ -57,7 +57,7 @@ export function ModerationProvider({ children }: { children: ReactNode }) {
     return () => {
       cancelled = true;
     };
-  }, [agent, did]);
+  }, [agent, did, hasBskyReads]);
 
   return <ModerationContext.Provider value={opts}>{children}</ModerationContext.Provider>;
 }

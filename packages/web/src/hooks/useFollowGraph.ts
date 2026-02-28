@@ -17,13 +17,13 @@ interface PaginatedList {
 const EMPTY: PaginatedList = { items: [], cursor: undefined, hasMore: true, loading: false };
 
 export function useFollowGraph() {
-  const { agent, did } = useAuth();
+  const { agent, did, hasBskyReads } = useAuth();
   const [followers, setFollowers] = useState<PaginatedList>(EMPTY);
   const [following, setFollowing] = useState<PaginatedList>(EMPTY);
 
   // Initial fetch — first page only
   useEffect(() => {
-    if (!agent || !did) return;
+    if (!agent || !did || !hasBskyReads) return;
 
     let cancelled = false;
 
@@ -61,10 +61,10 @@ export function useFollowGraph() {
     return () => {
       cancelled = true;
     };
-  }, [agent, did]);
+  }, [agent, did, hasBskyReads]);
 
   const fetchMoreFollowers = useCallback(async () => {
-    if (!agent || !did || !followers.hasMore || followers.loading) return;
+    if (!agent || !did || !hasBskyReads || !followers.hasMore || followers.loading) return;
 
     setFollowers((prev) => ({ ...prev, loading: true }));
 
@@ -85,10 +85,10 @@ export function useFollowGraph() {
       console.error('Failed to fetch more followers:', err);
       setFollowers((prev) => ({ ...prev, loading: false }));
     }
-  }, [agent, did, followers.hasMore, followers.loading, followers.cursor]);
+  }, [agent, did, hasBskyReads, followers.hasMore, followers.loading, followers.cursor]);
 
   const fetchMoreFollowing = useCallback(async () => {
-    if (!agent || !did || !following.hasMore || following.loading) return;
+    if (!agent || !did || !hasBskyReads || !following.hasMore || following.loading) return;
 
     setFollowing((prev) => ({ ...prev, loading: true }));
 
@@ -109,7 +109,7 @@ export function useFollowGraph() {
       console.error('Failed to fetch more following:', err);
       setFollowing((prev) => ({ ...prev, loading: false }));
     }
-  }, [agent, did, following.hasMore, following.loading, following.cursor]);
+  }, [agent, did, hasBskyReads, following.hasMore, following.loading, following.cursor]);
 
   return {
     followers: followers.items,
