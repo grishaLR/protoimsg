@@ -6,7 +6,7 @@
       "type": "permission-set",
       "title": "Full proto instant messenger access",
       "title:lang": {},
-      "detail": "Create and join chat rooms, send messages, manage buddy lists, video calls, polls, and moderation.",
+      "detail": "Create and join chat rooms, send chat messages, manage buddy lists, polls, and moderation.",
       "detail:lang": {},
       "permissions": [
         {
@@ -17,7 +17,6 @@
             "app.protoimsg.chat.channel",
             "app.protoimsg.chat.message",
             "app.protoimsg.chat.community",
-            "app.protoimsg.chat.presence",
             "app.protoimsg.chat.poll",
             "app.protoimsg.chat.vote",
             "app.protoimsg.chat.ban",
