@@ -41,4 +41,5 @@ exec turnserver -n \
   --max-port=49252 \
   --total-quota=1000 \
   --user-quota=10 \
+  --prometheus \
   --verbose

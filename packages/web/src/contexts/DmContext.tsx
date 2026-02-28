@@ -545,6 +545,13 @@ export function DmProvider({ children }: { children: ReactNode }) {
                   send({ type: 'dm_open', recipientDid: senderDid });
                 }
               });
+              // Native notification so user sees it even when minimized to tray
+              void import('../lib/tauri-notifications').then(({ sendNativeNotification }) => {
+                void sendNativeNotification(
+                  'New Direct Message',
+                  `${senderDid} sent you a message`,
+                );
+              });
             } else {
               setNotifications((n) => {
                 if (n.some((x) => x.conversationId === conversationId)) return n;

@@ -11,11 +11,31 @@ import {
 import { useWebSocket } from './WebSocketContext';
 import { useAuth } from '../hooks/useAuth';
 import { playImNotify } from '../lib/sounds';
+import { IS_TAURI } from '../lib/config';
 import { fetchIceServers } from '../lib/api';
 import { PeerManager, PeerConnectionType } from '../lib/peerconnection';
 import { shouldForceRelayForDid } from '../lib/ip-protection';
 import { Sentry } from '../sentry';
 import type { ServerMessage, IceCandidateInit } from '@protoimsg/shared';
+
+/** Get current Tauri webview label synchronously (empty string if not Tauri) */
+function getTauriWindowLabel(): string {
+  if (!IS_TAURI) return '';
+  try {
+    const internals = (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ as
+      | { metadata?: { currentWebview?: { label?: string } } }
+      | undefined;
+    return internals?.metadata?.currentWebview?.label ?? '';
+  } catch {
+    return '';
+  }
+}
+
+const tauriLabel = getTauriWindowLabel();
+/** True in the Tauri main window OR in web (single window) */
+const isTauriMainWindow = !IS_TAURI || tauriLabel === 'main';
+/** True only in a Tauri video call child window */
+const isVideoCallChildWindow = IS_TAURI && tauriLabel.startsWith('videocall-');
 
 export { setInnerCircleDidsForCalls } from '../lib/ip-protection';
 export type { IpProtectionLevel } from '../lib/ip-protection';
@@ -44,6 +64,14 @@ interface VideoCallContextValue {
   flipCamera: () => Promise<void>;
   startScreenShare: () => Promise<void>;
   stopScreenShare: () => Promise<void>;
+  /** Bootstrap an outgoing call in a Tauri child window */
+  startOutgoingCall: (conversationId: string, recipientDid: string) => void;
+  /** Bootstrap + accept an incoming call in a Tauri child window */
+  bootstrapIncomingCall: (
+    conversationId: string,
+    senderDid: string,
+    offer: string,
+  ) => Promise<void>;
 }
 
 const VideoCallContext = createContext<VideoCallContextValue | null>(null);
@@ -77,6 +105,9 @@ export function VideoCallProvider({ children }: { children: ReactNode }) {
   // Ref mirror of activeCall so WS handlers always see latest state
   const activeCallRef = useRef<VideoCall | null>(null);
   activeCallRef.current = activeCall;
+
+  // Tauri: true when the call has been delegated to a child video call window
+  const delegatedToChild = useRef(false);
 
   /** Clean up all WebRTC + media state */
   const cleanUp = useCallback(() => {
@@ -249,9 +280,127 @@ export function VideoCallProvider({ children }: { children: ReactNode }) {
     [send],
   );
 
+  /** Core accept logic — creates PeerManager, sets remote description, sends answer. */
+  const doAcceptCall = useCallback(
+    async (call: VideoCall, offer: string) => {
+      if (incomingCallTimer.current) {
+        clearTimeout(incomingCallTimer.current);
+        incomingCallTimer.current = null;
+      }
+
+      try {
+        const iceServers = await fetchIceServers();
+        if (iceServers.length === 0) {
+          Sentry.captureMessage('ICE servers unavailable — video call blocked', {
+            level: 'error',
+            tags: { component: 'VideoCall', role: 'callee' },
+          });
+          showCallError('Video calls are temporarily unavailable. Please try again later.');
+          cleanUp();
+          return;
+        }
+        const useRelay = shouldForceRelayForDid(call.recipientDid);
+        const pm = new PeerManager({
+          config: { iceServers, ...(useRelay && { iceTransportPolicy: 'relay' as const }) },
+          conversationId: call.conversationId,
+          send,
+          onRemoteStream,
+          onIceConnectionStateChange,
+          type: PeerConnectionType.Callee,
+        });
+
+        if (peerConnection.current) {
+          peerConnection.current.pc.close();
+        }
+        peerConnection.current = pm;
+
+        await pm.pc.setRemoteDescription({ type: 'offer', sdp: offer });
+
+        // Flush any ICE candidates that arrived before we accepted
+        for (const c of pendingIceCandidates.current) {
+          pm.addBufferedCandidate(c);
+        }
+        pendingIceCandidates.current = [];
+        pm.flushCandidates();
+
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: true });
+        localStream.current = stream;
+
+        stream.getTracks().forEach((track) => {
+          pm.pc.addTrack(track, stream);
+        });
+
+        // Start with camera + mic off
+        const videoTrack = stream.getVideoTracks()[0];
+        if (videoTrack) {
+          videoTrack.enabled = false;
+          cameraOffTrack.current = videoTrack;
+          const videoSender = pm.pc.getSenders().find((s) => s.track?.kind === 'video');
+          void videoSender?.replaceTrack(null);
+        }
+        isCameraOffRef.current = true;
+        setIsCameraOff(true);
+        for (const at of stream.getAudioTracks()) {
+          at.enabled = false;
+        }
+        isMutedRef.current = true;
+        setIsMuted(true);
+
+        const answer = await pm.pc.createAnswer({
+          offerToReceiveAudio: true,
+          offerToReceiveVideo: true,
+        });
+        await pm.pc.setLocalDescription(answer);
+
+        if (!answer.sdp) {
+          throw new Error('Answer SDP is undefined');
+        }
+
+        send({ type: 'accept_call', conversationId: call.conversationId, answer: answer.sdp });
+
+        setActiveCall((prev) => (prev ? { ...prev, status: 'active', localStream: stream } : prev));
+        incomingOffer.current = null;
+      } catch (err) {
+        console.error('Failed to accept call', err);
+        if (err instanceof DOMException && err.name === 'NotAllowedError') {
+          showCallError('videoCall.error.mediaPermission');
+        }
+        cleanUp();
+      }
+    },
+    [send, onRemoteStream, onIceConnectionStateChange, showCallError, cleanUp],
+  );
+
   const acceptCall = useCallback(async () => {
     const call = activeCallRef.current;
     if (!call || call.status !== 'incoming' || !did) return;
+
+    // Tauri main window: delegate the call to a dedicated child window
+    if (IS_TAURI && isTauriMainWindow) {
+      const offer = incomingOffer.current;
+      if (offer) {
+        localStorage.setItem(
+          'protoimsg:pending-videocall',
+          JSON.stringify({
+            conversationId: call.conversationId,
+            recipientDid: call.recipientDid,
+            offer,
+            mode: 'incoming',
+          }),
+        );
+      }
+      delegatedToChild.current = true;
+      if (incomingCallTimer.current) {
+        clearTimeout(incomingCallTimer.current);
+        incomingCallTimer.current = null;
+      }
+      setActiveCall(null);
+      incomingOffer.current = null;
+      void import('../lib/tauri-windows').then(({ openVideoCallWindow }) => {
+        void openVideoCallWindow(call.conversationId, call.recipientDid);
+      });
+      return;
+    }
 
     const offer = incomingOffer.current;
     if (!offer) {
@@ -259,91 +408,8 @@ export function VideoCallProvider({ children }: { children: ReactNode }) {
       return;
     }
 
-    if (incomingCallTimer.current) {
-      clearTimeout(incomingCallTimer.current);
-      incomingCallTimer.current = null;
-    }
-
-    try {
-      const iceServers = await fetchIceServers();
-      if (iceServers.length === 0) {
-        Sentry.captureMessage('ICE servers unavailable — video call blocked', {
-          level: 'error',
-          tags: { component: 'VideoCall', role: 'callee' },
-        });
-        showCallError('Video calls are temporarily unavailable. Please try again later.');
-        cleanUp();
-        return;
-      }
-      const useRelay = shouldForceRelayForDid(call.recipientDid);
-      const pm = new PeerManager({
-        config: { iceServers, ...(useRelay && { iceTransportPolicy: 'relay' as const }) },
-        conversationId: call.conversationId,
-        send,
-        onRemoteStream,
-        onIceConnectionStateChange,
-        type: PeerConnectionType.Callee,
-      });
-
-      if (peerConnection.current) {
-        peerConnection.current.pc.close();
-      }
-      peerConnection.current = pm;
-
-      await pm.pc.setRemoteDescription({ type: 'offer', sdp: offer });
-
-      // Flush any ICE candidates that arrived before we accepted
-      for (const c of pendingIceCandidates.current) {
-        pm.addBufferedCandidate(c);
-      }
-      pendingIceCandidates.current = [];
-      pm.flushCandidates();
-
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: true });
-      localStream.current = stream;
-
-      stream.getTracks().forEach((track) => {
-        pm.pc.addTrack(track, stream);
-      });
-
-      // Start with camera + mic off
-      const videoTrack = stream.getVideoTracks()[0];
-      if (videoTrack) {
-        videoTrack.enabled = false;
-        cameraOffTrack.current = videoTrack;
-        const videoSender = pm.pc.getSenders().find((s) => s.track?.kind === 'video');
-        void videoSender?.replaceTrack(null);
-      }
-      isCameraOffRef.current = true;
-      setIsCameraOff(true);
-      for (const at of stream.getAudioTracks()) {
-        at.enabled = false;
-      }
-      isMutedRef.current = true;
-      setIsMuted(true);
-
-      const answer = await pm.pc.createAnswer({
-        offerToReceiveAudio: true,
-        offerToReceiveVideo: true,
-      });
-      await pm.pc.setLocalDescription(answer);
-
-      if (!answer.sdp) {
-        throw new Error('Answer SDP is undefined');
-      }
-
-      send({ type: 'accept_call', conversationId: call.conversationId, answer: answer.sdp });
-
-      setActiveCall((prev) => (prev ? { ...prev, status: 'active', localStream: stream } : prev));
-      incomingOffer.current = null;
-    } catch (err) {
-      console.error('Failed to accept call', err);
-      if (err instanceof DOMException && err.name === 'NotAllowedError') {
-        showCallError('videoCall.error.mediaPermission');
-      }
-      cleanUp();
-    }
-  }, [send, did, onRemoteStream, onIceConnectionStateChange, showCallError, cleanUp]);
+    await doAcceptCall(call, offer);
+  }, [did, doAcceptCall]);
 
   const rejectCall = useCallback(() => {
     const call = activeCallRef.current;
@@ -547,11 +613,35 @@ export function VideoCallProvider({ children }: { children: ReactNode }) {
   // WS event handler
   useEffect(() => {
     const unsub = subscribe((msg: ServerMessage) => {
+      // In Tauri, only process video call events in the main window and video call child windows.
+      // Room/DM/feed child windows should not handle video call signaling.
+      if (IS_TAURI && !isTauriMainWindow && !isVideoCallChildWindow) return;
+
+      // Main window with an active delegation — skip signaling events
+      if (delegatedToChild.current && isTauriMainWindow) {
+        // Still allow incoming_call so the user sees the banner for new calls
+        if (msg.type !== 'incoming_call') return;
+      }
+
       switch (msg.type) {
         case 'call_ready': {
           const { conversationId, recipientDid } = msg.data;
           if (pendingCallDid.current && pendingCallDid.current === recipientDid) {
             pendingCallDid.current = null;
+
+            // Tauri main window: open dedicated video call child window
+            if (IS_TAURI && isTauriMainWindow) {
+              delegatedToChild.current = true;
+              localStorage.setItem(
+                'protoimsg:pending-videocall',
+                JSON.stringify({ conversationId, recipientDid, mode: 'outgoing' }),
+              );
+              void import('../lib/tauri-windows').then(({ openVideoCallWindow }) => {
+                void openVideoCallWindow(conversationId, recipientDid);
+              });
+              break;
+            }
+
             void initiateCall(conversationId, recipientDid);
           }
           break;
@@ -588,6 +678,19 @@ export function VideoCallProvider({ children }: { children: ReactNode }) {
           }
 
           playImNotify();
+
+          // Native notification + bring window to front in Tauri
+          if (IS_TAURI) {
+            void import('../lib/tauri-notifications').then(({ sendNativeNotification }) => {
+              void sendNativeNotification('Incoming Video Call', `${senderDid} is calling you`);
+            });
+            void import('@tauri-apps/api/webviewWindow').then(({ getCurrentWebviewWindow }) => {
+              const win = getCurrentWebviewWindow();
+              void win.show();
+              void win.setFocus();
+            });
+          }
+
           incomingOffer.current = offer;
 
           // Subscribe for signaling on this conversation (call_init subscribes
@@ -674,6 +777,28 @@ export function VideoCallProvider({ children }: { children: ReactNode }) {
     };
   }, [send]);
 
+  // Tauri: main window hides to tray → hang up active calls (beforeunload doesn't fire)
+  useEffect(() => {
+    if (!IS_TAURI) return;
+    let unlisten: (() => void) | null = null;
+
+    void import('@tauri-apps/api/event').then(({ listen }) => {
+      void listen('app://window-hiding', () => {
+        const call = activeCallRef.current;
+        if (call) {
+          send({ type: 'reject_call', conversationId: call.conversationId });
+          cleanUp();
+        }
+      }).then((fn) => {
+        unlisten = fn;
+      });
+    });
+
+    return () => {
+      if (unlisten) unlisten();
+    };
+  }, [send, cleanUp]);
+
   // Clean up on unmount
   useEffect(() => {
     return () => {
@@ -694,6 +819,53 @@ export function VideoCallProvider({ children }: { children: ReactNode }) {
     };
   }, []);
 
+  /** Bootstrap an outgoing call in a Tauri child window (called by VideoCallWindowPage) */
+  const startOutgoingCall = useCallback(
+    (conversationId: string, recipientDid: string) => {
+      void initiateCall(conversationId, recipientDid);
+    },
+    [initiateCall],
+  );
+
+  /** Bootstrap + accept an incoming call in a Tauri child window (called by VideoCallWindowPage) */
+  const bootstrapIncomingCall = useCallback(
+    async (conversationId: string, senderDid: string, offer: string) => {
+      const call: VideoCall = {
+        conversationId,
+        recipientDid: senderDid,
+        status: 'incoming',
+        localStream: null,
+        remoteStream: undefined,
+      };
+      // Set refs directly so doAcceptCall sees the state immediately
+      activeCallRef.current = call;
+      setActiveCall(call);
+      // Subscribe for signaling on this conversation
+      send({ type: 'call_init', recipientDid: senderDid });
+      await doAcceptCall(call, offer);
+    },
+    [send, doAcceptCall],
+  );
+
+  // Tauri: listen for child video call window closing so we reset delegation
+  useEffect(() => {
+    if (!IS_TAURI || !isTauriMainWindow) return;
+    let unlisten: (() => void) | null = null;
+
+    void import('@tauri-apps/api/event').then(({ listen }) => {
+      void listen('videocall-child-close', () => {
+        delegatedToChild.current = false;
+        localStorage.removeItem('protoimsg:pending-videocall');
+      }).then((fn) => {
+        unlisten = fn;
+      });
+    });
+
+    return () => {
+      if (unlisten) unlisten();
+    };
+  }, []);
+
   const value: VideoCallContextValue = useMemo(
     () => ({
       activeCall,
@@ -711,6 +883,8 @@ export function VideoCallProvider({ children }: { children: ReactNode }) {
       flipCamera,
       startScreenShare,
       stopScreenShare,
+      startOutgoingCall,
+      bootstrapIncomingCall,
     }),
     [
       activeCall,
@@ -728,6 +902,8 @@ export function VideoCallProvider({ children }: { children: ReactNode }) {
       flipCamera,
       startScreenShare,
       stopScreenShare,
+      startOutgoingCall,
+      bootstrapIncomingCall,
     ],
   );
 

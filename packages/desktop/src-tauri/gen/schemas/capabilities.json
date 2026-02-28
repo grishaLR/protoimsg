@@ -3,7 +3,7 @@
     "identifier": "default",
     "description": "Capability for the main and child windows",
     "local": true,
-    "windows": ["main", "room-*", "dm-*", "rooms-directory", "feed"],
+    "windows": ["main", "room-*", "dm-*", "videocall-*", "rooms-directory", "feed"],
     "permissions": [
       "core:default",
       "core:window:allow-create",
@@ -21,7 +21,9 @@
       "core:event:default",
       "core:event:allow-emit",
       "core:event:allow-listen",
-      "shell:allow-open"
+      "shell:allow-open",
+      "notification:default",
+      "core:window:allow-set-always-on-top"
     ]
   }
 }

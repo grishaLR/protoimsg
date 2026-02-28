@@ -10,6 +10,7 @@ import {
 } from 'react';
 import { useWebSocket } from './WebSocketContext';
 import { playImNotify } from '../lib/sounds';
+import { IS_TAURI } from '../lib/config';
 import type { ServerMessage } from '@protoimsg/shared';
 
 const MAX_TOASTS = 5;
@@ -92,9 +93,19 @@ export function MentionNotificationProvider({ children }: { children: ReactNode 
 
       playImNotify();
 
-      // Browser notification
-      ensureNotificationPermission();
-      showBrowserNotification(notification);
+      // Native notification (Tauri) or browser notification (web)
+      if (IS_TAURI) {
+        const body =
+          notification.messageText.length > 80
+            ? notification.messageText.slice(0, 80) + '...'
+            : notification.messageText;
+        void import('../lib/tauri-notifications').then(({ sendNativeNotification }) => {
+          void sendNativeNotification(`Mentioned in ${notification.roomName}`, body);
+        });
+      } else {
+        ensureNotificationPermission();
+        showBrowserNotification(notification);
+      }
 
       // Add toast (cap at MAX_TOASTS)
       setToasts((prev) => {
