@@ -1,45 +1,46 @@
 import { describe, it, expect, vi } from 'vitest';
 import { resolveDidOrHandle } from './resolve-identity.js';
-import type { Agent } from '@atproto/api';
+// Mock publicAgent — resolve-identity now uses it instead of the passed agent
+vi.mock('./public-agent.js', () => ({
+  publicAgent: {
+    resolveHandle: vi.fn(),
+  },
+}));
 
-function createMockAgent(did = 'did:plc:resolved'): Agent {
-  return {
-    resolveHandle: vi.fn().mockResolvedValue({ data: { did } }),
-  } as unknown as Agent;
-}
+import { publicAgent } from './public-agent.js';
+
+const mockResolveHandle = publicAgent.resolveHandle as ReturnType<typeof vi.fn>;
 
 describe('resolveDidOrHandle', () => {
   it('returns DID as-is when input starts with did:', async () => {
-    const agent = createMockAgent();
-    const result = await resolveDidOrHandle(agent, 'did:plc:abc123');
+    const result = await resolveDidOrHandle(null, 'did:plc:abc123');
     expect(result).toBe('did:plc:abc123');
-    expect(agent.resolveHandle).not.toHaveBeenCalled();
+    expect(mockResolveHandle).not.toHaveBeenCalled();
   });
 
-  it('resolves a handle via the agent', async () => {
-    const agent = createMockAgent('did:plc:resolved');
-    const result = await resolveDidOrHandle(agent, 'alice.bsky.social');
+  it('resolves a handle via publicAgent', async () => {
+    mockResolveHandle.mockResolvedValue({ data: { did: 'did:plc:resolved' } });
+    const result = await resolveDidOrHandle(null, 'alice.bsky.social');
     expect(result).toBe('did:plc:resolved');
-    expect(agent.resolveHandle).toHaveBeenCalledWith({ handle: 'alice.bsky.social' });
+    expect(mockResolveHandle).toHaveBeenCalledWith({ handle: 'alice.bsky.social' });
   });
 
   it('strips leading @ from handle', async () => {
-    const agent = createMockAgent('did:plc:resolved');
-    const result = await resolveDidOrHandle(agent, '@alice.bsky.social');
+    mockResolveHandle.mockResolvedValue({ data: { did: 'did:plc:resolved' } });
+    const result = await resolveDidOrHandle(null, '@alice.bsky.social');
     expect(result).toBe('did:plc:resolved');
-    expect(agent.resolveHandle).toHaveBeenCalledWith({ handle: 'alice.bsky.social' });
+    expect(mockResolveHandle).toHaveBeenCalledWith({ handle: 'alice.bsky.social' });
   });
 
   it('trims whitespace', async () => {
-    const agent = createMockAgent();
-    const result = await resolveDidOrHandle(agent, '  did:plc:abc123  ');
+    const result = await resolveDidOrHandle(null, '  did:plc:abc123  ');
     expect(result).toBe('did:plc:abc123');
   });
 
-  it('rejects when agent fails', async () => {
-    const agent = {
-      resolveHandle: vi.fn().mockRejectedValue(new Error('Not found')),
-    } as unknown as Agent;
-    await expect(resolveDidOrHandle(agent, 'nonexistent.handle')).rejects.toThrow('Not found');
+  it('rejects when publicAgent fails', async () => {
+    mockResolveHandle.mockRejectedValue(new Error('Unable to resolve handle'));
+    await expect(resolveDidOrHandle(null, 'nonexistent.handle')).rejects.toThrow(
+      'Unable to resolve handle',
+    );
   });
 });
