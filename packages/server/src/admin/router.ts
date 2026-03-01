@@ -2,6 +2,7 @@ import { timingSafeEqual } from 'crypto';
 import { Router } from 'express';
 import { z } from 'zod';
 import type { Sql } from '../db/client.js';
+import { USER_AGENT } from '@protoimsg/shared';
 import type { GlobalAllowlistService } from '../moderation/global-allowlist-service.js';
 import type { EmailService } from '../email/service.js';
 import { setRoomHidden } from '../rooms/queries.js';
@@ -67,7 +68,9 @@ export function adminRouter(
 
       // Resolve handle → DID via public ATProto API
       const resolveUrl = `${publicApiUrl}/xrpc/com.atproto.identity.resolveHandle?handle=${encodeURIComponent(handle)}`;
-      const resolveRes = await fetch(resolveUrl);
+      const resolveRes = await fetch(resolveUrl, {
+        headers: { 'User-Agent': USER_AGENT },
+      });
       if (!resolveRes.ok) {
         res.status(404).json({ error: `Could not resolve handle: ${handle}` });
         return;

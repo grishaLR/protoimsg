@@ -1,5 +1,5 @@
 import WebSocket from 'ws';
-import { NSID_PREFIX } from '@protoimsg/shared';
+import { NSID_PREFIX, USER_AGENT } from '@protoimsg/shared';
 import type { Sql, JsonValue } from '../db/client.js';
 import { getCursor, saveCursor } from './cursor.js';
 import { createHandlers, type FirehoseEvent } from './handlers.js';
@@ -181,7 +181,7 @@ export function createFirehoseConsumer(
     }
 
     log.info({ url: url.toString() }, 'Connecting to Jetstream');
-    ws = new WebSocket(url.toString());
+    ws = new WebSocket(url.toString(), { headers: { 'User-Agent': USER_AGENT } });
 
     ws.on('open', () => {
       setJetstreamConnected(true);

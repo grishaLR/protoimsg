@@ -1,4 +1,5 @@
 import { describe, it, expect, vi, afterEach } from 'vitest';
+import { USER_AGENT } from '@protoimsg/shared';
 import { isValidDid, verifyDidHandle } from './verify.js';
 
 describe('isValidDid', () => {
@@ -70,6 +71,7 @@ describe('verifyDidHandle', () => {
     await verifyDidHandle('did:plc:abc', 'alice.bsky.social', 'https://api.example');
     expect(fetchSpy).toHaveBeenCalledWith(
       'https://api.example/xrpc/com.atproto.identity.resolveHandle?handle=alice.bsky.social',
+      { headers: { 'User-Agent': USER_AGENT } },
     );
   });
 });

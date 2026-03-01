@@ -1,3 +1,6 @@
+export const APP_VERSION = '0.0.1';
+export const USER_AGENT = `protoimsg/${APP_VERSION} (+https://protoimsg.app)`;
+
 /** atproto Lexicon NSIDs for protoimsg collections */
 export const NSID = {
   Room: 'app.protoimsg.chat.room',

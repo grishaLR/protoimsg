@@ -1,4 +1,4 @@
-import { APP_LABELERS } from '@protoimsg/shared';
+import { APP_LABELERS, USER_AGENT } from '@protoimsg/shared';
 import { createLogger } from '../logger.js';
 
 const log = createLogger('labeler');
@@ -56,7 +56,7 @@ export class LabelerService {
       params.append('actors', did);
 
       const res = await fetch(`${PUBLIC_API}?${params.toString()}`, {
-        headers: { 'atproto-accept-labelers': LABELER_HEADER },
+        headers: { 'atproto-accept-labelers': LABELER_HEADER, 'User-Agent': USER_AGENT },
         signal: AbortSignal.timeout(5000),
       });
 

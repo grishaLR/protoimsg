@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { z } from 'zod';
-import { ERROR_CODES } from '@protoimsg/shared';
+import { ERROR_CODES, USER_AGENT } from '@protoimsg/shared';
 import type { RateLimiterStore } from '../moderation/rate-limiter-store.js';
 
 const searchSchema = z.object({
@@ -118,7 +118,9 @@ export function gifRouter(
           rating: 'pg-13',
         });
 
-        const response = await fetch(`https://api.giphy.com/v1/gifs/search?${params.toString()}`);
+        const response = await fetch(`https://api.giphy.com/v1/gifs/search?${params.toString()}`, {
+          headers: { 'User-Agent': USER_AGENT },
+        });
         if (!response.ok) {
           res.status(502).json({ error: 'Giphy API error' });
           return;
@@ -179,6 +181,7 @@ export function gifRouter(
 
         const response = await fetch(
           `https://api.klipy.com/api/v1/${apiKey}/gifs/search?${params.toString()}`,
+          { headers: { 'User-Agent': USER_AGENT } },
         );
         if (!response.ok) {
           res.status(502).json({ error: 'Klipy API error' });

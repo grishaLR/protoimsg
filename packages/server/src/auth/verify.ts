@@ -1,4 +1,5 @@
 import { lookup } from 'dns/promises';
+import { USER_AGENT } from '@protoimsg/shared';
 
 // DID Core: did:method:method-specific-id — allow any method (plc, web, key, etc.)
 const DID_RE = /^did:[a-z0-9]+:[a-zA-Z0-9._:%-]+$/;
@@ -69,7 +70,7 @@ export async function verifyDidHandle(
 
   try {
     const url = `${publicApiUrl}/xrpc/com.atproto.identity.resolveHandle?handle=${encodeURIComponent(handle)}`;
-    const res = await fetch(url);
+    const res = await fetch(url, { headers: { 'User-Agent': USER_AGENT } });
     if (!res.ok) return false;
 
     const data = (await res.json()) as ResolveHandleResponse;
@@ -98,13 +99,17 @@ export async function resolvePdsEndpoint(did: string): Promise<string | null> {
     let didDoc: DidDocument;
 
     if (did.startsWith('did:plc:')) {
-      const res = await fetch(`${PLC_DIRECTORY}/${encodeURIComponent(did)}`);
+      const res = await fetch(`${PLC_DIRECTORY}/${encodeURIComponent(did)}`, {
+        headers: { 'User-Agent': USER_AGENT },
+      });
       if (!res.ok) return null;
       didDoc = (await res.json()) as DidDocument;
     } else if (did.startsWith('did:web:')) {
       const identifier = did.slice('did:web:'.length);
       if (!(await isSafeHostname(identifier))) return null;
-      const res = await fetch(`https://${identifier}/.well-known/did.json`);
+      const res = await fetch(`https://${identifier}/.well-known/did.json`, {
+        headers: { 'User-Agent': USER_AGENT },
+      });
       if (!res.ok) return null;
       didDoc = (await res.json()) as DidDocument;
     } else {
@@ -151,7 +156,7 @@ export async function verifyAuthRecord(did: string, nonce: string, rkey: string)
 
   try {
     const url = `${pdsUrl}/xrpc/com.atproto.repo.getRecord?repo=${encodeURIComponent(did)}&collection=${encodeURIComponent(AUTH_VERIFY_COLLECTION)}&rkey=${encodeURIComponent(rkey)}`;
-    const res = await fetch(url);
+    const res = await fetch(url, { headers: { 'User-Agent': USER_AGENT } });
     if (!res.ok) return false;
 
     const data = (await res.json()) as GetRecordResponse;

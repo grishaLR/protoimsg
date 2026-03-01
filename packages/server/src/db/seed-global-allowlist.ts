@@ -5,6 +5,7 @@
  *
  * Usage: pnpm --filter @protoimsg/server db:seed-allowlist
  */
+import { USER_AGENT } from '@protoimsg/shared';
 import { loadConfig } from '../config.js';
 import { initLogger, createLogger } from '../logger.js';
 import { createDb } from './client.js';
@@ -22,7 +23,7 @@ const RESOLVE_URL = 'https://public.api.bsky.app/xrpc/com.atproto.identity.resol
 
 async function resolveDid(handle: string): Promise<string | null> {
   const url = `${RESOLVE_URL}?handle=${encodeURIComponent(handle)}`;
-  const res = await fetch(url);
+  const res = await fetch(url, { headers: { 'User-Agent': USER_AGENT } });
   if (!res.ok) return null;
   const data = (await res.json()) as { did: string };
   return data.did;

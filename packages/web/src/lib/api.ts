@@ -1,3 +1,4 @@
+import { USER_AGENT } from '@protoimsg/shared';
 import type { RoomView, ChannelView, MessageView, PollView } from '../types';
 import { API_URL, PDS_URL } from './config.js';
 
@@ -202,6 +203,8 @@ async function authFetch(url: string, init?: RequestInit): Promise<Response> {
   if (serverToken) {
     headers.set('Authorization', `Bearer ${serverToken}`);
   }
+  // Best-effort: browsers silently ignore User-Agent on fetch (forbidden header)
+  headers.set('User-Agent', USER_AGENT);
   const res = await fetch(`${API_URL}${url}`, { ...init, headers });
   if (res.status === 401 && serverToken) {
     // Session expired — clear token and reload to trigger re-auth

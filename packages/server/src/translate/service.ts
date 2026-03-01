@@ -8,6 +8,7 @@ import {
   NLLB_ONLY_CODES,
   LIBRE_CODES,
 } from './lang-codes.js';
+import { USER_AGENT } from '@protoimsg/shared';
 import type { Sql } from '../db/client.js';
 import { incTranslateRequest, observeTranslateDuration } from '../metrics.js';
 
@@ -109,7 +110,7 @@ export function createTranslateService(config: TranslateServiceConfig): Translat
       const start = performance.now();
       const res = await fetch(`${libreUrl}/translate`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', 'User-Agent': USER_AGENT },
         body: JSON.stringify({
           q: uncached.map((i) => i.text),
           source: 'auto',
@@ -217,7 +218,10 @@ export function createTranslateService(config: TranslateServiceConfig): Translat
     }
 
     // One request per source language group
-    const nllbHeaders: Record<string, string> = { 'Content-Type': 'application/json' };
+    const nllbHeaders: Record<string, string> = {
+      'Content-Type': 'application/json',
+      'User-Agent': USER_AGENT,
+    };
     if (nllbApiKey) nllbHeaders['Authorization'] = `Bearer ${nllbApiKey}`;
 
     // Process groups sequentially — NLLB is single-threaded, so concurrent
@@ -368,18 +372,24 @@ export function createTranslateService(config: TranslateServiceConfig): Translat
 
       if (libreUrl) {
         checks.push(
-          fetch(`${libreUrl}/languages`, { signal: AbortSignal.timeout(3000) })
+          fetch(`${libreUrl}/languages`, {
+            headers: { 'User-Agent': USER_AGENT },
+            signal: AbortSignal.timeout(3000),
+          })
             .then((r) => r.ok)
             .catch(() => false),
         );
       }
 
       if (nllbUrl) {
-        const headers: Record<string, string> = { 'Content-Type': 'application/json' };
-        if (nllbApiKey) headers['Authorization'] = `Bearer ${nllbApiKey}`;
+        const healthHeaders: Record<string, string> = {
+          'Content-Type': 'application/json',
+          'User-Agent': USER_AGENT,
+        };
+        if (nllbApiKey) healthHeaders['Authorization'] = `Bearer ${nllbApiKey}`;
         checks.push(
           fetch(`${nllbUrl}/health`, {
-            headers,
+            headers: healthHeaders,
             signal: AbortSignal.timeout(5000),
           })
             .then((r) => r.ok)
