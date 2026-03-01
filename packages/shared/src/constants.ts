@@ -76,6 +76,13 @@ export const REPORT_CATEGORIES = [
 
 export type ReportCategory = (typeof REPORT_CATEGORIES)[number];
 
+/** ProtoBuddy bot constants */
+export const BOT = {
+  id: '__protobuddy__',
+  displayName: 'ProtoBuddy',
+  maxCommandLength: 500,
+} as const;
+
 /** DM-specific limits */
 export const DM_LIMITS = {
   /** Maximum DM message text length in characters */
@@ -97,9 +104,10 @@ export const OAUTH_SCOPE_GROUPS = {
   core: ['atproto'],
   /** Permission-set bundles all app.protoimsg.chat.* repo scopes into one include: */
   chat: ['include:app.protoimsg.chat.authFull'],
-  /** authViewAll covers all read RPCs (blocks, mutes, follows, profiles, preferences) */
   socialGraph: [bskyViewAll],
   feed: [
+    'transition:generic',
+    bskyInclude('app.bsky.authManageModeration'),
     bskyInclude('app.bsky.authCreatePosts'),
     'repo:app.bsky.feed.like',
     'repo:app.bsky.feed.repost',

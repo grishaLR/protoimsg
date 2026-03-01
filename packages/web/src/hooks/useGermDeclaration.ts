@@ -1,9 +1,9 @@
 import { useQuery } from '@tanstack/react-query';
 import { useAuth } from './useAuth';
 import { isSafeUrl } from '../lib/sanitize';
-import { GERM_DECLARATION_NSID, buildGermUrl, type GermDeclaration } from '../lib/germ';
+import { buildGermUrl, type GermMessageMe } from '../lib/germ';
 
-const PUBLIC_API = 'https://public.api.bsky.app';
+const PUBLIC_API = 'https://public.api.bsky.app/xrpc';
 
 interface GermResult {
   canMessage: boolean;
@@ -11,66 +11,84 @@ interface GermResult {
   isLoading: boolean;
 }
 
-/** Unauthenticated getRecord via the public ATProto API — no OAuth scopes needed. */
-async function fetchGermDeclaration(targetDid: string): Promise<GermDeclaration | null> {
-  const params = new URLSearchParams({
-    repo: targetDid,
-    collection: GERM_DECLARATION_NSID,
-    rkey: 'self',
-  });
-  const res = await fetch(`${PUBLIC_API}/xrpc/com.atproto.repo.getRecord?${params}`);
-  if (!res.ok) return null;
-  const data = (await res.json()) as { value: GermDeclaration };
-  return data.value;
+interface PublicProfileGerm {
+  associated?: {
+    germ?: GermMessageMe;
+  };
+}
+
+interface PublicRelationshipsResponse {
+  relationships: Array<{
+    $type: string;
+    did: string;
+    following?: string;
+    followedBy?: string;
+  }>;
+}
+
+/** Fetch germ data from the public profile API — no OAuth scopes needed. */
+async function fetchGermFromProfile(targetDid: string): Promise<GermMessageMe | null> {
+  try {
+    const res = await fetch(
+      `${PUBLIC_API}/app.bsky.actor.getProfile?actor=${encodeURIComponent(targetDid)}`,
+    );
+    if (!res.ok) return null;
+    const data = (await res.json()) as PublicProfileGerm;
+    return data.associated?.germ ?? null;
+  } catch {
+    return null;
+  }
+}
+
+/** Check follow relationship via public API — no PDS proxy needed. */
+async function checkFollowsViewer(targetDid: string, viewerDid: string): Promise<boolean> {
+  try {
+    const params = new URLSearchParams({ actor: targetDid });
+    params.append('others', viewerDid);
+    const res = await fetch(`${PUBLIC_API}/app.bsky.graph.getRelationships?${params}`);
+    if (!res.ok) return false;
+    const data = (await res.json()) as PublicRelationshipsResponse;
+    const rel = data.relationships[0];
+    if (!rel || rel.$type !== 'app.bsky.graph.defs#relationship') return false;
+    return !!rel.following;
+  } catch {
+    return false;
+  }
 }
 
 export function useGermDeclaration(targetDid: string | undefined): GermResult {
-  const { agent, did: viewerDid, hasBskyReads } = useAuth();
+  const { did: viewerDid } = useAuth();
 
   const isSelf = !!targetDid && targetDid === viewerDid;
 
-  const { data: declaration, isLoading: declarationLoading } = useQuery({
+  const { data: germ, isLoading: germLoading } = useQuery({
     queryKey: ['germDeclaration', targetDid],
-    queryFn: () => fetchGermDeclaration(targetDid as string),
+    queryFn: () => fetchGermFromProfile(targetDid as string),
     enabled: !!targetDid && !isSelf,
     staleTime: 10 * 60 * 1000,
   });
 
-  const policy = declaration?.messageMe.showButtonTo;
+  const policy = germ?.showButtonTo;
 
-  // Follow check still needs bsky scopes — degrade gracefully without them
+  // Follow check via public API — no PDS proxy or OAuth scopes needed
   const { data: followsViewer, isLoading: followLoading } = useQuery({
     queryKey: ['germFollowCheck', targetDid, viewerDid],
-    queryFn: async () => {
-      if (!agent || !targetDid || !viewerDid) return false;
-      try {
-        const res = await agent.app.bsky.graph.getRelationships({
-          actor: targetDid,
-          others: [viewerDid],
-        });
-        const rel = res.data.relationships[0];
-        if (!rel || rel.$type !== 'app.bsky.graph.defs#relationship') return false;
-        return !!rel.following;
-      } catch {
-        return false;
-      }
-    },
-    enabled: !!agent && !!targetDid && !!viewerDid && hasBskyReads && policy === 'usersIFollow',
+    queryFn: () => checkFollowsViewer(targetDid as string, viewerDid as string),
+    enabled: !!targetDid && !!viewerDid && policy === 'usersIFollow',
     staleTime: 10 * 60 * 1000,
   });
 
-  const isLoading = declarationLoading || (policy === 'usersIFollow' && followLoading);
+  const isLoading = germLoading || (policy === 'usersIFollow' && followLoading);
 
-  if (isSelf || !declaration || !policy || policy === 'none') {
+  if (isSelf || !germ || !policy || policy === 'none') {
     return { canMessage: false, germUrl: null, isLoading };
   }
 
-  const messageMeUrl = declaration.messageMe.messageMeUrl;
+  const messageMeUrl = germ.messageMeUrl;
   if (!messageMeUrl || !isSafeUrl(messageMeUrl)) {
     return { canMessage: false, germUrl: null, isLoading };
   }
 
-  // Without bsky scopes we can't verify follow status — hide the button
   if (policy === 'usersIFollow' && !followsViewer) {
     return { canMessage: false, germUrl: null, isLoading };
   }

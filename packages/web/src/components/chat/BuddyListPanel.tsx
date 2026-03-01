@@ -2,6 +2,8 @@ import { useState, useMemo, useCallback, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useVirtualList } from 'virtualized-ui';
 import type { CommunityGroup } from '@protoimsg/lexicon';
+import { BOT } from '@protoimsg/shared';
+import { BOT_ENABLED } from '../../lib/config';
 import { StatusIndicator } from './StatusIndicator';
 import { UserIdentity } from './UserIdentity';
 import { BuddyMenu } from './BuddyMenu';
@@ -11,6 +13,7 @@ import { useRotatingPlaceholder } from '../../hooks/useRotatingPlaceholder';
 import { useBlocks } from '../../contexts/BlockContext';
 import { useCollapsedGroups } from '../../hooks/useCollapsedGroups';
 import { useContentTranslation } from '../../hooks/useContentTranslation';
+import { useBotDm } from '../../contexts/BotDmContext';
 import { ScrollableGroup } from './ScrollableGroup';
 import { ReportUserModal } from '../feedback/ReportUserModal';
 import type { FollowGraphEntry } from '../../hooks/useFollowGraph';
@@ -94,6 +97,7 @@ export function BuddyListPanel({
   const { t } = useTranslation('chat');
   const { blockedDids } = useBlocks();
   const { collapsed, toggle: toggleCollapse } = useCollapsedGroups();
+  const { openBotDm } = useBotDm();
   const {
     autoTranslate,
     available: translateAvailable,
@@ -284,6 +288,30 @@ export function BuddyListPanel({
         </label>
         <AddBuddySearch onSelect={handleBuddySelect} buddyDids={buddyDids} />
       </div>
+
+      {BOT_ENABLED && (
+        <div
+          className={styles.buddy}
+          role="button"
+          tabIndex={0}
+          onClick={openBotDm}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              e.preventDefault();
+              openBotDm();
+            }
+          }}
+          style={{ paddingInlineStart: 'var(--cm-space-2)', cursor: 'pointer' }}
+        >
+          <span style={{ fontSize: 'var(--cm-text-base)', lineHeight: 1, flexShrink: 0 }}>
+            {'\u{1F916}'}
+          </span>
+          <div className={styles.buddyInfo}>
+            <span className={styles.buddyDid}>{BOT.displayName}</span>
+          </div>
+          <StatusIndicator status="online" />
+        </div>
+      )}
 
       {loading ? (
         <p className={styles.empty}>{t('buddyList.loading')}</p>

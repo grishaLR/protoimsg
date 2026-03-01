@@ -44,6 +44,7 @@ export interface AuthContextValue {
   hasFeed: boolean;
   hasProfileEdit: boolean;
   hasBskyReads: boolean;
+  hasBskyAccess: boolean;
   grantedScopes: string[];
   login: (handle: string, optionalGroups?: OptionalScopeGroup[]) => Promise<void>;
   logout: () => void;
@@ -71,16 +72,26 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const isLoading = useMemo(() => authPhase !== 'ready' && authPhase !== 'idle', [authPhase]);
 
+  // Matches both old (`repo:app.bsky.feed.post`) and new parameterized
+  // (`repo?collection=app.bsky.feed.post&action=create`) scope formats.
   const hasFeed = grantedScopes.some(
-    (s) => s.startsWith('repo:app.bsky.feed.') || s.startsWith('include:app.bsky.authCreatePosts'),
+    (s) =>
+      s.startsWith('repo:app.bsky.feed.') ||
+      s.startsWith('include:app.bsky.authCreatePosts') ||
+      (s.startsWith('repo?') && s.includes('app.bsky.feed.post')),
   );
   const hasProfileEdit = grantedScopes.some(
     (s) =>
-      s === 'repo:app.bsky.actor.profile' || s.startsWith('include:app.bsky.authManageProfile'),
+      s === 'repo:app.bsky.actor.profile' ||
+      s.startsWith('include:app.bsky.authManageProfile') ||
+      (s.startsWith('repo?') && s.includes('app.bsky.actor.profile')),
   );
-  // True when the token has individual rpc: scopes (PDS expanded the include: permission-set).
-  // If only include:app.bsky.authViewAll is present, the appview won't recognize it → 403.
-  const hasBskyReads = grantedScopes.some((s) => s.startsWith('rpc:app.bsky.'));
+  // Matches both old (`rpc:app.bsky.*`) and new parameterized (`rpc?lxm=app.bsky.*`) scope formats.
+  const hasBskyReads = grantedScopes.some(
+    (s) => (s.startsWith('rpc:') || s.startsWith('rpc?')) && s.includes('app.bsky.'),
+  );
+  // Broader: any scope referencing app.bsky (rpc, repo, include — any format).
+  const hasBskyAccess = grantedScopes.some((s) => s.includes('app.bsky.'));
 
   const clearAuth = useCallback(() => {
     setSession(null);
@@ -356,6 +367,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       hasFeed,
       hasProfileEdit,
       hasBskyReads,
+      hasBskyAccess,
       grantedScopes,
       login,
       logout,
@@ -372,6 +384,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       hasFeed,
       hasProfileEdit,
       hasBskyReads,
+      hasBskyAccess,
       grantedScopes,
       login,
       logout,

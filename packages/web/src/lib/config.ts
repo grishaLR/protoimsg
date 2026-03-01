@@ -8,6 +8,9 @@ export const PDS_URL: string =
 /** Feature flag: set VITE_SIGNUP_ENABLED=false to hide full account creation signup. */
 export const SIGNUP_ENABLED: boolean = import.meta.env.VITE_SIGNUP_ENABLED !== 'false';
 
+/** Feature flag: set VITE_BOT_ENABLED=true to enable ProtoBuddy bot. */
+export const BOT_ENABLED: boolean = import.meta.env.VITE_BOT_ENABLED === 'true';
+
 /** True when running inside a Tauri v2 desktop shell. */
 // __TAURI_INTERNALS__ is injected before page scripts run (unlike __TAURI__ which
 // may not be available during top-level execution — see tauri-apps/tauri#12990).

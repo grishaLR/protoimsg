@@ -1,0 +1,11 @@
+{
+  "name": "ProtoBuddy",
+  "alwaysOnline": "हमेशा ऑनलाइन",
+  "ariaLabel": "ProtoBuddy से बातचीत",
+  "inputPlaceholder": "कमांड टाइप करें... (/help)",
+  "inputAriaLabel": "ProtoBuddy को संदेश लिखें",
+  "send": "भेजें",
+  "close": "बंद करें",
+  "expand": "विस्तार करें",
+  "minimize": "छोटा करें"
+}

@@ -7,7 +7,7 @@ import { useWebSocket } from '../contexts/WebSocketContext';
  * Also exposes the set of blocked DIDs for client-side filtering.
  */
 export function useBlockSync() {
-  const { agent, did, hasBskyReads } = useAuth();
+  const { agent, did, hasFeed } = useAuth();
   const { send, connected } = useWebSocket();
   const [blockedDids, setBlockedDids] = useState<Set<string>>(new Set());
   const hasSynced = useRef(false);
@@ -15,39 +15,54 @@ export function useBlockSync() {
   sendRef.current = send;
 
   const fetchAndSync = useCallback(async () => {
-    if (!agent || !did || !hasBskyReads) return;
+    if (!agent || !did) return;
 
     try {
       const blocked: string[] = [];
-      let cursor: string | undefined;
 
-      // Paginate through all blocks
+      // Use listRecords for blocks — direct PDS call, no appview proxy.
+      // Avoids the PDS scope-audit bug with fine-grained permissions.
+      let cursor: string | undefined;
       do {
-        const res = await agent.app.bsky.graph.getBlocks({ limit: 100, cursor });
-        for (const block of res.data.blocks) {
-          blocked.push(block.did);
+        const res = await agent.com.atproto.repo.listRecords({
+          repo: did,
+          collection: 'app.bsky.graph.block',
+          limit: 100,
+          cursor,
+        });
+        for (const rec of res.data.records) {
+          const subject = (rec.value as { subject?: string }).subject;
+          if (subject) blocked.push(subject);
         }
         cursor = res.data.cursor;
       } while (cursor);
 
-      // Also fetch mutes
-      let muteCursor: string | undefined;
-      do {
-        const res = await agent.app.bsky.graph.getMutes({ limit: 100, cursor: muteCursor });
-        for (const mute of res.data.mutes) {
-          if (!blocked.includes(mute.did)) {
-            blocked.push(mute.did);
-          }
+      // Mutes are appview-managed (no repo records). Only attempt if the
+      // user granted feed/moderation scopes — otherwise the proxied call
+      // will always 403.
+      if (hasFeed) {
+        try {
+          let muteCursor: string | undefined;
+          do {
+            const res = await agent.app.bsky.graph.getMutes({ limit: 100, cursor: muteCursor });
+            for (const mute of res.data.mutes) {
+              if (!blocked.includes(mute.did)) {
+                blocked.push(mute.did);
+              }
+            }
+            muteCursor = res.data.cursor;
+          } while (muteCursor);
+        } catch {
+          // Proxied appview call failed — blocks still synced above
         }
-        muteCursor = res.data.cursor;
-      } while (muteCursor);
+      }
 
       setBlockedDids(new Set(blocked));
       sendRef.current({ type: 'sync_blocks', blockedDids: blocked });
     } catch (err) {
       console.error('Failed to sync block list:', err);
     }
-  }, [agent, did, hasBskyReads]);
+  }, [agent, did, hasFeed]);
 
   // Sync on initial connect
   useEffect(() => {

@@ -29,11 +29,12 @@ export function useProfileEditor(): UseProfileEditorResult {
   const { data: profileData, isLoading: loading } = useQuery({
     queryKey: ['myProfile', did],
     queryFn: async () => {
-      if (!agent || !did) throw new Error('No agent or DID');
-      const res = await agent.app.bsky.actor.getProfile({ actor: did });
+      if (!did) throw new Error('No DID');
+      const { publicAgent } = await import('../lib/public-agent');
+      const res = await publicAgent.app.bsky.actor.getProfile({ actor: did });
       return res.data;
     },
-    enabled: !!agent && !!did,
+    enabled: !!did,
   });
 
   // Populate form when profile loads

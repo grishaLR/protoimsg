@@ -1,0 +1,11 @@
+{
+  "name": "ProtoBuddy",
+  "alwaysOnline": "Ar líne i gcónaí",
+  "ariaLabel": "Comhrá le ProtoBuddy",
+  "inputPlaceholder": "Clóscríobh ordú... (/help)",
+  "inputAriaLabel": "Scríobh teachtaireacht chuig ProtoBuddy",
+  "send": "Seol",
+  "close": "Dún",
+  "expand": "Leathnaigh",
+  "minimize": "Íoslaghdaigh"
+}

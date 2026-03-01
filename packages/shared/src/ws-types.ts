@@ -143,6 +143,28 @@ export interface NotifyRecordMessage extends WsMessageBase {
   cid: string;
 }
 
+// Bot Client → Server messages
+
+export interface BotDmOpenMessage extends WsMessageBase {
+  type: 'bot_dm_open';
+}
+
+export interface BotDmSendMessage extends WsMessageBase {
+  type: 'bot_dm_send';
+  text: string;
+}
+
+export interface BotDmCloseMessage extends WsMessageBase {
+  type: 'bot_dm_close';
+}
+
+export interface BotRoomCommandMessage extends WsMessageBase {
+  type: 'bot_room_command';
+  text: string;
+  roomId: string;
+  channelId: string;
+}
+
 export type ClientMessage =
   | AuthMessage
   | JoinRoomMessage
@@ -164,7 +186,11 @@ export type ClientMessage =
   | AcceptCallMessage
   | RejectCallMessage
   | NewIceCandidateMessage
-  | NotifyRecordMessage;
+  | NotifyRecordMessage
+  | BotDmOpenMessage
+  | BotDmSendMessage
+  | BotDmCloseMessage
+  | BotRoomCommandMessage;
 
 // Server → Client messages
 
@@ -422,6 +448,26 @@ export interface RoomRoleUpdateEvent extends WsMessageBase {
   };
 }
 
+// Bot Server → Client events
+
+export interface BotDmResponseEvent extends WsMessageBase {
+  type: 'bot_dm_response';
+  data: {
+    text: string;
+    createdAt: string;
+  };
+}
+
+export interface SystemMessageEvent extends WsMessageBase {
+  type: 'system_message';
+  data: {
+    text: string;
+    roomId: string;
+    channelId: string;
+    createdAt: string;
+  };
+}
+
 export type ServerMessage =
   | AuthSuccessEvent
   | NewMessageEvent
@@ -448,4 +494,6 @@ export type ServerMessage =
   | AcceptCallEvent
   | NewIceCandidateEvent
   | RoomBanEvent
-  | RoomRoleUpdateEvent;
+  | RoomRoleUpdateEvent
+  | BotDmResponseEvent
+  | SystemMessageEvent;

@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { useAuth } from './useAuth';
+import { publicAgent } from '../lib/public-agent';
 import type { FeedInfo } from '../types';
 
 const DISCOVER_FEED_URI = 'at://did:plc:z72i7hdynmk6r22z27h6tvur/app.bsky.feed.generator/whats-hot';
@@ -10,14 +11,23 @@ const BUILT_IN: FeedInfo[] = [
 ];
 
 export function useSavedFeeds() {
-  const { agent } = useAuth();
+  const { agent, hasFeed } = useAuth();
 
   const { data: feeds = BUILT_IN, isLoading: loading } = useQuery({
-    queryKey: ['savedFeeds'],
+    queryKey: ['savedFeeds', hasFeed],
     queryFn: async () => {
-      if (!agent) throw new Error('No agent');
-      const res = await agent.app.bsky.actor.getPreferences();
-      const prefs = res.data.preferences;
+      if (!agent || !hasFeed) return BUILT_IN;
+
+      // getPreferences is a proxied appview call — may 403 on PDSes that
+      // don't resolve `include:` permission-set scopes. Fall back to
+      // built-in feeds if it fails.
+      let prefs;
+      try {
+        const res = await agent.app.bsky.actor.getPreferences();
+        prefs = res.data.preferences;
+      } catch {
+        return BUILT_IN;
+      }
 
       const savedFeedUris: string[] = [];
 
@@ -52,7 +62,8 @@ export function useSavedFeeds() {
         return BUILT_IN;
       }
 
-      const genRes = await agent.app.bsky.feed.getFeedGenerators({
+      // getFeedGenerators is public — use public agent (no proxy needed)
+      const genRes = await publicAgent.app.bsky.feed.getFeedGenerators({
         feeds: savedFeedUris,
       });
 
@@ -63,7 +74,7 @@ export function useSavedFeeds() {
 
       return [...BUILT_IN, ...savedFeeds];
     },
-    enabled: !!agent,
+    enabled: !!agent && hasFeed,
     staleTime: 10 * 60 * 1000,
   });
 

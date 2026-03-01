@@ -43,7 +43,7 @@ void i18n
       // 'sw',
       // 'ha',
     ],
-    ns: ['common', 'auth', 'chat', 'dm', 'feed', 'rooms', 'settings', 'atproto'],
+    ns: ['common', 'auth', 'chat', 'dm', 'feed', 'rooms', 'settings', 'atproto', 'bot'],
 
     interpolation: { escapeValue: false },
 

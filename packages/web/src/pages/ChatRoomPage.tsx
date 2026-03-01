@@ -11,6 +11,7 @@ import { useContentTranslation } from '../hooks/useContentTranslation';
 import { useAuth } from '../hooks/useAuth';
 import { addToBuddyList } from '../lib/atproto';
 import { useWebSocket } from '../contexts/WebSocketContext';
+import type { ServerMessage } from '@protoimsg/shared';
 import { RoomModContext } from '../contexts/RoomModContext';
 import { MessageList } from '../components/chat/MessageList';
 import { MessageInput } from '../components/chat/MessageInput';
@@ -25,6 +26,7 @@ import { ArrowLeft, Flag, PanelLeftOpen, Settings } from 'lucide-react';
 import { WindowControls } from '../components/layout/WindowControls';
 import { LoadingBars } from '../components/LoadingBars';
 import type { ChatThreadState } from '../hooks/useChatThread';
+import type { SystemMessageView } from '../components/chat/MessageList';
 import styles from './ChatRoomPage.module.css';
 
 export function ChatRoomPage() {
@@ -38,7 +40,7 @@ export function ChatRoomPage() {
 function ChatRoomContent({ roomId }: { roomId: string }) {
   const { t } = useTranslation('rooms');
   const { did, agent } = useAuth();
-  const { send } = useWebSocket();
+  const { send, subscribe } = useWebSocket();
   const {
     room,
     members,
@@ -120,6 +122,36 @@ function ChatRoomContent({ roomId }: { roomId: string }) {
   } | null>(null);
   const [showCreateChannel, setShowCreateChannel] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
+  // Ephemeral system messages from bot /sc commands
+  const [systemMessages, setSystemMessages] = useState<SystemMessageView[]>([]);
+
+  // Subscribe to system_message WS events for this room/channel
+  useEffect(() => {
+    const unsub = subscribe((msg: ServerMessage) => {
+      if (
+        msg.type === 'system_message' &&
+        msg.data.roomId === roomId &&
+        msg.data.channelId === activeChannelId
+      ) {
+        const sm: SystemMessageView = {
+          id: `sys-${crypto.randomUUID()}`,
+          text: msg.data.text,
+          createdAt: msg.data.createdAt,
+        };
+        setSystemMessages((prev) => {
+          const updated = [...prev, sm];
+          return updated.length > 50 ? updated.slice(-50) : updated;
+        });
+      }
+    });
+    return unsub;
+  }, [subscribe, roomId, activeChannelId]);
+
+  // Clear system messages on channel switch
+  useEffect(() => {
+    setSystemMessages([]);
+  }, [activeChannelId]);
+
   const [channelSidebarOpen, setChannelSidebarOpen] = useState(() => {
     const stored = localStorage.getItem('protoimsg:channelSidebarOpen');
     return stored !== 'false';
@@ -317,6 +349,7 @@ function ChatRoomContent({ roomId }: { roomId: string }) {
               onVote={(pollId, pollUri, opts) => {
                 void castVote(pollId, pollUri, opts);
               }}
+              systemMessages={systemMessages}
             />
             {sendError && (
               <div className={styles.sendError} role="alert">
@@ -333,12 +366,22 @@ function ChatRoomContent({ roomId }: { roomId: string }) {
             )}
             <MessageInput
               onSend={(text) => {
-                if (activeChannel) {
-                  setSendError(null);
-                  sendMessage(text, activeChannel.uri).catch(() => {
-                    setSendError(t('chatRoom.sendFailed'));
+                if (!activeChannel) return;
+                // Intercept /sc commands — send as bot_room_command instead of ATProto record
+                if (text.startsWith('/sc ') || text === '/sc') {
+                  const commandText = text.slice(4).trim() || 'help';
+                  send({
+                    type: 'bot_room_command',
+                    text: commandText,
+                    roomId,
+                    channelId: activeChannel.id,
                   });
+                  return;
                 }
+                setSendError(null);
+                sendMessage(text, activeChannel.uri).catch(() => {
+                  setSendError(t('chatRoom.sendFailed'));
+                });
               }}
               onTyping={sendTyping}
               onCreatePoll={(input) => {

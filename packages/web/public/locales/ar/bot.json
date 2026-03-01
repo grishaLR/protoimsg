@@ -1,0 +1,11 @@
+{
+  "name": "ProtoBuddy",
+  "alwaysOnline": "متصل دائمًا",
+  "ariaLabel": "محادثة مع ProtoBuddy",
+  "inputPlaceholder": "اكتب أمرًا... ‏(/help)",
+  "inputAriaLabel": "اكتب رسالة إلى ProtoBuddy",
+  "send": "إرسال",
+  "close": "إغلاق",
+  "expand": "توسيع",
+  "minimize": "تصغير"
+}

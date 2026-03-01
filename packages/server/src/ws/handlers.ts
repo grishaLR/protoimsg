@@ -14,6 +14,7 @@ import type { RateLimiterStore } from '../moderation/rate-limiter-store.js';
 import { checkUserAccess, checkMessageContent } from '../moderation/service.js';
 import type { BlockService } from '../moderation/block-service.js';
 import type { LabelerService } from '../moderation/labeler-service.js';
+import type { BotService } from '../bot/service.js';
 import { createLogger } from '../logger.js';
 import { incDmsSent, incMessagesSent } from '../stats/queries.js';
 import {
@@ -72,6 +73,7 @@ export function pruneCallAttempts(): void {
 export async function handleClientMessage(
   ws: WebSocket,
   did: string,
+  handle: string,
   data: ValidatedClientMessage,
   roomSubs: RoomSubscriptions,
   communityWatchers: CommunityWatchers,
@@ -85,6 +87,7 @@ export async function handleClientMessage(
   imRegistry: ImRegistry,
   labelerService: LabelerService,
   callSubs: DmSubscriptions,
+  botService: BotService | null,
 ): Promise<void> {
   // Rate limit: per-socket for tab fairness, per-DID to cap total throughput
   const socketId = (ws as WebSocket & { socketId?: string }).socketId ?? did;
@@ -983,6 +986,29 @@ export async function handleClientMessage(
           JSON.stringify({ type: 'error', message: msg, errorCode: ERROR_CODES.SERVER_ERROR }),
         );
       }
+      break;
+    }
+
+    case 'bot_dm_open': {
+      botService?.handleOpen(ws, did, handle);
+      break;
+    }
+
+    case 'bot_dm_send': {
+      await botService?.handleMessage(ws, did, handle, data.text);
+      break;
+    }
+
+    case 'bot_dm_close': {
+      botService?.handleClose(ws);
+      break;
+    }
+
+    case 'bot_room_command': {
+      if (!botService) break;
+      const roomMembers = roomSubs.getSubscribers(data.roomId);
+      if (!roomMembers.has(ws)) break;
+      await botService.handleRoomCommand(ws, did, handle, data.text, data.roomId, data.channelId);
       break;
     }
   }

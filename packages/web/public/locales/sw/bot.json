@@ -1,0 +1,11 @@
+{
+  "name": "ProtoBuddy",
+  "alwaysOnline": "Mtandaoni kila wakati",
+  "ariaLabel": "Mazungumzo na ProtoBuddy",
+  "inputPlaceholder": "Andika amri... (/help)",
+  "inputAriaLabel": "Andika ujumbe kwa ProtoBuddy",
+  "send": "Tuma",
+  "close": "Funga",
+  "expand": "Panua",
+  "minimize": "Punguza"
+}

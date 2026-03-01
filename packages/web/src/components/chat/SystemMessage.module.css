@@ -1,0 +1,10 @@
+.systemMessage {
+  text-align: center;
+  padding: var(--cm-space-2) var(--cm-space-4);
+  font-size: var(--cm-text-sm);
+  color: var(--cm-border-dark);
+  font-style: italic;
+  line-height: var(--cm-leading-snug);
+  white-space: pre-wrap;
+  word-break: break-word;
+}

@@ -1,0 +1,11 @@
+{
+  "name": "ProtoBuddy",
+  "alwaysOnline": "Her zaman çevrimiçi",
+  "ariaLabel": "ProtoBuddy ile sohbet",
+  "inputPlaceholder": "Bir komut yazın... (/help)",
+  "inputAriaLabel": "ProtoBuddy'ye mesaj yazın",
+  "send": "Gönder",
+  "close": "Kapat",
+  "expand": "Genişlet",
+  "minimize": "Küçült"
+}

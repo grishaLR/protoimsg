@@ -1,0 +1,11 @@
+{
+  "name": "ProtoBuddy",
+  "alwaysOnline": "始终在线",
+  "ariaLabel": "与 ProtoBuddy 对话",
+  "inputPlaceholder": "输入命令... (/help)",
+  "inputAriaLabel": "给 ProtoBuddy 发消息",
+  "send": "发送",
+  "close": "关闭",
+  "expand": "展开",
+  "minimize": "最小化"
+}

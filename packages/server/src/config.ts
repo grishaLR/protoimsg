@@ -49,6 +49,10 @@ const envSchema = z.object({
     .enum(['true', 'false'])
     .default('false')
     .transform((v) => v === 'true'),
+  BOT_ENABLED: z
+    .enum(['true', 'false'])
+    .default('false')
+    .transform((v) => v === 'true'),
   COTURN_SHARED_SECRET: z.string().optional(),
   STUN_URL: z.string().optional(),
   TURN_URL: z.string().optional(),

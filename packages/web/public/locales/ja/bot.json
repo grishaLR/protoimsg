@@ -1,0 +1,11 @@
+{
+  "name": "ProtoBuddy",
+  "alwaysOnline": "常にオンライン",
+  "ariaLabel": "ProtoBuddyとの会話",
+  "inputPlaceholder": "コマンドを入力... (/help)",
+  "inputAriaLabel": "ProtoBuddyにメッセージを書く",
+  "send": "送信",
+  "close": "閉じる",
+  "expand": "展開",
+  "minimize": "最小化"
+}
