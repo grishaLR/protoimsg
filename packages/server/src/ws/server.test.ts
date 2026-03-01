@@ -13,7 +13,6 @@ import { createPresenceService } from '../presence/service.js';
 import { InMemoryPresenceTracker } from '../presence/tracker.js';
 import type { DmService } from '../dms/service.js';
 import { createImRegistry } from '../dms/registry.js';
-
 // Minimal mock for Sql — must be callable as a tagged template (stats queries use sql`...`)
 const mockSql = (() => Promise.resolve([])) as never;
 
@@ -51,6 +50,7 @@ function setup() {
     globalBans,
     globalAllowlist,
     labelerService,
+    null, // botService disabled by default
   );
 
   return new Promise<{

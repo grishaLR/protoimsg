@@ -17,6 +17,10 @@ primary_region = 'iad'
   [[services.ports]]
     port = 3478
 
+[metrics]
+  port = 9641
+  path = '/metrics'
+
 [[vm]]
   size = 'shared-cpu-1x'
   memory = '256mb'

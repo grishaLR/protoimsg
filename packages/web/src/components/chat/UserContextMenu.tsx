@@ -20,7 +20,7 @@ export function UserContextMenu({ did, x, y, onClose }: UserContextMenuProps) {
   const { t } = useTranslation('chat');
   const { agent } = useAuth();
   const { send } = useWebSocket();
-  const { blockedDids, toggleBlock } = useBlocks();
+  const { blockedDids, canWriteBlocks, toggleBlock } = useBlocks();
   const { roomUri, roomOwnerDid, isCurrentUserOwner, isCurrentUserOwnerOrMod } = useRoomMod();
   const [feedback, setFeedback] = useState<string | null>(null);
   const [showReport, setShowReport] = useState(false);
@@ -168,13 +168,15 @@ export function UserContextMenu({ did, x, y, onClose }: UserContextMenuProps) {
             >
               {t('userContextMenu.addToBuddyList')}
             </button>
-            <button
-              className={`${styles.menuItem} ${styles.menuItemDanger}`}
-              onClick={handleBlock}
-              role="menuitem"
-            >
-              {isBlocked ? t('userContextMenu.unblock') : t('userContextMenu.block')}
-            </button>
+            {canWriteBlocks && (
+              <button
+                className={`${styles.menuItem} ${styles.menuItemDanger}`}
+                onClick={handleBlock}
+                role="menuitem"
+              >
+                {isBlocked ? t('userContextMenu.unblock') : t('userContextMenu.block')}
+              </button>
+            )}
             <button
               className={`${styles.menuItem} ${styles.menuItemDanger}`}
               onClick={() => {

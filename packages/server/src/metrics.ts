@@ -69,6 +69,37 @@ const iceUnavailableTotal = new client.Counter({
   registers: [register],
 });
 
+// --- Translation ---
+
+const translateRequestsTotal = new client.Counter({
+  name: 'protoimsg_translate_requests_total',
+  help: 'Total translation requests by backend and outcome',
+  labelNames: ['backend', 'outcome'] as const,
+  registers: [register],
+});
+
+const translateDuration = new client.Histogram({
+  name: 'protoimsg_translate_duration_seconds',
+  help: 'Translation backend request duration in seconds',
+  labelNames: ['backend'] as const,
+  buckets: [0.1, 0.5, 1, 2.5, 5, 10, 15, 30],
+  registers: [register],
+});
+
+const translateTextsTotal = new client.Counter({
+  name: 'protoimsg_translate_texts_total',
+  help: 'Total texts translated by source',
+  labelNames: ['source'] as const,
+  registers: [register],
+});
+
+const translateBatchSize = new client.Histogram({
+  name: 'protoimsg_translate_batch_size',
+  help: 'Number of texts per translation request',
+  buckets: [1, 2, 5, 10, 20, 30],
+  registers: [register],
+});
+
 // --- HTTP ---
 
 const httpRequestDuration = new client.Histogram({
@@ -126,6 +157,22 @@ export function incJetstreamError(): void {
 
 export function incIceUnavailable(): void {
   iceUnavailableTotal.inc();
+}
+
+export function incTranslateRequest(backend: 'libre' | 'nllb', outcome: 'success' | 'error'): void {
+  translateRequestsTotal.inc({ backend, outcome });
+}
+
+export function observeTranslateDuration(backend: 'libre' | 'nllb', seconds: number): void {
+  translateDuration.observe({ backend }, seconds);
+}
+
+export function incTranslateTexts(source: 'cache' | 'backend', count: number): void {
+  translateTextsTotal.inc({ source }, count);
+}
+
+export function observeTranslateBatchSize(size: number): void {
+  translateBatchSize.observe(size);
 }
 
 export function observeHttpRequestDuration(

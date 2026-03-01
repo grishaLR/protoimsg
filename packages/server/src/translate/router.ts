@@ -3,6 +3,7 @@ import { z } from 'zod';
 import { ERROR_CODES } from '@protoimsg/shared';
 import type { TranslateService } from './service.js';
 import type { RateLimiterStore } from '../moderation/rate-limiter-store.js';
+import { incTranslateTexts, observeTranslateBatchSize } from '../metrics.js';
 
 const MAX_TEXTS = 30;
 const MAX_TEXT_LENGTH = 5000;
@@ -45,10 +46,13 @@ export function translateRouter(
       }
 
       // Check cache
+      observeTranslateBatchSize(nonEmptyTexts.length);
       const { cached, uncached, hashMap } = await translateService.checkCache(
         nonEmptyTexts,
         targetLang,
       );
+      if (cached.size > 0) incTranslateTexts('cache', cached.size);
+      if (uncached.length > 0) incTranslateTexts('backend', uncached.length);
 
       // Pre-check rate limit — one check per batch request, not per text
       if (uncached.length > 0) {

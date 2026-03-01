@@ -1,0 +1,11 @@
+{
+  "name": "ProtoBuddy",
+  "alwaysOnline": "Siempre en línea",
+  "ariaLabel": "Conversación con ProtoBuddy",
+  "inputPlaceholder": "Escribe un comando... (/help)",
+  "inputAriaLabel": "Escribe un mensaje a ProtoBuddy",
+  "send": "Enviar",
+  "close": "Cerrar",
+  "expand": "Expandir",
+  "minimize": "Minimizar"
+}

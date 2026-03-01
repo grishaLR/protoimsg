@@ -1798,6 +1798,194 @@
     "permission_sets": {},
     "global_scope_schema": null
   },
+  "notification": {
+    "default_permission": {
+      "identifier": "default",
+      "description": "This permission set configures which\nnotification features are by default exposed.\n\n#### Granted Permissions\n\nIt allows all notification related features.\n\n",
+      "permissions": [
+        "allow-is-permission-granted",
+        "allow-request-permission",
+        "allow-notify",
+        "allow-register-action-types",
+        "allow-register-listener",
+        "allow-cancel",
+        "allow-get-pending",
+        "allow-remove-active",
+        "allow-get-active",
+        "allow-check-permissions",
+        "allow-show",
+        "allow-batch",
+        "allow-list-channels",
+        "allow-delete-channel",
+        "allow-create-channel",
+        "allow-permission-state"
+      ]
+    },
+    "permissions": {
+      "allow-batch": {
+        "identifier": "allow-batch",
+        "description": "Enables the batch command without any pre-configured scope.",
+        "commands": { "allow": ["batch"], "deny": [] }
+      },
+      "allow-cancel": {
+        "identifier": "allow-cancel",
+        "description": "Enables the cancel command without any pre-configured scope.",
+        "commands": { "allow": ["cancel"], "deny": [] }
+      },
+      "allow-check-permissions": {
+        "identifier": "allow-check-permissions",
+        "description": "Enables the check_permissions command without any pre-configured scope.",
+        "commands": { "allow": ["check_permissions"], "deny": [] }
+      },
+      "allow-create-channel": {
+        "identifier": "allow-create-channel",
+        "description": "Enables the create_channel command without any pre-configured scope.",
+        "commands": { "allow": ["create_channel"], "deny": [] }
+      },
+      "allow-delete-channel": {
+        "identifier": "allow-delete-channel",
+        "description": "Enables the delete_channel command without any pre-configured scope.",
+        "commands": { "allow": ["delete_channel"], "deny": [] }
+      },
+      "allow-get-active": {
+        "identifier": "allow-get-active",
+        "description": "Enables the get_active command without any pre-configured scope.",
+        "commands": { "allow": ["get_active"], "deny": [] }
+      },
+      "allow-get-pending": {
+        "identifier": "allow-get-pending",
+        "description": "Enables the get_pending command without any pre-configured scope.",
+        "commands": { "allow": ["get_pending"], "deny": [] }
+      },
+      "allow-is-permission-granted": {
+        "identifier": "allow-is-permission-granted",
+        "description": "Enables the is_permission_granted command without any pre-configured scope.",
+        "commands": { "allow": ["is_permission_granted"], "deny": [] }
+      },
+      "allow-list-channels": {
+        "identifier": "allow-list-channels",
+        "description": "Enables the list_channels command without any pre-configured scope.",
+        "commands": { "allow": ["list_channels"], "deny": [] }
+      },
+      "allow-notify": {
+        "identifier": "allow-notify",
+        "description": "Enables the notify command without any pre-configured scope.",
+        "commands": { "allow": ["notify"], "deny": [] }
+      },
+      "allow-permission-state": {
+        "identifier": "allow-permission-state",
+        "description": "Enables the permission_state command without any pre-configured scope.",
+        "commands": { "allow": ["permission_state"], "deny": [] }
+      },
+      "allow-register-action-types": {
+        "identifier": "allow-register-action-types",
+        "description": "Enables the register_action_types command without any pre-configured scope.",
+        "commands": { "allow": ["register_action_types"], "deny": [] }
+      },
+      "allow-register-listener": {
+        "identifier": "allow-register-listener",
+        "description": "Enables the register_listener command without any pre-configured scope.",
+        "commands": { "allow": ["register_listener"], "deny": [] }
+      },
+      "allow-remove-active": {
+        "identifier": "allow-remove-active",
+        "description": "Enables the remove_active command without any pre-configured scope.",
+        "commands": { "allow": ["remove_active"], "deny": [] }
+      },
+      "allow-request-permission": {
+        "identifier": "allow-request-permission",
+        "description": "Enables the request_permission command without any pre-configured scope.",
+        "commands": { "allow": ["request_permission"], "deny": [] }
+      },
+      "allow-show": {
+        "identifier": "allow-show",
+        "description": "Enables the show command without any pre-configured scope.",
+        "commands": { "allow": ["show"], "deny": [] }
+      },
+      "deny-batch": {
+        "identifier": "deny-batch",
+        "description": "Denies the batch command without any pre-configured scope.",
+        "commands": { "allow": [], "deny": ["batch"] }
+      },
+      "deny-cancel": {
+        "identifier": "deny-cancel",
+        "description": "Denies the cancel command without any pre-configured scope.",
+        "commands": { "allow": [], "deny": ["cancel"] }
+      },
+      "deny-check-permissions": {
+        "identifier": "deny-check-permissions",
+        "description": "Denies the check_permissions command without any pre-configured scope.",
+        "commands": { "allow": [], "deny": ["check_permissions"] }
+      },
+      "deny-create-channel": {
+        "identifier": "deny-create-channel",
+        "description": "Denies the create_channel command without any pre-configured scope.",
+        "commands": { "allow": [], "deny": ["create_channel"] }
+      },
+      "deny-delete-channel": {
+        "identifier": "deny-delete-channel",
+        "description": "Denies the delete_channel command without any pre-configured scope.",
+        "commands": { "allow": [], "deny": ["delete_channel"] }
+      },
+      "deny-get-active": {
+        "identifier": "deny-get-active",
+        "description": "Denies the get_active command without any pre-configured scope.",
+        "commands": { "allow": [], "deny": ["get_active"] }
+      },
+      "deny-get-pending": {
+        "identifier": "deny-get-pending",
+        "description": "Denies the get_pending command without any pre-configured scope.",
+        "commands": { "allow": [], "deny": ["get_pending"] }
+      },
+      "deny-is-permission-granted": {
+        "identifier": "deny-is-permission-granted",
+        "description": "Denies the is_permission_granted command without any pre-configured scope.",
+        "commands": { "allow": [], "deny": ["is_permission_granted"] }
+      },
+      "deny-list-channels": {
+        "identifier": "deny-list-channels",
+        "description": "Denies the list_channels command without any pre-configured scope.",
+        "commands": { "allow": [], "deny": ["list_channels"] }
+      },
+      "deny-notify": {
+        "identifier": "deny-notify",
+        "description": "Denies the notify command without any pre-configured scope.",
+        "commands": { "allow": [], "deny": ["notify"] }
+      },
+      "deny-permission-state": {
+        "identifier": "deny-permission-state",
+        "description": "Denies the permission_state command without any pre-configured scope.",
+        "commands": { "allow": [], "deny": ["permission_state"] }
+      },
+      "deny-register-action-types": {
+        "identifier": "deny-register-action-types",
+        "description": "Denies the register_action_types command without any pre-configured scope.",
+        "commands": { "allow": [], "deny": ["register_action_types"] }
+      },
+      "deny-register-listener": {
+        "identifier": "deny-register-listener",
+        "description": "Denies the register_listener command without any pre-configured scope.",
+        "commands": { "allow": [], "deny": ["register_listener"] }
+      },
+      "deny-remove-active": {
+        "identifier": "deny-remove-active",
+        "description": "Denies the remove_active command without any pre-configured scope.",
+        "commands": { "allow": [], "deny": ["remove_active"] }
+      },
+      "deny-request-permission": {
+        "identifier": "deny-request-permission",
+        "description": "Denies the request_permission command without any pre-configured scope.",
+        "commands": { "allow": [], "deny": ["request_permission"] }
+      },
+      "deny-show": {
+        "identifier": "deny-show",
+        "description": "Denies the show command without any pre-configured scope.",
+        "commands": { "allow": [], "deny": ["show"] }
+      }
+    },
+    "permission_sets": {},
+    "global_scope_schema": null
+  },
   "shell": {
     "default_permission": {
       "identifier": "default",

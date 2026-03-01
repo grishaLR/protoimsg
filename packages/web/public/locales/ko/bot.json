@@ -1,0 +1,11 @@
+{
+  "name": "ProtoBuddy",
+  "alwaysOnline": "항상 온라인",
+  "ariaLabel": "ProtoBuddy와 대화",
+  "inputPlaceholder": "명령어 입력... (/help)",
+  "inputAriaLabel": "ProtoBuddy에게 메시지 작성",
+  "send": "보내기",
+  "close": "닫기",
+  "expand": "확장",
+  "minimize": "최소화"
+}

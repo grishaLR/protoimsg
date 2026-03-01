@@ -1,0 +1,11 @@
+{
+  "name": "ProtoBuddy",
+  "alwaysOnline": "Всегда на связи",
+  "ariaLabel": "Разговор с ProtoBuddy",
+  "inputPlaceholder": "Введите команду... (/help)",
+  "inputAriaLabel": "Написать сообщение ProtoBuddy",
+  "send": "Отправить",
+  "close": "Закрыть",
+  "expand": "Развернуть",
+  "minimize": "Свернуть"
+}

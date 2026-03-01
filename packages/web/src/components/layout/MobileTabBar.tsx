@@ -1,4 +1,6 @@
+import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useAuth } from '../../hooks/useAuth';
 import styles from './MobileTabBar.module.css';
 
 export type MobileTab = 'buddies' | 'rooms' | 'feed';
@@ -8,7 +10,7 @@ interface MobileTabBarProps {
   onTabChange: (tab: MobileTab) => void;
 }
 
-const TABS: { id: MobileTab; labelKey: 'nav.community' | 'nav.rooms' | 'nav.feed' }[] = [
+const ALL_TABS: { id: MobileTab; labelKey: 'nav.community' | 'nav.rooms' | 'nav.feed' }[] = [
   { id: 'buddies', labelKey: 'nav.community' },
   { id: 'rooms', labelKey: 'nav.rooms' },
   { id: 'feed', labelKey: 'nav.feed' },
@@ -16,10 +18,16 @@ const TABS: { id: MobileTab; labelKey: 'nav.community' | 'nav.rooms' | 'nav.feed
 
 export function MobileTabBar({ activeTab, onTabChange }: MobileTabBarProps) {
   const { t } = useTranslation('common');
+  const { hasFeed } = useAuth();
+
+  const tabs = useMemo(
+    () => (hasFeed ? ALL_TABS : ALL_TABS.filter((tab) => tab.id !== 'feed')),
+    [hasFeed],
+  );
 
   return (
     <nav className={styles.tabBar}>
-      {TABS.map((tab) => (
+      {tabs.map((tab) => (
         <button
           key={tab.id}
           className={`${styles.tab} ${activeTab === tab.id ? styles.tabActive : ''}`}

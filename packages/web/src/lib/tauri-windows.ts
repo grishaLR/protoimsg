@@ -79,6 +79,53 @@ export async function openFeedWindow(): Promise<void> {
   });
 }
 
+/** Open or focus a video call window (always on top) */
+export async function openVideoCallWindow(
+  conversationId: string,
+  recipientDid: string,
+): Promise<void> {
+  const label = `videocall-${conversationId}`;
+  try {
+    const existing = await WebviewWindow.getByLabel(label);
+    if (existing) {
+      await existing.show();
+      await existing.setFocus();
+      return;
+    }
+
+    const webview = new WebviewWindow(label, {
+      url: `/videocall/${conversationId}?recipientDid=${encodeURIComponent(recipientDid)}`,
+      title: `Video Call — protoimsg`,
+      width: 640,
+      height: 520,
+      minWidth: 480,
+      minHeight: 400,
+      center: true,
+      resizable: true,
+      decorations: false,
+      alwaysOnTop: true,
+    });
+
+    void webview.once('tauri://error', (e) => {
+      console.error(`Failed to create video call window "${label}":`, e);
+    });
+  } catch (err) {
+    console.error(`openVideoCallWindow("${label}") failed:`, err);
+  }
+}
+
+/** Close the video call window for a conversation */
+export async function closeVideoCallWindow(conversationId: string): Promise<void> {
+  try {
+    const existing = await WebviewWindow.getByLabel(`videocall-${conversationId}`);
+    if (existing) {
+      await existing.close();
+    }
+  } catch {
+    // Window may already be closed
+  }
+}
+
 interface WindowConfig {
   label: string;
   url: string;

@@ -21,8 +21,10 @@ import { useIsMobile } from '../hooks/useIsMobile';
 import { LoadingBars } from '../components/LoadingBars';
 import { useDm } from '../contexts/DmContext';
 import { useVideoCall, setInnerCircleDidsForCalls } from '../contexts/VideoCallContext';
+import { useMentionNotifications } from '../contexts/MentionNotificationContext';
 import { useBlocks } from '../contexts/BlockContext';
 import { InfoTip } from '@protoimsg/ui/InfoTip';
+import { useAuth } from '../hooks/useAuth';
 import { IS_TAURI } from '../lib/config';
 import styles from './RoomDirectoryPage.module.css';
 
@@ -78,8 +80,24 @@ export function RoomDirectoryPage() {
     }
     return set;
   }, [notifications]);
-  const { videoCall } = useVideoCall();
+  const { videoCall, activeCall } = useVideoCall();
+  const { unreadMentions } = useMentionNotifications();
+
+  // Tauri: update system tray tooltip with buddy count, unread mentions, and call status
+  const totalUnreadMentions = useMemo(
+    () => Object.values(unreadMentions).reduce((sum, n) => sum + n, 0),
+    [unreadMentions],
+  );
+  useEffect(() => {
+    if (!IS_TAURI) return;
+    const onlineCount = buddies.filter((b) => b.status !== 'offline').length;
+    void import('../lib/tauri-tray').then(({ updateTrayTooltip }) => {
+      void updateTrayTooltip(onlineCount, 'online', totalUnreadMentions, activeCall != null);
+    });
+  }, [buddies, totalUnreadMentions, activeCall]);
+
   const { blockedDids, toggleBlock } = useBlocks();
+  const { hasFeed } = useAuth();
   const isMobile = useIsMobile();
   const [search, setSearch] = useState('');
   const [categories, setCategories] = useState<string[]>([]);
@@ -257,11 +275,14 @@ export function RoomDirectoryPage() {
       : () => {
           setView('rooms');
         },
-    onOpenFeed: IS_TAURI
-      ? openTauriFeed
-      : () => {
-          setView('feed');
-        },
+    onOpenFeed: hasFeed
+      ? IS_TAURI
+        ? openTauriFeed
+        : () => {
+            setView('feed');
+          }
+      : undefined,
+    tauriMode: IS_TAURI,
     followers,
     following,
     fetchMoreFollowers,
@@ -368,7 +389,7 @@ export function RoomDirectoryPage() {
             </>
           )}
 
-          {view === 'feed' && (
+          {view === 'feed' && hasFeed && (
             <FeedView
               onNavigateToProfile={navigateToProfile}
               onReply={handleReply}

@@ -1,11 +1,20 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
 import type { ModerationOpts, InterpretedLabelValueDefinition } from '@atproto/api';
 import { useAuth } from '../hooks/useAuth';
+import { publicAgent } from '../lib/public-agent';
 
 const ModerationContext = createContext<ModerationOpts | null>(null);
 
+const DEFAULT_PREFS = {
+  adultContentEnabled: false,
+  labels: {},
+  labelers: [],
+  mutedWords: [],
+  hiddenPosts: [],
+};
+
 export function ModerationProvider({ children }: { children: ReactNode }) {
-  const { agent, did } = useAuth();
+  const { agent, did, hasFeed } = useAuth();
   const [opts, setOpts] = useState<ModerationOpts | null>(null);
 
   useEffect(() => {
@@ -14,8 +23,16 @@ export function ModerationProvider({ children }: { children: ReactNode }) {
       return;
     }
 
-    const currentAgent = agent;
     const currentDid = did;
+
+    // Moderation prefs are only useful when feed scope is enabled.
+    // Skip the proxied appview calls entirely otherwise.
+    if (!hasFeed) {
+      setOpts({ userDid: currentDid, prefs: DEFAULT_PREFS, labelDefs: {} });
+      return;
+    }
+
+    const currentAgent = agent;
     let cancelled = false;
 
     async function load() {
@@ -23,7 +40,7 @@ export function ModerationProvider({ children }: { children: ReactNode }) {
         const prefs = await currentAgent.getPreferences();
         let labelDefs: Record<string, InterpretedLabelValueDefinition[]> = {};
         try {
-          labelDefs = await currentAgent.getLabelDefinitions(prefs);
+          labelDefs = await publicAgent.getLabelDefinitions(prefs);
         } catch {
           // Non-critical — custom labeler defs are optional
         }
@@ -34,21 +51,10 @@ export function ModerationProvider({ children }: { children: ReactNode }) {
             labelDefs,
           });
         }
-      } catch (err) {
-        console.error('Failed to load moderation preferences:', err);
-        // Fall back to empty prefs so the app never breaks
+      } catch {
+        // Proxied appview call failed — use defaults
         if (!cancelled) {
-          setOpts({
-            userDid: currentDid,
-            prefs: {
-              adultContentEnabled: false,
-              labels: {},
-              labelers: [],
-              mutedWords: [],
-              hiddenPosts: [],
-            },
-            labelDefs: {},
-          });
+          setOpts({ userDid: currentDid, prefs: DEFAULT_PREFS, labelDefs: {} });
         }
       }
     }
@@ -57,7 +63,7 @@ export function ModerationProvider({ children }: { children: ReactNode }) {
     return () => {
       cancelled = true;
     };
-  }, [agent, did]);
+  }, [agent, did, hasFeed]);
 
   return <ModerationContext.Provider value={opts}>{children}</ModerationContext.Provider>;
 }

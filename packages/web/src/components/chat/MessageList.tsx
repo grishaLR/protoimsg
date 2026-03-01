@@ -3,11 +3,18 @@ import { useTranslation } from 'react-i18next';
 import { useVirtualList } from 'virtualized-ui';
 import { MessageItem } from './MessageItem';
 import { PollCard } from './PollCard';
+import { SystemMessage } from './SystemMessage';
 import { UserIdentity } from './UserIdentity';
 import { hasMentionOf } from '../../lib/facet-utils';
 import { useAuth } from '../../hooks/useAuth';
 import type { MessageView, PollView, TimelineItem } from '../../types';
 import styles from './MessageList.module.css';
+
+export interface SystemMessageView {
+  id: string;
+  text: string;
+  createdAt: string;
+}
 
 interface MessageListProps {
   messages: MessageView[];
@@ -24,6 +31,8 @@ interface MessageListProps {
   onAddBuddy?: (did: string) => Promise<'added' | 'already'>;
   /** Called when user votes on a poll */
   onVote?: (pollId: string, pollUri: string, selectedOptions: number[]) => void;
+  /** Ephemeral system messages (e.g. bot responses to /sc commands) */
+  systemMessages?: SystemMessageView[];
 }
 
 const SCROLL_THRESHOLD = 80;
@@ -38,6 +47,7 @@ export function MessageList({
   onReport,
   onAddBuddy,
   onVote,
+  systemMessages = [],
 }: MessageListProps) {
   const { t } = useTranslation('chat');
   const { did } = useAuth();
@@ -84,12 +94,12 @@ export function MessageList({
     }
   }, [loading, timeline.length, scrollToBottom]);
 
-  // Scroll to bottom when new messages arrive (if user is near bottom)
+  // Scroll to bottom when new messages or system messages arrive (if user is near bottom)
   useEffect(() => {
-    if (isNearBottomRef.current && timeline.length > 0) {
+    if (isNearBottomRef.current && (timeline.length > 0 || systemMessages.length > 0)) {
       scrollToBottom();
     }
-  }, [timeline.length, scrollToBottom]);
+  }, [timeline.length, systemMessages.length, scrollToBottom]);
 
   return (
     <div className={styles.container} ref={containerRef} onScroll={onScroll}>
@@ -125,6 +135,9 @@ export function MessageList({
           );
         })}
       </div>
+      {systemMessages.map((sm) => (
+        <SystemMessage key={sm.id} text={sm.text} />
+      ))}
       {typingUsers.length > 0 && (
         <div className={styles.typing} role="status" aria-live="polite">
           {typingUsers.length === 1 && typingUsers[0] ? (

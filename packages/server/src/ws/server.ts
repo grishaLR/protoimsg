@@ -18,6 +18,7 @@ import { BlockService } from '../moderation/block-service.js';
 import type { GlobalBanService } from '../moderation/global-ban-service.js';
 import type { GlobalAllowlistService } from '../moderation/global-allowlist-service.js';
 import type { LabelerService } from '../moderation/labeler-service.js';
+import type { BotService } from '../bot/service.js';
 import { ERROR_CODES } from '@protoimsg/shared';
 
 import { createLogger } from '../logger.js';
@@ -115,6 +116,7 @@ export function createWsServer(
   globalBans: GlobalBanService,
   globalAllowlist: GlobalAllowlistService,
   labelerService: LabelerService,
+  botService: BotService | null,
 ): WsServer {
   const connectionTracker = new WsConnectionTracker();
 
@@ -150,6 +152,7 @@ export function createWsServer(
     (ws as WebSocket & { socketId?: string; remoteIp?: string }).remoteIp = remoteIp;
 
     let did: string | null = null;
+    let handle: string = '';
     let authenticated = false;
     let cleanupHeartbeat: (() => void) | null = null;
     let msgQueue: Promise<void> = Promise.resolve();
@@ -231,6 +234,7 @@ export function createWsServer(
             clearTimeout(authTimer);
             authenticated = true;
             did = session.did;
+            handle = session.handle;
             await service.handleUserConnect(did);
             userSockets.add(did, ws);
 
@@ -295,12 +299,14 @@ export function createWsServer(
       // Queue messages so each handler's async DB work completes before
       // the next starts (e.g. sync_community writes must finish before
       // status_change reads community_members for visibility checks).
+      const authedHandle = handle;
       msgQueue = msgQueue
         .then(async () => {
           const start = performance.now();
           await handleClientMessage(
             ws,
             authedDid,
+            authedHandle,
             data,
             roomSubs,
             communityWatchers,
@@ -314,6 +320,7 @@ export function createWsServer(
             imRegistry,
             labelerService,
             callSubs,
+            botService,
           );
           observeWsHandlerDuration(data.type, (performance.now() - start) / 1000);
         })
@@ -337,6 +344,7 @@ export function createWsServer(
         userSockets.remove(did, ws);
         roomSubs.unsubscribeAll(ws);
         communityWatchers.unwatchAll(ws);
+        botService?.handleClose(ws);
 
         const abandonedConvos = dmSubs.unsubscribeAll(ws);
         for (const conversationId of abandonedConvos) {

@@ -40,6 +40,7 @@
   "devDependencies": {
     "@sentry/vite-plugin": "^4.9.1",
     "@tauri-apps/api": "^2.0.0",
+    "@tauri-apps/plugin-notification": "^2.0.0",
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
     "@vitejs/plugin-react": "^4.3.0",

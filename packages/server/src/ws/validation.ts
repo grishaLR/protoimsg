@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { LIMITS } from '@protoimsg/shared';
+import { LIMITS, BOT } from '@protoimsg/shared';
 import type { IceCandidateInit } from '@protoimsg/shared';
 
 const MAX_BLOCK_LIST_SIZE = 10_000;
@@ -135,6 +135,22 @@ const notifyRecord = z.object({
   cid: z.string().min(1),
 });
 
+const botDmOpen = z.object({ type: z.literal('bot_dm_open') });
+
+const botDmSend = z.object({
+  type: z.literal('bot_dm_send'),
+  text: z.string().min(1).max(BOT.maxCommandLength),
+});
+
+const botDmClose = z.object({ type: z.literal('bot_dm_close') });
+
+const botRoomCommand = z.object({
+  type: z.literal('bot_room_command'),
+  text: z.string().min(1).max(BOT.maxCommandLength),
+  roomId: z.string().min(1),
+  channelId: z.string().min(1),
+});
+
 const clientMessage = z.discriminatedUnion('type', [
   joinRoom,
   leaveRoom,
@@ -156,6 +172,10 @@ const clientMessage = z.discriminatedUnion('type', [
   acceptCall,
   newIceCandidate,
   notifyRecord,
+  botDmOpen,
+  botDmSend,
+  botDmClose,
+  botRoomCommand,
 ]);
 
 export type ValidatedClientMessage = z.infer<typeof clientMessage>;

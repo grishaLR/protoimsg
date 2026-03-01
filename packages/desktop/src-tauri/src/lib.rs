@@ -1,7 +1,7 @@
 use tauri::{
     menu::{MenuBuilder, MenuItemBuilder},
     tray::TrayIconBuilder,
-    Manager, WindowEvent,
+    Emitter, Manager, WindowEvent,
 };
 
 #[tauri::command]
@@ -13,6 +13,7 @@ fn update_tray_tooltip(app: tauri::AppHandle, tooltip: String) {
 
 pub fn run() {
     tauri::Builder::default()
+        .plugin(tauri_plugin_notification::init())
         .plugin(tauri_plugin_shell::init())
         .invoke_handler(tauri::generate_handler![update_tray_tooltip])
         .setup(|app| {
@@ -65,6 +66,9 @@ pub fn run() {
             if window.label() == "main" {
                 if let WindowEvent::CloseRequested { api, .. } = event {
                     api.prevent_close();
+                    // Notify the frontend so it can clean up active calls (beforeunload
+                    // doesn't fire when hiding to tray).
+                    let _ = window.emit("app://window-hiding", ());
                     let _ = window.hide();
                 }
             }

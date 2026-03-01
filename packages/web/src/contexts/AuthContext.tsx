@@ -9,7 +9,8 @@ import {
 } from 'react';
 import { Agent } from '@atproto/api';
 import type { OAuthSession } from '@atproto/oauth-client-browser';
-import { getOAuthClient, REQUIRED_SCOPES } from '../lib/oauth';
+import { buildOAuthScope, type OptionalScopeGroup } from '@protoimsg/shared';
+import { getOAuthClient, REQUIRED_SCOPES, AUTH_VERSION } from '../lib/oauth';
 import {
   AccountBannedError,
   NotOnAllowlistError,
@@ -21,6 +22,7 @@ import {
   getServerToken,
 } from '../lib/api';
 import { IS_TAURI } from '../lib/config';
+import { Sentry } from '../sentry';
 
 export type AuthPhase =
   | 'initializing'
@@ -39,7 +41,12 @@ export interface AuthContextValue {
   isLoading: boolean;
   authPhase: AuthPhase;
   authError: string | null;
-  login: (handle: string) => Promise<void>;
+  hasFeed: boolean;
+  hasProfileEdit: boolean;
+  hasBskyReads: boolean;
+  hasBskyAccess: boolean;
+  grantedScopes: string[];
+  login: (handle: string, optionalGroups?: OptionalScopeGroup[]) => Promise<void>;
   logout: () => void;
 }
 
@@ -53,8 +60,38 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [serverToken, setServerTokenState] = useState<string | null>(null);
   const [authPhase, setAuthPhase] = useState<AuthPhase>('initializing');
   const [authError, setAuthError] = useState<string | null>(null);
+  const [grantedScopes, setGrantedScopes] = useState<string[]>(() => {
+    const stored = localStorage.getItem('protoimsg:grantedScopes');
+    if (!stored) return [];
+    try {
+      return JSON.parse(stored) as string[];
+    } catch {
+      return [];
+    }
+  });
 
   const isLoading = useMemo(() => authPhase !== 'ready' && authPhase !== 'idle', [authPhase]);
+
+  // Matches both old (`repo:app.bsky.feed.post`) and new parameterized
+  // (`repo?collection=app.bsky.feed.post&action=create`) scope formats.
+  const hasFeed = grantedScopes.some(
+    (s) =>
+      s.startsWith('repo:app.bsky.feed.') ||
+      s.startsWith('include:app.bsky.authCreatePosts') ||
+      (s.startsWith('repo?') && s.includes('app.bsky.feed.post')),
+  );
+  const hasProfileEdit = grantedScopes.some(
+    (s) =>
+      s === 'repo:app.bsky.actor.profile' ||
+      s.startsWith('include:app.bsky.authManageProfile') ||
+      (s.startsWith('repo?') && s.includes('app.bsky.actor.profile')),
+  );
+  // Matches both old (`rpc:app.bsky.*`) and new parameterized (`rpc?lxm=app.bsky.*`) scope formats.
+  const hasBskyReads = grantedScopes.some(
+    (s) => (s.startsWith('rpc:') || s.startsWith('rpc?')) && s.includes('app.bsky.'),
+  );
+  // Broader: any scope referencing app.bsky (rpc, repo, include — any format).
+  const hasBskyAccess = grantedScopes.some((s) => s.includes('app.bsky.'));
 
   const clearAuth = useCallback(() => {
     setSession(null);
@@ -65,6 +102,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setServerToken(null);
     setAuthError(null);
     setAuthPhase('idle');
+    setGrantedScopes([]);
+    localStorage.removeItem('protoimsg:grantedScopes');
   }, []);
 
   // Guard against StrictMode double-mount: OAuth callback processing consumes
@@ -75,6 +114,36 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     if (initCalled.current) return;
     initCalled.current = true;
+
+    // Force re-login when OAuth scopes change. Bump AUTH_VERSION in oauth.ts
+    // to invalidate all existing sessions. Only check when a session exists —
+    // otherwise we'd intercept the OAuth callback redirect on first login.
+    const hasExistingSession = !!localStorage.getItem('protoimsg:did');
+    const storedVersion = Number(localStorage.getItem('protoimsg:authVersion') ?? '1');
+    if (hasExistingSession && storedVersion !== AUTH_VERSION) {
+      console.info('[Auth] auth version mismatch, clearing session for re-login');
+      localStorage.removeItem('protoimsg:did');
+      localStorage.removeItem('protoimsg:handle');
+      localStorage.removeItem('protoimsg:grantedScopes');
+      localStorage.setItem('protoimsg:authVersion', String(AUTH_VERSION));
+      clearAuth();
+      // Clear IndexedDB OAuth session so init() returns null
+      const oauthClient = getOAuthClient();
+      void oauthClient
+        .init()
+        .then((result) => {
+          if (result) void oauthClient.revoke(result.session.did);
+        })
+        .catch((err: unknown) =>
+          Sentry.captureException(err, {
+            tags: { component: 'AuthContext', action: 'revoke_stale_session' },
+          }),
+        )
+        .finally(() => {
+          setAuthPhase('idle');
+        });
+      return;
+    }
 
     // Tauri child windows: restore auth from localStorage immediately (covers
     // DM/room windows that only need server token), then try OAuth in the
@@ -145,8 +214,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             // can't write records at all (messages, rooms, auth proof), so bail
             // early with a clear error instead of failing on every createRecord.
             const tokenInfo = await restoredSession.getTokenInfo();
-            const grantedScopes = tokenInfo.scope.split(' ');
-            const missingScopes = REQUIRED_SCOPES.filter((s) => !grantedScopes.includes(s));
+            const granted = tokenInfo.scope.split(' ');
+            setGrantedScopes(granted);
+            localStorage.setItem('protoimsg:grantedScopes', JSON.stringify(granted));
+            localStorage.setItem('protoimsg:authVersion', String(AUTH_VERSION));
+            const missingScopes = REQUIRED_SCOPES.filter((s) => !granted.includes(s));
             if (missingScopes.length > 0) {
               console.error('OAuth scopes missing:', missingScopes.join(', '));
               const oauthClient = getOAuthClient();
@@ -245,7 +317,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, [clearAuth]);
 
-  const login = useCallback(async (inputHandle: string) => {
+  const login = useCallback(async (inputHandle: string, optionalGroups?: OptionalScopeGroup[]) => {
     setAuthError(null);
 
     // Pre-OAuth ban check — throws AccountBannedError if banned.
@@ -262,7 +334,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     sessionStorage.setItem('protoimsg:oauth_pending', '1');
     const oauthClient = getOAuthClient();
     await oauthClient.signIn(inputHandle, {
-      scope: 'atproto transition:generic',
+      scope: buildOAuthScope(optionalGroups),
     });
     // This redirects to PDS — execution won't continue here.
     // On return, init() in the useEffect above catches the callback.
@@ -273,6 +345,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     void deleteServerSession();
     localStorage.removeItem('protoimsg:did');
     localStorage.removeItem('protoimsg:handle');
+    localStorage.removeItem('protoimsg:grantedScopes');
+    localStorage.removeItem('protoimsg:authVersion');
     clearAuth();
     if (sub) {
       const oauthClient = getOAuthClient();
@@ -290,10 +364,31 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       isLoading,
       authPhase,
       authError,
+      hasFeed,
+      hasProfileEdit,
+      hasBskyReads,
+      hasBskyAccess,
+      grantedScopes,
       login,
       logout,
     }),
-    [session, agent, did, handle, serverToken, isLoading, authPhase, authError, login, logout],
+    [
+      session,
+      agent,
+      did,
+      handle,
+      serverToken,
+      isLoading,
+      authPhase,
+      authError,
+      hasFeed,
+      hasProfileEdit,
+      hasBskyReads,
+      hasBskyAccess,
+      grantedScopes,
+      login,
+      logout,
+    ],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

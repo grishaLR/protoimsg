@@ -9,6 +9,7 @@ import {
   LIBRE_CODES,
 } from './lang-codes.js';
 import type { Sql } from '../db/client.js';
+import { incTranslateRequest, observeTranslateDuration } from '../metrics.js';
 
 const log = createLogger('translate');
 
@@ -105,6 +106,7 @@ export function createTranslateService(config: TranslateServiceConfig): Translat
     }> = [];
 
     try {
+      const start = performance.now();
       const res = await fetch(`${libreUrl}/translate`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -115,8 +117,10 @@ export function createTranslateService(config: TranslateServiceConfig): Translat
         }),
         signal: AbortSignal.timeout(15_000),
       });
+      observeTranslateDuration('libre', (performance.now() - start) / 1000);
 
       if (!res.ok) {
+        incTranslateRequest('libre', 'error');
         log.warn({ status: res.status }, 'LibreTranslate batch error, returning originals');
         for (const item of uncached) {
           results.set(item.hash, { text: item.text, translated: item.text, sourceLang: 'unknown' });
@@ -138,6 +142,7 @@ export function createTranslateService(config: TranslateServiceConfig): Translat
           ? [data.detectedLanguage]
           : [];
 
+      incTranslateRequest('libre', 'success');
       for (let i = 0; i < uncached.length; i++) {
         const item = uncached[i];
         if (!item) continue;
@@ -151,6 +156,7 @@ export function createTranslateService(config: TranslateServiceConfig): Translat
         }
       }
     } catch (err) {
+      incTranslateRequest('libre', 'error');
       log.warn({ err, count: uncached.length }, 'LibreTranslate batch request failed');
       for (const item of uncached) {
         results.set(item.hash, { text: item.text, translated: item.text, sourceLang: 'unknown' });
@@ -222,6 +228,7 @@ export function createTranslateService(config: TranslateServiceConfig): Translat
       const srcIso = floresToIso(srcFlores) ?? 'unknown';
 
       try {
+        const start = performance.now();
         const res = await fetch(`${nllbUrl}/translate`, {
           method: 'POST',
           headers: nllbHeaders,
@@ -232,8 +239,10 @@ export function createTranslateService(config: TranslateServiceConfig): Translat
           }),
           signal: AbortSignal.timeout(30_000),
         });
+        observeTranslateDuration('nllb', (performance.now() - start) / 1000);
 
         if (!res.ok) {
+          incTranslateRequest('nllb', 'error');
           log.warn({ status: res.status, sourceLang, count: items.length }, 'NLLB batch error');
           for (const item of items) {
             results.set(item.hash, {
@@ -246,6 +255,7 @@ export function createTranslateService(config: TranslateServiceConfig): Translat
         }
 
         const data = (await res.json()) as NllbTranslateResponse;
+        incTranslateRequest('nllb', 'success');
         for (let i = 0; i < items.length; i++) {
           const item = items[i];
           if (!item) continue;
@@ -254,6 +264,7 @@ export function createTranslateService(config: TranslateServiceConfig): Translat
           toInsert.push({ textHash: item.hash, targetLang, sourceLang: srcIso, translated });
         }
       } catch (err) {
+        incTranslateRequest('nllb', 'error');
         log.warn({ err, sourceLang, count: items.length }, 'NLLB batch request failed');
         for (const item of items) {
           results.set(item.hash, { text: item.text, translated: item.text, sourceLang: 'unknown' });

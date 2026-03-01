@@ -15,10 +15,16 @@ export {
   ROOM_DEFAULTS,
   LIMITS,
   DM_LIMITS,
+  BOT,
   APP_LABELERS,
   REPORT_CATEGORIES,
+  OAUTH_SCOPE_GROUPS,
+  REQUIRED_SCOPE_GROUPS,
+  OPTIONAL_SCOPE_GROUPS,
+  buildOAuthScope,
+  OAUTH_SCOPE_ALL,
 } from './constants.js';
-export type { ReportCategory } from './constants.js';
+export type { ReportCategory, OptionalScopeGroup } from './constants.js';
 
 export { ERROR_CODES } from './error-codes.js';
 export type { ErrorCode } from './error-codes.js';
@@ -71,5 +77,11 @@ export type {
   NewIceCandidateEvent,
   RoomBanEvent,
   RoomRoleUpdateEvent,
+  BotDmOpenMessage,
+  BotDmSendMessage,
+  BotDmCloseMessage,
+  BotRoomCommandMessage,
+  BotDmResponseEvent,
+  SystemMessageEvent,
   ServerMessage,
 } from './ws-types.js';

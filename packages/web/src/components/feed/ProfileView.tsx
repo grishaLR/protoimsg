@@ -2,7 +2,7 @@ import { useCallback, useRef, useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useQuery, useInfiniteQuery } from '@tanstack/react-query';
 import { RichText as RichTextAPI, type AppBskyFeedDefs } from '@atproto/api';
-import { useAuth } from '../../hooks/useAuth';
+import { publicAgent } from '../../lib/public-agent';
 import { useGermDeclaration } from '../../hooks/useGermDeclaration';
 import { useContentTranslation } from '../../hooks/useContentTranslation';
 import { ArrowLeft, ExternalLink } from 'lucide-react';
@@ -76,7 +76,6 @@ export function ProfileView({
   onQuotePost,
 }: ProfileViewProps) {
   const { t } = useTranslation('feed');
-  const { agent } = useAuth();
   const scrollRef = useRef<HTMLDivElement>(null);
   const {
     autoTranslate,
@@ -97,15 +96,14 @@ export function ProfileView({
   } = useQuery({
     queryKey: ['profile', actor],
     queryFn: async () => {
-      if (!agent) throw new Error('No agent');
-      const res = await agent.app.bsky.actor.getProfile({ actor });
+      const res = await publicAgent.app.bsky.actor.getProfile({ actor });
       const data = res.data;
 
       // Detect facets (links, mentions, tags) in the description
       let descFacets: GenericFacet[] | undefined;
       if (data.description) {
         const rt = new RichTextAPI({ text: data.description });
-        await rt.detectFacets(agent);
+        await rt.detectFacets(publicAgent);
         if (rt.facets && rt.facets.length > 0) {
           descFacets = rt.facets as unknown as GenericFacet[];
         }
@@ -113,7 +111,7 @@ export function ProfileView({
 
       return { ...data, detectedFacets: descFacets };
     },
-    enabled: !!agent,
+    enabled: !!actor,
   });
   const profile = profileData ?? null;
   const { canMessage: germAvailable, germUrl } = useGermDeclaration(profile?.did);
@@ -125,11 +123,11 @@ export function ProfileView({
   const { data: pinnedPostData } = useQuery({
     queryKey: ['pinnedPost', pinnedPostUri],
     queryFn: async () => {
-      if (!agent || !pinnedPostUri) throw new Error('No agent or URI');
-      const res = await agent.app.bsky.feed.getPosts({ uris: [pinnedPostUri] });
+      if (!pinnedPostUri) throw new Error('No URI');
+      const res = await publicAgent.app.bsky.feed.getPosts({ uris: [pinnedPostUri] });
       return res.data.posts[0] ?? null;
     },
-    enabled: !!agent && !!pinnedPostUri,
+    enabled: !!pinnedPostUri,
   });
 
   const {
@@ -141,8 +139,7 @@ export function ProfileView({
   } = useInfiniteQuery({
     queryKey: ['authorFeed', actor],
     queryFn: async ({ pageParam }) => {
-      if (!agent) throw new Error('No agent');
-      const res = await agent.app.bsky.feed.getAuthorFeed({
+      const res = await publicAgent.app.bsky.feed.getAuthorFeed({
         actor,
         filter: 'posts_no_replies',
         limit: 30,
@@ -152,7 +149,7 @@ export function ProfileView({
     },
     initialPageParam: undefined as string | undefined,
     getNextPageParam: (lastPage) => lastPage.cursor,
-    enabled: !!agent,
+    enabled: !!actor,
   });
 
   const allPosts = feedData?.pages.flatMap((p) => p.feed) ?? [];

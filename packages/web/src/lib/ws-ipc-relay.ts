@@ -60,26 +60,21 @@ export function installRelay(wsClient: WsClient): () => void {
  * Implements the same WsClient interface but uses Tauri IPC events
  * instead of a real WebSocket connection.
  */
-export function createIpcWsClient(): WsClient {
+export async function createIpcWsClient(): Promise<WsClient> {
   let handlers = new Set<WsHandler>();
-  let unlisten: UnlistenFn | null = null;
   let closed = false;
-  let listening = false;
 
-  // Start listening for server messages relayed from main window
-  void listen<ServerMessage>(WS_SERVER_MESSAGE, (event: TauriEvent<ServerMessage>) => {
-    if (closed) return;
-    for (const handler of handlers) {
-      handler(event.payload);
-    }
-  }).then((fn: UnlistenFn) => {
-    if (closed) {
-      fn();
-    } else {
-      unlisten = fn;
-      listening = true;
-    }
-  });
+  // Await the listener so it's guaranteed to be receiving IPC events
+  // before we return the client (fixes video-call timing race).
+  const unlisten = await listen<ServerMessage>(
+    WS_SERVER_MESSAGE,
+    (event: TauriEvent<ServerMessage>) => {
+      if (closed) return;
+      for (const handler of handlers) {
+        handler(event.payload);
+      }
+    },
+  );
 
   return {
     send(msg: ClientMessage) {
@@ -97,15 +92,12 @@ export function createIpcWsClient(): WsClient {
     close() {
       closed = true;
       handlers = new Set();
-      if (unlisten) {
-        unlisten();
-        unlisten = null;
-      }
+      unlisten();
     },
 
     isConnected() {
       // Child windows are "connected" as long as the IPC listener is active
-      return listening && !closed;
+      return !closed;
     },
   };
 }

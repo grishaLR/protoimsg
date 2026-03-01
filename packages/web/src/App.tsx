@@ -59,6 +59,11 @@ const RoomDirectoryWindowPage = lazy(() =>
 const FeedWindowPage = lazy(() =>
   reloadOnChunkError(import('./pages/FeedWindowPage').then((m) => ({ default: m.FeedWindowPage }))),
 );
+const VideoCallWindowPage = lazy(() =>
+  reloadOnChunkError(
+    import('./pages/VideoCallWindowPage').then((m) => ({ default: m.VideoCallWindowPage })),
+  ),
+);
 const BetaSignupPage = lazy(() =>
   reloadOnChunkError(import('./pages/BetaSignupPage').then((m) => ({ default: m.BetaSignupPage }))),
 );
@@ -173,6 +178,14 @@ function AppRoutes() {
         element={
           <ProtectedRoute>
             <FeedWindowPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/videocall/:conversationId"
+        element={
+          <ProtectedRoute>
+            <VideoCallWindowPage />
           </ProtectedRoute>
         }
       />

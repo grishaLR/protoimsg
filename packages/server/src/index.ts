@@ -28,6 +28,7 @@ import { pruneOldMessages } from './messages/queries.js';
 import { pruneTypingThrottle, pruneCallAttempts } from './ws/handlers.js';
 import { pruneSlowModeTracker } from './firehose/handlers.js';
 import { EmailService } from './email/service.js';
+import { createBotService } from './bot/service.js';
 
 async function main() {
   const config = loadConfig();
@@ -143,6 +144,10 @@ async function main() {
     log.warn('RESEND_API_KEY not set — waitlist confirmation emails will be skipped');
   }
 
+  // ProtoBuddy bot service (behind feature flag)
+  const botService = config.BOT_ENABLED ? createBotService(emailService, db) : null;
+  if (botService) log.info('Bot service (ProtoBuddy) enabled');
+
   const app = createApp(
     config,
     db,
@@ -183,6 +188,7 @@ async function main() {
     globalBans,
     globalAllowlist,
     labelerService,
+    botService,
   );
   log.info('WebSocket server attached');
 
@@ -207,6 +213,7 @@ async function main() {
     pruneTypingThrottle();
     pruneCallAttempts();
     pruneSlowModeTracker();
+    botService?.cleanup();
     void pruneOldMessages(db, LIMITS.defaultRetentionDays).then((count) => {
       if (count > 0) log.info({ count }, 'Pruned old room messages');
     });

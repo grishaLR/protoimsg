@@ -1,0 +1,11 @@
+{
+  "name": "ProtoBuddy",
+  "alwaysOnline": "Luôn trực tuyến",
+  "ariaLabel": "Trò chuyện với ProtoBuddy",
+  "inputPlaceholder": "Nhập lệnh... (/help)",
+  "inputAriaLabel": "Viết tin nhắn cho ProtoBuddy",
+  "send": "Gửi",
+  "close": "Đóng",
+  "expand": "Mở rộng",
+  "minimize": "Thu nhỏ"
+}

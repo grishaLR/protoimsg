@@ -1,0 +1,11 @@
+{
+  "name": "ProtoBuddy",
+  "alwaysOnline": "ออนไลน์ตลอดเวลา",
+  "ariaLabel": "สนทนากับ ProtoBuddy",
+  "inputPlaceholder": "พิมพ์คำสั่ง... (/help)",
+  "inputAriaLabel": "เขียนข้อความถึง ProtoBuddy",
+  "send": "ส่ง",
+  "close": "ปิด",
+  "expand": "ขยาย",
+  "minimize": "ย่อ"
+}
