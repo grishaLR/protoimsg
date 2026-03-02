@@ -1,5 +1,5 @@
 import type { WebSocket } from 'ws';
-import { ERROR_CODES, NSID } from '@protoimsg/shared';
+import { ERROR_CODES, NSID, USER_AGENT } from '@protoimsg/shared';
 import type { ValidatedClientMessage } from './validation.js';
 import type { RoomSubscriptions } from './rooms.js';
 import type { DmSubscriptions } from '../dms/subscriptions.js';
@@ -802,7 +802,9 @@ export async function handleClientMessage(
 
         // Fetch record from PDS
         const getRecordUrl = `${pdsUrl}/xrpc/com.atproto.repo.getRecord?repo=${encodeURIComponent(did)}&collection=${encodeURIComponent(collection)}&rkey=${encodeURIComponent(rkey)}`;
-        const pdsRes = await fetch(getRecordUrl);
+        const pdsRes = await fetch(getRecordUrl, {
+          headers: { 'User-Agent': USER_AGENT },
+        });
         if (!pdsRes.ok) {
           log.warn({ did, rkey, status: pdsRes.status }, 'notify_record: PDS fetch failed');
           ws.send(

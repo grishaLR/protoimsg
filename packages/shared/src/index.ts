@@ -10,6 +10,8 @@ export type {
 } from './types.js';
 
 export {
+  APP_VERSION,
+  USER_AGENT,
   NSID,
   NSID_PREFIX,
   ROOM_DEFAULTS,

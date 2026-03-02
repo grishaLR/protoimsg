@@ -1,3 +1,5 @@
+import { USER_AGENT } from '@protoimsg/shared';
+
 /** Resolves DID creation dates from the PLC directory. Caches results with TTL. */
 
 const PLC_DIRECTORY = 'https://plc.directory';
@@ -24,7 +26,9 @@ export async function getDidCreationDate(did: string): Promise<Date | null> {
   if (!did.startsWith('did:plc:')) return null;
 
   try {
-    const res = await fetch(`${PLC_DIRECTORY}/${did}/log/audit`);
+    const res = await fetch(`${PLC_DIRECTORY}/${did}/log/audit`, {
+      headers: { 'User-Agent': USER_AGENT },
+    });
     if (!res.ok) return null;
 
     const entries = (await res.json()) as PlcAuditEntry[];

@@ -7,7 +7,7 @@ import { createRequireAuth } from './middleware.js';
 import type { Config } from '../config.js';
 import type { GlobalBanService } from '../moderation/global-ban-service.js';
 import type { GlobalAllowlistService } from '../moderation/global-allowlist-service.js';
-import { ERROR_CODES } from '@protoimsg/shared';
+import { ERROR_CODES, USER_AGENT } from '@protoimsg/shared';
 
 import { createLogger } from '../logger.js';
 import { incUniqueLogins } from '../stats/queries.js';
@@ -49,7 +49,7 @@ export function authRouter(
 
       // Resolve handle → DID via public ATProto API
       const url = `${config.PUBLIC_API_URL}/xrpc/com.atproto.identity.resolveHandle?handle=${encodeURIComponent(handle)}`;
-      const resolveRes = await fetch(url);
+      const resolveRes = await fetch(url, { headers: { 'User-Agent': USER_AGENT } });
       if (!resolveRes.ok) {
         // Can't resolve handle — let OAuth handle the error naturally
         res.json({ allowed: true });
