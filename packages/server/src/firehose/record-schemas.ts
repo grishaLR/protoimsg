@@ -182,17 +182,6 @@ export const allowlistRecordSchema = z
   })
   .passthrough();
 
-// -- Presence --
-
-export const presenceRecordSchema = z
-  .object({
-    status: z.string(), // knownValues: online, away, idle, offline, invisible
-    visibleTo: z.string(), // knownValues: everyone, community, inner-circle, no-one
-    awayMessage: z.string().max(300).optional(),
-    updatedAt: datetime,
-  })
-  .passthrough();
-
 // -- Poll --
 
 export const pollRecordSchema = z
@@ -225,6 +214,5 @@ export type BanRecordParsed = z.infer<typeof banRecordSchema>;
 export type RoleRecordParsed = z.infer<typeof roleRecordSchema>;
 export type CommunityRecordParsed = z.infer<typeof communityRecordSchema>;
 export type AllowlistRecordParsed = z.infer<typeof allowlistRecordSchema>;
-export type PresenceRecordParsed = z.infer<typeof presenceRecordSchema>;
 export type PollRecordParsed = z.infer<typeof pollRecordSchema>;
 export type VoteRecordParsed = z.infer<typeof voteRecordSchema>;

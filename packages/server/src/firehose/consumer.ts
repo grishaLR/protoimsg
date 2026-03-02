@@ -84,6 +84,7 @@ export function createFirehoseConsumer(
   jetstreamUrls: string[],
   db: Sql,
   wss: WsServer,
+  /** Only used for disconnect cleanup on account deactivation, not for presence records. */
   presenceService: PresenceService,
   sessions: SessionStore,
   labelerService: LabelerService,
@@ -93,7 +94,7 @@ export function createFirehoseConsumer(
     commitSilenceMinutes != null
       ? commitSilenceMinutes * 60 * 1000
       : DEFAULT_COMMIT_LIVENESS_TIMEOUT_MS;
-  const handlers = createHandlers(db, wss, presenceService, labelerService);
+  const handlers = createHandlers(db, wss, labelerService);
   let ws: WebSocket | null = null;
   let shouldReconnect = true;
   let eventCount = 0;

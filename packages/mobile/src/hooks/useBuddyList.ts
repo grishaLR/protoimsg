@@ -32,19 +32,17 @@ export function useBuddyList() {
     [groups],
   );
 
-  const cancelledRef = useRef(false);
-
   useEffect(() => {
     if (!agent || !connected) return;
 
-    cancelledRef.current = false;
+    let cancelled = false;
     const currentAgent = agent;
 
     setError(null);
     async function load() {
       try {
         const pdsGroups = await getCommunityListRecord(currentAgent);
-        if (cancelledRef.current) return;
+        if (cancelled) return;
 
         // Migrate legacy group names
         let seeded = pdsGroups.map((g) => {
@@ -122,7 +120,7 @@ export function useBuddyList() {
         send({ type: 'status_change', status: 'online', visibleTo: cachedVis });
         send({ type: 'request_community_presence', dids: allDids });
       } catch (err) {
-        if (cancelledRef.current) return;
+        if (cancelled) return;
         setError(err instanceof Error ? err : new Error(String(err)));
         setLoading(false);
       }
@@ -130,7 +128,7 @@ export function useBuddyList() {
 
     void load();
     return () => {
-      cancelledRef.current = true;
+      cancelled = true;
     };
   }, [agent, send, connected]);
 

@@ -568,39 +568,6 @@ export const schemaDict = {
       },
     },
   },
-  AppProtoimsgChatPresence: {
-    lexicon: 1,
-    id: 'app.protoimsg.chat.presence',
-    defs: {
-      main: {
-        type: 'record',
-        description:
-          "User's current presence status. Lives in their repo, updated by their client. IMPORTANT: visibleTo is intentionally excluded — it is a privacy preference and must remain server-side only. Writing it to the PDS would publicly expose who the user is hiding from.",
-        key: 'literal:self',
-        record: {
-          type: 'object',
-          required: ['status', 'updatedAt'],
-          properties: {
-            status: {
-              type: 'string',
-              knownValues: ['online', 'away', 'idle', 'offline', 'invisible'],
-              description: 'Current presence status.',
-            },
-            awayMessage: {
-              type: 'string',
-              maxLength: 300,
-              description: 'Custom away message / status text.',
-            },
-            updatedAt: {
-              type: 'string',
-              format: 'datetime',
-              description: 'When presence was last updated.',
-            },
-          },
-        },
-      },
-    },
-  },
   AppProtoimsgChatRole: {
     lexicon: 1,
     id: 'app.protoimsg.chat.role',
@@ -768,7 +735,6 @@ export const ids = {
   AppProtoimsgChatCommunity: 'app.protoimsg.chat.community',
   AppProtoimsgChatMessage: 'app.protoimsg.chat.message',
   AppProtoimsgChatPoll: 'app.protoimsg.chat.poll',
-  AppProtoimsgChatPresence: 'app.protoimsg.chat.presence',
   AppProtoimsgChatRole: 'app.protoimsg.chat.role',
   AppProtoimsgChatRoom: 'app.protoimsg.chat.room',
   AppProtoimsgChatVote: 'app.protoimsg.chat.vote',

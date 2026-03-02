@@ -38,11 +38,9 @@ import {
   roleRecordSchema,
   communityRecordSchema,
   allowlistRecordSchema,
-  presenceRecordSchema,
   pollRecordSchema,
   voteRecordSchema,
 } from './record-schemas.js';
-import type { PresenceService } from '../presence/service.js';
 import type { LabelerService } from '../moderation/labeler-service.js';
 import { createLogger } from '../logger.js';
 import { incMessagesSent, incRoomsCreated } from '../stats/queries.js';
@@ -99,12 +97,7 @@ export function isSlowModeViolation(roomId: string, did: string, slowModeSeconds
   return false;
 }
 
-export function createHandlers(
-  db: Sql,
-  wss: WsServer,
-  presenceService: PresenceService,
-  labelerService: LabelerService,
-) {
+export function createHandlers(db: Sql, wss: WsServer, labelerService: LabelerService) {
   const handlers: Record<string, (event: FirehoseEvent) => Promise<void>> = {
     [NSID.Room]: async (event) => {
       if (event.operation === 'delete') {
@@ -558,47 +551,6 @@ export function createHandlers(
           indexed_at = NOW()
       `;
       log.info({ subject: record.subject, roomId }, 'Allowlist entry indexed');
-    },
-
-    [NSID.Presence]: async (event) => {
-      if (event.operation === 'delete') {
-        // Presence record deleted — clear persisted prefs
-        await db`DELETE FROM user_presence WHERE did = ${event.did}`;
-        log.info({ did: event.did }, 'Presence record deleted');
-        return;
-      }
-
-      const parsed = presenceRecordSchema.safeParse(event.record);
-      if (!parsed.success) {
-        log.warn({ did: event.did, error: parsed.error.message }, 'Invalid presence record');
-        return;
-      }
-      const record = parsed.data;
-
-      // Persist to DB so visibility prefs survive server restarts
-      await db`
-        INSERT INTO user_presence (did, status, visible_to, away_message, updated_at, indexed_at)
-        VALUES (${event.did}, ${record.status}, ${record.visibleTo}, ${record.awayMessage ?? null}, ${record.updatedAt}, NOW())
-        ON CONFLICT (did) DO UPDATE SET
-          status = EXCLUDED.status,
-          visible_to = EXCLUDED.visible_to,
-          away_message = EXCLUDED.away_message,
-          updated_at = EXCLUDED.updated_at,
-          indexed_at = NOW()
-      `;
-
-      // Hydrate tracker if user is currently connected
-      await presenceService.handleStatusChange(
-        event.did,
-        record.status as 'online' | 'away' | 'idle' | 'offline' | 'invisible',
-        record.awayMessage,
-        record.visibleTo as 'everyone' | 'community' | 'inner-circle' | 'no-one',
-      );
-
-      log.info(
-        { did: event.did, status: record.status, visibleTo: record.visibleTo },
-        'Presence indexed',
-      );
     },
 
     [NSID.Poll]: async (event) => {
