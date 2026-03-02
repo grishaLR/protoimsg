@@ -1,6 +1,5 @@
 import type { Agent } from '@atproto/api';
 import { NSID } from '@protoimsg/shared';
-import type { PresenceStatus } from '@protoimsg/shared';
 import type { CommunityGroup } from '@protoimsg/lexicon';
 
 /** Extract the record key (last path segment) from an AT URI */
@@ -72,8 +71,6 @@ export async function putCommunityListRecord(
   return { uri: response.data.uri, cid: response.data.cid };
 }
 
-// -- Presence --
-
 // -- Messages --
 
 export interface CreateMessageInput {
@@ -117,25 +114,4 @@ export async function createMessageRecord(
     cid: response.data.cid,
     rkey,
   };
-}
-
-// -- Presence --
-
-export async function putPresenceRecord(
-  agent: Agent,
-  status: PresenceStatus,
-  opts?: { awayMessage?: string },
-): Promise<{ uri: string; cid: string }> {
-  const response = await agent.com.atproto.repo.putRecord({
-    repo: agent.assertDid,
-    collection: NSID.Presence,
-    rkey: 'self',
-    record: {
-      $type: NSID.Presence,
-      status,
-      awayMessage: opts?.awayMessage,
-      updatedAt: new Date().toISOString(),
-    },
-  });
-  return { uri: response.data.uri, cid: response.data.cid };
 }

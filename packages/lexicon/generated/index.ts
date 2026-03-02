@@ -11,7 +11,6 @@ import * as AppProtoimsgChatChannel from './types/app/protoimsg/chat/channel';
 import * as AppProtoimsgChatCommunity from './types/app/protoimsg/chat/community';
 import * as AppProtoimsgChatMessage from './types/app/protoimsg/chat/message';
 import * as AppProtoimsgChatPoll from './types/app/protoimsg/chat/poll';
-import * as AppProtoimsgChatPresence from './types/app/protoimsg/chat/presence';
 import * as AppProtoimsgChatRole from './types/app/protoimsg/chat/role';
 import * as AppProtoimsgChatRoom from './types/app/protoimsg/chat/room';
 import * as AppProtoimsgChatVote from './types/app/protoimsg/chat/vote';
@@ -23,7 +22,6 @@ export * as AppProtoimsgChatChannel from './types/app/protoimsg/chat/channel';
 export * as AppProtoimsgChatCommunity from './types/app/protoimsg/chat/community';
 export * as AppProtoimsgChatMessage from './types/app/protoimsg/chat/message';
 export * as AppProtoimsgChatPoll from './types/app/protoimsg/chat/poll';
-export * as AppProtoimsgChatPresence from './types/app/protoimsg/chat/presence';
 export * as AppProtoimsgChatRole from './types/app/protoimsg/chat/role';
 export * as AppProtoimsgChatRoom from './types/app/protoimsg/chat/room';
 export * as AppProtoimsgChatVote from './types/app/protoimsg/chat/vote';
@@ -71,7 +69,6 @@ export class AppProtoimsgChatNS {
   community: CommunityRecord;
   message: MessageRecord;
   poll: PollRecord;
-  presence: PresenceRecord;
   role: RoleRecord;
   room: RoomRecord;
   vote: VoteRecord;
@@ -85,7 +82,6 @@ export class AppProtoimsgChatNS {
     this.community = new CommunityRecord(client);
     this.message = new MessageRecord(client);
     this.poll = new PollRecord(client);
-    this.presence = new PresenceRecord(client);
     this.role = new RoleRecord(client);
     this.room = new RoomRecord(client);
     this.vote = new VoteRecord(client);
@@ -494,69 +490,6 @@ export class PollRecord {
       'com.atproto.repo.deleteRecord',
       undefined,
       { collection: 'app.protoimsg.chat.poll', ...params },
-      { headers },
-    );
-  }
-}
-
-export class PresenceRecord {
-  _client: XrpcClient;
-
-  constructor(client: XrpcClient) {
-    this._client = client;
-  }
-
-  async list(params: Omit<ComAtprotoRepoListRecords.QueryParams, 'collection'>): Promise<{
-    cursor?: string;
-    records: { uri: string; value: AppProtoimsgChatPresence.Record }[];
-  }> {
-    const res = await this._client.call('com.atproto.repo.listRecords', {
-      collection: 'app.protoimsg.chat.presence',
-      ...params,
-    });
-    return res.data;
-  }
-
-  async get(params: Omit<ComAtprotoRepoGetRecord.QueryParams, 'collection'>): Promise<{
-    uri: string;
-    cid: string;
-    value: AppProtoimsgChatPresence.Record;
-  }> {
-    const res = await this._client.call('com.atproto.repo.getRecord', {
-      collection: 'app.protoimsg.chat.presence',
-      ...params,
-    });
-    return res.data;
-  }
-
-  async create(
-    params: Omit<ComAtprotoRepoCreateRecord.InputSchema, 'collection' | 'record'>,
-    record: AppProtoimsgChatPresence.Record,
-    headers?: Record<string, string>,
-  ): Promise<{ uri: string; cid: string }> {
-    record.$type = 'app.protoimsg.chat.presence';
-    const res = await this._client.call(
-      'com.atproto.repo.createRecord',
-      undefined,
-      {
-        collection: 'app.protoimsg.chat.presence',
-        rkey: 'self',
-        ...params,
-        record,
-      },
-      { encoding: 'application/json', headers },
-    );
-    return res.data;
-  }
-
-  async delete(
-    params: Omit<ComAtprotoRepoDeleteRecord.InputSchema, 'collection'>,
-    headers?: Record<string, string>,
-  ): Promise<void> {
-    await this._client.call(
-      'com.atproto.repo.deleteRecord',
-      undefined,
-      { collection: 'app.protoimsg.chat.presence', ...params },
       { headers },
     );
   }

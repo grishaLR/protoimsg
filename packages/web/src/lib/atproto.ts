@@ -1,6 +1,6 @@
 import type { Agent } from '@atproto/api';
 import { NSID } from '@protoimsg/shared';
-import type { RoomPurpose, RoomVisibility, PresenceStatus } from '@protoimsg/shared';
+import type { RoomPurpose, RoomVisibility } from '@protoimsg/shared';
 import type { CommunityGroup } from '@protoimsg/lexicon';
 
 /** Extract the record key (last path segment) from an AT URI */
@@ -416,44 +416,4 @@ export async function deleteRoleRecord(agent: Agent, rkey: string): Promise<void
     collection: NSID.Role,
     rkey,
   });
-}
-
-// -- Presence PDS helpers --
-
-export async function getPresenceRecord(agent: Agent): Promise<{ awayMessage?: string } | null> {
-  try {
-    const response = await agent.com.atproto.repo.getRecord({
-      repo: agent.assertDid,
-      collection: NSID.Presence,
-      rkey: 'self',
-    });
-    const record = response.data.value as {
-      awayMessage?: string;
-    };
-    return record;
-  } catch {
-    return null;
-  }
-}
-
-/** Write presence to ATProto repo. visibleTo is intentionally excluded —
- * it's a privacy preference and stays server-side only. */
-export async function putPresenceRecord(
-  agent: Agent,
-  status: PresenceStatus,
-  opts?: { awayMessage?: string },
-): Promise<{ uri: string; cid: string }> {
-  const response = await agent.com.atproto.repo.putRecord({
-    repo: agent.assertDid,
-    collection: NSID.Presence,
-    rkey: 'self',
-    record: {
-      $type: NSID.Presence,
-      status,
-      awayMessage: opts?.awayMessage,
-      updatedAt: new Date().toISOString(),
-    },
-  });
-
-  return { uri: response.data.uri, cid: response.data.cid };
 }

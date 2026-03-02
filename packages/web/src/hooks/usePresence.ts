@@ -1,7 +1,5 @@
 import { useCallback, useState } from 'react';
 import { useWebSocket } from '../contexts/WebSocketContext';
-import { useAuth } from './useAuth';
-import { putPresenceRecord } from '../lib/atproto';
 import type { PresenceStatus, PresenceVisibility } from '@protoimsg/shared';
 
 const VISIBILITY_STORAGE_KEY = 'protoimsg:visibleTo';
@@ -36,7 +34,6 @@ export function usePresence() {
   const [awayMessage, setAwayMessage] = useState<string | undefined>();
   const [visibleTo, setVisibleTo] = useState<PresenceVisibility>(getCachedVisibility);
   const { send } = useWebSocket();
-  const { agent } = useAuth();
 
   // No initial status_change here. useBuddyList handles the initial
   // sync_community → status_change → request_community_presence sequence
@@ -54,23 +51,15 @@ export function usePresence() {
 
       const effectiveVisibleTo = newVisibleTo ?? visibleTo;
 
-      // Immediate WS broadcast
+      // Immediate WS broadcast — presence is fully server-side (in-memory)
       send({
         type: 'status_change',
         status: newStatus as 'online' | 'away' | 'idle',
         awayMessage: msg,
         visibleTo: effectiveVisibleTo,
       });
-
-      // Fire-and-forget atproto presence record write
-      // visibleTo is intentionally NOT written — it stays server-side only
-      if (agent) {
-        void putPresenceRecord(agent, newStatus, {
-          awayMessage: msg,
-        });
-      }
     },
-    [send, agent, visibleTo],
+    [send, visibleTo],
   );
 
   return { status, awayMessage, visibleTo, changeStatus };

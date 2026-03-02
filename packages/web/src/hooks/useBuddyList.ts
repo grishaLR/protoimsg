@@ -42,19 +42,17 @@ export function useBuddyList() {
   );
 
   // Load buddy list from PDS + fetch presence
-  const cancelledRef = useRef(false);
-
   useEffect(() => {
     if (!agent) return;
 
-    cancelledRef.current = false;
+    let cancelled = false;
     const currentAgent = agent;
 
     setError(null);
     async function load() {
       try {
         const pdsGroups = await getCommunityListRecord(currentAgent);
-        if (cancelledRef.current) return;
+        if (cancelled) return;
 
         // Migrate legacy "Buddies" → "Community", "Close Friends" → "Inner Circle"
         let seeded = pdsGroups.map((g) => {
@@ -142,8 +140,8 @@ export function useBuddyList() {
 
         // Fetch atproto block records to restore blockRkey for unblock operations.
         // Runs after the connect sequence so HMR / slow PDS can't delay presence.
-        // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- checked after await in loop
-        if (cancelledRef.current) return;
+        // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- set by cleanup closure
+        if (cancelled) return;
         const blockMap = new Map<string, string>(); // subject DID → rkey
         try {
           let blockCursor: string | undefined;
@@ -167,8 +165,8 @@ export function useBuddyList() {
           // Non-critical — block state just won't be restored
         }
 
-        // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- checked after await in loop
-        if (cancelledRef.current) return;
+        // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- set by cleanup closure
+        if (cancelled) return;
         if (blockMap.size > 0) {
           setBuddies((prev) =>
             prev.map((b) => {
@@ -178,7 +176,7 @@ export function useBuddyList() {
           );
         }
       } catch (err) {
-        if (cancelledRef.current) return;
+        if (cancelled) return;
         setError(err instanceof Error ? err : new Error(String(err)));
         setLoading(false);
       }
@@ -186,7 +184,7 @@ export function useBuddyList() {
 
     void load();
     return () => {
-      cancelledRef.current = true;
+      cancelled = true;
     };
   }, [agent, send]);
 

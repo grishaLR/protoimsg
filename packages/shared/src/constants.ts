@@ -7,7 +7,6 @@ export const NSID = {
   Channel: 'app.protoimsg.chat.channel',
   Message: 'app.protoimsg.chat.message',
   Community: 'app.protoimsg.chat.community',
-  Presence: 'app.protoimsg.chat.presence',
   Poll: 'app.protoimsg.chat.poll',
   Vote: 'app.protoimsg.chat.vote',
   Ban: 'app.protoimsg.chat.ban',

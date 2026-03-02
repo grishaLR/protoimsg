@@ -158,16 +158,6 @@ export interface CommunityMember {
   addedAt: string;
 }
 
-/** app.protoimsg.chat.presence record
- * Note: visibleTo is intentionally excluded — it is a privacy preference
- * and must remain server-side only. See presence.json schema for rationale. */
-export interface PresenceRecord {
-  $type: 'app.protoimsg.chat.presence';
-  status: 'online' | 'away' | 'idle' | 'offline' | 'invisible';
-  awayMessage?: string;
-  updatedAt: string;
-}
-
 /** app.protoimsg.chat.poll record */
 export interface PollRecord {
   $type: 'app.protoimsg.chat.poll';
@@ -218,7 +208,6 @@ export type ChatRecord =
   | RoomRecord
   | MessageRecord
   | CommunityRecord
-  | PresenceRecord
   | PollRecord
   | VoteRecord
   | BanRecord

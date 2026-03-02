@@ -1,7 +1,5 @@
 import { useCallback, useState } from 'react';
 import { useWebSocket } from '@/services/WebSocketContext';
-import { useAuth } from '@/services/auth';
-import { putPresenceRecord } from '@/services/atproto';
 import { getStoredVisibility, setStoredVisibility } from '@/services/storage';
 import type { PresenceStatus, PresenceVisibility } from '@protoimsg/shared';
 
@@ -30,7 +28,6 @@ export function usePresence() {
   const [awayMessage, setAwayMessage] = useState<string | undefined>();
   const [visibleTo, setVisibleTo] = useState<PresenceVisibility>(getCachedVisibility);
   const { send } = useWebSocket();
-  const { agent } = useAuth();
 
   const changeStatus = useCallback(
     (newStatus: PresenceStatus, newAwayMessage?: string, newVisibleTo?: PresenceVisibility) => {
@@ -44,6 +41,7 @@ export function usePresence() {
 
       const effectiveVisibleTo = newVisibleTo ?? visibleTo;
 
+      // Presence is fully server-side (in-memory) — WS broadcast only
       if (isWsStatus(newStatus)) {
         send({
           type: 'status_change',
@@ -52,12 +50,8 @@ export function usePresence() {
           visibleTo: effectiveVisibleTo,
         });
       }
-
-      if (agent) {
-        void putPresenceRecord(agent, newStatus, { awayMessage: msg });
-      }
     },
-    [send, agent, visibleTo],
+    [send, visibleTo],
   );
 
   return { status, awayMessage, visibleTo, changeStatus };
