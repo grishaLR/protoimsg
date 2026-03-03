@@ -103,8 +103,8 @@ export function useGermDeclaration(targetDid: string | undefined): GermResult {
     };
   }, [targetDid, viewerDid, germ?.showButtonTo]);
 
+  // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- runtime safety
   if (isSelf || !germ || !germ.showButtonTo || germ.showButtonTo === 'none') {
-    // eslint-disable-line @typescript-eslint/no-unnecessary-condition -- runtime safety
     return { canMessage: false, germUrl: null, isLoading: loading };
   }
 

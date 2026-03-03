@@ -79,8 +79,8 @@ export const RichText = React.memo(function RichText({
     const facetText = decoder.decode(bytes.slice(byteStart, byteEnd));
     const feature = facet.features[0];
 
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- runtime safety
     if (!feature) {
-      // eslint-disable-line @typescript-eslint/no-unnecessary-condition -- runtime safety
       parts.push(
         <Text key={`unknown-${byteStart}`} style={{ color: colors.baseContent }}>
           {facetText}
