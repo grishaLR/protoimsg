@@ -1,19 +1,16 @@
 {
   "appName": "proto instant messenger",
-
   "status": {
     "online": "A kan layi",
     "away": "Ba a nan",
     "idle": "A tsaye"
   },
-
   "visibility": {
     "everyone": "Kowa",
     "community": "Al'umma",
     "innerCircle": "Na kusa",
     "noOne": "Ba kowa"
   },
-
   "theme": {
     "aim": "'98 Na Asali",
     "nytLight": "Mai Haske",
@@ -28,17 +25,18 @@
     "black": "Baki",
     "wireframe": "Wireframe"
   },
-
   "nav": {
     "community": "Al'umma",
-    "rooms": "\u0110akuna",
-    "feed": "Labarai"
+    "rooms": "Đakuna",
+    "feed": "Labarai",
+    "buddies": "Buddies",
+    "chat": "Chat",
+    "profile": "Profile"
   },
-
   "header": {
     "menu": "Menu",
     "awayMessage": {
-      "label": "Sa\u0137on rashin halarta",
+      "label": "Saķon rashin halarta",
       "placeholder": "msl. Zan dawo, ina zuwa shan kofi"
     },
     "visibility": {
@@ -48,46 +46,43 @@
     "minimize": "Rage",
     "signOut": "Fita"
   },
-
   "statusSelector": {
     "awayMessage": {
-      "label": "Sa\u0137on rashin halarta",
+      "label": "Saķon rashin halarta",
       "placeholder": "msl. Zan dawo, ina zuwa shan kofi"
     },
     "visibility": {
       "label": "Wane ne zai iya ganina"
     }
   },
-
   "connectionBanner": {
-    "message": "An rasa ha\u0257in yanar gizo \u2014 ana sake ha\u0257awa..."
+    "message": "An rasa haɗin yanar gizo — ana sake haɗawa..."
   },
-
   "betaBanner": {
     "message": "Muna cikin matakin farko kuma abubuwa na iya lalacewa! Tuntuɓe mu a",
     "dismiss": "Rufe"
   },
-
   "errorBoundary": {
     "title": "Wani abu ya lalace",
     "fallbackMessage": "Kuskure maras tsammani ya faru",
     "tryAgain": "Sake gwadawa"
   },
-
   "button": {
     "back": "Koma",
     "cancel": "Soke",
     "send": "Aika",
     "close": "Rufe",
     "save": "Ajiye",
-    "settings": "Saituna"
+    "settings": "Saituna",
+    "done": "Done",
+    "retry": "Retry",
+    "signIn": "Sign In",
+    "signOut": "Sign Out"
   },
-
   "aria": {
-    "expand": "Bu\u0257e",
+    "expand": "Buɗe",
     "collapse": "Rufe"
   },
-
   "feedback": {
     "menuItem": "Aika ra'ayi",
     "title": "Aika ra'ayi",
@@ -98,15 +93,18 @@
     "success": "Na gode! An aika ra'ayin.",
     "error": "Wani abu ya samu kuskure. Sake gwadawa."
   },
-
+  "rtlRestart": {
+    "title": "Restart Required",
+    "message": "Please restart the app for the layout direction to update."
+  },
   "serverError": {
     "unknown": "Kuskure da ba a sani ba ta faru",
     "unauthorized": "Dole ne ka shiga",
-    "invalidSession": "Zaman ka ya \u0137are. Da fatan za ka sake shiga.",
-    "invalidChallenge": "Kalubalen tantancewa ya \u0137are. Da fatan za ka sake gwadawa.",
+    "invalidSession": "Zaman ka ya ķare. Da fatan za ka sake shiga.",
+    "invalidChallenge": "Kalubalen tantancewa ya ķare. Da fatan za ka sake gwadawa.",
     "handleMismatch": "Tantance sunan bai yi nasara ba",
     "authVerificationFailed": "Tantancewa bai yi nasara ba",
-    "authTimeout": "Tantancewa ta \u0137are",
+    "authTimeout": "Tantancewa ta ķare",
     "authRequired": "Ana buƙatar tantancewa",
     "forbidden": "Ba ka da izinin yin wannan",
     "banned": "Ba a ba wannan asusu damar amfani da wannan sabis ba",
@@ -116,8 +114,8 @@
     "selfDm": "Ba za ka iya aika saƙo ga kanka ba",
     "notFound": "Ba a samu ba",
     "rateLimited": "Buƙatu da yawa. Da fatan za ka jira ka sake gwadawa.",
-    "serverError": "Wani abu ya lalace a \u0253angarenmu",
-    "networkError": "Kuskuren cibiyar sadarwa. Duba ha\u0257in ka.",
+    "serverError": "Wani abu ya lalace a ɓangarenmu",
+    "networkError": "Kuskuren cibiyar sadarwa. Duba haɗin ka.",
     "invalidInput": "Shigarwar da ba daidai ba",
     "messageTooLong": "Saƙon ya yi tsawo",
     "contentFiltered": "An toshe saƙon ta hanyar tace abun ciki",

@@ -8,6 +8,7 @@ import type { Config } from '../config.js';
 import type { GlobalBanService } from '../moderation/global-ban-service.js';
 import type { GlobalAllowlistService } from '../moderation/global-allowlist-service.js';
 import { ERROR_CODES, USER_AGENT } from '@protoimsg/shared';
+import type { NotificationService } from '../notifications/service.js';
 
 import { createLogger } from '../logger.js';
 import { incUniqueLogins } from '../stats/queries.js';
@@ -32,6 +33,7 @@ export function authRouter(
   globalBans: GlobalBanService,
   globalAllowlist: GlobalAllowlistService,
   sql?: import('../db/client.js').Sql,
+  notificationService?: NotificationService | null,
 ): Router {
   const router = Router();
   const requireAuth = createRequireAuth(sessions);
@@ -224,8 +226,11 @@ export function authRouter(
     if (token) {
       sessions
         .delete(token)
-        .then(() => {
+        .then(async () => {
           log.info({ did: req.did ?? 'unknown' }, 'auth/session deleted');
+          if (notificationService && req.did) {
+            await notificationService.unregisterAllForDid(req.did);
+          }
           res.status(204).end();
         })
         .catch(next);

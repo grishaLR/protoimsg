@@ -30,28 +30,29 @@
     "submitting": "กำลังสร้าง...",
     "submit": "สร้าง"
   },
-
   "roomList": {
-    "empty": "ไม่พบห้อง สร้างห้องใหม่เพื่อเริ่มต้น!"
+    "empty": "ไม่พบห้อง สร้างห้องใหม่เพื่อเริ่มต้น!",
+    "noRooms": "No rooms yet"
   },
-
   "roomCard": {
     "createdDate": "สร้างเมื่อ {{date}}",
     "translate": "แปล",
     "translating": "กำลังแปล...",
     "translatedTo": "แปลเป็น{{lang}}",
-    "showOriginal": "แสดงต้นฉบับ"
+    "showOriginal": "แสดงต้นฉบับ",
+    "slowMode": "slow: {{seconds}}s"
   },
-
   "directory": {
     "searchPlaceholder": "ค้นหาห้อง...",
     "createButton": "สร้างห้อง",
     "loading": "กำลังโหลดห้อง...",
     "allCategories": "ทั้งหมด",
     "publicRoomsHeader": "ห้องแชทสาธารณะ",
-    "publicRoomsInfo": "ห้องแชทเป็นพื้นที่สาธารณะ — เหมือนกับออกไปข้างนอกในที่สาธารณะ ข้อความจะถูกเก็บไว้บนโปรโตคอล AT และใครก็สามารถเห็นได้ แม้ว่าสถานะในรายชื่อเพื่อนของคุณจะตั้งเป็นซ่อนตัว"
+    "publicRoomsInfo": "ห้องแชทเป็นพื้นที่สาธารณะ — เหมือนกับออกไปข้างนอกในที่สาธารณะ ข้อความจะถูกเก็บไว้บนโปรโตคอล AT และใครก็สามารถเห็นได้ แม้ว่าสถานะในรายชื่อเพื่อนของคุณจะตั้งเป็นซ่อนตัว",
+    "title": "Chat Rooms",
+    "roomCount_one": "{{count}} room",
+    "roomCount_other": "{{count}} rooms"
   },
-
   "chatRoom": {
     "invalidId": "ID ห้องไม่ถูกต้อง",
     "loading": "กำลังตั้งค่าห้อง...",
@@ -64,6 +65,15 @@
     "expandChannels": "ขยายแชนเนล",
     "sendFailed": "ส่งข้อความไม่สำเร็จ กรุณาลองใหม่",
     "dismiss": "ปิด",
-    "reportRoom": "รายงานห้อง"
+    "reportRoom": "รายงานห้อง",
+    "noOneHereYet": "No one else here yet",
+    "noMessagesYet": "No messages yet. Say something!",
+    "settings": "Room Settings"
+  },
+  "accessibility": {
+    "messageInput": "Message input",
+    "sendMessage": "Send message",
+    "slowModeWait": "Slow mode: {{seconds}}s",
+    "channel": "Channel {{name}}"
   }
 }

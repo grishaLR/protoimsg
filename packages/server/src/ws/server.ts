@@ -19,6 +19,7 @@ import type { GlobalBanService } from '../moderation/global-ban-service.js';
 import type { GlobalAllowlistService } from '../moderation/global-allowlist-service.js';
 import type { LabelerService } from '../moderation/labeler-service.js';
 import type { BotService } from '../bot/service.js';
+import type { NotificationService } from '../notifications/service.js';
 import { ERROR_CODES } from '@protoimsg/shared';
 
 import { createLogger } from '../logger.js';
@@ -117,6 +118,7 @@ export function createWsServer(
   globalAllowlist: GlobalAllowlistService,
   labelerService: LabelerService,
   botService: BotService | null,
+  notificationService?: NotificationService | null,
 ): WsServer {
   const connectionTracker = new WsConnectionTracker();
 
@@ -321,6 +323,7 @@ export function createWsServer(
             labelerService,
             callSubs,
             botService,
+            notificationService,
           );
           observeWsHandlerDuration(data.type, (performance.now() - start) / 1000);
         })

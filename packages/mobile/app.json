@@ -3,7 +3,10 @@
     "name": "protoimsg",
     "slug": "protoimsg",
     "scheme": "app.protoimsg",
-    "version": "0.0.1",
+    "version": "1.0.0",
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "automatic",
@@ -29,9 +32,25 @@
       "package": "app.protoimsg.mobile",
       "permissions": ["CAMERA", "RECORD_AUDIO"]
     },
-    "plugins": ["expo-router", "@config-plugins/react-native-webrtc"],
+    "plugins": [
+      "expo-router",
+      "@config-plugins/react-native-webrtc",
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/icon.png",
+          "color": "#0066cc"
+        }
+      ],
+      "expo-audio"
+    ],
     "experiments": {
       "typedRoutes": true
+    },
+    "extra": {
+      "eas": {
+        "projectId": "EAS_PROJECT_ID_PLACEHOLDER"
+      }
     }
   }
 }

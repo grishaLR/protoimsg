@@ -4,12 +4,14 @@
     "ariaLabel": "输入私信",
     "send": "发送"
   },
-
   "messageList": {
     "empty": "还没有消息，打个招呼吧！",
     "typing": "正在输入..."
   },
 
+  "typing": {
+    "label": "typing"
+  },
   "popover": {
     "ariaLabel": "与 {{recipientDid}} 的私信对话",
     "header": {
@@ -38,7 +40,6 @@
       "ariaLabel": "关闭对话"
     }
   },
-
   "notification": {
     "ariaLabel": "来自 {{senderDid}} 的新消息",
     "incoming": "想和你聊天",
@@ -47,13 +48,23 @@
       "ariaLabel": "忽略通知"
     }
   },
-
   "popoverContainer": {
     "ariaLabel": "私信通知"
   },
-
   "window": {
     "connecting": "连接中…",
     "waitingForConnection": "等待连接中…"
+  },
+  "status": {
+    "connecting": "Connecting...",
+    "connected": "Connected",
+    "connectionFailed": "Connection failed",
+    "closingIn": "Partner disconnected — closing in {{seconds}}s",
+    "saySomething": "Say something!",
+    "waitingForConnection": "Waiting for connection..."
+  },
+  "devClientRequired": {
+    "title": "Dev Client Required",
+    "description": "DMs require WebRTC which needs a native dev client build. Run expo prebuild then build with Xcode or Android Studio."
   }
 }

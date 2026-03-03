@@ -1,12 +1,10 @@
 {
   "back": "Retour",
-
   "accountInfo": {
     "title": "Informations du compte",
     "didLabel": "DID",
     "handleLabel": "Handle"
   },
-
   "editProfile": {
     "title": "Modifier le profil",
     "loading": "Chargement du profil...",
@@ -16,39 +14,36 @@
     "saving": "Enregistrement...",
     "save": "Enregistrer"
   },
-
   "appearance": {
     "title": "Apparence"
   },
-
   "language": {
     "title": "Langue"
   },
-
   "translation": {
     "title": "Traduction",
     "autoTranslate": "Traduire automatiquement les publications",
     "autoTranslateHint": "Traduire automatiquement les publications et les bios dans votre langue"
   },
-
   "notifications": {
     "title": "Notifications",
     "enableSounds": "Activer les sons",
-    "enableSoundsHint": "Jouer des sons pour les connexions/d\u00e9connexions, les nouveaux messages et les appels entrants"
+    "enableSoundsHint": "Jouer des sons pour les connexions/déconnexions, les nouveaux messages et les appels entrants"
   },
-
   "privacy": {
-    "title": "Confidentialit\u00e9",
+    "title": "Confidentialité",
     "ipProtectionLabel": "Protection IP pour les appels",
-    "ipProtectionHint": "Les connexions directes avec le cercle intime offrent une faible latence et une image nette et r\u00e9active, mais r\u00e9v\u00e8lent votre IP \u00e0 l'autre personne. Le relais masque votre adresse IP mais peut ajouter un peu de latence.",
-    "directConnectionInfo": "Une connexion directe est purement pair-\u00e0-pair. Votre appel va directement \u00e0 l'autre personne sans serveur interm\u00e9diaire, ce qui signifie une faible latence et une image nette et r\u00e9active. Le compromis est que votre adresse IP est visible pour cette personne. Consid\u00e9rez votre adresse IP comme la porte d'entr\u00e9e de votre maison sur internet. Votre cercle intime devrait \u00eatre compos\u00e9 de personnes \u00e0 qui vous confieriez votre adresse physique. Si cela vous convient, les connexions directes sont tout \u00e0 fait adapt\u00e9es.",
-    "relayInfo": "Avec le relais, votre appel passe par notre serveur au lieu d'aller directement \u00e0 l'autre personne, de sorte qu'aucun de vous ne voit l'adresse IP de l'autre. Ce n'est techniquement pas du pair-\u00e0-pair, mais nous l'utilisons uniquement pour masquer votre IP. Votre appel reste chiffr\u00e9 avec DTLS-SRTP, ce qui signifie que les cl\u00e9s de chiffrement sont n\u00e9goci\u00e9es directement entre vous et l'autre personne. Notre serveur relais ne fait que transf\u00e9rer les paquets et ne peut ni voir ni entendre quoi que ce soit.",
+    "ipProtectionHint": "Les connexions directes avec le cercle intime offrent une faible latence et une image nette et réactive, mais révèlent votre IP à l'autre personne. Le relais masque votre adresse IP mais peut ajouter un peu de latence.",
+    "directConnectionInfo": "Une connexion directe est purement pair-à-pair. Votre appel va directement à l'autre personne sans serveur intermédiaire, ce qui signifie une faible latence et une image nette et réactive. Le compromis est que votre adresse IP est visible pour cette personne. Considérez votre adresse IP comme la porte d'entrée de votre maison sur internet. Votre cercle intime devrait être composé de personnes à qui vous confieriez votre adresse physique. Si cela vous convient, les connexions directes sont tout à fait adaptées.",
+    "relayInfo": "Avec le relais, votre appel passe par notre serveur au lieu d'aller directement à l'autre personne, de sorte qu'aucun de vous ne voit l'adresse IP de l'autre. Ce n'est techniquement pas du pair-à-pair, mais nous l'utilisons uniquement pour masquer votre IP. Votre appel reste chiffré avec DTLS-SRTP, ce qui signifie que les clés de chiffrement sont négociées directement entre vous et l'autre personne. Notre serveur relais ne fait que transférer les paquets et ne peut ni voir ni entendre quoi que ce soit.",
     "options": {
-      "nonInnerCircle": "Direct pour le cercle intime, relais pour tous les autres (recommand\u00e9)",
+      "nonInnerCircle": "Direct pour le cercle intime, relais pour tous les autres (recommandé)",
       "all": "Masquer mon IP pour tout le monde"
-    }
+    },
+    "relayExceptIc": "Relay except IC",
+    "relayAlways": "Relay always",
+    "ipDescription": "Controls whether calls and DMs use a relay to protect your IP address."
   },
-
   "changePassword": {
     "title": "Changer le mot de passe",
     "description": "Nous enverrons un code à votre e-mail pour vérifier votre identité.",
@@ -75,9 +70,14 @@
       "mismatch": "Les mots de passe ne correspondent pas."
     }
   },
-
   "actions": {
     "title": "Actions",
-    "signOut": "Se d\u00e9connecter"
+    "signOut": "Se déconnecter"
+  },
+  "profile": {
+    "title": "Profile"
+  },
+  "preferences": {
+    "title": "Preferences"
   }
 }

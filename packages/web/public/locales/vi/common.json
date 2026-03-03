@@ -1,19 +1,18 @@
 {
   "appName": "proto IM",
-
   "status": {
     "online": "Trực tuyến",
     "away": "Vắng mặt",
-    "idle": "Không hoạt động"
+    "idle": "Không hoạt động",
+    "offline": "Offline",
+    "disconnected": "Disconnected"
   },
-
   "visibility": {
     "everyone": "Tất cả",
     "community": "Cộng đồng",
     "innerCircle": "Bạn thân",
     "noOne": "Không ai"
   },
-
   "theme": {
     "aim": "'98 Cổ điển",
     "nytLight": "Tối giản Sáng",
@@ -28,13 +27,14 @@
     "black": "Đen",
     "wireframe": "Wireframe"
   },
-
   "nav": {
     "community": "Cộng đồng",
     "rooms": "Phòng chat",
-    "feed": "Bảng tin"
+    "feed": "Bảng tin",
+    "buddies": "Buddies",
+    "chat": "Chat",
+    "profile": "Profile"
   },
-
   "header": {
     "menu": "Menu",
     "awayMessage": {
@@ -48,7 +48,6 @@
     "minimize": "Thu nhỏ",
     "signOut": "Đăng xuất"
   },
-
   "statusSelector": {
     "awayMessage": {
       "label": "Tin nhắn vắng mặt",
@@ -58,36 +57,34 @@
       "label": "Ai có thể thấy tôi"
     }
   },
-
   "connectionBanner": {
     "message": "Mất kết nối — đang kết nối lại..."
   },
-
   "betaBanner": {
     "message": "Chúng tôi đang ở giai đoạn đầu và mọi thứ có thể gặp lỗi! Liên hệ với chúng tôi tại",
     "dismiss": "Đóng"
   },
-
   "errorBoundary": {
     "title": "Đã xảy ra lỗi",
     "fallbackMessage": "Đã xảy ra lỗi không mong muốn",
     "tryAgain": "Thử lại"
   },
-
   "button": {
     "back": "Quay lại",
     "cancel": "Hủy",
     "send": "Gửi",
     "close": "Đóng",
     "save": "Lưu",
-    "settings": "Cài đặt"
+    "settings": "Cài đặt",
+    "done": "Done",
+    "retry": "Retry",
+    "signIn": "Sign In",
+    "signOut": "Sign Out"
   },
-
   "aria": {
     "expand": "Mở rộng",
     "collapse": "Thu gọn"
   },
-
   "feedback": {
     "menuItem": "Gửi phản hồi",
     "title": "Gửi phản hồi",
@@ -98,7 +95,10 @@
     "success": "Cảm ơn! Phản hồi đã được gửi.",
     "error": "Đã xảy ra lỗi. Vui lòng thử lại."
   },
-
+  "rtlRestart": {
+    "title": "Restart Required",
+    "message": "Please restart the app for the layout direction to update."
+  },
   "serverError": {
     "unknown": "Đã xảy ra lỗi không xác định",
     "unauthorized": "Bạn cần đăng nhập",

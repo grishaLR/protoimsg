@@ -1,12 +1,10 @@
 {
   "back": "Назад",
-
   "accountInfo": {
     "title": "Інформація про акаунт",
     "didLabel": "DID",
     "handleLabel": "Ім'я"
   },
-
   "editProfile": {
     "title": "Редагувати профіль",
     "loading": "Завантаження профілю...",
@@ -16,27 +14,22 @@
     "saving": "Збереження...",
     "save": "Зберегти"
   },
-
   "appearance": {
     "title": "Зовнішній вигляд"
   },
-
   "language": {
     "title": "Мова"
   },
-
   "translation": {
     "title": "Переклад",
     "autoTranslate": "Автоматичний переклад постів",
     "autoTranslateHint": "Автоматично перекладати пости стрічки та біографії вашою мовою"
   },
-
   "notifications": {
     "title": "Сповіщення",
     "enableSounds": "Увімкнути звуки",
     "enableSoundsHint": "Відтворювати звуки входу/виходу, нових повідомлень та вхідних дзвінків"
   },
-
   "privacy": {
     "title": "Конфіденційність",
     "ipProtectionLabel": "Захист IP при дзвінках",
@@ -46,9 +39,11 @@
     "options": {
       "nonInnerCircle": "Пряме для близького кола, ретрансляція для решти (рекомендовано)",
       "all": "Приховати мою IP від усіх"
-    }
+    },
+    "relayExceptIc": "Relay except IC",
+    "relayAlways": "Relay always",
+    "ipDescription": "Controls whether calls and DMs use a relay to protect your IP address."
   },
-
   "changePassword": {
     "title": "Змінити пароль",
     "description": "Ми надішлемо код на вашу електронну пошту для підтвердження особи.",
@@ -75,9 +70,14 @@
       "mismatch": "Паролі не збігаються."
     }
   },
-
   "actions": {
     "title": "Дії",
     "signOut": "Вийти"
+  },
+  "profile": {
+    "title": "Profile"
+  },
+  "preferences": {
+    "title": "Preferences"
   }
 }

@@ -53,6 +53,7 @@ export const fontSize = {
   lg: 15,
   xl: 17,
   '2xl': 24,
+  '3xl': 32,
 } as const;
 
 export const lineHeight = {

@@ -1,126 +1,126 @@
 {
   "appName": "proto IM",
-
   "status": {
     "online": "Online",
     "away": "Ausente",
-    "idle": "Inativo"
+    "idle": "Inativo",
+    "offline": "Offline",
+    "disconnected": "Disconnected"
   },
-
   "visibility": {
     "everyone": "Todos",
     "community": "Comunidade",
-    "innerCircle": "C\u00edrculo \u00edntimo",
-    "noOne": "Ningu\u00e9m"
+    "innerCircle": "Círculo íntimo",
+    "noOne": "Ninguém"
   },
-
   "theme": {
-    "aim": "'98 Cl\u00e1ssico",
+    "aim": "'98 Clássico",
     "nytLight": "Minimalista Claro",
     "nytDark": "Minimalista Escuro",
     "dracula": "Dracula",
     "valentine": "Namorados",
     "garden": "Jardim",
-    "coffee": "Caf\u00e9",
+    "coffee": "Café",
     "fantasy": "Fantasia",
     "nord": "Nord",
-    "retro": "Retr\u00f4",
+    "retro": "Retrô",
     "black": "Preto",
     "wireframe": "Wireframe"
   },
-
   "nav": {
     "community": "Comunidade",
     "rooms": "Salas",
-    "feed": "Feed"
+    "feed": "Feed",
+    "buddies": "Buddies",
+    "chat": "Chat",
+    "profile": "Profile"
   },
-
   "header": {
     "menu": "Menu",
     "awayMessage": {
-      "label": "Mensagem de aus\u00eancia",
-      "placeholder": "ex. J\u00e1 volto, vou pegar um caf\u00e9"
+      "label": "Mensagem de ausência",
+      "placeholder": "ex. Já volto, vou pegar um café"
     },
     "visibility": {
       "label": "Quem pode me ver"
     },
-    "settings": "Configura\u00e7\u00f5es",
+    "settings": "Configurações",
     "minimize": "Minimizar",
     "signOut": "Sair"
   },
-
   "statusSelector": {
     "awayMessage": {
-      "label": "Mensagem de aus\u00eancia",
-      "placeholder": "ex. J\u00e1 volto, vou pegar um caf\u00e9"
+      "label": "Mensagem de ausência",
+      "placeholder": "ex. Já volto, vou pegar um café"
     },
     "visibility": {
       "label": "Quem pode me ver"
     }
   },
-
   "connectionBanner": {
-    "message": "Conex\u00e3o perdida \u2014 reconectando..."
+    "message": "Conexão perdida — reconectando..."
   },
-
   "betaBanner": {
     "message": "Estamos em estágios iniciais e as coisas podem quebrar! Entre em contato conosco em",
     "dismiss": "Fechar"
   },
-
   "errorBoundary": {
     "title": "Algo deu errado",
     "fallbackMessage": "Ocorreu um erro inesperado",
     "tryAgain": "Tentar novamente"
   },
-
   "button": {
     "back": "Voltar",
     "cancel": "Cancelar",
     "send": "Enviar",
     "close": "Fechar",
     "save": "Salvar",
-    "settings": "Configura\u00e7\u00f5es"
+    "settings": "Configurações",
+    "done": "Done",
+    "retry": "Retry",
+    "signIn": "Sign In",
+    "signOut": "Sign Out"
   },
-
   "aria": {
     "expand": "Expandir",
     "collapse": "Recolher"
   },
-
   "feedback": {
     "menuItem": "Enviar feedback",
     "title": "Enviar feedback",
-    "placeholder": "O que voc\u00ea tem em mente? Bugs, ideias de funcionalidades, qualquer coisa.",
+    "placeholder": "O que você tem em mente? Bugs, ideias de funcionalidades, qualquer coisa.",
     "submit": "Enviar",
     "sending": "Enviando...",
     "cancel": "Cancelar",
     "success": "Obrigado! Feedback enviado.",
     "error": "Algo deu errado. Tente novamente."
   },
-
+  "rtlRestart": {
+    "title": "Restart Required",
+    "message": "Please restart the app for the layout direction to update."
+  },
   "serverError": {
     "unknown": "Ocorreu um erro desconhecido",
-    "unauthorized": "Voc\u00ea precisa estar conectado",
-    "invalidSession": "Sua sess\u00e3o expirou. Fa\u00e7a login novamente.",
-    "invalidChallenge": "O desafio de autentica\u00e7\u00e3o expirou. Tente novamente.",
-    "handleMismatch": "Falha na verifica\u00e7\u00e3o do handle",
-    "authVerificationFailed": "Falha na verifica\u00e7\u00e3o de autentica\u00e7\u00e3o",
-    "authTimeout": "A autentica\u00e7\u00e3o expirou",
-    "authRequired": "Autentica\u00e7\u00e3o necess\u00e1ria",
-    "forbidden": "Voc\u00ea n\u00e3o tem permiss\u00e3o para fazer isso",
-    "banned": "Esta conta n\u00e3o tem permiss\u00e3o para usar este servi\u00e7o",
+    "unauthorized": "Você precisa estar conectado",
+    "invalidSession": "Sua sessão expirou. Faça login novamente.",
+    "invalidChallenge": "O desafio de autenticação expirou. Tente novamente.",
+    "handleMismatch": "Falha na verificação do handle",
+    "authVerificationFailed": "Falha na verificação de autenticação",
+    "authTimeout": "A autenticação expirou",
+    "authRequired": "Autenticação necessária",
+    "forbidden": "Você não tem permissão para fazer isso",
+    "banned": "Esta conta não tem permissão para usar este serviço",
     "accessDenied": "Acesso negado",
-    "notParticipant": "Voc\u00ea n\u00e3o participa desta conversa",
-    "blockedUser": "N\u00e3o \u00e9 poss\u00edvel enviar mensagem para este usu\u00e1rio",
-    "selfDm": "Voc\u00ea n\u00e3o pode enviar uma mensagem para si mesmo",
-    "notFound": "N\u00e3o encontrado",
-    "rateLimited": "Muitas solicita\u00e7\u00f5es. Aguarde e tente novamente.",
+    "notParticipant": "Você não participa desta conversa",
+    "blockedUser": "Não é possível enviar mensagem para este usuário",
+    "selfDm": "Você não pode enviar uma mensagem para si mesmo",
+    "notFound": "Não encontrado",
+    "rateLimited": "Muitas solicitações. Aguarde e tente novamente.",
     "serverError": "Algo deu errado do nosso lado",
-    "networkError": "Erro de rede. Verifique sua conex\u00e3o.",
-    "invalidInput": "Entrada inv\u00e1lida",
-    "messageTooLong": "A mensagem \u00e9 muito longa",
-    "contentFiltered": "A mensagem foi bloqueada pelo filtro de conte\u00fado",
-    "alreadyExists": "J\u00e1 existe"
+    "networkError": "Erro de rede. Verifique sua conexão.",
+    "invalidInput": "Entrada inválida",
+    "messageTooLong": "A mensagem é muito longa",
+    "contentFiltered": "A mensagem foi bloqueada pelo filtro de conteúdo",
+    "alreadyExists": "Já existe"
   }
 }

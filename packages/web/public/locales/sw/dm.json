@@ -4,23 +4,21 @@
     "ariaLabel": "Andika ujumbe wa DM",
     "send": "Tuma"
   },
-
   "messageList": {
     "empty": "Hakuna ujumbe bado. Sema habari!",
     "typing": "anaandika..."
   },
-
   "popover": {
     "ariaLabel": "Mazungumzo ya DM na {{recipientDid}}",
     "header": {
       "ariaLabel": {
-        "expand": "DM na {{recipientDid}} \u2014 bofya kupanua",
-        "minimize": "DM na {{recipientDid}} \u2014 bofya kupunguza"
+        "expand": "DM na {{recipientDid}} — bofya kupanua",
+        "minimize": "DM na {{recipientDid}} — bofya kupunguza"
       }
     },
     "unreadAriaLabel": "ujumbe {{count}} ambao haujasomwa",
     "unreadOverflow": "99+",
-    "connecting": "Inaunganisha\u2026",
+    "connecting": "Inaunganisha…",
     "connectionFailed": "Muunganisho umeshindwa",
     "peerClosed": "Mazungumzo yamefungwa. Tumia Germ kwa ujumbe nje ya mtandao.",
     "minimize": {
@@ -34,9 +32,10 @@
     "close": {
       "title": "Funga",
       "ariaLabel": "Funga mazungumzo"
-    }
+    },
+    "retry": "Retry",
+    "closingCountdown": "Chat ended. Closing in {{seconds}}s…"
   },
-
   "notification": {
     "ariaLabel": "Ujumbe mpya kutoka {{senderDid}}",
     "incoming": "anataka kuzungumza",
@@ -45,8 +44,23 @@
       "ariaLabel": "Ondoa arifa"
     }
   },
-
   "popoverContainer": {
     "ariaLabel": "Arifa za DM"
+  },
+  "window": {
+    "connecting": "Connecting…",
+    "waitingForConnection": "Waiting for connection…"
+  },
+  "status": {
+    "connecting": "Connecting...",
+    "connected": "Connected",
+    "connectionFailed": "Connection failed",
+    "closingIn": "Partner disconnected — closing in {{seconds}}s",
+    "saySomething": "Say something!",
+    "waitingForConnection": "Waiting for connection..."
+  },
+  "devClientRequired": {
+    "title": "Dev Client Required",
+    "description": "DMs require WebRTC which needs a native dev client build. Run expo prebuild then build with Xcode or Android Studio."
   }
 }

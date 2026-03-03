@@ -1,19 +1,18 @@
 {
   "appName": "proto IM",
-
   "status": {
     "online": "オンライン",
     "away": "離席中",
-    "idle": "待機中"
+    "idle": "待機中",
+    "offline": "Offline",
+    "disconnected": "Disconnected"
   },
-
   "visibility": {
     "everyone": "全員",
     "community": "コミュニティ",
     "innerCircle": "親しい友達",
     "noOne": "誰にも見せない"
   },
-
   "theme": {
     "aim": "'98 クラシック",
     "nytLight": "ミニマル ライト",
@@ -28,13 +27,14 @@
     "black": "ブラック",
     "wireframe": "Wireframe"
   },
-
   "nav": {
     "community": "コミュニティ",
     "rooms": "ルーム",
-    "feed": "フィード"
+    "feed": "フィード",
+    "buddies": "Buddies",
+    "chat": "Chat",
+    "profile": "Profile"
   },
-
   "header": {
     "menu": "メニュー",
     "awayMessage": {
@@ -48,7 +48,6 @@
     "minimize": "最小化",
     "signOut": "ログアウト"
   },
-
   "statusSelector": {
     "awayMessage": {
       "label": "離席メッセージ",
@@ -58,36 +57,34 @@
       "label": "公開範囲"
     }
   },
-
   "connectionBanner": {
     "message": "接続が切断されました — 再接続中..."
   },
-
   "betaBanner": {
     "message": "まだ初期段階のため、不具合が発生する可能性があります。お問い合わせは",
     "dismiss": "閉じる"
   },
-
   "errorBoundary": {
     "title": "問題が発生しました",
     "fallbackMessage": "予期しないエラーが発生しました",
     "tryAgain": "もう一度試す"
   },
-
   "button": {
     "back": "戻る",
     "cancel": "キャンセル",
     "send": "送信",
     "close": "閉じる",
     "save": "保存",
-    "settings": "設定"
+    "settings": "設定",
+    "done": "Done",
+    "retry": "Retry",
+    "signIn": "Sign In",
+    "signOut": "Sign Out"
   },
-
   "aria": {
     "expand": "展開",
     "collapse": "折りたたむ"
   },
-
   "feedback": {
     "menuItem": "フィードバックを送信",
     "title": "フィードバックを送信",
@@ -98,7 +95,10 @@
     "success": "ありがとうございます！フィードバックを送信しました。",
     "error": "問題が発生しました。もう一度お試しください。"
   },
-
+  "rtlRestart": {
+    "title": "Restart Required",
+    "message": "Please restart the app for the layout direction to update."
+  },
   "serverError": {
     "unknown": "不明なエラーが発生しました",
     "unauthorized": "ログインが必要です",

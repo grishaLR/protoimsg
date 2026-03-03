@@ -4,12 +4,14 @@
     "ariaLabel": "DM-Nachricht eingeben",
     "send": "Senden"
   },
-
   "messageList": {
     "empty": "Noch keine Nachrichten. Sag Hallo!",
     "typing": "tippt..."
   },
 
+  "typing": {
+    "label": "typing"
+  },
   "popover": {
     "ariaLabel": "DM-Unterhaltung mit {{recipientDid}}",
     "header": {
@@ -38,7 +40,6 @@
       "ariaLabel": "Unterhaltung schließen"
     }
   },
-
   "notification": {
     "ariaLabel": "Neue Nachricht von {{senderDid}}",
     "incoming": "möchte chatten",
@@ -47,13 +48,23 @@
       "ariaLabel": "Benachrichtigung verwerfen"
     }
   },
-
   "popoverContainer": {
     "ariaLabel": "DM-Benachrichtigungen"
   },
-
   "window": {
     "connecting": "Verbinden...",
     "waitingForConnection": "Warte auf Verbindung..."
+  },
+  "status": {
+    "connecting": "Connecting...",
+    "connected": "Connected",
+    "connectionFailed": "Connection failed",
+    "closingIn": "Partner disconnected — closing in {{seconds}}s",
+    "saySomething": "Say something!",
+    "waitingForConnection": "Waiting for connection..."
+  },
+  "devClientRequired": {
+    "title": "Dev Client Required",
+    "description": "DMs require WebRTC which needs a native dev client build. Run expo prebuild then build with Xcode or Android Studio."
   }
 }

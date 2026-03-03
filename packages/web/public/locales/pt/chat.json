@@ -12,54 +12,76 @@
       "chatRooms": "Salas de bate-papo",
       "feed": "Feed"
     },
-    "unreadIm": "{{count}} n\u00e3o lida(s)",
+    "unreadIm": "{{count}} não lida(s)",
     "incomingIm": "Mensagem recebida",
     "groups": {
-      "innerCircle": "C\u00edrculo \u00edntimo",
+      "innerCircle": "Círculo íntimo",
       "community": "Comunidade",
       "offline": "Offline",
       "blocked": "Bloqueados",
       "followers": "Seguidores",
       "following": "Seguindo"
+    },
+    "title": "Buddy List",
+    "filterPlaceholder": "Filter buddies...",
+    "addBuddyPlaceholder": "Add buddy by handle...",
+    "loadingBuddyList": "Loading buddy list...",
+    "noMatches": "No matches",
+    "noMatchesDetail": "No buddies matching \"{{query}}\"",
+    "addFirstBuddy": "Add your first buddy",
+    "addFirstBuddyHint": "Find people in chat rooms or search by handle",
+    "noOneOnline": "No one online",
+    "buddyOfflineCount_one": "{{count}} buddy offline",
+    "buddyOfflineCount_other": "{{count}} buddies offline",
+    "onlineCount": "{{online}} of {{total}} online",
+    "removeBuddyConfirm": "Are you sure you want to remove this buddy?",
+    "germ": {
+      "checkFailed": "Could not check GERM status for this user.",
+      "notEnabled": "This user does not have GERM messaging enabled.",
+      "openFailed": "Failed to open GERM messaging."
+    },
+    "accessibility": {
+      "messageBuddy": "Message {{name}}, {{status}}",
+      "callBuddy": "Call {{name}}",
+      "groupHeader": "{{group}} group, {{online}} of {{total}} online"
     }
   },
-
   "buddyMenu": {
     "button": {
-      "title": "Op\u00e7\u00f5es",
-      "ariaLabel": "Op\u00e7\u00f5es do contato"
+      "title": "Opções",
+      "ariaLabel": "Opções do contato"
     },
     "sendIm": "Enviar mensagem",
-    "addToInnerCircle": "Adicionar ao c\u00edrculo \u00edntimo",
-    "removeFromInnerCircle": "Remover do c\u00edrculo \u00edntimo",
+    "addToInnerCircle": "Adicionar ao círculo íntimo",
+    "removeFromInnerCircle": "Remover do círculo íntimo",
     "moveTo": "Mover para...",
     "block": "Bloquear",
     "unblock": "Desbloquear",
     "remove": "Remover",
     "messageOnGerm": "Mensagem no Germ",
-    "addToCommunity": "Adicionar \u00e0 comunidade",
-    "sendImDisabled": "Usu\u00e1rio est\u00e1 offline",
-    "videoCall": "Chamada de v\u00eddeo",
-    "videoCallDisabled": "Usu\u00e1rio est\u00e1 offline",
-    "report": "Denunciar usu\u00e1rio"
+    "addToCommunity": "Adicionar à comunidade",
+    "sendImDisabled": "Usuário está offline",
+    "videoCall": "Chamada de vídeo",
+    "videoCallDisabled": "Usuário está offline",
+    "report": "Denunciar usuário",
+    "openDm": "Open DM",
+    "call": "Call"
   },
-
   "memberMenu": {
     "button": {
-      "title": "Op\u00e7\u00f5es",
-      "ariaLabel": "Op\u00e7\u00f5es do membro"
+      "title": "Opções",
+      "ariaLabel": "Opções do membro"
     },
-    "addToBuddyList": "Adicionar \u00e0 lista de contatos",
+    "addToBuddyList": "Adicionar à lista de contatos",
     "block": "Bloquear",
     "unblock": "Desbloquear",
     "feedback": {
       "added": "Adicionado!",
-      "alreadyInList": "J\u00e1 est\u00e1 na lista de contatos",
+      "alreadyInList": "Já está na lista de contatos",
       "error": "Erro ao adicionar contato"
     },
-    "report": "Denunciar usu\u00e1rio"
+    "report": "Denunciar usuário"
   },
-
   "messageInput": {
     "placeholder": {
       "default": "Digite uma mensagem... (Enter para enviar, Shift+Enter para nova linha)",
@@ -75,9 +97,8 @@
     },
     "send": "Enviar"
   },
-
   "messageItem": {
-    "contentWarning": "Aviso de conte\u00fado",
+    "contentWarning": "Aviso de conteúdo",
     "clickToReveal": "Clique para revelar",
     "replyCount_one": "{{count}} resposta",
     "replyCount_other": "{{count}} respostas",
@@ -94,7 +115,6 @@
       "error": "Erro"
     }
   },
-
   "userContextMenu": {
     "addToBuddyList": "Adicionar à lista de contatos",
     "block": "Bloquear",
@@ -106,49 +126,43 @@
       "error": "Erro"
     }
   },
-
   "messageList": {
     "loading": "Carregando mensagens...",
     "empty": "Nenhuma mensagem ainda. Comece a conversa!",
     "typing": {
-      "one": "est\u00e1 digitando...",
+      "one": "está digitando...",
       "twoAnd": "e",
-      "twoSuffix": "est\u00e3o digitando...",
-      "many": "{{count}} pessoas est\u00e3o digitando..."
+      "twoSuffix": "estão digitando...",
+      "many": "{{count}} pessoas estão digitando..."
     }
   },
-
   "threadPanel": {
-    "ariaLabel": "T\u00f3pico",
-    "title": "T\u00f3pico",
-    "backAriaLabel": "Voltar \u00e0 mensagem principal",
-    "closeAriaLabel": "Fechar t\u00f3pico",
-    "loading": "Carregando t\u00f3pico...",
-    "notFound": "T\u00f3pico n\u00e3o encontrado",
+    "ariaLabel": "Tópico",
+    "title": "Tópico",
+    "backAriaLabel": "Voltar à mensagem principal",
+    "closeAriaLabel": "Fechar tópico",
+    "loading": "Carregando tópico...",
+    "notFound": "Tópico não encontrado",
     "replyCount_one": "{{count}} resposta",
     "replyCount_other": "{{count}} respostas",
-    "inputPlaceholder": "Responder no t\u00f3pico..."
+    "inputPlaceholder": "Responder no tópico..."
   },
-
   "formattingToolbar": {
     "bold": "Negrito",
-    "italic": "It\u00e1lico",
+    "italic": "Itálico",
     "strikethrough": "Tachado",
-    "code": "C\u00f3digo",
-    "blockquote": "Cita\u00e7\u00e3o"
+    "code": "Código",
+    "blockquote": "Citação"
   },
-
   "memberList": {
     "heading": "Membros ({{count}})"
   },
-
   "groupHeader": {
     "renameGroup": "Renomear grupo",
     "deleteGroup": "Excluir grupo",
     "expand": "Expandir",
     "collapse": "Recolher"
   },
-
   "gif": {
     "title": "GIFs",
     "searchPlaceholder": "Buscar GIFs...",
@@ -161,34 +175,40 @@
     "confirm": "Enviar",
     "back": "Voltar"
   },
-
   "videoCall": {
     "incoming": {
-      "ariaLabel": "Chamada de v\u00eddeo recebida",
+      "ariaLabel": "Chamada de vídeo recebida",
       "label": "Chamada recebida...",
       "accept": "Aceitar chamada",
       "acceptAriaLabel": "Aceitar chamada recebida",
       "reject": "Recusar chamada",
-      "rejectAriaLabel": "Recusar chamada recebida"
+      "rejectAriaLabel": "Recusar chamada recebida",
+      "banner": "Incoming video call",
+      "declineLabel": "Decline",
+      "acceptLabel": "Accept"
     },
     "calling": "Chamando...",
     "ringing": "Tocando...",
     "reconnecting": "Reconectando...",
     "mute": "Silenciar",
     "unmute": "Ativar som",
-    "cameraOff": "Desligar c\u00e2mera",
-    "cameraOn": "Ligar c\u00e2mera",
-    "flipCamera": "Trocar c\u00e2mera",
-    "connectionFailed": "Falha na conex\u00e3o",
+    "cameraOff": "Desligar câmera",
+    "cameraOn": "Ligar câmera",
+    "flipCamera": "Trocar câmera",
+    "connectionFailed": "Falha na conexão",
     "retry": "Tentar novamente",
     "endCall": "Encerrar chamada",
     "shareScreen": "Compartilhar tela",
     "stopSharing": "Parar de compartilhar",
     "error": {
-      "mediaPermission": "\u00c9 necess\u00e1ria permiss\u00e3o de c\u00e2mera/microfone para chamadas de v\u00eddeo"
-    }
+      "mediaPermission": "É necessária permissão de câmera/microfone para chamadas de vídeo"
+    },
+    "flip": "Flip",
+    "callFailed": "Call Failed",
+    "hangUp": "Hang Up",
+    "micOff": "Mic off",
+    "camOff": "Cam off"
   },
-
   "channel": {
     "heading": "Canais",
     "listAriaLabel": "Lista de canais",
@@ -196,8 +216,8 @@
     "createTitle": "Criar canal",
     "nameLabel": "Nome",
     "namePlaceholder": "Nome do canal",
-    "descriptionLabel": "Descri\u00e7\u00e3o",
-    "descriptionPlaceholder": "Sobre o que \u00e9 este canal?",
+    "descriptionLabel": "Descrição",
+    "descriptionPlaceholder": "Sobre o que é este canal?",
     "postPolicyLabel": "Quem pode publicar",
     "postPolicy": {
       "everyone": "Todos",
@@ -211,41 +231,39 @@
       "default": "Falha ao criar canal"
     }
   },
-
   "report": {
-    "title": "Denunciar usu\u00e1rio",
-    "subjectLabel": "Usu\u00e1rio",
+    "title": "Denunciar usuário",
+    "subjectLabel": "Usuário",
     "categoryLabel": "Categoria",
     "categories": {
-      "harassment": "Ass\u00e9dio",
+      "harassment": "Assédio",
       "spam": "Spam",
-      "impersonation": "Falsidade ideol\u00f3gica",
-      "hateSpeech": "Discurso de \u00f3dio",
+      "impersonation": "Falsidade ideológica",
+      "hateSpeech": "Discurso de ódio",
       "other": "Outro"
     },
-    "descriptionLabel": "Descri\u00e7\u00e3o",
+    "descriptionLabel": "Descrição",
     "descriptionPlaceholder": "O que aconteceu?",
     "attachmentsLabel": "Capturas de tela (opcional)",
-    "attachmentsHint": "At\u00e9 2 imagens",
+    "attachmentsHint": "Até 2 imagens",
     "addAttachment": "Adicionar captura",
-    "submit": "Enviar den\u00fancia",
+    "submit": "Enviar denúncia",
     "submitting": "Enviando...",
     "cancel": "Cancelar",
-    "success": "Den\u00fancia enviada. Vamos analisar.",
-    "error": "Falha ao enviar den\u00fancia.",
+    "success": "Denúncia enviada. Vamos analisar.",
+    "error": "Falha ao enviar denúncia.",
     "removeAttachment": "Remover anexo",
-    "fileSizeError": "Arquivo muito grande. Tamanho m\u00e1ximo: 2 MB."
+    "fileSizeError": "Arquivo muito grande. Tamanho máximo: 2 MB."
   },
-
   "poll": {
     "createPoll": "Criar enquete",
     "questionLabel": "Pergunta",
-    "questionPlaceholder": "Fa\u00e7a uma pergunta...",
-    "optionsLabel": "Op\u00e7\u00f5es",
-    "optionPlaceholder": "Op\u00e7\u00e3o {{n}}",
-    "addOption": "Adicionar op\u00e7\u00e3o",
-    "removeOption": "Remover op\u00e7\u00e3o",
-    "allowMultiple": "Permitir m\u00faltipla escolha",
+    "questionPlaceholder": "Faça uma pergunta...",
+    "optionsLabel": "Opções",
+    "optionPlaceholder": "Opção {{n}}",
+    "addOption": "Adicionar opção",
+    "removeOption": "Remover opção",
+    "allowMultiple": "Permitir múltipla escolha",
     "expires": "Expira",
     "expired": "Enquete encerrada",
     "expiresIn": "Encerra em {{time}}",
@@ -255,7 +273,7 @@
     "create": "Criar",
     "cancel": "Cancelar",
     "expiry": {
-      "none": "Sem expira\u00e7\u00e3o",
+      "none": "Sem expiração",
       "1h": "1 hora",
       "6h": "6 horas",
       "24h": "24 horas",
@@ -263,26 +281,49 @@
       "1w": "1 semana"
     },
     "error": {
-      "minOptions": "S\u00e3o necess\u00e1rias pelo menos 2 op\u00e7\u00f5es",
+      "minOptions": "São necessárias pelo menos 2 opções",
       "default": "Falha ao criar enquete"
     }
   },
-
   "reportContent": {
     "title": "Denunciar",
     "subjectLabel": "Assunto",
     "categoryLabel": "Categoria",
-    "descriptionLabel": "Descri\u00e7\u00e3o",
+    "descriptionLabel": "Descrição",
     "descriptionPlaceholder": "O que aconteceu?",
     "attachmentsLabel": "Capturas de tela (opcional)",
-    "attachmentsHint": "At\u00e9 2 imagens",
+    "attachmentsHint": "Até 2 imagens",
     "addAttachment": "Adicionar captura",
     "removeAttachment": "Remover",
-    "submit": "Enviar den\u00fancia",
+    "submit": "Enviar denúncia",
     "submitting": "Enviando...",
     "cancel": "Cancelar",
-    "success": "Den\u00fancia enviada. Vamos analisar.",
-    "error": "Falha ao enviar den\u00fancia.",
-    "fileSizeError": "Arquivo muito grande (m\u00e1x. 2 MB)"
+    "success": "Denúncia enviada. Vamos analisar.",
+    "error": "Falha ao enviar denúncia.",
+    "fileSizeError": "Arquivo muito grande (máx. 2 MB)"
+  },
+  "moderation": {
+    "ban": "Ban from Room",
+    "banConfirm": "Ban this user from the room?",
+    "banned": "Banned",
+    "unban": "Unban",
+    "makeMod": "Make Moderator",
+    "removeMod": "Remove Moderator",
+    "modAdded": "Moderator added",
+    "modRemoved": "Moderator removed",
+    "error": "Action failed"
+  },
+  "roomSettings": {
+    "title": "Room Settings",
+    "slowMode": "Slow Mode (seconds)",
+    "slowModeHint": "0 = off",
+    "minAccountAge": "Min Account Age (days)",
+    "allowlist": "Allowlist Only",
+    "allowlistHint": "Only allowlisted users can send messages",
+    "save": "Save",
+    "saving": "Saving...",
+    "saved": "Settings saved",
+    "cancel": "Cancel",
+    "error": "Failed to save settings"
   }
 }

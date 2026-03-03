@@ -1,13 +1,15 @@
 import { createContext, useCallback, useContext, useMemo, useState, type ReactNode } from 'react';
 import { storage } from '@/services/storage';
-import { themes, type ThemeColors, type ThemeName } from './themes';
+import { themes, THEME_NAMES, type ThemeColors, type ThemeName } from './themes';
 
 const THEME_KEY = 'protoimsg:theme';
 
+const VALID_THEMES = new Set<string>(THEME_NAMES);
+
 function getStoredTheme(): ThemeName {
   const stored = storage.getString(THEME_KEY);
-  if (stored === 'dracula' || stored === 'garden') return stored;
-  return 'dracula';
+  if (stored && VALID_THEMES.has(stored)) return stored as ThemeName;
+  return 'aim';
 }
 
 interface ThemeContextValue {
@@ -34,7 +36,9 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const toggle = useCallback(() => {
-    setTheme(theme === 'dracula' ? 'garden' : 'dracula');
+    const idx = THEME_NAMES.indexOf(theme);
+    const next = THEME_NAMES[(idx + 1) % THEME_NAMES.length];
+    setTheme(next);
   }, [theme, setTheme]);
 
   const colors = themes[theme];

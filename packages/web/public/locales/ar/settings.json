@@ -1,12 +1,10 @@
 {
   "back": "رجوع",
-
   "accountInfo": {
     "title": "معلومات الحساب",
     "didLabel": "DID",
     "handleLabel": "Handle"
   },
-
   "editProfile": {
     "title": "تعديل الملف الشخصي",
     "loading": "جارٍ تحميل الملف الشخصي...",
@@ -16,27 +14,22 @@
     "saving": "جارٍ الحفظ...",
     "save": "حفظ"
   },
-
   "appearance": {
     "title": "المظهر"
   },
-
   "language": {
     "title": "اللغة"
   },
-
   "translation": {
     "title": "الترجمة",
     "autoTranslate": "ترجمة المنشورات تلقائياً",
     "autoTranslateHint": "ترجمة المنشورات والسير الذاتية تلقائياً إلى لغتك"
   },
-
   "notifications": {
     "title": "الإشعارات",
     "enableSounds": "تفعيل الأصوات",
     "enableSoundsHint": "تشغيل أصوات الدخول/الخروج والرسائل الجديدة والمكالمات الواردة"
   },
-
   "privacy": {
     "title": "الخصوصية",
     "ipProtectionLabel": "حماية عنوان IP للمكالمات",
@@ -46,9 +39,11 @@
     "options": {
       "nonInnerCircle": "مباشر للدائرة الداخلية، تتابع للجميع الآخرين (موصى به)",
       "all": "إخفاء عنوان IP الخاص بي من الجميع"
-    }
+    },
+    "relayExceptIc": "Relay except IC",
+    "relayAlways": "Relay always",
+    "ipDescription": "Controls whether calls and DMs use a relay to protect your IP address."
   },
-
   "changePassword": {
     "title": "تغيير كلمة المرور",
     "description": "سنرسل رمزًا إلى بريدك الإلكتروني للتحقق من هويتك.",
@@ -75,9 +70,14 @@
       "mismatch": "كلمتا المرور غير متطابقتين."
     }
   },
-
   "actions": {
     "title": "الإجراءات",
     "signOut": "تسجيل الخروج"
+  },
+  "profile": {
+    "title": "Profile"
+  },
+  "preferences": {
+    "title": "Preferences"
   }
 }

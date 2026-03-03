@@ -4,6 +4,8 @@ import { useWebSocket } from '@/services/WebSocketContext';
 import { getCachedVisibility } from './usePresence';
 import { getCommunityListRecord, putCommunityListRecord } from '@/services/atproto';
 import type { CommunityGroup } from '@protoimsg/lexicon';
+import { playDoorOpen, playDoorClose } from '@/services/sounds';
+import { lightTap } from '@/services/haptics';
 import type { MemberWithPresence, DoorEvent } from '@/types';
 import type { ServerMessage } from '@protoimsg/shared';
 
@@ -132,9 +134,10 @@ export function useBuddyList() {
     };
   }, [agent, send, connected]);
 
-  // Door event tracking (no sound yet — will add expo-av later)
+  // Door event tracking — play sounds + haptics
   const triggerDoor = useCallback((did: string, event: DoorEvent) => {
-    // TODO: play door sounds via expo-av
+    void (event === 'join' ? playDoorOpen() : playDoorClose());
+    void lightTap();
     setDoorEvents((prev) => ({ ...prev, [did]: event }));
     const t = setTimeout(() => {
       doorTimersRef.current.delete(t);

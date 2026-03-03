@@ -167,7 +167,17 @@ export function VideoCallOverlay() {
         ctx.textBaseline = 'middle';
         ctx.fillText(remoteInitialRef.current, W / 2, H / 2);
       } else {
-        ctx.drawImage(remote, 0, 0, W, H);
+        // Preserve remote video aspect ratio (phone sends portrait, screen sends landscape)
+        const vw = remote.videoWidth || W;
+        const vh = remote.videoHeight || H;
+        const scale = Math.min(W / vw, H / vh);
+        const dw = vw * scale;
+        const dh = vh * scale;
+        const dx = (W - dw) / 2;
+        const dy = (H - dh) / 2;
+        ctx.fillStyle = '#1a1a2e';
+        ctx.fillRect(0, 0, W, H);
+        ctx.drawImage(remote, dx, dy, dw, dh);
       }
 
       // Local inset only drawn on canvas for PiP (DOM overlay handles in-page view)

@@ -21,6 +21,8 @@ import {
   type NativeMediaStream,
   type NativeMediaStreamTrack,
 } from './peerconnection';
+import { playImNotify } from './sounds';
+import { heavyTap } from './haptics';
 import type { ServerMessage, IceCandidateInit } from '@protoimsg/shared';
 
 export interface VideoCall {
@@ -438,6 +440,9 @@ export function VideoCallProvider({ children }: { children: ReactNode }) {
             localStream: null,
             remoteStream: undefined,
           });
+
+          void playImNotify();
+          void heavyTap();
 
           // Auto-reject after timeout
           incomingCallTimer.current = setTimeout(() => {

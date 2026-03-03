@@ -1,19 +1,18 @@
 {
   "appName": "proto instant messenger",
-
   "status": {
     "online": "Ar Líne",
     "away": "As Láthair",
-    "idle": "Díomhaoin"
+    "idle": "Díomhaoin",
+    "offline": "Offline",
+    "disconnected": "Disconnected"
   },
-
   "visibility": {
     "everyone": "Gach Duine",
     "community": "Pobal",
     "innerCircle": "Ciorcal Inmheánach",
     "noOne": "Duine ar Bith"
   },
-
   "theme": {
     "aim": "'98 Clasaiceach",
     "nytLight": "Íosta Geal",
@@ -28,13 +27,14 @@
     "black": "Dubh",
     "wireframe": "Wireframe"
   },
-
   "nav": {
     "community": "Pobal",
     "rooms": "Seomraí",
-    "feed": "Fotha"
+    "feed": "Fotha",
+    "buddies": "Buddies",
+    "chat": "Chat",
+    "profile": "Profile"
   },
-
   "header": {
     "menu": "Roghchlár",
     "awayMessage": {
@@ -48,7 +48,6 @@
     "minimize": "Íoslaghdaigh",
     "signOut": "Sínigh Amach"
   },
-
   "statusSelector": {
     "awayMessage": {
       "label": "Teachtaireacht as láthair",
@@ -58,36 +57,34 @@
       "label": "Cé a fheiceann mé"
     }
   },
-
   "connectionBanner": {
     "message": "Ceangal caillte — ag athcheangal..."
   },
-
   "betaBanner": {
     "message": "Táimid sna céimeanna tosaigh agus d'fhéadfadh rudaí briseadh! Déan teagmháil linn ag",
     "dismiss": "Dún"
   },
-
   "errorBoundary": {
     "title": "Chuaigh rud éigin mícheart",
     "fallbackMessage": "Tharla earráid gan choinne",
     "tryAgain": "Bain triail eile as"
   },
-
   "button": {
     "back": "Ar Ais",
     "cancel": "Cealaigh",
     "send": "Seol",
     "close": "Dún",
     "save": "Sábháil",
-    "settings": "Socruithe"
+    "settings": "Socruithe",
+    "done": "Done",
+    "retry": "Retry",
+    "signIn": "Sign In",
+    "signOut": "Sign Out"
   },
-
   "aria": {
     "expand": "Leathnaigh",
     "collapse": "Laghdaigh"
   },
-
   "feedback": {
     "menuItem": "Seol aiseolas",
     "title": "Seol aiseolas",
@@ -98,7 +95,10 @@
     "success": "Go raibh maith agat! Aiseolas seolta.",
     "error": "Chuaigh rud éigin mícheart. Bain triail eile as."
   },
-
+  "rtlRestart": {
+    "title": "Restart Required",
+    "message": "Please restart the app for the layout direction to update."
+  },
   "serverError": {
     "unknown": "Tharla earráid anaithnid",
     "unauthorized": "Caithfidh tú a bheith sínithe isteach",

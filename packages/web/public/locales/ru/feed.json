@@ -12,7 +12,6 @@
     "gifAltText": "Опишите этот GIF...",
     "quotingPost": "Цитирование @{{handle}}"
   },
-
   "post": {
     "pinned": "Закреплено",
     "repostedBy": "Репост от",
@@ -42,7 +41,6 @@
     "lightboxNext": "Следующее изображение",
     "lightboxCounter": "{{current}} / {{total}}"
   },
-
   "video": {
     "play": "Воспроизвести видео",
     "pause": "Поставить на паузу",
@@ -54,14 +52,12 @@
     "altAvailable": "ALT",
     "buffering": "Буферизация…"
   },
-
   "feedView": {
     "loading": "Загрузка ленты...",
     "empty": "Нет постов для показа",
     "loadingMore": "Загрузка...",
     "refresh": "Обновить ленту"
   },
-
   "profileView": {
     "back": "Назад",
     "loading": "Загрузка профиля...",
@@ -77,13 +73,13 @@
     "messageOnGerm": "Написать в Germ",
     "germDm": "Germ DM"
   },
-
   "threadView": {
     "back": "Назад",
     "loading": "Загрузка ветки...",
     "notFound": "Ветка не найдена",
     "viewReplies_one": "Показать {{count}} ответ",
     "viewReplies_few": "Показать {{count}} ответа",
-    "viewReplies_many": "Показать {{count}} ответов"
+    "viewReplies_many": "Показать {{count}} ответов",
+    "viewReplies_other": "View {{count}} replies"
   }
 }

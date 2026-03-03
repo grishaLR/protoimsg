@@ -30,28 +30,29 @@
     "submitting": "جارٍ الإنشاء...",
     "submit": "إنشاء"
   },
-
   "roomList": {
-    "empty": "لم يتم العثور على غرف. أنشئ واحدة للبدء!"
+    "empty": "لم يتم العثور على غرف. أنشئ واحدة للبدء!",
+    "noRooms": "No rooms yet"
   },
-
   "roomCard": {
     "createdDate": "تم الإنشاء في {{date}}",
     "translate": "ترجمة",
     "translating": "جارٍ الترجمة...",
     "translatedTo": "مترجم إلى {{lang}}",
-    "showOriginal": "إظهار الأصلي"
+    "showOriginal": "إظهار الأصلي",
+    "slowMode": "slow: {{seconds}}s"
   },
-
   "directory": {
     "searchPlaceholder": "البحث عن الغرف...",
     "createButton": "إنشاء غرفة",
     "loading": "جارٍ تحميل الغرف...",
     "allCategories": "الكل",
     "publicRoomsHeader": "غرف الدردشة العامة",
-    "publicRoomsInfo": "غرف الدردشة أماكن عامة — مثل الخروج إلى الأماكن العامة. الرسائل مخزّنة على بروتوكول AT ومرئية للجميع، حتى لو كانت حالتك في قائمة الأصدقاء مخفية."
+    "publicRoomsInfo": "غرف الدردشة أماكن عامة — مثل الخروج إلى الأماكن العامة. الرسائل مخزّنة على بروتوكول AT ومرئية للجميع، حتى لو كانت حالتك في قائمة الأصدقاء مخفية.",
+    "title": "Chat Rooms",
+    "roomCount_one": "{{count}} room",
+    "roomCount_other": "{{count}} rooms"
   },
-
   "chatRoom": {
     "invalidId": "معرف غرفة غير صالح",
     "loading": "جارٍ إعداد الغرفة...",
@@ -64,6 +65,15 @@
     "members": "الأعضاء",
     "sendFailed": "فشل إرسال الرسالة. يرجى المحاولة مرة أخرى.",
     "dismiss": "إغلاق",
-    "reportRoom": "الإبلاغ عن الغرفة"
+    "reportRoom": "الإبلاغ عن الغرفة",
+    "noOneHereYet": "No one else here yet",
+    "noMessagesYet": "No messages yet. Say something!",
+    "settings": "Room Settings"
+  },
+  "accessibility": {
+    "messageInput": "Message input",
+    "sendMessage": "Send message",
+    "slowModeWait": "Slow mode: {{seconds}}s",
+    "channel": "Channel {{name}}"
   }
 }

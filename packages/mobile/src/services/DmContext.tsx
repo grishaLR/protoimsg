@@ -18,8 +18,10 @@ import {
   type DcTextMessage,
   type DataChannelState,
 } from './datachannel';
+import { playImNotify } from './sounds';
+import { mediumTap } from './haptics';
 import type { DmMessageView, DmConversation, DmNotification } from '../types';
-import type { ServerMessage, IceCandidateInit } from '@protoimsg/shared';
+import { DM_LIMITS, type ServerMessage, type IceCandidateInit } from '@protoimsg/shared';
 
 const MAX_MESSAGES = 200;
 const MAX_NOTIFICATIONS = 20;
@@ -316,6 +318,7 @@ export function DmProvider({ children }: { children: ReactNode }) {
   const sendDm = useCallback(
     (conversationId: string, text: string, facets?: unknown[], embed?: unknown) => {
       if (!did) return;
+      if (text.length > DM_LIMITS.maxMessageLength) return;
       const msg: DcTextMessage = {
         type: 'text',
         id: `local-${generateId()}`,
@@ -475,6 +478,9 @@ export function DmProvider({ children }: { children: ReactNode }) {
           } else {
             // Buffer the offer, show notification
             pendingOffers.current.set(conversationId, { senderDid, offer });
+
+            void playImNotify();
+            void mediumTap();
 
             setNotifications((n) => {
               if (n.some((x) => x.conversationId === conversationId)) return n;

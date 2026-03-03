@@ -85,6 +85,14 @@ export function ProfileProvider({ children }: { children: ReactNode }) {
   return <ProfileContext.Provider value={value}>{children}</ProfileContext.Provider>;
 }
 
+/** Returns getProfile(did) for batch lookups without subscribing to a specific DID */
+export function useProfileLookup(): (did: string) => ProfileInfo | undefined {
+  const ctx = useContext(ProfileContext);
+  if (!ctx) throw new Error('useProfileLookup must be used within ProfileProvider');
+  useSyncExternalStore(ctx.subscribe, ctx.getVersion);
+  return ctx.getProfile;
+}
+
 export function useProfile(did: string | null | undefined): ProfileInfo | undefined {
   const ctx = useContext(ProfileContext);
   if (!ctx) throw new Error('useProfile must be used within ProfileProvider');

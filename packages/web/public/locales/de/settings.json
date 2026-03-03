@@ -1,12 +1,10 @@
 {
   "back": "Zurück",
-
   "accountInfo": {
     "title": "Kontoinformationen",
     "didLabel": "DID",
     "handleLabel": "Handle"
   },
-
   "editProfile": {
     "title": "Profil bearbeiten",
     "loading": "Profil wird geladen...",
@@ -16,27 +14,22 @@
     "saving": "Wird gespeichert...",
     "save": "Speichern"
   },
-
   "appearance": {
     "title": "Darstellung"
   },
-
   "language": {
     "title": "Sprache"
   },
-
   "translation": {
     "title": "Übersetzung",
     "autoTranslate": "Beiträge automatisch übersetzen",
     "autoTranslateHint": "Übersetzt Feed-Beiträge und Bios automatisch in deine Sprache"
   },
-
   "notifications": {
     "title": "Benachrichtigungen",
     "enableSounds": "Töne aktivieren",
     "enableSoundsHint": "Töne bei Betreten/Verlassen, neuen Nachrichten und eingehenden Anrufen abspielen"
   },
-
   "privacy": {
     "title": "Datenschutz",
     "ipProtectionLabel": "IP-Schutz bei Anrufen",
@@ -46,9 +39,11 @@
     "options": {
       "nonInnerCircle": "Direkt für engsten Kreis, Relay für alle anderen (empfohlen)",
       "all": "Meine IP vor allen verbergen"
-    }
+    },
+    "relayExceptIc": "Relay except IC",
+    "relayAlways": "Relay always",
+    "ipDescription": "Controls whether calls and DMs use a relay to protect your IP address."
   },
-
   "changePassword": {
     "title": "Passwort ändern",
     "description": "Wir senden einen Code an deine E-Mail, um deine Identität zu bestätigen.",
@@ -75,9 +70,14 @@
       "mismatch": "Die Passwörter stimmen nicht überein."
     }
   },
-
   "actions": {
     "title": "Aktionen",
     "signOut": "Abmelden"
+  },
+  "profile": {
+    "title": "Profile"
+  },
+  "preferences": {
+    "title": "Preferences"
   }
 }

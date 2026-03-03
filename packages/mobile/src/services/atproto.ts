@@ -115,3 +115,73 @@ export async function createMessageRecord(
     rkey,
   };
 }
+
+// -- Votes --
+
+export interface CreateVoteInput {
+  pollUri: string;
+  selectedOptions: number[];
+}
+
+export interface CreateVoteResult {
+  uri: string;
+  cid: string;
+  rkey: string;
+}
+
+export async function createVoteRecord(
+  agent: Agent,
+  input: CreateVoteInput,
+  existingRkey?: string,
+): Promise<CreateVoteResult> {
+  const rkey = existingRkey ?? generateTid();
+
+  const response = await agent.com.atproto.repo.createRecord({
+    repo: agent.assertDid,
+    collection: NSID.Vote,
+    rkey,
+    record: {
+      $type: NSID.Vote,
+      poll: input.pollUri,
+      selectedOptions: input.selectedOptions,
+      createdAt: new Date().toISOString(),
+    },
+  });
+
+  return {
+    uri: response.data.uri,
+    cid: response.data.cid,
+    rkey,
+  };
+}
+
+// -- Buddy list --
+
+export type AddBuddyResult = 'added' | 'already';
+
+export async function addToBuddyList(
+  agent: Agent,
+  send: (msg: { type: 'sync_community'; groups: CommunityGroup[] }) => void,
+  did: string,
+): Promise<AddBuddyResult> {
+  const groups = await getCommunityListRecord(agent);
+
+  for (const group of groups) {
+    if (group.members.some((m) => m.did === did)) {
+      return 'already';
+    }
+  }
+
+  let community = groups.find((g) => g.name === 'Community');
+  if (!community) {
+    community = { name: 'Community', members: [] };
+    groups.push(community);
+  }
+
+  community.members.push({ did, addedAt: new Date().toISOString() });
+
+  await putCommunityListRecord(agent, groups);
+  send({ type: 'sync_community', groups });
+
+  return 'added';
+}

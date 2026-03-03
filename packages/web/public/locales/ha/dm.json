@@ -1,52 +1,66 @@
 {
   "input": {
-    "placeholder": "Rubuta sa\u0199o...",
-    "ariaLabel": "Rubuta sa\u0199on DM",
+    "placeholder": "Rubuta saƙo...",
+    "ariaLabel": "Rubuta saƙon DM",
     "send": "Aika"
   },
-
   "messageList": {
-    "empty": "Babu sa\u0199onni tukuna. Ka ce sannu!",
+    "empty": "Babu saƙonni tukuna. Ka ce sannu!",
     "typing": "yana rubuta..."
   },
-
   "popover": {
     "ariaLabel": "Tattaunawar DM da {{recipientDid}}",
     "header": {
       "ariaLabel": {
-        "expand": "DM da {{recipientDid}} \u2014 danna don bu\u0257ewa",
-        "minimize": "DM da {{recipientDid}} \u2014 danna don ragewa"
+        "expand": "DM da {{recipientDid}} — danna don buɗewa",
+        "minimize": "DM da {{recipientDid}} — danna don ragewa"
       }
     },
-    "unreadAriaLabel": "sa\u0199onni {{count}} da ba a karanta ba",
+    "unreadAriaLabel": "saƙonni {{count}} da ba a karanta ba",
     "unreadOverflow": "99+",
-    "connecting": "Ana ha\u0257awa\u2026",
-    "connectionFailed": "Ha\u0257in ya gaza",
-    "peerClosed": "An rufe tattaunawa. Yi amfani da Germ don sa\u0199onni ba tare da ha\u0257i ba.",
+    "connecting": "Ana haɗawa…",
+    "connectionFailed": "Haɗin ya gaza",
+    "peerClosed": "An rufe tattaunawa. Yi amfani da Germ don saƙonni ba tare da haɗi ba.",
     "minimize": {
-      "titleExpand": "Bu\u0257e",
+      "titleExpand": "Buɗe",
       "titleMinimize": "Rage",
       "ariaLabel": {
-        "expand": "Bu\u0257e tattaunawa",
+        "expand": "Buɗe tattaunawa",
         "minimize": "Rage tattaunawa"
       }
     },
     "close": {
       "title": "Rufe",
       "ariaLabel": "Rufe tattaunawa"
-    }
+    },
+    "retry": "Retry",
+    "closingCountdown": "Chat ended. Closing in {{seconds}}s…"
   },
-
   "notification": {
-    "ariaLabel": "Sabon sa\u0199o daga {{senderDid}}",
+    "ariaLabel": "Sabon saƙo daga {{senderDid}}",
     "incoming": "yana so ya yi magana",
     "dismiss": {
       "title": "Watsar",
       "ariaLabel": "Watsar da sanarwa"
     }
   },
-
   "popoverContainer": {
     "ariaLabel": "Sanarwar DM"
+  },
+  "window": {
+    "connecting": "Connecting…",
+    "waitingForConnection": "Waiting for connection…"
+  },
+  "status": {
+    "connecting": "Connecting...",
+    "connected": "Connected",
+    "connectionFailed": "Connection failed",
+    "closingIn": "Partner disconnected — closing in {{seconds}}s",
+    "saySomething": "Say something!",
+    "waitingForConnection": "Waiting for connection..."
+  },
+  "devClientRequired": {
+    "title": "Dev Client Required",
+    "description": "DMs require WebRTC which needs a native dev client build. Run expo prebuild then build with Xcode or Android Studio."
   }
 }

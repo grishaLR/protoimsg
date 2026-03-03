@@ -4,12 +4,14 @@
     "ariaLabel": "Nhập tin nhắn DM",
     "send": "Gửi"
   },
-
   "messageList": {
     "empty": "Chưa có tin nhắn nào. Hãy chào nhau!",
     "typing": "đang nhập..."
   },
 
+  "typing": {
+    "label": "typing"
+  },
   "popover": {
     "ariaLabel": "Cuộc trò chuyện DM với {{recipientDid}}",
     "header": {
@@ -38,7 +40,6 @@
       "ariaLabel": "Đóng cuộc trò chuyện"
     }
   },
-
   "notification": {
     "ariaLabel": "Tin nhắn mới từ {{senderDid}}",
     "incoming": "muốn trò chuyện",
@@ -47,13 +48,23 @@
       "ariaLabel": "Bỏ qua thông báo"
     }
   },
-
   "popoverContainer": {
     "ariaLabel": "Thông báo DM"
   },
-
   "window": {
     "connecting": "Đang kết nối…",
     "waitingForConnection": "Đang chờ kết nối…"
+  },
+  "status": {
+    "connecting": "Connecting...",
+    "connected": "Connected",
+    "connectionFailed": "Connection failed",
+    "closingIn": "Partner disconnected — closing in {{seconds}}s",
+    "saySomething": "Say something!",
+    "waitingForConnection": "Waiting for connection..."
+  },
+  "devClientRequired": {
+    "title": "Dev Client Required",
+    "description": "DMs require WebRTC which needs a native dev client build. Run expo prebuild then build with Xcode or Android Studio."
   }
 }

@@ -30,28 +30,29 @@
     "submitting": "만드는 중...",
     "submit": "만들기"
   },
-
   "roomList": {
-    "empty": "채팅방이 없습니다. 하나 만들어 보세요!"
+    "empty": "채팅방이 없습니다. 하나 만들어 보세요!",
+    "noRooms": "No rooms yet"
   },
-
   "roomCard": {
     "createdDate": "{{date}} 생성",
     "translate": "번역",
     "translating": "번역 중...",
     "translatedTo": "{{lang}}(으)로 번역됨",
-    "showOriginal": "원문 보기"
+    "showOriginal": "원문 보기",
+    "slowMode": "slow: {{seconds}}s"
   },
-
   "directory": {
     "searchPlaceholder": "채팅방 검색...",
     "createButton": "채팅방 만들기",
     "loading": "채팅방 불러오는 중...",
     "allCategories": "전체",
     "publicRoomsHeader": "공개 채팅방",
-    "publicRoomsInfo": "채팅방은 공개 공간입니다 — 밖에 나가 공공장소에 있는 것과 같습니다. 메시지는 AT 프로토콜에 저장되며, 친구 목록 상태가 숨김이더라도 누구나 볼 수 있습니다."
+    "publicRoomsInfo": "채팅방은 공개 공간입니다 — 밖에 나가 공공장소에 있는 것과 같습니다. 메시지는 AT 프로토콜에 저장되며, 친구 목록 상태가 숨김이더라도 누구나 볼 수 있습니다.",
+    "title": "Chat Rooms",
+    "roomCount_one": "{{count}} room",
+    "roomCount_other": "{{count}} rooms"
   },
-
   "chatRoom": {
     "invalidId": "잘못된 방 ID입니다",
     "loading": "방을 준비하는 중...",
@@ -64,6 +65,15 @@
     "expandChannels": "채널 펼치기",
     "sendFailed": "메시지 전송에 실패했습니다. 다시 시도해 주세요.",
     "dismiss": "닫기",
-    "reportRoom": "채팅방 신고"
+    "reportRoom": "채팅방 신고",
+    "noOneHereYet": "No one else here yet",
+    "noMessagesYet": "No messages yet. Say something!",
+    "settings": "Room Settings"
+  },
+  "accessibility": {
+    "messageInput": "Message input",
+    "sendMessage": "Send message",
+    "slowModeWait": "Slow mode: {{seconds}}s",
+    "channel": "Channel {{name}}"
   }
 }

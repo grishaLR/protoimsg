@@ -4,49 +4,67 @@
     "ariaLabel": "Escribe un mensaje directo",
     "send": "Enviar"
   },
-
   "messageList": {
-    "empty": "No hay mensajes a\u00fan. \u00a1Di hola!",
+    "empty": "No hay mensajes aún. ¡Di hola!",
     "typing": "escribiendo..."
   },
 
+  "typing": {
+    "label": "typing"
+  },
   "popover": {
-    "ariaLabel": "Conversaci\u00f3n de mensaje directo con {{recipientDid}}",
+    "ariaLabel": "Conversación de mensaje directo con {{recipientDid}}",
     "header": {
       "ariaLabel": {
-        "expand": "Mensaje directo con {{recipientDid}} \u2014 haz clic para expandir",
-        "minimize": "Mensaje directo con {{recipientDid}} \u2014 haz clic para minimizar"
+        "expand": "Mensaje directo con {{recipientDid}} — haz clic para expandir",
+        "minimize": "Mensaje directo con {{recipientDid}} — haz clic para minimizar"
       }
     },
-    "unreadAriaLabel": "{{count}} mensajes no le\u00eddos",
+    "unreadAriaLabel": "{{count}} mensajes no leídos",
     "unreadOverflow": "99+",
-    "connecting": "Conectando\u2026",
-    "connectionFailed": "Conexi\u00f3n fallida",
-    "peerClosed": "Chat cerrado. Usa Germ para mensajes sin conexi\u00f3n.",
+    "connecting": "Conectando…",
+    "connectionFailed": "Conexión fallida",
+    "peerClosed": "Chat cerrado. Usa Germ para mensajes sin conexión.",
     "minimize": {
       "titleExpand": "Expandir",
       "titleMinimize": "Minimizar",
       "ariaLabel": {
-        "expand": "Expandir conversaci\u00f3n",
-        "minimize": "Minimizar conversaci\u00f3n"
+        "expand": "Expandir conversación",
+        "minimize": "Minimizar conversación"
       }
     },
     "close": {
       "title": "Cerrar",
-      "ariaLabel": "Cerrar conversaci\u00f3n"
-    }
+      "ariaLabel": "Cerrar conversación"
+    },
+    "retry": "Retry",
+    "closingCountdown": "Chat ended. Closing in {{seconds}}s…"
   },
-
   "notification": {
     "ariaLabel": "Nuevo mensaje de {{senderDid}}",
     "incoming": "quiere chatear",
     "dismiss": {
       "title": "Descartar",
-      "ariaLabel": "Descartar notificaci\u00f3n"
+      "ariaLabel": "Descartar notificación"
     }
   },
-
   "popoverContainer": {
     "ariaLabel": "Notificaciones de mensajes directos"
+  },
+  "window": {
+    "connecting": "Connecting…",
+    "waitingForConnection": "Waiting for connection…"
+  },
+  "status": {
+    "connecting": "Connecting...",
+    "connected": "Connected",
+    "connectionFailed": "Connection failed",
+    "closingIn": "Partner disconnected — closing in {{seconds}}s",
+    "saySomething": "Say something!",
+    "waitingForConnection": "Waiting for connection..."
+  },
+  "devClientRequired": {
+    "title": "Dev Client Required",
+    "description": "DMs require WebRTC which needs a native dev client build. Run expo prebuild then build with Xcode or Android Studio."
   }
 }

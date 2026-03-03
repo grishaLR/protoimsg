@@ -30,28 +30,29 @@
     "submitting": "Ag cruthú...",
     "submit": "Cruthaigh"
   },
-
   "roomList": {
-    "empty": "Gan seomraí aimsithe. Cruthaigh ceann chun tosú!"
+    "empty": "Gan seomraí aimsithe. Cruthaigh ceann chun tosú!",
+    "noRooms": "No rooms yet"
   },
-
   "roomCard": {
     "createdDate": "Cruthaithe {{date}}",
     "translate": "Aistrigh",
     "translating": "Ag aistriú...",
     "translatedTo": "Aistrithe go {{lang}}",
-    "showOriginal": "Taispeáin an bunleagan"
+    "showOriginal": "Taispeáin an bunleagan",
+    "slowMode": "slow: {{seconds}}s"
   },
-
   "directory": {
     "searchPlaceholder": "Cuardaigh seomraí...",
     "createButton": "Cruthaigh Seomra",
     "loading": "Ag lódáil seomraí...",
     "allCategories": "Gach",
     "publicRoomsHeader": "Seomraí Comhrá Poiblí",
-    "publicRoomsInfo": "Is spásanna poiblí iad seomraí comhrá — cosúil le bheith amuigh ar an tsráid. Stóráiltear teachtaireachtaí ar Phrótacal AT agus tá siad le feiceáil ag cách, fiú má tá do stádas ar liosta na gcairde socraithe mar dofheicthe."
+    "publicRoomsInfo": "Is spásanna poiblí iad seomraí comhrá — cosúil le bheith amuigh ar an tsráid. Stóráiltear teachtaireachtaí ar Phrótacal AT agus tá siad le feiceáil ag cách, fiú má tá do stádas ar liosta na gcairde socraithe mar dofheicthe.",
+    "title": "Chat Rooms",
+    "roomCount_one": "{{count}} room",
+    "roomCount_other": "{{count}} rooms"
   },
-
   "chatRoom": {
     "invalidId": "ID seomra neamhbhailí",
     "loading": "Tá an seomra á shocrú...",
@@ -64,6 +65,15 @@
     "members": "Baill",
     "sendFailed": "Theip ar sheoladh na teachtaireachta. Bain triail eile as.",
     "dismiss": "Dún",
-    "reportRoom": "Tuairiscigh seomra"
+    "reportRoom": "Tuairiscigh seomra",
+    "noOneHereYet": "No one else here yet",
+    "noMessagesYet": "No messages yet. Say something!",
+    "settings": "Room Settings"
+  },
+  "accessibility": {
+    "messageInput": "Message input",
+    "sendMessage": "Send message",
+    "slowModeWait": "Slow mode: {{seconds}}s",
+    "channel": "Channel {{name}}"
   }
 }

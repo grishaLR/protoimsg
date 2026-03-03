@@ -21,9 +21,31 @@
       "blocked": "ブロック中",
       "followers": "フォロワー",
       "following": "フォロー中"
+    },
+    "title": "Buddy List",
+    "filterPlaceholder": "Filter buddies...",
+    "addBuddyPlaceholder": "Add buddy by handle...",
+    "loadingBuddyList": "Loading buddy list...",
+    "noMatches": "No matches",
+    "noMatchesDetail": "No buddies matching \"{{query}}\"",
+    "addFirstBuddy": "Add your first buddy",
+    "addFirstBuddyHint": "Find people in chat rooms or search by handle",
+    "noOneOnline": "No one online",
+    "buddyOfflineCount_one": "{{count}} buddy offline",
+    "buddyOfflineCount_other": "{{count}} buddies offline",
+    "onlineCount": "{{online}} of {{total}} online",
+    "removeBuddyConfirm": "Are you sure you want to remove this buddy?",
+    "germ": {
+      "checkFailed": "Could not check GERM status for this user.",
+      "notEnabled": "This user does not have GERM messaging enabled.",
+      "openFailed": "Failed to open GERM messaging."
+    },
+    "accessibility": {
+      "messageBuddy": "Message {{name}}, {{status}}",
+      "callBuddy": "Call {{name}}",
+      "groupHeader": "{{group}} group, {{online}} of {{total}} online"
     }
   },
-
   "buddyMenu": {
     "button": {
       "title": "オプション",
@@ -41,9 +63,10 @@
     "sendImDisabled": "ユーザーはオフラインです",
     "videoCall": "ビデオ通話",
     "videoCallDisabled": "ユーザーはオフラインです",
-    "report": "ユーザーを通報"
+    "report": "ユーザーを通報",
+    "openDm": "Open DM",
+    "call": "Call"
   },
-
   "memberMenu": {
     "button": {
       "title": "オプション",
@@ -59,7 +82,6 @@
     },
     "report": "ユーザーを通報"
   },
-
   "messageInput": {
     "placeholder": {
       "default": "メッセージを入力...（Enter で送信、Shift+Enter で改行）",
@@ -75,7 +97,6 @@
     },
     "send": "送信"
   },
-
   "messageItem": {
     "contentWarning": "コンテンツ警告",
     "clickToReveal": "クリックして表示",
@@ -94,7 +115,6 @@
       "error": "エラー"
     }
   },
-
   "userContextMenu": {
     "addToBuddyList": "フレンドリストに追加",
     "block": "ブロック",
@@ -106,7 +126,6 @@
       "error": "エラー"
     }
   },
-
   "messageList": {
     "loading": "メッセージを読み込み中...",
     "empty": "まだメッセージがありません。会話を始めましょう！",
@@ -117,7 +136,6 @@
       "many": "{{count}} 人が入力中..."
     }
   },
-
   "threadPanel": {
     "ariaLabel": "スレッド",
     "title": "スレッド",
@@ -129,7 +147,6 @@
     "replyCount_other": "{{count}} 件の返信",
     "inputPlaceholder": "スレッドに返信..."
   },
-
   "formattingToolbar": {
     "bold": "太字",
     "italic": "斜体",
@@ -137,18 +154,15 @@
     "code": "コード",
     "blockquote": "引用"
   },
-
   "memberList": {
     "heading": "メンバー ({{count}})"
   },
-
   "groupHeader": {
     "renameGroup": "グループ名を変更",
     "deleteGroup": "グループを削除",
     "expand": "展開",
     "collapse": "折りたたむ"
   },
-
   "gif": {
     "title": "GIF",
     "searchPlaceholder": "GIF を検索...",
@@ -161,7 +175,6 @@
     "confirm": "送信",
     "back": "戻る"
   },
-
   "videoCall": {
     "incoming": {
       "ariaLabel": "着信ビデオ通話",
@@ -169,7 +182,10 @@
       "accept": "応答",
       "acceptAriaLabel": "着信に応答",
       "reject": "拒否",
-      "rejectAriaLabel": "着信を拒否"
+      "rejectAriaLabel": "着信を拒否",
+      "banner": "Incoming video call",
+      "declineLabel": "Decline",
+      "acceptLabel": "Accept"
     },
     "calling": "発信中...",
     "ringing": "呼び出し中...",
@@ -186,9 +202,13 @@
     "stopSharing": "共有を停止",
     "error": {
       "mediaPermission": "ビデオ通話にはカメラ/マイクの許可が必要です"
-    }
+    },
+    "flip": "Flip",
+    "callFailed": "Call Failed",
+    "hangUp": "Hang Up",
+    "micOff": "Mic off",
+    "camOff": "Cam off"
   },
-
   "channel": {
     "heading": "チャンネル",
     "listAriaLabel": "チャンネル一覧",
@@ -211,7 +231,6 @@
       "default": "チャンネルの作成に失敗しました"
     }
   },
-
   "report": {
     "title": "ユーザーを通報",
     "subjectLabel": "ユーザー",
@@ -236,7 +255,6 @@
     "removeAttachment": "添付を削除",
     "fileSizeError": "ファイルが大きすぎます。最大サイズは 2 MB です。"
   },
-
   "poll": {
     "createPoll": "投票を作成",
     "questionLabel": "質問",
@@ -267,7 +285,6 @@
       "default": "投票の作成に失敗しました"
     }
   },
-
   "reportContent": {
     "title": "通報",
     "subjectLabel": "対象",
@@ -284,5 +301,29 @@
     "success": "通報を受け付けました。調査いたします。",
     "error": "通報の送信に失敗しました。",
     "fileSizeError": "ファイルが大きすぎます（最大 2 MB）"
+  },
+  "moderation": {
+    "ban": "Ban from Room",
+    "banConfirm": "Ban this user from the room?",
+    "banned": "Banned",
+    "unban": "Unban",
+    "makeMod": "Make Moderator",
+    "removeMod": "Remove Moderator",
+    "modAdded": "Moderator added",
+    "modRemoved": "Moderator removed",
+    "error": "Action failed"
+  },
+  "roomSettings": {
+    "title": "Room Settings",
+    "slowMode": "Slow Mode (seconds)",
+    "slowModeHint": "0 = off",
+    "minAccountAge": "Min Account Age (days)",
+    "allowlist": "Allowlist Only",
+    "allowlistHint": "Only allowlisted users can send messages",
+    "save": "Save",
+    "saving": "Saving...",
+    "saved": "Settings saved",
+    "cancel": "Cancel",
+    "error": "Failed to save settings"
   }
 }

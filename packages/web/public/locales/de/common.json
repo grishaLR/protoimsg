@@ -1,19 +1,18 @@
 {
   "appName": "proto IM",
-
   "status": {
     "online": "Online",
     "away": "Abwesend",
-    "idle": "Untätig"
+    "idle": "Untätig",
+    "offline": "Offline",
+    "disconnected": "Disconnected"
   },
-
   "visibility": {
     "everyone": "Alle",
     "community": "Community",
     "innerCircle": "Engster Kreis",
     "noOne": "Niemand"
   },
-
   "theme": {
     "aim": "'98 Klassik",
     "nytLight": "Minimal Hell",
@@ -28,13 +27,14 @@
     "black": "Schwarz",
     "wireframe": "Wireframe"
   },
-
   "nav": {
     "community": "Community",
     "rooms": "Räume",
-    "feed": "Feed"
+    "feed": "Feed",
+    "buddies": "Buddies",
+    "chat": "Chat",
+    "profile": "Profile"
   },
-
   "header": {
     "menu": "Menü",
     "awayMessage": {
@@ -48,7 +48,6 @@
     "minimize": "Minimieren",
     "signOut": "Abmelden"
   },
-
   "statusSelector": {
     "awayMessage": {
       "label": "Abwesenheitsnachricht",
@@ -58,36 +57,34 @@
       "label": "Wer kann mich sehen"
     }
   },
-
   "connectionBanner": {
     "message": "Verbindung verloren — wird wiederhergestellt..."
   },
-
   "betaBanner": {
     "message": "Wir sind noch in der Anfangsphase und es kann zu Fehlern kommen! Kontaktiert uns unter",
     "dismiss": "Schließen"
   },
-
   "errorBoundary": {
     "title": "Etwas ist schiefgelaufen",
     "fallbackMessage": "Ein unerwarteter Fehler ist aufgetreten",
     "tryAgain": "Erneut versuchen"
   },
-
   "button": {
     "back": "Zurück",
     "cancel": "Abbrechen",
     "send": "Senden",
     "close": "Schließen",
     "save": "Speichern",
-    "settings": "Einstellungen"
+    "settings": "Einstellungen",
+    "done": "Done",
+    "retry": "Retry",
+    "signIn": "Sign In",
+    "signOut": "Sign Out"
   },
-
   "aria": {
     "expand": "Aufklappen",
     "collapse": "Zuklappen"
   },
-
   "feedback": {
     "menuItem": "Feedback senden",
     "title": "Feedback senden",
@@ -98,7 +95,10 @@
     "success": "Danke! Feedback gesendet.",
     "error": "Etwas ist schiefgelaufen. Versuch es nochmal."
   },
-
+  "rtlRestart": {
+    "title": "Restart Required",
+    "message": "Please restart the app for the layout direction to update."
+  },
   "serverError": {
     "unknown": "Ein unbekannter Fehler ist aufgetreten",
     "unauthorized": "Du musst angemeldet sein",

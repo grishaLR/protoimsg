@@ -1,19 +1,18 @@
 {
   "appName": "proto instant messenger",
-
   "status": {
     "online": "متصل",
     "away": "غائب",
-    "idle": "خامل"
+    "idle": "خامل",
+    "offline": "Offline",
+    "disconnected": "Disconnected"
   },
-
   "visibility": {
     "everyone": "الجميع",
     "community": "المجتمع",
     "innerCircle": "الدائرة الداخلية",
     "noOne": "لا أحد"
   },
-
   "theme": {
     "aim": "'98 كلاسيكي",
     "nytLight": "بسيط فاتح",
@@ -28,13 +27,14 @@
     "black": "أسود",
     "wireframe": "إطار سلكي"
   },
-
   "nav": {
     "community": "المجتمع",
     "rooms": "الغرف",
-    "feed": "الخلاصة"
+    "feed": "الخلاصة",
+    "buddies": "Buddies",
+    "chat": "Chat",
+    "profile": "Profile"
   },
-
   "header": {
     "menu": "القائمة",
     "awayMessage": {
@@ -48,7 +48,6 @@
     "minimize": "تصغير",
     "signOut": "تسجيل الخروج"
   },
-
   "statusSelector": {
     "awayMessage": {
       "label": "رسالة الغياب",
@@ -58,36 +57,34 @@
       "label": "من يمكنه رؤيتي"
     }
   },
-
   "connectionBanner": {
     "message": "انقطع الاتصال — جارٍ إعادة الاتصال..."
   },
-
   "betaBanner": {
     "message": "نحن في مراحل مبكرة وقد تحدث أعطال! تواصل معنا على",
     "dismiss": "إغلاق"
   },
-
   "errorBoundary": {
     "title": "حدث خطأ ما",
     "fallbackMessage": "حدث خطأ غير متوقع",
     "tryAgain": "حاول مرة أخرى"
   },
-
   "button": {
     "back": "رجوع",
     "cancel": "إلغاء",
     "send": "إرسال",
     "close": "إغلاق",
     "save": "حفظ",
-    "settings": "الإعدادات"
+    "settings": "الإعدادات",
+    "done": "Done",
+    "retry": "Retry",
+    "signIn": "Sign In",
+    "signOut": "Sign Out"
   },
-
   "aria": {
     "expand": "توسيع",
     "collapse": "طي"
   },
-
   "feedback": {
     "menuItem": "إرسال ملاحظات",
     "title": "إرسال ملاحظات",
@@ -98,7 +95,10 @@
     "success": "شكراً! تم إرسال الملاحظات.",
     "error": "حدث خطأ ما. حاول مرة أخرى."
   },
-
+  "rtlRestart": {
+    "title": "Restart Required",
+    "message": "Please restart the app for the layout direction to update."
+  },
   "serverError": {
     "unknown": "حدث خطأ غير معروف",
     "unauthorized": "يجب تسجيل الدخول",

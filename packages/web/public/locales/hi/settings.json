@@ -1,12 +1,10 @@
 {
   "back": "वापस",
-
   "accountInfo": {
     "title": "खाता जानकारी",
     "didLabel": "DID",
     "handleLabel": "Handle"
   },
-
   "editProfile": {
     "title": "प्रोफ़ाइल संपादित करें",
     "loading": "प्रोफ़ाइल लोड हो रहा है...",
@@ -16,27 +14,22 @@
     "saving": "सहेज रहे हैं...",
     "save": "सहेजें"
   },
-
   "appearance": {
     "title": "दिखावट"
   },
-
   "language": {
     "title": "भाषा"
   },
-
   "translation": {
     "title": "अनुवाद",
     "autoTranslate": "पोस्ट अपने आप अनुवाद करें",
     "autoTranslateHint": "फ़ीड पोस्ट और बायो को अपनी भाषा में अपने आप अनुवाद करें"
   },
-
   "notifications": {
     "title": "सूचनाएँ",
     "enableSounds": "ध्वनि चालू करें",
     "enableSoundsHint": "दरवाज़ा खुलने/बंद होने, नए संदेश और आने वाले कॉल के लिए ध्वनि बजाएँ"
   },
-
   "privacy": {
     "title": "गोपनीयता",
     "ipProtectionLabel": "कॉल के लिए IP सुरक्षा",
@@ -46,9 +39,11 @@
     "options": {
       "nonInnerCircle": "करीबी दोस्तों के लिए सीधा, बाकी सबके लिए रिले (अनुशंसित)",
       "all": "सबसे मेरा IP छुपाएँ"
-    }
+    },
+    "relayExceptIc": "Relay except IC",
+    "relayAlways": "Relay always",
+    "ipDescription": "Controls whether calls and DMs use a relay to protect your IP address."
   },
-
   "changePassword": {
     "title": "पासवर्ड बदलें",
     "description": "हम आपकी पहचान सत्यापित करने के लिए आपके ईमेल पर एक कोड भेजेंगे।",
@@ -75,9 +70,14 @@
       "mismatch": "पासवर्ड मेल नहीं खाते।"
     }
   },
-
   "actions": {
     "title": "कार्य",
     "signOut": "साइन आउट"
+  },
+  "profile": {
+    "title": "Profile"
+  },
+  "preferences": {
+    "title": "Preferences"
   }
 }

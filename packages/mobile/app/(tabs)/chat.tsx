@@ -8,19 +8,30 @@ import {
   RefreshControl,
   StyleSheet,
 } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import { useRooms } from '@/hooks/useRooms';
-import { useTheme } from '@/theme';
+import { useTheme, useAimStyle, AIM_DESKTOP, AIM_WINDOW_SHADOW } from '@/theme';
+import { BeveledView } from '@/components/BeveledView';
+import { AimTitlebar } from '@/components/AimTitlebar';
 import { spacing, radius, fontSize } from '@/theme/tokens';
 import type { RoomView } from '@/types';
 
 const RoomCard = React.memo(function RoomCard({ room }: { room: RoomView }) {
+  const { t } = useTranslation('rooms');
   const { colors } = useTheme();
+  const { isAim, aimRadius } = useAimStyle();
 
-  return (
+  const card = (
     <Pressable
-      style={[styles.card, { backgroundColor: colors.base200 }]}
+      style={[
+        styles.card,
+        {
+          backgroundColor: isAim ? colors.surfaceContent : colors.base200,
+          borderRadius: aimRadius ?? radius.md,
+        },
+      ]}
       onPress={() => {
         router.push(`/room/${encodeURIComponent(room.id)}`);
       }}
@@ -35,7 +46,11 @@ const RoomCard = React.memo(function RoomCard({ room }: { room: RoomView }) {
           <Text
             style={[
               styles.categoryBadge,
-              { color: colors.secondary, backgroundColor: colors.surface },
+              {
+                color: colors.secondary,
+                backgroundColor: colors.surface,
+                borderRadius: aimRadius ?? radius.sm / 2,
+              },
             ]}
           >
             {room.category}
@@ -54,43 +69,76 @@ const RoomCard = React.memo(function RoomCard({ room }: { room: RoomView }) {
       ) : null}
       <View style={styles.cardFooter}>
         <Text style={[styles.visibility, { color: colors.chromeTextMuted }]}>
-          {room.visibility}
+          {t(`createRoom.visibility.${room.visibility}`, { defaultValue: room.visibility })}
         </Text>
         {room.slow_mode_seconds > 0 ? (
           <Text style={[styles.slowMode, { color: colors.chromeTextMuted }]}>
-            slow: {room.slow_mode_seconds}s
+            {t('roomCard.slowMode', { seconds: room.slow_mode_seconds })}
           </Text>
         ) : null}
       </View>
     </Pressable>
   );
+
+  if (isAim) {
+    return (
+      <BeveledView variant="raised" innerStyle={{ backgroundColor: colors.surfaceContent }}>
+        {card}
+      </BeveledView>
+    );
+  }
+
+  return card;
 });
 
 const keyExtractor = (item: RoomView) => item.id;
 
 export default function ChatScreen() {
+  const { t } = useTranslation(['rooms', 'common']);
   const { rooms, loading, error, refresh } = useRooms();
   const { colors } = useTheme();
+  const { isAim } = useAimStyle();
 
   if (loading && rooms.length === 0) {
     return (
-      <SafeAreaView style={[styles.container, { backgroundColor: colors.surface }]}>
-        <View style={[styles.header, { borderBottomColor: colors.base200 }]}>
-          <Text style={[styles.title, { color: colors.baseContent }]}>Chat Rooms</Text>
-        </View>
-        <View style={styles.center}>
-          <ActivityIndicator size="large" color={colors.primary} />
-        </View>
+      <SafeAreaView
+        style={[styles.container, { backgroundColor: isAim ? AIM_DESKTOP : colors.surface }]}
+      >
+        {isAim ? (
+          <BeveledView
+            variant="raised"
+            style={[styles.aimWindowFrame, { backgroundColor: colors.base100 }, AIM_WINDOW_SHADOW]}
+            innerStyle={{ backgroundColor: colors.base100 }}
+          >
+            <AimTitlebar title={`${t('common:appName')} - ${t('directory.title')}`} />
+            <View style={styles.center}>
+              <ActivityIndicator size="large" color={colors.primary} />
+            </View>
+          </BeveledView>
+        ) : (
+          <>
+            <View style={[styles.header, { borderBottomColor: colors.base200 }]}>
+              <Text style={[styles.title, { color: colors.baseContent }]}>
+                {t('directory.title')}
+              </Text>
+            </View>
+            <View style={styles.center}>
+              <ActivityIndicator size="large" color={colors.primary} />
+            </View>
+          </>
+        )}
       </SafeAreaView>
     );
   }
 
-  return (
-    <SafeAreaView style={[styles.container, { backgroundColor: colors.surface }]}>
-      <View style={[styles.header, { borderBottomColor: colors.base200 }]}>
-        <Text style={[styles.title, { color: colors.baseContent }]}>Chat Rooms</Text>
+  const listContent = (
+    <>
+      <View
+        style={[styles.header, { borderBottomColor: isAim ? colors.borderDark : colors.base200 }]}
+      >
+        <Text style={[styles.title, { color: colors.baseContent }]}>{t('directory.title')}</Text>
         <Text style={[styles.subtitle, { color: colors.chromeTextMuted }]}>
-          {rooms.length} room{rooms.length !== 1 ? 's' : ''}
+          {t('directory.roomCount', { count: rooms.length })}
         </Text>
       </View>
 
@@ -100,24 +148,53 @@ export default function ChatScreen() {
         </View>
       ) : null}
 
-      <FlatList
-        data={rooms}
-        keyExtractor={keyExtractor}
-        renderItem={({ item }) => <RoomCard room={item} />}
-        contentContainerStyle={styles.listContent}
-        refreshControl={
-          <RefreshControl
-            refreshing={loading}
-            onRefresh={() => void refresh()}
-            tintColor={colors.primary}
-          />
-        }
-        ListEmptyComponent={
-          <View style={styles.center}>
-            <Text style={[styles.emptyText, { color: colors.chromeTextMuted }]}>No rooms yet</Text>
-          </View>
-        }
-      />
+      <BeveledView
+        variant="sunken"
+        style={isAim ? styles.aimListBevel : undefined}
+        innerStyle={isAim ? { backgroundColor: colors.surfaceContent } : undefined}
+      >
+        <FlatList
+          data={rooms}
+          keyExtractor={keyExtractor}
+          renderItem={({ item }) => <RoomCard room={item} />}
+          contentContainerStyle={styles.listContent}
+          refreshControl={
+            <RefreshControl
+              refreshing={loading}
+              onRefresh={() => void refresh()}
+              tintColor={colors.primary}
+            />
+          }
+          ListEmptyComponent={
+            <View style={styles.center}>
+              <Text style={[styles.emptyText, { color: colors.chromeTextMuted }]}>
+                {t('roomList.noRooms')}
+              </Text>
+            </View>
+          }
+        />
+      </BeveledView>
+    </>
+  );
+
+  if (isAim) {
+    return (
+      <SafeAreaView style={[styles.container, { backgroundColor: AIM_DESKTOP }]}>
+        <BeveledView
+          variant="raised"
+          style={[styles.aimWindowFrame, { backgroundColor: colors.base100 }, AIM_WINDOW_SHADOW]}
+          innerStyle={{ backgroundColor: colors.base100 }}
+        >
+          <AimTitlebar title={`${t('common:appName')} - ${t('directory.title')}`} />
+          {listContent}
+        </BeveledView>
+      </SafeAreaView>
+    );
+  }
+
+  return (
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.surface }]}>
+      {listContent}
     </SafeAreaView>
   );
 }
@@ -157,7 +234,6 @@ const styles = StyleSheet.create({
     gap: spacing[5],
   },
   card: {
-    borderRadius: radius.md,
     padding: spacing[8],
     gap: spacing[3],
   },
@@ -177,7 +253,6 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     paddingHorizontal: spacing[4],
     paddingVertical: spacing[1],
-    borderRadius: radius.sm / 2,
     overflow: 'hidden',
   },
   topic: {
@@ -201,5 +276,15 @@ const styles = StyleSheet.create({
   },
   emptyText: {
     fontSize: fontSize.lg,
+  },
+  // AIM-specific styles
+  aimWindowFrame: {
+    flex: 1,
+    margin: spacing[3],
+  },
+  aimListBevel: {
+    flex: 1,
+    marginHorizontal: spacing[4],
+    marginBottom: spacing[4],
   },
 });

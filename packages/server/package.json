@@ -23,6 +23,7 @@
     "@protoimsg/shared": "workspace:*",
     "@sentry/node": "^10.38.0",
     "cors": "^2.8.5",
+    "expo-server-sdk": "^6.0.0",
     "express": "^4.21.2",
     "franc-min": "^6.2.0",
     "helmet": "^8.0.0",

@@ -1,12 +1,10 @@
 {
   "back": "Koma",
-
   "accountInfo": {
     "title": "Bayanan Asusu",
     "didLabel": "DID",
     "handleLabel": "Suna"
   },
-
   "editProfile": {
     "title": "Gyara Bayanan Martaba",
     "loading": "Ana loda bayanan martaba...",
@@ -16,27 +14,22 @@
     "saving": "Ana ajiyewa...",
     "save": "Ajiye"
   },
-
   "appearance": {
     "title": "Kamannin fuska"
   },
-
   "language": {
     "title": "Harshe"
   },
-
   "translation": {
     "title": "Fassara",
     "autoTranslate": "Fassara bugaggu ta atomatik",
     "autoTranslateHint": "Fassara bugaggu da bayanai ta atomatik zuwa harshinka"
   },
-
   "notifications": {
     "title": "Sanarwa",
     "enableSounds": "Kunna sautuka",
     "enableSoundsHint": "Kunna sautin buɗe/rufe ƙofa, saƙonni sababbi da kira mai shigowa"
   },
-
   "privacy": {
     "title": "Sirri",
     "ipProtectionLabel": "Kariyar IP don kira",
@@ -46,9 +39,11 @@
     "options": {
       "nonInnerCircle": "Tsaye ga abokan kusa, watsawa ga sauran (shawarar da ake ba)",
       "all": "Ɓoye IP ɗina daga kowa"
-    }
+    },
+    "relayExceptIc": "Relay except IC",
+    "relayAlways": "Relay always",
+    "ipDescription": "Controls whether calls and DMs use a relay to protect your IP address."
   },
-
   "changePassword": {
     "title": "Canja Kalmar Sirri",
     "description": "Za mu aika lambar zuwa imelinka don tabbatar da asalinka.",
@@ -75,9 +70,14 @@
       "mismatch": "Kalmomin sirri ba su dace ba."
     }
   },
-
   "actions": {
     "title": "Ayyuka",
     "signOut": "Fita"
+  },
+  "profile": {
+    "title": "Profile"
+  },
+  "preferences": {
+    "title": "Preferences"
   }
 }

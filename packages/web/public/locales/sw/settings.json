@@ -1,12 +1,10 @@
 {
   "back": "Rudi",
-
   "accountInfo": {
     "title": "Taarifa za Akaunti",
     "didLabel": "DID",
     "handleLabel": "Jina"
   },
-
   "editProfile": {
     "title": "Hariri Wasifu",
     "loading": "Inapakia wasifu...",
@@ -16,27 +14,22 @@
     "saving": "Inahifadhi...",
     "save": "Hifadhi"
   },
-
   "appearance": {
     "title": "Muonekano"
   },
-
   "language": {
     "title": "Lugha"
   },
-
   "translation": {
     "title": "Tafsiri",
     "autoTranslate": "Tafsiri machapisho kiotomatiki",
     "autoTranslateHint": "Tafsiri kiotomatiki machapisho na wasifu kwa lugha yako"
   },
-
   "notifications": {
     "title": "Arifa",
     "enableSounds": "Washa sauti",
     "enableSoundsHint": "Cheza sauti za mlango kufunguka/kufungwa, ujumbe mpya na simu zinazoingia"
   },
-
   "privacy": {
     "title": "Faragha",
     "ipProtectionLabel": "Ulinzi wa IP kwa simu",
@@ -46,9 +39,11 @@
     "options": {
       "nonInnerCircle": "Moja kwa moja kwa watu wa karibu, kupitisha kwa wengine wote (inapendekezwa)",
       "all": "Ficha IP yangu kutoka kwa kila mtu"
-    }
+    },
+    "relayExceptIc": "Relay except IC",
+    "relayAlways": "Relay always",
+    "ipDescription": "Controls whether calls and DMs use a relay to protect your IP address."
   },
-
   "changePassword": {
     "title": "Badilisha Nenosiri",
     "description": "Tutatuma msimbo kwenye barua pepe yako kuthibitisha utambulisho wako.",
@@ -75,9 +70,14 @@
       "mismatch": "Nenosiri hazilingani."
     }
   },
-
   "actions": {
     "title": "Vitendo",
     "signOut": "Toka"
+  },
+  "profile": {
+    "title": "Profile"
+  },
+  "preferences": {
+    "title": "Preferences"
   }
 }

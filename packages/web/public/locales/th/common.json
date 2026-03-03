@@ -1,19 +1,18 @@
 {
   "appName": "proto IM",
-
   "status": {
     "online": "ออนไลน์",
     "away": "ไม่อยู่",
-    "idle": "ไม่ได้ใช้งาน"
+    "idle": "ไม่ได้ใช้งาน",
+    "offline": "Offline",
+    "disconnected": "Disconnected"
   },
-
   "visibility": {
     "everyone": "ทุกคน",
     "community": "ชุมชน",
     "innerCircle": "เพื่อนสนิท",
     "noOne": "ไม่มีใคร"
   },
-
   "theme": {
     "aim": "'98 คลาสสิก",
     "nytLight": "มินิมอลสว่าง",
@@ -28,13 +27,14 @@
     "black": "ดำ",
     "wireframe": "Wireframe"
   },
-
   "nav": {
     "community": "ชุมชน",
     "rooms": "ห้อง",
-    "feed": "ฟีด"
+    "feed": "ฟีด",
+    "buddies": "Buddies",
+    "chat": "Chat",
+    "profile": "Profile"
   },
-
   "header": {
     "menu": "เมนู",
     "awayMessage": {
@@ -48,7 +48,6 @@
     "minimize": "ย่อ",
     "signOut": "ออกจากระบบ"
   },
-
   "statusSelector": {
     "awayMessage": {
       "label": "ข้อความไม่อยู่",
@@ -58,36 +57,34 @@
       "label": "ใครเห็นฉันได้"
     }
   },
-
   "connectionBanner": {
     "message": "การเชื่อมต่อขาดหาย — กำลังเชื่อมต่อใหม่..."
   },
-
   "betaBanner": {
     "message": "เราอยู่ในช่วงเริ่มต้นและอาจมีปัญหาเกิดขึ้น! ติดต่อเราได้ที่",
     "dismiss": "ปิด"
   },
-
   "errorBoundary": {
     "title": "เกิดข้อผิดพลาด",
     "fallbackMessage": "เกิดข้อผิดพลาดที่ไม่คาดคิด",
     "tryAgain": "ลองใหม่"
   },
-
   "button": {
     "back": "กลับ",
     "cancel": "ยกเลิก",
     "send": "ส่ง",
     "close": "ปิด",
     "save": "บันทึก",
-    "settings": "ตั้งค่า"
+    "settings": "ตั้งค่า",
+    "done": "Done",
+    "retry": "Retry",
+    "signIn": "Sign In",
+    "signOut": "Sign Out"
   },
-
   "aria": {
     "expand": "ขยาย",
     "collapse": "ย่อ"
   },
-
   "feedback": {
     "menuItem": "ส่งความคิดเห็น",
     "title": "ส่งความคิดเห็น",
@@ -98,7 +95,10 @@
     "success": "ขอบคุณ! ส่งความคิดเห็นแล้ว",
     "error": "เกิดข้อผิดพลาด ลองใหม่อีกครั้ง"
   },
-
+  "rtlRestart": {
+    "title": "Restart Required",
+    "message": "Please restart the app for the layout direction to update."
+  },
   "serverError": {
     "unknown": "เกิดข้อผิดพลาดที่ไม่ทราบสาเหตุ",
     "unauthorized": "คุณต้องลงชื่อเข้าใช้ก่อน",

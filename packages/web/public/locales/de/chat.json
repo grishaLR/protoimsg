@@ -21,9 +21,31 @@
       "blocked": "Blockiert",
       "followers": "Follower",
       "following": "Folge ich"
+    },
+    "title": "Buddy List",
+    "filterPlaceholder": "Filter buddies...",
+    "addBuddyPlaceholder": "Add buddy by handle...",
+    "loadingBuddyList": "Loading buddy list...",
+    "noMatches": "No matches",
+    "noMatchesDetail": "No buddies matching \"{{query}}\"",
+    "addFirstBuddy": "Add your first buddy",
+    "addFirstBuddyHint": "Find people in chat rooms or search by handle",
+    "noOneOnline": "No one online",
+    "buddyOfflineCount_one": "{{count}} buddy offline",
+    "buddyOfflineCount_other": "{{count}} buddies offline",
+    "onlineCount": "{{online}} of {{total}} online",
+    "removeBuddyConfirm": "Are you sure you want to remove this buddy?",
+    "germ": {
+      "checkFailed": "Could not check GERM status for this user.",
+      "notEnabled": "This user does not have GERM messaging enabled.",
+      "openFailed": "Failed to open GERM messaging."
+    },
+    "accessibility": {
+      "messageBuddy": "Message {{name}}, {{status}}",
+      "callBuddy": "Call {{name}}",
+      "groupHeader": "{{group}} group, {{online}} of {{total}} online"
     }
   },
-
   "buddyMenu": {
     "button": {
       "title": "Optionen",
@@ -41,9 +63,10 @@
     "sendImDisabled": "Nutzer ist offline",
     "videoCall": "Videoanruf",
     "videoCallDisabled": "Nutzer ist offline",
-    "report": "Nutzer melden"
+    "report": "Nutzer melden",
+    "openDm": "Open DM",
+    "call": "Call"
   },
-
   "memberMenu": {
     "button": {
       "title": "Optionen",
@@ -59,7 +82,6 @@
     },
     "report": "Nutzer melden"
   },
-
   "messageInput": {
     "placeholder": {
       "default": "Nachricht eingeben... (Enter zum Senden, Umschalt+Enter für neue Zeile)",
@@ -75,7 +97,6 @@
     },
     "send": "Senden"
   },
-
   "messageItem": {
     "contentWarning": "Inhaltswarnung",
     "clickToReveal": "Klicken zum Anzeigen",
@@ -94,7 +115,6 @@
       "error": "Fehler"
     }
   },
-
   "userContextMenu": {
     "addToBuddyList": "Zur Buddyliste hinzufügen",
     "block": "Blockieren",
@@ -106,7 +126,6 @@
       "error": "Fehler"
     }
   },
-
   "messageList": {
     "loading": "Nachrichten werden geladen...",
     "empty": "Noch keine Nachrichten. Starte die Unterhaltung!",
@@ -117,7 +136,6 @@
       "many": "{{count}} Personen tippen..."
     }
   },
-
   "threadPanel": {
     "ariaLabel": "Thread",
     "title": "Thread",
@@ -129,7 +147,6 @@
     "replyCount_other": "{{count}} Antworten",
     "inputPlaceholder": "Im Thread antworten..."
   },
-
   "formattingToolbar": {
     "bold": "Fett",
     "italic": "Kursiv",
@@ -137,18 +154,15 @@
     "code": "Code",
     "blockquote": "Zitat"
   },
-
   "memberList": {
     "heading": "Mitglieder ({{count}})"
   },
-
   "groupHeader": {
     "renameGroup": "Gruppe umbenennen",
     "deleteGroup": "Gruppe löschen",
     "expand": "Aufklappen",
     "collapse": "Zuklappen"
   },
-
   "gif": {
     "title": "GIFs",
     "searchPlaceholder": "GIFs suchen...",
@@ -161,7 +175,6 @@
     "confirm": "Senden",
     "back": "Zurück"
   },
-
   "videoCall": {
     "incoming": {
       "ariaLabel": "Eingehender Videoanruf",
@@ -169,7 +182,10 @@
       "accept": "Anruf annehmen",
       "acceptAriaLabel": "Eingehenden Anruf annehmen",
       "reject": "Anruf ablehnen",
-      "rejectAriaLabel": "Eingehenden Anruf ablehnen"
+      "rejectAriaLabel": "Eingehenden Anruf ablehnen",
+      "banner": "Incoming video call",
+      "declineLabel": "Decline",
+      "acceptLabel": "Accept"
     },
     "calling": "Wird angerufen...",
     "ringing": "Klingelt...",
@@ -186,9 +202,13 @@
     "stopSharing": "Teilen beenden",
     "error": {
       "mediaPermission": "Kamera-/Mikrofonberechtigung für Videoanrufe erforderlich"
-    }
+    },
+    "flip": "Flip",
+    "callFailed": "Call Failed",
+    "hangUp": "Hang Up",
+    "micOff": "Mic off",
+    "camOff": "Cam off"
   },
-
   "channel": {
     "heading": "Kanäle",
     "listAriaLabel": "Kanalliste",
@@ -211,7 +231,6 @@
       "default": "Kanal konnte nicht erstellt werden"
     }
   },
-
   "report": {
     "title": "Nutzer melden",
     "subjectLabel": "Nutzer",
@@ -236,7 +255,6 @@
     "removeAttachment": "Anhang entfernen",
     "fileSizeError": "Datei zu groß. Maximale Größe ist 2 MB."
   },
-
   "poll": {
     "createPoll": "Umfrage erstellen",
     "questionLabel": "Frage",
@@ -267,7 +285,6 @@
       "default": "Umfrage konnte nicht erstellt werden"
     }
   },
-
   "reportContent": {
     "title": "Melden",
     "subjectLabel": "Betreff",
@@ -284,5 +301,29 @@
     "success": "Meldung gesendet. Wir kümmern uns darum.",
     "error": "Meldung konnte nicht gesendet werden.",
     "fileSizeError": "Datei zu groß (max. 2 MB)"
+  },
+  "moderation": {
+    "ban": "Ban from Room",
+    "banConfirm": "Ban this user from the room?",
+    "banned": "Banned",
+    "unban": "Unban",
+    "makeMod": "Make Moderator",
+    "removeMod": "Remove Moderator",
+    "modAdded": "Moderator added",
+    "modRemoved": "Moderator removed",
+    "error": "Action failed"
+  },
+  "roomSettings": {
+    "title": "Room Settings",
+    "slowMode": "Slow Mode (seconds)",
+    "slowModeHint": "0 = off",
+    "minAccountAge": "Min Account Age (days)",
+    "allowlist": "Allowlist Only",
+    "allowlistHint": "Only allowlisted users can send messages",
+    "save": "Save",
+    "saving": "Saving...",
+    "saved": "Settings saved",
+    "cancel": "Cancel",
+    "error": "Failed to save settings"
   }
 }

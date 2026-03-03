@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { View, Image, Text, StyleSheet } from 'react-native';
-import { useTheme } from '@/theme';
+import { useTheme, useAimStyle } from '@/theme';
 import { avatarSize as avatarTokens, fontSize } from '@/theme/tokens';
 
 type AvatarSize = 'sm' | 'md' | 'lg';
@@ -25,14 +25,16 @@ const FONT_SIZES: Record<AvatarSize, number> = {
 
 export const Avatar = React.memo(function Avatar({ url, name, size = 'md' }: AvatarProps) {
   const { colors } = useTheme();
+  const { aimRadius } = useAimStyle();
   const [failed, setFailed] = useState(false);
   const px = SIZES[size];
+  const borderRadius = aimRadius ?? px / 2;
 
   if (url && !failed) {
     return (
       <Image
         source={{ uri: url }}
-        style={[styles.image, { width: px, height: px, borderRadius: px / 2 }]}
+        style={[styles.image, { width: px, height: px, borderRadius }]}
         onError={() => {
           setFailed(true);
         }}
@@ -50,7 +52,7 @@ export const Avatar = React.memo(function Avatar({ url, name, size = 'md' }: Ava
         {
           width: px,
           height: px,
-          borderRadius: px / 2,
+          borderRadius,
           backgroundColor: colors.base300,
         },
       ]}

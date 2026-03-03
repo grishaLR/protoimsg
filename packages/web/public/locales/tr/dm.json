@@ -4,12 +4,14 @@
     "ariaLabel": "DM mesajı yaz",
     "send": "Gönder"
   },
-
   "messageList": {
     "empty": "Henüz mesaj yok. Merhaba de!",
     "typing": "yazıyor..."
   },
 
+  "typing": {
+    "label": "typing"
+  },
   "popover": {
     "ariaLabel": "{{recipientDid}} ile DM sohbeti",
     "header": {
@@ -38,7 +40,6 @@
       "ariaLabel": "Sohbeti kapat"
     }
   },
-
   "notification": {
     "ariaLabel": "{{senderDid}} kişisinden yeni mesaj",
     "incoming": "sohbet etmek istiyor",
@@ -47,13 +48,23 @@
       "ariaLabel": "Bildirimi kapat"
     }
   },
-
   "popoverContainer": {
     "ariaLabel": "DM bildirimleri"
   },
-
   "window": {
     "connecting": "Bağlanılıyor...",
     "waitingForConnection": "Bağlantı bekleniyor..."
+  },
+  "status": {
+    "connecting": "Connecting...",
+    "connected": "Connected",
+    "connectionFailed": "Connection failed",
+    "closingIn": "Partner disconnected — closing in {{seconds}}s",
+    "saySomething": "Say something!",
+    "waitingForConnection": "Waiting for connection..."
+  },
+  "devClientRequired": {
+    "title": "Dev Client Required",
+    "description": "DMs require WebRTC which needs a native dev client build. Run expo prebuild then build with Xcode or Android Studio."
   }
 }

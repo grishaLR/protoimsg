@@ -1,12 +1,10 @@
 {
   "back": "Quay lại",
-
   "accountInfo": {
     "title": "Thông tin tài khoản",
     "didLabel": "DID",
     "handleLabel": "Handle"
   },
-
   "editProfile": {
     "title": "Chỉnh sửa hồ sơ",
     "loading": "Đang tải hồ sơ...",
@@ -16,27 +14,22 @@
     "saving": "Đang lưu...",
     "save": "Lưu"
   },
-
   "appearance": {
     "title": "Giao diện"
   },
-
   "language": {
     "title": "Ngôn ngữ"
   },
-
   "translation": {
     "title": "Dịch thuật",
     "autoTranslate": "Tự động dịch bài đăng",
     "autoTranslateHint": "Tự động dịch bài đăng và giới thiệu trong bảng tin sang ngôn ngữ của bạn"
   },
-
   "notifications": {
     "title": "Thông báo",
     "enableSounds": "Bật âm thanh",
     "enableSoundsHint": "Phát âm thanh khi có người vào/ra, tin nhắn mới và cuộc gọi đến"
   },
-
   "privacy": {
     "title": "Quyền riêng tư",
     "ipProtectionLabel": "Bảo vệ IP khi gọi",
@@ -46,9 +39,11 @@
     "options": {
       "nonInnerCircle": "Trực tiếp cho bạn thân, relay cho mọi người khác (khuyến nghị)",
       "all": "Ẩn IP với tất cả mọi người"
-    }
+    },
+    "relayExceptIc": "Relay except IC",
+    "relayAlways": "Relay always",
+    "ipDescription": "Controls whether calls and DMs use a relay to protect your IP address."
   },
-
   "changePassword": {
     "title": "Đổi Mật Khẩu",
     "description": "Chúng tôi sẽ gửi mã đến email của bạn để xác minh danh tính.",
@@ -75,9 +70,14 @@
       "mismatch": "Mật khẩu không khớp."
     }
   },
-
   "actions": {
     "title": "Thao tác",
     "signOut": "Đăng xuất"
+  },
+  "profile": {
+    "title": "Profile"
+  },
+  "preferences": {
+    "title": "Preferences"
   }
 }

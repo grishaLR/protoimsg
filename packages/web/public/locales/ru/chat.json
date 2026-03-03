@@ -21,9 +21,31 @@
       "blocked": "Заблокированные",
       "followers": "Подписчики",
       "following": "Подписки"
+    },
+    "title": "Buddy List",
+    "filterPlaceholder": "Filter buddies...",
+    "addBuddyPlaceholder": "Add buddy by handle...",
+    "loadingBuddyList": "Loading buddy list...",
+    "noMatches": "No matches",
+    "noMatchesDetail": "No buddies matching \"{{query}}\"",
+    "addFirstBuddy": "Add your first buddy",
+    "addFirstBuddyHint": "Find people in chat rooms or search by handle",
+    "noOneOnline": "No one online",
+    "buddyOfflineCount_one": "{{count}} buddy offline",
+    "buddyOfflineCount_other": "{{count}} buddies offline",
+    "onlineCount": "{{online}} of {{total}} online",
+    "removeBuddyConfirm": "Are you sure you want to remove this buddy?",
+    "germ": {
+      "checkFailed": "Could not check GERM status for this user.",
+      "notEnabled": "This user does not have GERM messaging enabled.",
+      "openFailed": "Failed to open GERM messaging."
+    },
+    "accessibility": {
+      "messageBuddy": "Message {{name}}, {{status}}",
+      "callBuddy": "Call {{name}}",
+      "groupHeader": "{{group}} group, {{online}} of {{total}} online"
     }
   },
-
   "buddyMenu": {
     "button": {
       "title": "Действия",
@@ -41,9 +63,10 @@
     "sendImDisabled": "Пользователь не в сети",
     "videoCall": "Видеозвонок",
     "videoCallDisabled": "Пользователь не в сети",
-    "report": "Пожаловаться"
+    "report": "Пожаловаться",
+    "openDm": "Open DM",
+    "call": "Call"
   },
-
   "memberMenu": {
     "button": {
       "title": "Действия",
@@ -59,7 +82,6 @@
     },
     "report": "Пожаловаться"
   },
-
   "messageInput": {
     "placeholder": {
       "default": "Введите сообщение... (Enter — отправить, Shift+Enter — новая строка)",
@@ -75,7 +97,6 @@
     },
     "send": "Отправить"
   },
-
   "messageItem": {
     "contentWarning": "Предупреждение о контенте",
     "clickToReveal": "Нажмите, чтобы показать",
@@ -96,7 +117,6 @@
       "error": "Ошибка"
     }
   },
-
   "userContextMenu": {
     "addToBuddyList": "Добавить в список друзей",
     "block": "Заблокировать",
@@ -108,7 +128,6 @@
       "error": "Ошибка"
     }
   },
-
   "messageList": {
     "loading": "Загрузка сообщений...",
     "empty": "Сообщений пока нет. Начните беседу!",
@@ -119,7 +138,6 @@
       "many": "{{count}} человек печатают..."
     }
   },
-
   "threadPanel": {
     "ariaLabel": "Ветка",
     "title": "Ветка",
@@ -133,7 +151,6 @@
     "replyCount_other": "{{count}} ответов",
     "inputPlaceholder": "Ответить в ветке..."
   },
-
   "formattingToolbar": {
     "bold": "Жирный",
     "italic": "Курсив",
@@ -141,18 +158,15 @@
     "code": "Код",
     "blockquote": "Цитата"
   },
-
   "memberList": {
     "heading": "Участники ({{count}})"
   },
-
   "groupHeader": {
     "renameGroup": "Переименовать группу",
     "deleteGroup": "Удалить группу",
     "expand": "Развернуть",
     "collapse": "Свернуть"
   },
-
   "gif": {
     "title": "GIF-ки",
     "searchPlaceholder": "Поиск GIF...",
@@ -165,7 +179,6 @@
     "confirm": "Отправить",
     "back": "Назад"
   },
-
   "videoCall": {
     "incoming": {
       "ariaLabel": "Входящий видеозвонок",
@@ -173,7 +186,10 @@
       "accept": "Принять звонок",
       "acceptAriaLabel": "Принять входящий звонок",
       "reject": "Отклонить звонок",
-      "rejectAriaLabel": "Отклонить входящий звонок"
+      "rejectAriaLabel": "Отклонить входящий звонок",
+      "banner": "Incoming video call",
+      "declineLabel": "Decline",
+      "acceptLabel": "Accept"
     },
     "calling": "Вызов...",
     "ringing": "Звонок...",
@@ -190,9 +206,13 @@
     "retry": "Повторить",
     "error": {
       "mediaPermission": "Для видеозвонков требуется доступ к камере и микрофону"
-    }
+    },
+    "flip": "Flip",
+    "callFailed": "Call Failed",
+    "hangUp": "Hang Up",
+    "micOff": "Mic off",
+    "camOff": "Cam off"
   },
-
   "channel": {
     "heading": "Каналы",
     "listAriaLabel": "Список каналов",
@@ -215,7 +235,6 @@
       "default": "Не удалось создать канал"
     }
   },
-
   "report": {
     "title": "Пожаловаться на пользователя",
     "subjectLabel": "Пользователь",
@@ -240,7 +259,6 @@
     "removeAttachment": "Удалить вложение",
     "fileSizeError": "Файл слишком большой. Максимум 2 МБ."
   },
-
   "poll": {
     "createPoll": "Создать опрос",
     "questionLabel": "Вопрос",
@@ -273,7 +291,6 @@
       "default": "Ошибка создания опроса"
     }
   },
-
   "reportContent": {
     "title": "Жалоба",
     "subjectLabel": "Тема",
@@ -290,5 +307,29 @@
     "success": "Жалоба отправлена. Мы разберёмся.",
     "error": "Не удалось отправить жалобу.",
     "fileSizeError": "Файл слишком большой (макс. 2 МБ)"
+  },
+  "moderation": {
+    "ban": "Ban from Room",
+    "banConfirm": "Ban this user from the room?",
+    "banned": "Banned",
+    "unban": "Unban",
+    "makeMod": "Make Moderator",
+    "removeMod": "Remove Moderator",
+    "modAdded": "Moderator added",
+    "modRemoved": "Moderator removed",
+    "error": "Action failed"
+  },
+  "roomSettings": {
+    "title": "Room Settings",
+    "slowMode": "Slow Mode (seconds)",
+    "slowModeHint": "0 = off",
+    "minAccountAge": "Min Account Age (days)",
+    "allowlist": "Allowlist Only",
+    "allowlistHint": "Only allowlisted users can send messages",
+    "save": "Save",
+    "saving": "Saving...",
+    "saved": "Settings saved",
+    "cancel": "Cancel",
+    "error": "Failed to save settings"
   }
 }

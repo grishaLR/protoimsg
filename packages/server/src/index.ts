@@ -29,6 +29,7 @@ import { pruneTypingThrottle, pruneCallAttempts } from './ws/handlers.js';
 import { pruneSlowModeTracker } from './firehose/handlers.js';
 import { EmailService } from './email/service.js';
 import { createBotService } from './bot/service.js';
+import { createNotificationService } from './notifications/service.js';
 
 async function main() {
   const config = loadConfig();
@@ -144,6 +145,10 @@ async function main() {
     log.warn('RESEND_API_KEY not set — waitlist confirmation emails will be skipped');
   }
 
+  // Push notification service
+  const notificationService = createNotificationService(db);
+  log.info('Push notification service enabled');
+
   // ProtoBuddy bot service (behind feature flag)
   const botService = config.BOT_ENABLED ? createBotService(emailService, db) : null;
   if (botService) log.info('Bot service (ProtoBuddy) enabled');
@@ -172,6 +177,7 @@ async function main() {
       firehose.failover();
     },
     emailService,
+    notificationService,
   );
   const httpServer = createServer(app);
 
@@ -189,6 +195,7 @@ async function main() {
     globalAllowlist,
     labelerService,
     botService,
+    notificationService,
   );
   log.info('WebSocket server attached');
 

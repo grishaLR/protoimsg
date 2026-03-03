@@ -84,6 +84,26 @@ export interface DmConversation {
   closingIn: number | null;
 }
 
+export interface PollView {
+  id: string;
+  uri: string;
+  did: string;
+  room_id: string;
+  channel_id: string;
+  question: string;
+  options: string[];
+  allow_multiple: boolean;
+  expires_at: string | null;
+  created_at: string;
+  indexed_at: string;
+  tallies: Record<number, number>;
+  totalVoters: number;
+  myVote: number[] | null;
+  pending?: boolean;
+}
+
+export type TimelineItem = (MessageView & { _type: 'message' }) | (PollView & { _type: 'poll' });
+
 export interface DmNotification {
   conversationId: string;
   senderDid: string;

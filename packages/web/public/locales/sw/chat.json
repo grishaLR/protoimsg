@@ -21,9 +21,21 @@
       "blocked": "Waliozuiwa",
       "followers": "Wafuasi",
       "following": "Wanaofuatwa"
-    }
+    },
+    "title": "Buddy List",
+    "filterPlaceholder": "Filter buddies...",
+    "addBuddyPlaceholder": "Add buddy by handle...",
+    "loadingBuddyList": "Loading buddy list...",
+    "noMatches": "No matches",
+    "noMatchesDetail": "No buddies matching \"{{query}}\"",
+    "addFirstBuddy": "Add your first buddy",
+    "addFirstBuddyHint": "Find people in chat rooms or search by handle",
+    "noOneOnline": "No one online",
+    "buddyOfflineCount_one": "{{count}} buddy offline",
+    "buddyOfflineCount_other": "{{count}} buddies offline",
+    "onlineCount": "{{online}} of {{total}} online",
+    "removeBuddyConfirm": "Are you sure you want to remove this buddy?"
   },
-
   "buddyMenu": {
     "button": {
       "title": "Chaguo",
@@ -41,9 +53,10 @@
     "sendImDisabled": "Mtumiaji hayuko mtandaoni",
     "videoCall": "Simu ya video",
     "videoCallDisabled": "Mtumiaji hayuko mtandaoni",
-    "report": "Ripoti mtumiaji"
+    "report": "Ripoti mtumiaji",
+    "openDm": "Open DM",
+    "call": "Call"
   },
-
   "memberMenu": {
     "button": {
       "title": "Chaguo",
@@ -59,7 +72,6 @@
     },
     "report": "Ripoti mtumiaji"
   },
-
   "messageInput": {
     "placeholder": {
       "default": "Andika ujumbe... (Enter kutuma, Shift+Enter kwa mstari mpya)",
@@ -75,7 +87,6 @@
     },
     "send": "Tuma"
   },
-
   "messageItem": {
     "contentWarning": "Onyo la maudhui",
     "clickToReveal": "Bofya kuona",
@@ -94,7 +105,6 @@
       "error": "Hitilafu"
     }
   },
-
   "userContextMenu": {
     "addToBuddyList": "Ongeza kwa Orodha ya Marafiki",
     "block": "Zuia",
@@ -106,7 +116,6 @@
       "error": "Hitilafu"
     }
   },
-
   "messageList": {
     "loading": "Inapakia ujumbe...",
     "empty": "Hakuna ujumbe bado. Anza mazungumzo!",
@@ -117,7 +126,6 @@
       "many": "watu {{count}} wanaandika..."
     }
   },
-
   "threadPanel": {
     "ariaLabel": "Mfuatano",
     "title": "Mfuatano",
@@ -129,7 +137,6 @@
     "replyCount_other": "majibu {{count}}",
     "inputPlaceholder": "Jibu kwenye mfuatano..."
   },
-
   "formattingToolbar": {
     "bold": "Nene",
     "italic": "Italiki",
@@ -137,18 +144,15 @@
     "code": "Msimbo",
     "blockquote": "Dondoo"
   },
-
   "memberList": {
     "heading": "Wanachama ({{count}})"
   },
-
   "groupHeader": {
     "renameGroup": "Badilisha jina la kundi",
     "deleteGroup": "Futa kundi",
     "expand": "Panua",
     "collapse": "Kunja"
   },
-
   "gif": {
     "title": "GIF",
     "searchPlaceholder": "Tafuta GIF...",
@@ -161,7 +165,6 @@
     "confirm": "Tuma",
     "back": "Rudi"
   },
-
   "videoCall": {
     "incoming": {
       "ariaLabel": "Simu ya video inayoingia",
@@ -169,7 +172,10 @@
       "accept": "Pokea simu",
       "acceptAriaLabel": "Pokea simu inayoingia",
       "reject": "Kataa simu",
-      "rejectAriaLabel": "Kataa simu inayoingia"
+      "rejectAriaLabel": "Kataa simu inayoingia",
+      "banner": "Incoming video call",
+      "declineLabel": "Decline",
+      "acceptLabel": "Accept"
     },
     "calling": "Inapiga simu...",
     "ringing": "Inalia...",
@@ -186,9 +192,13 @@
     "retry": "Jaribu tena",
     "error": {
       "mediaPermission": "Ruhusa ya kamera/maikrofoni inahitajika kwa simu za video"
-    }
+    },
+    "flip": "Flip",
+    "callFailed": "Call Failed",
+    "hangUp": "Hang Up",
+    "micOff": "Mic off",
+    "camOff": "Cam off"
   },
-
   "channel": {
     "heading": "Vituo",
     "listAriaLabel": "Orodha ya vituo",
@@ -211,7 +221,6 @@
       "default": "Imeshindwa kuunda kituo"
     }
   },
-
   "report": {
     "title": "Ripoti mtumiaji",
     "subjectLabel": "Mtumiaji",
@@ -236,7 +245,6 @@
     "removeAttachment": "Ondoa kiambatisho",
     "fileSizeError": "Faili kubwa sana. Ukubwa wa juu ni MB 2."
   },
-
   "poll": {
     "createPoll": "Unda Kura",
     "questionLabel": "Swali",
@@ -267,7 +275,6 @@
       "default": "Imeshindwa kuunda kura"
     }
   },
-
   "reportContent": {
     "title": "Ripoti",
     "subjectLabel": "Mada",
@@ -284,5 +291,29 @@
     "success": "Ripoti imetumwa. Tutachunguza.",
     "error": "Imeshindwa kutuma ripoti.",
     "fileSizeError": "Faili kubwa sana (upeo 2 MB)"
+  },
+  "moderation": {
+    "ban": "Ban from Room",
+    "banConfirm": "Ban this user from the room?",
+    "banned": "Banned",
+    "unban": "Unban",
+    "makeMod": "Make Moderator",
+    "removeMod": "Remove Moderator",
+    "modAdded": "Moderator added",
+    "modRemoved": "Moderator removed",
+    "error": "Action failed"
+  },
+  "roomSettings": {
+    "title": "Room Settings",
+    "slowMode": "Slow Mode (seconds)",
+    "slowModeHint": "0 = off",
+    "minAccountAge": "Min Account Age (days)",
+    "allowlist": "Allowlist Only",
+    "allowlistHint": "Only allowlisted users can send messages",
+    "save": "Save",
+    "saving": "Saving...",
+    "saved": "Settings saved",
+    "cancel": "Cancel",
+    "error": "Failed to save settings"
   }
 }

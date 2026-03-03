@@ -1,12 +1,10 @@
 {
   "back": "Назад",
-
   "accountInfo": {
     "title": "Информация об аккаунте",
     "didLabel": "DID",
     "handleLabel": "Идентификатор"
   },
-
   "editProfile": {
     "title": "Редактировать профиль",
     "loading": "Загрузка профиля...",
@@ -16,27 +14,22 @@
     "saving": "Сохранение...",
     "save": "Сохранить"
   },
-
   "appearance": {
     "title": "Оформление"
   },
-
   "language": {
     "title": "Язык"
   },
-
   "translation": {
     "title": "Перевод",
     "autoTranslate": "Автоперевод постов",
     "autoTranslateHint": "Автоматически переводить посты и биографии на ваш язык"
   },
-
   "notifications": {
     "title": "Уведомления",
     "enableSounds": "Включить звуки",
     "enableSoundsHint": "Воспроизводить звуки входа/выхода, новых сообщений и входящих звонков"
   },
-
   "privacy": {
     "title": "Конфиденциальность",
     "ipProtectionLabel": "Защита IP при звонках",
@@ -46,9 +39,11 @@
     "options": {
       "nonInnerCircle": "Прямое для ближнего круга, ретрансляция для остальных (рекомендуется)",
       "all": "Скрыть мой IP от всех"
-    }
+    },
+    "relayExceptIc": "Relay except IC",
+    "relayAlways": "Relay always",
+    "ipDescription": "Controls whether calls and DMs use a relay to protect your IP address."
   },
-
   "changePassword": {
     "title": "Изменить пароль",
     "description": "Мы отправим код на вашу электронную почту для подтверждения личности.",
@@ -75,9 +70,14 @@
       "mismatch": "Пароли не совпадают."
     }
   },
-
   "actions": {
     "title": "Действия",
     "signOut": "Выйти"
+  },
+  "profile": {
+    "title": "Profile"
+  },
+  "preferences": {
+    "title": "Preferences"
   }
 }

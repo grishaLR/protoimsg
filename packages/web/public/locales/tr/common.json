@@ -1,19 +1,18 @@
 {
   "appName": "proto IM",
-
   "status": {
     "online": "Çevrimiçi",
     "away": "Uzakta",
-    "idle": "Boşta"
+    "idle": "Boşta",
+    "offline": "Offline",
+    "disconnected": "Disconnected"
   },
-
   "visibility": {
     "everyone": "Herkes",
     "community": "Topluluk",
     "innerCircle": "Yakın Çevre",
     "noOne": "Kimse"
   },
-
   "theme": {
     "aim": "'98 Klasik",
     "nytLight": "Minimal Açık",
@@ -28,13 +27,14 @@
     "black": "Siyah",
     "wireframe": "Wireframe"
   },
-
   "nav": {
     "community": "Topluluk",
     "rooms": "Odalar",
-    "feed": "Akış"
+    "feed": "Akış",
+    "buddies": "Buddies",
+    "chat": "Chat",
+    "profile": "Profile"
   },
-
   "header": {
     "menu": "Menü",
     "awayMessage": {
@@ -48,7 +48,6 @@
     "minimize": "Küçült",
     "signOut": "Çıkış Yap"
   },
-
   "statusSelector": {
     "awayMessage": {
       "label": "Uzakta mesajı",
@@ -58,36 +57,34 @@
       "label": "Beni kim görebilir"
     }
   },
-
   "connectionBanner": {
     "message": "Bağlantı kesildi — yeniden bağlanılıyor..."
   },
-
   "betaBanner": {
     "message": "Erken aşamadayız ve bazı şeyler bozulabilir! Bize ulaşın:",
     "dismiss": "Kapat"
   },
-
   "errorBoundary": {
     "title": "Bir şeyler ters gitti",
     "fallbackMessage": "Beklenmeyen bir hata oluştu",
     "tryAgain": "Tekrar dene"
   },
-
   "button": {
     "back": "Geri",
     "cancel": "İptal",
     "send": "Gönder",
     "close": "Kapat",
     "save": "Kaydet",
-    "settings": "Ayarlar"
+    "settings": "Ayarlar",
+    "done": "Done",
+    "retry": "Retry",
+    "signIn": "Sign In",
+    "signOut": "Sign Out"
   },
-
   "aria": {
     "expand": "Genişlet",
     "collapse": "Daralt"
   },
-
   "feedback": {
     "menuItem": "Geri Bildirim Gönder",
     "title": "Geri Bildirim Gönder",
@@ -98,7 +95,10 @@
     "success": "Teşekkürler! Geri bildirim gönderildi.",
     "error": "Bir şeyler ters gitti. Tekrar dene."
   },
-
+  "rtlRestart": {
+    "title": "Restart Required",
+    "message": "Please restart the app for the layout direction to update."
+  },
   "serverError": {
     "unknown": "Bilinmeyen bir hata oluştu",
     "unauthorized": "Giriş yapmalısın",

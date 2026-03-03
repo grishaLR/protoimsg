@@ -1,12 +1,10 @@
 {
   "back": "Atrás",
-
   "accountInfo": {
     "title": "Información de cuenta",
     "didLabel": "DID",
     "handleLabel": "Handle"
   },
-
   "editProfile": {
     "title": "Editar perfil",
     "loading": "Cargando perfil...",
@@ -16,27 +14,22 @@
     "saving": "Guardando...",
     "save": "Guardar"
   },
-
   "appearance": {
     "title": "Apariencia"
   },
-
   "language": {
     "title": "Idioma"
   },
-
   "translation": {
     "title": "Traducción",
     "autoTranslate": "Traducir publicaciones automáticamente",
     "autoTranslateHint": "Traducir automáticamente publicaciones y biografías a tu idioma"
   },
-
   "notifications": {
     "title": "Notificaciones",
     "enableSounds": "Activar sonidos",
     "enableSoundsHint": "Reproducir sonidos para entrada/salida, nuevos mensajes y llamadas entrantes"
   },
-
   "privacy": {
     "title": "Privacidad",
     "ipProtectionLabel": "Protección IP para llamadas",
@@ -46,9 +39,11 @@
     "options": {
       "nonInnerCircle": "Directo para el círculo íntimo, relay para todos los demás (recomendado)",
       "all": "Ocultar mi IP de todos"
-    }
+    },
+    "relayExceptIc": "Relay except IC",
+    "relayAlways": "Relay always",
+    "ipDescription": "Controls whether calls and DMs use a relay to protect your IP address."
   },
-
   "changePassword": {
     "title": "Cambiar contraseña",
     "description": "Te enviaremos un código a tu correo para verificar tu identidad.",
@@ -75,9 +70,14 @@
       "mismatch": "Las contraseñas no coinciden."
     }
   },
-
   "actions": {
     "title": "Acciones",
     "signOut": "Cerrar sesión"
+  },
+  "profile": {
+    "title": "Profile"
+  },
+  "preferences": {
+    "title": "Preferences"
   }
 }
