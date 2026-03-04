@@ -61,6 +61,8 @@ export function createApp(
   notificationService?: NotificationService | null,
 ): Express {
   const app = express();
+  // Trust one proxy hop (Fly.io) so req.ip reflects the real client IP
+  app.set('trust proxy', 1);
   const requireAuth = createRequireAuth(sessions);
 
   // Middleware

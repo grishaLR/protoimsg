@@ -12,8 +12,44 @@ import type { NotificationService } from '../notifications/service.js';
 
 import { createLogger } from '../logger.js';
 import { incUniqueLogins } from '../stats/queries.js';
+import { InMemoryRateLimiter } from '../moderation/rate-limiter.js';
+import { createRateLimitMiddleware } from '../middleware/rate-limit.js';
 
 const log = createLogger('auth');
+
+/** Known PDS error types safe to forward to the client. */
+const SAFE_PDS_ERRORS = new Set([
+  'HandleNotAvailable',
+  'InvalidHandle',
+  'InvalidEmail',
+  'InvalidPassword',
+  'InvalidInviteCode',
+  'UnsupportedDomain',
+  'AccountTakedown',
+  'UnresolvableDid',
+]);
+
+function sanitizePdsError(pdsError: { error?: string; message?: string }, status: number): string {
+  // For 5xx (mapped to 502), always return generic message
+  if (status >= 500) return 'Account creation failed. Please try again later.';
+  // For known PDS error types, forward the human-readable message
+  if (pdsError.error && SAFE_PDS_ERRORS.has(pdsError.error)) {
+    return pdsError.message ?? pdsError.error;
+  }
+  return 'Account creation failed';
+}
+
+const signupBodySchema = z.object({
+  handle: z
+    .string()
+    .min(3)
+    .max(63)
+    .regex(/^[a-z0-9][a-z0-9-]*[a-z0-9]\.protoimsg\.app$/i, 'Invalid handle format'),
+  email: z.string().email().max(254),
+  password: z.string().min(8).max(256),
+  dob: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Date must be YYYY-MM-DD'),
+  turnstileToken: z.string().max(4096).optional(),
+});
 
 const challengeBodySchema = z.object({
   did: z.string(),
@@ -37,6 +73,114 @@ export function authRouter(
 ): Router {
   const router = Router();
   const requireAuth = createRequireAuth(sessions);
+  // Stricter rate limit for signup: 3 per minute per IP (account creation is expensive)
+  const signupLimiter = new InMemoryRateLimiter({ windowMs: 60_000, maxRequests: 3 });
+
+  // POST /api/auth/signup — Turnstile-verified proxy to PDS createAccount
+  router.post('/signup', createRateLimitMiddleware(signupLimiter), async (req, res, next) => {
+    try {
+      const parsed = signupBodySchema.safeParse(req.body);
+      if (!parsed.success) {
+        res.status(400).json({
+          error: 'Invalid request body',
+          errorCode: ERROR_CODES.INVALID_INPUT,
+          details: parsed.error.issues,
+        });
+        return;
+      }
+
+      const { handle, email, password, dob, turnstileToken } = parsed.data;
+
+      // Verify Turnstile token if configured
+      if (config.TURNSTILE_SECRET_KEY) {
+        if (!turnstileToken) {
+          res.status(403).json({
+            error: 'CAPTCHA verification required',
+            errorCode: ERROR_CODES.CAPTCHA_FAILED,
+          });
+          return;
+        }
+
+        const verifyRes = await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          signal: AbortSignal.timeout(5000),
+          body: new URLSearchParams({
+            secret: config.TURNSTILE_SECRET_KEY,
+            response: turnstileToken,
+            remoteip: req.ip ?? '',
+          }),
+        });
+
+        const verifyData = (await verifyRes.json()) as { success: boolean };
+        if (!verifyData.success) {
+          log.warn({ handle }, 'auth/signup rejected: Turnstile verification failed');
+          res.status(403).json({
+            error: 'CAPTCHA verification failed',
+            errorCode: ERROR_CODES.CAPTCHA_FAILED,
+          });
+          return;
+        }
+      }
+
+      // Proxy account creation to PDS
+      const pdsUrl = config.PDS_URL ?? 'https://pds.protoimsg.app';
+      const pdsRes = await fetch(`${pdsUrl}/xrpc/com.atproto.server.createAccount`, {
+        method: 'POST',
+        signal: AbortSignal.timeout(10000),
+        headers: {
+          'Content-Type': 'application/json',
+          'User-Agent': USER_AGENT,
+        },
+        body: JSON.stringify({
+          handle,
+          email,
+          password,
+          birthDate: dob,
+        }),
+      });
+
+      if (!pdsRes.ok) {
+        const pdsError = (await pdsRes.json().catch(() => ({}))) as {
+          error?: string;
+          message?: string;
+        };
+        log.warn(
+          { handle, status: pdsRes.status, pdsError: pdsError.error },
+          'auth/signup PDS error',
+        );
+        // Forward 4xx as client errors; map 5xx to 502 (upstream failure)
+        const clientStatus = pdsRes.status >= 400 && pdsRes.status < 500 ? pdsRes.status : 502;
+        res.status(clientStatus).json({
+          error: sanitizePdsError(pdsError, clientStatus),
+        });
+        return;
+      }
+
+      const pdsData = (await pdsRes.json()) as { did: string; handle: string };
+      log.info({ did: pdsData.did, handle: pdsData.handle }, 'auth/signup account created');
+
+      // Auto-add to allowlist so the user can immediately log in
+      if (sql) {
+        await globalAllowlist.add(sql, pdsData.did, pdsData.handle, 'signup', 'system');
+      }
+
+      // Fire-and-forget: add to waitlist for admin visibility
+      if (sql) {
+        void sql`
+          INSERT INTO waitlist (handle, did, email, source)
+          VALUES (${pdsData.handle}, ${pdsData.did}, ${email}, 'signup')
+          ON CONFLICT (did) DO UPDATE SET handle = EXCLUDED.handle, email = EXCLUDED.email
+        `.catch((err: unknown) => {
+          log.warn({ err, did: pdsData.did }, 'signup waitlist insert failed');
+        });
+      }
+
+      res.status(201).json({ did: pdsData.did, handle: pdsData.handle });
+    } catch (err) {
+      next(err);
+    }
+  });
 
   // GET /api/auth/preflight?handle=<handle> — pre-OAuth ban check
   router.get('/preflight', async (req, res, next) => {

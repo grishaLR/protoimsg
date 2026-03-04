@@ -124,13 +124,6 @@ export async function joinWaitlist(email: string, handle: string): Promise<{ suc
 
 // -- PDS account creation --
 
-export interface CreatePdsAccountParams {
-  handle: string;
-  email: string;
-  password: string;
-  dob: string;
-}
-
 export interface CreatePdsAccountResult {
   did: string;
   handle: string;
@@ -153,29 +146,41 @@ export async function checkHandleAvailability(
   return false;
 }
 
-/** Create a new account on the protoimsg PDS. */
-export async function createPdsAccount(
-  params: CreatePdsAccountParams,
-): Promise<CreatePdsAccountResult> {
-  const res = await fetch(`${PDS_URL}/xrpc/com.atproto.server.createAccount`, {
+export class CaptchaFailedError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = 'CaptchaFailedError';
+  }
+}
+
+/** Create an account via the protoimsg server (Turnstile-verified proxy to PDS). */
+export async function createAccount(params: {
+  handle: string;
+  email: string;
+  password: string;
+  dob: string;
+  turnstileToken?: string;
+}): Promise<CreatePdsAccountResult> {
+  const res = await fetch(`${API_URL}/api/auth/signup`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      handle: params.handle,
-      email: params.email,
-      password: params.password,
-      birthDate: params.dob,
-    }),
+    body: JSON.stringify(params),
   });
 
   if (!res.ok) {
-    const data = (await res.json().catch(() => ({}))) as { error?: string; message?: string };
+    const data = (await res.json().catch(() => ({}))) as {
+      error?: string;
+      errorCode?: string;
+      message?: string;
+    };
+    if (data.errorCode === 'CAPTCHA_FAILED') {
+      throw new CaptchaFailedError(data.error ?? 'Verification failed');
+    }
     const message = data.message ?? data.error ?? 'Account creation failed';
     throw new Error(message);
   }
 
-  const data = (await res.json()) as { did: string; handle: string };
-  return { did: data.did, handle: data.handle };
+  return (await res.json()) as CreatePdsAccountResult;
 }
 
 // -- Translate types --
