@@ -14,6 +14,7 @@ import { getOAuthClient, REQUIRED_SCOPES, AUTH_VERSION } from '../lib/oauth';
 import {
   AccountBannedError,
   NotOnAllowlistError,
+  CaptchaFailedError,
   preflightCheck,
   fetchChallenge,
   createServerSession,
@@ -46,7 +47,11 @@ export interface AuthContextValue {
   hasBskyReads: boolean;
   hasBskyAccess: boolean;
   grantedScopes: string[];
-  login: (handle: string, optionalGroups?: OptionalScopeGroup[]) => Promise<void>;
+  login: (
+    handle: string,
+    optionalGroups?: OptionalScopeGroup[],
+    turnstileToken?: string,
+  ) => Promise<void>;
   logout: () => void;
 }
 
@@ -317,28 +322,36 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, [clearAuth]);
 
-  const login = useCallback(async (inputHandle: string, optionalGroups?: OptionalScopeGroup[]) => {
-    setAuthError(null);
+  const login = useCallback(
+    async (inputHandle: string, optionalGroups?: OptionalScopeGroup[], turnstileToken?: string) => {
+      setAuthError(null);
 
-    // Pre-OAuth ban check — throws AccountBannedError if banned.
-    // Let it propagate so the caller (LoginForm) can show a proper banned screen.
-    // Non-ban errors (network, etc.) are swallowed — let OAuth proceed normally.
-    try {
-      await preflightCheck(inputHandle);
-    } catch (err: unknown) {
-      if (err instanceof AccountBannedError || err instanceof NotOnAllowlistError) throw err;
-    }
+      // Pre-OAuth ban + captcha check — throws on ban, allowlist, or captcha failure.
+      // Let it propagate so the caller (LoginForm) can show the proper screen.
+      // Non-ban errors (network, etc.) are swallowed — let OAuth proceed normally.
+      try {
+        await preflightCheck(inputHandle, turnstileToken);
+      } catch (err: unknown) {
+        if (
+          err instanceof AccountBannedError ||
+          err instanceof NotOnAllowlistError ||
+          err instanceof CaptchaFailedError
+        )
+          throw err;
+      }
 
-    // Flag that an OAuth redirect is in progress — checked on return to
-    // decide whether to show the full ConnectingScreen or a quick restore.
-    sessionStorage.setItem('protoimsg:oauth_pending', '1');
-    const oauthClient = getOAuthClient();
-    await oauthClient.signIn(inputHandle, {
-      scope: buildOAuthScope(optionalGroups),
-    });
-    // This redirects to PDS — execution won't continue here.
-    // On return, init() in the useEffect above catches the callback.
-  }, []);
+      // Flag that an OAuth redirect is in progress — checked on return to
+      // decide whether to show the full ConnectingScreen or a quick restore.
+      sessionStorage.setItem('protoimsg:oauth_pending', '1');
+      const oauthClient = getOAuthClient();
+      await oauthClient.signIn(inputHandle, {
+        scope: buildOAuthScope(optionalGroups),
+      });
+      // This redirects to PDS — execution won't continue here.
+      // On return, init() in the useEffect above catches the callback.
+    },
+    [],
+  );
 
   const logout = useCallback(() => {
     const sub = did;
