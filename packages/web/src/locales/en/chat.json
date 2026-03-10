@@ -4,6 +4,29 @@
     "addBuddyLabel": "Add Buddy",
     "loading": "Loading...",
     "empty": "No buddies yet",
+    "title": "Buddy List",
+    "filterPlaceholder": "Filter buddies...",
+    "addBuddyPlaceholder": "Add buddy by handle...",
+    "loadingBuddyList": "Loading buddy list...",
+    "noMatches": "No matches",
+    "noMatchesDetail": "No buddies matching \"{{query}}\"",
+    "addFirstBuddy": "Add your first buddy",
+    "addFirstBuddyHint": "Find people in chat rooms or search by handle",
+    "noOneOnline": "No one online",
+    "buddyOfflineCount_one": "{{count}} buddy offline",
+    "buddyOfflineCount_other": "{{count}} buddies offline",
+    "onlineCount": "{{online}} of {{total}} online",
+    "removeBuddyConfirm": "Are you sure you want to remove this buddy?",
+    "germ": {
+      "checkFailed": "Could not check GERM status for this user.",
+      "notEnabled": "This user does not have GERM messaging enabled.",
+      "openFailed": "Failed to open GERM messaging."
+    },
+    "accessibility": {
+      "messageBuddy": "Message {{name}}, {{status}}",
+      "callBuddy": "Call {{name}}",
+      "groupHeader": "{{group}} group, {{online}} of {{total}} online"
+    },
     "createGroup": {
       "placeholder": "Group name...",
       "button": "+ Create Group"
@@ -29,6 +52,8 @@
       "title": "Options",
       "ariaLabel": "Buddy options"
     },
+    "openDm": "Open DM",
+    "call": "Call",
     "sendIm": "Send IM",
     "addToInnerCircle": "Add to Inner Circle",
     "removeFromInnerCircle": "Remove from Inner Circle",
@@ -169,7 +194,10 @@
       "accept": "Accept call",
       "acceptAriaLabel": "Accept incoming call",
       "reject": "Reject call",
-      "rejectAriaLabel": "Reject incoming call"
+      "rejectAriaLabel": "Reject incoming call",
+      "banner": "Incoming video call",
+      "declineLabel": "Decline",
+      "acceptLabel": "Accept"
     },
     "calling": "Calling...",
     "ringing": "Ringing...",
@@ -179,9 +207,14 @@
     "cameraOff": "Turn camera off",
     "cameraOn": "Turn camera on",
     "flipCamera": "Flip camera",
+    "flip": "Flip",
     "connectionFailed": "Connection failed",
+    "callFailed": "Call Failed",
     "retry": "Retry",
     "endCall": "End call",
+    "hangUp": "Hang Up",
+    "micOff": "Mic off",
+    "camOff": "Cam off",
     "shareScreen": "Share screen",
     "stopSharing": "Stop sharing",
     "error": {

@@ -1,36 +1,63 @@
-import { Tabs } from 'expo-router';
+import { Tabs, Redirect } from 'expo-router';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '@/services/auth';
 import { useDm } from '@/services/DmContext';
-import { useTheme } from '@/theme';
-import LoginScreen from '@/components/LoginScreen';
+import { useTheme, useAimStyle } from '@/theme';
 
 export default function TabLayout() {
-  const { session } = useAuth();
+  const { t } = useTranslation();
+  const { session, isLoading } = useAuth();
   const { colors } = useTheme();
+  const { isAim } = useAimStyle();
   const { notifications } = useDm();
-
-  if (!session) {
-    return <LoginScreen />;
-  }
-
   const badgeCount = notifications.length;
+
+  // Redirect to login when session is cleared (e.g. sign out)
+  if (!isLoading && !session) {
+    return <Redirect href="/" />;
+  }
 
   return (
     <Tabs
       screenOptions={{
         headerShown: false,
         tabBarStyle: {
-          backgroundColor: colors.surface,
-          borderTopColor: colors.base200,
+          backgroundColor: isAim ? colors.base100 : colors.surface,
+          borderTopColor: isAim ? colors.borderDark : colors.base200,
+          borderTopWidth: isAim ? 1 : undefined,
+          ...(isAim
+            ? {
+                borderLeftWidth: 0,
+                borderRightWidth: 0,
+                borderBottomWidth: 0,
+              }
+            : {}),
         },
-        tabBarActiveTintColor: colors.primary,
+        tabBarActiveTintColor: isAim ? colors.baseContent : colors.primary,
         tabBarInactiveTintColor: colors.chromeTextMuted,
+        ...(isAim
+          ? {
+              tabBarIconStyle: { display: 'none' as const },
+              tabBarItemStyle: {
+                borderWidth: 1,
+                borderTopColor: '#fff',
+                borderLeftColor: '#fff',
+                borderBottomColor: '#0a0a0a',
+                borderRightColor: '#0a0a0a',
+                marginHorizontal: 1,
+                marginVertical: 2,
+                backgroundColor: colors.base100,
+                justifyContent: 'center' as const,
+              },
+              tabBarLabelPosition: 'beside-icon' as const,
+            }
+          : {}),
       }}
     >
       <Tabs.Screen
         name="buddy-list"
         options={{
-          title: 'Buddies',
+          title: t('nav.buddies'),
           tabBarIcon: (_props) => null, // TODO: icon
           tabBarBadge: badgeCount > 0 ? badgeCount : undefined,
           tabBarBadgeStyle: badgeCount > 0 ? { backgroundColor: colors.error } : undefined,
@@ -39,14 +66,14 @@ export default function TabLayout() {
       <Tabs.Screen
         name="chat"
         options={{
-          title: 'Chat',
+          title: t('nav.chat'),
           tabBarIcon: (_props) => null, // TODO: icon
         }}
       />
       <Tabs.Screen
         name="profile"
         options={{
-          title: 'Profile',
+          title: t('nav.profile'),
           tabBarIcon: (_props) => null, // TODO: icon
         }}
       />

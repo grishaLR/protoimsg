@@ -30,28 +30,29 @@
     "submitting": "Создание...",
     "submit": "Создать"
   },
-
   "roomList": {
-    "empty": "Комнат не найдено. Создайте первую!"
+    "empty": "Комнат не найдено. Создайте первую!",
+    "noRooms": "No rooms yet"
   },
-
   "roomCard": {
     "createdDate": "Создана {{date}}",
     "translate": "Перевести",
     "translating": "Перевод...",
     "translatedTo": "Переведено на {{lang}}",
-    "showOriginal": "Показать оригинал"
+    "showOriginal": "Показать оригинал",
+    "slowMode": "slow: {{seconds}}s"
   },
-
   "directory": {
     "searchPlaceholder": "Поиск комнат...",
     "createButton": "Создать комнату",
     "loading": "Загрузка комнат...",
     "allCategories": "Все",
     "publicRoomsHeader": "Публичные чат-комнаты",
-    "publicRoomsInfo": "Чат-комнаты — это публичные пространства, как выход на улицу. Сообщения хранятся в протоколе AT и видны всем, даже если ваш статус в списке друзей установлен как невидимый."
+    "publicRoomsInfo": "Чат-комнаты — это публичные пространства, как выход на улицу. Сообщения хранятся в протоколе AT и видны всем, даже если ваш статус в списке друзей установлен как невидимый.",
+    "title": "Chat Rooms",
+    "roomCount_one": "{{count}} room",
+    "roomCount_other": "{{count}} rooms"
   },
-
   "chatRoom": {
     "invalidId": "Неверный ID комнаты",
     "loading": "Подготовка комнаты...",
@@ -64,6 +65,15 @@
     "members": "Участники",
     "sendFailed": "Не удалось отправить сообщение. Попробуйте ещё раз.",
     "dismiss": "Закрыть",
-    "reportRoom": "Пожаловаться на комнату"
+    "reportRoom": "Пожаловаться на комнату",
+    "noOneHereYet": "No one else here yet",
+    "noMessagesYet": "No messages yet. Say something!",
+    "settings": "Room Settings"
+  },
+  "accessibility": {
+    "messageInput": "Message input",
+    "sendMessage": "Send message",
+    "slowModeWait": "Slow mode: {{seconds}}s",
+    "channel": "Channel {{name}}"
   }
 }

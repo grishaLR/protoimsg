@@ -4,12 +4,14 @@
     "ariaLabel": "DM संदेश लिखें",
     "send": "भेजें"
   },
-
   "messageList": {
     "empty": "अभी कोई संदेश नहीं। नमस्ते कहें!",
     "typing": "टाइप कर रहा है..."
   },
 
+  "typing": {
+    "label": "typing"
+  },
   "popover": {
     "ariaLabel": "{{recipientDid}} के साथ DM बातचीत",
     "header": {
@@ -38,7 +40,6 @@
       "ariaLabel": "बातचीत बंद करें"
     }
   },
-
   "notification": {
     "ariaLabel": "{{senderDid}} से नया संदेश",
     "incoming": "चैट करना चाहता है",
@@ -47,13 +48,23 @@
       "ariaLabel": "सूचना खारिज करें"
     }
   },
-
   "popoverContainer": {
     "ariaLabel": "DM सूचनाएँ"
   },
-
   "window": {
     "connecting": "जुड़ रहे हैं…",
     "waitingForConnection": "कनेक्शन की प्रतीक्षा…"
+  },
+  "status": {
+    "connecting": "Connecting...",
+    "connected": "Connected",
+    "connectionFailed": "Connection failed",
+    "closingIn": "Partner disconnected — closing in {{seconds}}s",
+    "saySomething": "Say something!",
+    "waitingForConnection": "Waiting for connection..."
+  },
+  "devClientRequired": {
+    "title": "Dev Client Required",
+    "description": "DMs require WebRTC which needs a native dev client build. Run expo prebuild then build with Xcode or Android Studio."
   }
 }

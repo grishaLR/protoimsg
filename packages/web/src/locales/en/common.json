@@ -4,7 +4,9 @@
   "status": {
     "online": "Online",
     "away": "Away",
-    "idle": "Idle"
+    "idle": "Idle",
+    "offline": "Offline",
+    "disconnected": "Disconnected"
   },
 
   "visibility": {
@@ -32,7 +34,10 @@
   "nav": {
     "community": "Community",
     "rooms": "Rooms",
-    "feed": "Feed"
+    "feed": "Feed",
+    "buddies": "Buddies",
+    "chat": "Chat",
+    "profile": "Profile"
   },
 
   "header": {
@@ -80,7 +85,11 @@
     "send": "Send",
     "close": "Close",
     "save": "Save",
-    "settings": "Settings"
+    "settings": "Settings",
+    "done": "Done",
+    "retry": "Retry",
+    "signIn": "Sign In",
+    "signOut": "Sign Out"
   },
 
   "aria": {
@@ -97,6 +106,11 @@
     "cancel": "Cancel",
     "success": "Thanks! Feedback sent.",
     "error": "Something went wrong. Try again."
+  },
+
+  "rtlRestart": {
+    "title": "Restart Required",
+    "message": "Please restart the app for the layout direction to update."
   },
 
   "serverError": {

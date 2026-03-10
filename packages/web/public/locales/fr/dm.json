@@ -1,36 +1,38 @@
 {
   "input": {
     "placeholder": "Saisissez un message...",
-    "ariaLabel": "Saisissez un message priv\u00e9",
+    "ariaLabel": "Saisissez un message privé",
     "send": "Envoyer"
   },
-
   "messageList": {
     "empty": "Aucun message pour l'instant. Dites bonjour !",
-    "typing": "est en train d'\u00e9crire..."
+    "typing": "est en train d'écrire..."
   },
 
+  "typing": {
+    "label": "typing"
+  },
   "popover": {
-    "ariaLabel": "Conversation priv\u00e9e avec {{recipientDid}}",
+    "ariaLabel": "Conversation privée avec {{recipientDid}}",
     "header": {
       "ariaLabel": {
-        "expand": "MP avec {{recipientDid}} \u2014 cliquez pour agrandir",
-        "minimize": "MP avec {{recipientDid}} \u2014 cliquez pour r\u00e9duire"
+        "expand": "MP avec {{recipientDid}} — cliquez pour agrandir",
+        "minimize": "MP avec {{recipientDid}} — cliquez pour réduire"
       }
     },
     "unreadAriaLabel": "{{count}} messages non lus",
     "unreadOverflow": "99+",
-    "connecting": "Connexion\u2026",
-    "connectionFailed": "\u00c9chec de la connexion",
-    "retry": "R\u00e9essayer",
-    "peerClosed": "Discussion ferm\u00e9e. Utilisez Germ pour les messages hors ligne.",
-    "closingCountdown": "Discussion termin\u00e9e. Fermeture dans {{seconds}}s\u2026",
+    "connecting": "Connexion…",
+    "connectionFailed": "Échec de la connexion",
+    "retry": "Réessayer",
+    "peerClosed": "Discussion fermée. Utilisez Germ pour les messages hors ligne.",
+    "closingCountdown": "Discussion terminée. Fermeture dans {{seconds}}s…",
     "minimize": {
       "titleExpand": "Agrandir",
-      "titleMinimize": "R\u00e9duire",
+      "titleMinimize": "Réduire",
       "ariaLabel": {
         "expand": "Agrandir la conversation",
-        "minimize": "R\u00e9duire la conversation"
+        "minimize": "Réduire la conversation"
       }
     },
     "close": {
@@ -38,7 +40,6 @@
       "ariaLabel": "Fermer la conversation"
     }
   },
-
   "notification": {
     "ariaLabel": "Nouveau message de {{senderDid}}",
     "incoming": "veut discuter",
@@ -47,13 +48,23 @@
       "ariaLabel": "Ignorer la notification"
     }
   },
-
   "popoverContainer": {
-    "ariaLabel": "Notifications de messages priv\u00e9s"
+    "ariaLabel": "Notifications de messages privés"
   },
-
   "window": {
-    "connecting": "Connexion\u2026",
-    "waitingForConnection": "En attente de la connexion\u2026"
+    "connecting": "Connexion…",
+    "waitingForConnection": "En attente de la connexion…"
+  },
+  "status": {
+    "connecting": "Connecting...",
+    "connected": "Connected",
+    "connectionFailed": "Connection failed",
+    "closingIn": "Partner disconnected — closing in {{seconds}}s",
+    "saySomething": "Say something!",
+    "waitingForConnection": "Waiting for connection..."
+  },
+  "devClientRequired": {
+    "title": "Dev Client Required",
+    "description": "DMs require WebRTC which needs a native dev client build. Run expo prebuild then build with Xcode or Android Studio."
   }
 }

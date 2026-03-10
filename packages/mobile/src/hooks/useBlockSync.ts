@@ -3,8 +3,9 @@ import { useAuth } from '@/services/auth';
 import { useWebSocket } from '@/services/WebSocketContext';
 
 /**
- * Fetches the user's atproto block + mute lists and syncs them to the server via WS.
- * Port of packages/web/src/hooks/useBlockSync.ts.
+ * Fetches the user's atproto block list and syncs it to the server via WS.
+ * Uses listRecords (direct PDS call) instead of getBlocks (appview proxy)
+ * to avoid needing feed/moderation scopes.
  */
 export function useBlockSync() {
   const { agent, did } = useAuth();
@@ -19,28 +20,26 @@ export function useBlockSync() {
 
     try {
       const blocked: string[] = [];
-      let cursor: string | undefined;
 
-      // Paginate through all blocks
+      // Use listRecords for blocks — direct PDS call, no appview proxy.
+      // Avoids needing fine-grained feed/moderation scopes.
+      let cursor: string | undefined;
       do {
-        const res = await agent.app.bsky.graph.getBlocks({ limit: 100, cursor });
-        for (const block of res.data.blocks) {
-          blocked.push(block.did);
+        const res = await agent.com.atproto.repo.listRecords({
+          repo: did,
+          collection: 'app.bsky.graph.block',
+          limit: 100,
+          cursor,
+        });
+        for (const rec of res.data.records) {
+          const subject = (rec.value as { subject?: string }).subject;
+          if (subject) blocked.push(subject);
         }
         cursor = res.data.cursor;
       } while (cursor);
 
-      // Also fetch mutes
-      let muteCursor: string | undefined;
-      do {
-        const res = await agent.app.bsky.graph.getMutes({ limit: 100, cursor: muteCursor });
-        for (const mute of res.data.mutes) {
-          if (!blocked.includes(mute.did)) {
-            blocked.push(mute.did);
-          }
-        }
-        muteCursor = res.data.cursor;
-      } while (muteCursor);
+      // Mutes are appview-managed (no repo records) and require feed scopes.
+      // Mobile doesn't request feed scopes, so skip mutes entirely.
 
       setBlockedDids(new Set(blocked));
       sendRef.current({ type: 'sync_blocks', blockedDids: blocked });

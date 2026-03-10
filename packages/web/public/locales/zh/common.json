@@ -1,19 +1,18 @@
 {
   "appName": "proto IM",
-
   "status": {
     "online": "在线",
     "away": "离开",
-    "idle": "空闲"
+    "idle": "空闲",
+    "offline": "Offline",
+    "disconnected": "Disconnected"
   },
-
   "visibility": {
     "everyone": "所有人",
     "community": "社区",
     "innerCircle": "密友圈",
     "noOne": "无人"
   },
-
   "theme": {
     "aim": "'98 经典",
     "nytLight": "简约浅色",
@@ -28,13 +27,14 @@
     "black": "黑色",
     "wireframe": "Wireframe"
   },
-
   "nav": {
     "community": "社区",
     "rooms": "聊天室",
-    "feed": "动态"
+    "feed": "动态",
+    "buddies": "Buddies",
+    "chat": "Chat",
+    "profile": "Profile"
   },
-
   "header": {
     "menu": "菜单",
     "awayMessage": {
@@ -48,7 +48,6 @@
     "minimize": "最小化",
     "signOut": "退出登录"
   },
-
   "statusSelector": {
     "awayMessage": {
       "label": "离开消息",
@@ -58,36 +57,34 @@
       "label": "谁能看到我"
     }
   },
-
   "connectionBanner": {
     "message": "连接已断开 - 正在重新连接..."
   },
-
   "betaBanner": {
     "message": "我们还处于早期阶段，可能会出现问题！请通过以下方式联系我们",
     "dismiss": "关闭"
   },
-
   "errorBoundary": {
     "title": "出了点问题",
     "fallbackMessage": "发生了意外错误",
     "tryAgain": "重试"
   },
-
   "button": {
     "back": "返回",
     "cancel": "取消",
     "send": "发送",
     "close": "关闭",
     "save": "保存",
-    "settings": "设置"
+    "settings": "设置",
+    "done": "Done",
+    "retry": "Retry",
+    "signIn": "Sign In",
+    "signOut": "Sign Out"
   },
-
   "aria": {
     "expand": "展开",
     "collapse": "收起"
   },
-
   "feedback": {
     "menuItem": "发送反馈",
     "title": "发送反馈",
@@ -98,7 +95,10 @@
     "success": "谢谢！反馈已发送。",
     "error": "出了点问题，请重试。"
   },
-
+  "rtlRestart": {
+    "title": "Restart Required",
+    "message": "Please restart the app for the layout direction to update."
+  },
   "serverError": {
     "unknown": "发生了未知错误",
     "unauthorized": "请先登录",

@@ -1,6 +1,6 @@
 import { API_URL } from './config';
 import { getStoredToken, setStoredToken } from './storage';
-import type { RoomView, MessageView } from '@/types';
+import type { RoomView, MessageView, PollView } from '@/types';
 
 // -- In-memory token cache (mirrors stored value) --
 
@@ -138,6 +138,51 @@ export async function fetchIceServers(): Promise<IceServer[]> {
   }
 }
 
+// -- Translation --
+
+export interface TranslateResponseItem {
+  text: string;
+  translated: string;
+  sourceLang: string;
+}
+
+export interface TranslateResponse {
+  translations: TranslateResponseItem[];
+  rateLimited?: boolean;
+}
+
+export interface TranslateStatusResponse {
+  available: boolean;
+  languages: string[];
+}
+
+export async function translateTexts(
+  texts: string[],
+  targetLang: string,
+): Promise<TranslateResponse> {
+  const res = await authFetch('/api/translate', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ texts, targetLang }),
+  });
+  if (!res.ok) {
+    return {
+      translations: texts.map((text) => ({ text, translated: text, sourceLang: 'unknown' })),
+    };
+  }
+  return (await res.json()) as TranslateResponse;
+}
+
+export async function fetchTranslateStatus(): Promise<TranslateStatusResponse> {
+  try {
+    const res = await authFetch('/api/translate/status');
+    if (!res.ok) return { available: false, languages: [] };
+    return (await res.json()) as TranslateStatusResponse;
+  } catch {
+    return { available: false, languages: [] };
+  }
+}
+
 // -- Rooms --
 
 export async function fetchRoom(id: string, opts?: { signal?: AbortSignal }): Promise<RoomView> {
@@ -178,4 +223,60 @@ export async function fetchChannelMessages(
     replyCounts?: Record<string, number>;
   };
   return { messages: data.messages, replyCounts: data.replyCounts ?? {} };
+}
+
+// -- Channel polls --
+
+export async function fetchChannelPolls(
+  roomId: string,
+  channelId: string,
+  opts?: { signal?: AbortSignal },
+): Promise<PollView[]> {
+  const res = await authFetch(
+    `/api/rooms/${encodeURIComponent(roomId)}/channels/${encodeURIComponent(channelId)}/polls`,
+    { signal: opts?.signal },
+  );
+  if (!res.ok) throw new Error(`Failed to fetch channel polls: ${res.status}`);
+  const data = (await res.json()) as { polls: PollView[] };
+  return data.polls;
+}
+
+// -- Thread messages --
+
+export async function fetchChannelThreadMessages(
+  roomId: string,
+  channelId: string,
+  rootUri: string,
+  opts?: { limit?: number; signal?: AbortSignal },
+): Promise<MessageView[]> {
+  const params = new URLSearchParams();
+  params.set('root', rootUri);
+  if (opts?.limit) params.set('limit', String(opts.limit));
+
+  const res = await authFetch(
+    `/api/rooms/${encodeURIComponent(roomId)}/channels/${encodeURIComponent(channelId)}/threads?${params.toString()}`,
+    { signal: opts?.signal },
+  );
+  if (!res.ok) throw new Error(`Failed to fetch channel thread: ${res.status}`);
+  const data = (await res.json()) as { messages: MessageView[] };
+  return data.messages;
+}
+
+// -- Content reports --
+
+export async function sendContentReport(report: {
+  subjectUri: string;
+  roomId?: string;
+  category: string;
+  description?: string;
+}): Promise<void> {
+  const res = await authFetch('/api/feedback/report-content', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(report),
+  });
+  if (!res.ok) {
+    const data = (await res.json().catch(() => ({}))) as { error?: string };
+    throw new Error(data.error ?? 'Failed to submit report');
+  }
 }

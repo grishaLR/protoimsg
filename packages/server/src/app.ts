@@ -20,6 +20,8 @@ import { iceRouter } from './ice/router.js';
 import { waitlistRouter } from './waitlist/router.js';
 import { feedbackRouter } from './feedback/router.js';
 import { adminRouter } from './admin/router.js';
+import { notificationsRouter } from './notifications/router.js';
+import type { NotificationService } from './notifications/service.js';
 import type { Config } from './config.js';
 import type { Sql } from './db/client.js';
 import type { PresenceService } from './presence/service.js';
@@ -56,8 +58,11 @@ export function createApp(
   jetstreamInstance?: () => string,
   firehoseFailover?: () => void,
   emailService?: EmailService | null,
+  notificationService?: NotificationService | null,
 ): Express {
   const app = express();
+  // Trust one proxy hop (Fly.io) so req.ip reflects the real client IP
+  app.set('trust proxy', 1);
   const requireAuth = createRequireAuth(sessions);
 
   // Middleware
@@ -115,7 +120,7 @@ export function createApp(
   app.use(
     '/api/auth',
     createRateLimitMiddleware(authRateLimiter),
-    authRouter(sessions, config, challenges, globalBans, globalAllowlist, sql),
+    authRouter(sessions, config, challenges, globalBans, globalAllowlist, sql, notificationService),
   );
 
   // Waitlist (public, rate-limited)
@@ -169,6 +174,16 @@ export function createApp(
       ttlSeconds: config.ICE_CREDENTIAL_TTL_SECS,
     }),
   );
+
+  // Device token registration for push notifications
+  if (notificationService) {
+    app.use(
+      '/api/device-tokens',
+      requireAuth,
+      createRateLimitMiddleware(rateLimiter),
+      notificationsRouter(notificationService),
+    );
+  }
 
   // Translation routes (optional — only mounted when TRANSLATE_ENABLED=true)
   if (translateService && translateRateLimiter) {

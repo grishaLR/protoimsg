@@ -1,19 +1,18 @@
 {
   "appName": "proto IM",
-
   "status": {
     "online": "En ligne",
     "away": "Absent",
-    "idle": "Inactif"
+    "idle": "Inactif",
+    "offline": "Offline",
+    "disconnected": "Disconnected"
   },
-
   "visibility": {
     "everyone": "Tout le monde",
-    "community": "Communaut\u00e9",
+    "community": "Communauté",
     "innerCircle": "Cercle intime",
     "noOne": "Personne"
   },
-
   "theme": {
     "aim": "'98 Classique",
     "nytLight": "Minimal Clair",
@@ -21,106 +20,107 @@
     "dracula": "Dracula",
     "valentine": "Valentin",
     "garden": "Jardin",
-    "coffee": "Caf\u00e9",
+    "coffee": "Café",
     "fantasy": "Fantaisie",
     "nord": "Nord",
-    "retro": "R\u00e9tro",
+    "retro": "Rétro",
     "black": "Noir",
     "wireframe": "Wireframe"
   },
-
   "nav": {
-    "community": "Communaut\u00e9",
+    "community": "Communauté",
     "rooms": "Salons",
-    "feed": "Fil"
+    "feed": "Fil",
+    "buddies": "Buddies",
+    "chat": "Chat",
+    "profile": "Profile"
   },
-
   "header": {
     "menu": "Menu",
     "awayMessage": {
       "label": "Message d'absence",
-      "placeholder": "ex. BRB, je vais chercher un caf\u00e9"
+      "placeholder": "ex. BRB, je vais chercher un café"
     },
     "visibility": {
       "label": "Qui peut me voir"
     },
-    "settings": "Param\u00e8tres",
-    "minimize": "R\u00e9duire",
-    "signOut": "Se d\u00e9connecter"
+    "settings": "Paramètres",
+    "minimize": "Réduire",
+    "signOut": "Se déconnecter"
   },
-
   "statusSelector": {
     "awayMessage": {
       "label": "Message d'absence",
-      "placeholder": "ex. BRB, je vais chercher un caf\u00e9"
+      "placeholder": "ex. BRB, je vais chercher un café"
     },
     "visibility": {
       "label": "Qui peut me voir"
     }
   },
-
   "connectionBanner": {
-    "message": "Connexion perdue \u2014 reconnexion en cours..."
+    "message": "Connexion perdue — reconnexion en cours..."
   },
-
   "betaBanner": {
     "message": "Nous en sommes aux premiers stades et des bugs peuvent survenir ! Contactez-nous à",
     "dismiss": "Fermer"
   },
-
   "errorBoundary": {
-    "title": "Un probl\u00e8me est survenu",
+    "title": "Un problème est survenu",
     "fallbackMessage": "Une erreur inattendue s'est produite",
-    "tryAgain": "R\u00e9essayer"
+    "tryAgain": "Réessayer"
   },
-
   "button": {
     "back": "Retour",
     "cancel": "Annuler",
     "send": "Envoyer",
     "close": "Fermer",
     "save": "Enregistrer",
-    "settings": "Param\u00e8tres"
+    "settings": "Paramètres",
+    "done": "Done",
+    "retry": "Retry",
+    "signIn": "Sign In",
+    "signOut": "Sign Out"
   },
-
   "aria": {
-    "expand": "D\u00e9plier",
+    "expand": "Déplier",
     "collapse": "Replier"
   },
-
   "feedback": {
     "menuItem": "Envoyer un commentaire",
     "title": "Envoyer un commentaire",
-    "placeholder": "Qu'avez-vous en t\u00eate ? Bugs, id\u00e9es de fonctionnalit\u00e9s, tout est bienvenu.",
+    "placeholder": "Qu'avez-vous en tête ? Bugs, idées de fonctionnalités, tout est bienvenu.",
     "submit": "Envoyer",
     "sending": "Envoi en cours...",
     "cancel": "Annuler",
-    "success": "Merci ! Commentaire envoy\u00e9.",
-    "error": "Un probl\u00e8me est survenu. Veuillez r\u00e9essayer."
+    "success": "Merci ! Commentaire envoyé.",
+    "error": "Un problème est survenu. Veuillez réessayer."
   },
-
+  "rtlRestart": {
+    "title": "Restart Required",
+    "message": "Please restart the app for the layout direction to update."
+  },
   "serverError": {
     "unknown": "Une erreur inconnue s'est produite",
-    "unauthorized": "Vous devez \u00eatre connect\u00e9",
-    "invalidSession": "Votre session a expir\u00e9. Veuillez vous reconnecter.",
-    "invalidChallenge": "Le d\u00e9fi d'authentification a expir\u00e9. Veuillez r\u00e9essayer.",
-    "handleMismatch": "\u00c9chec de la v\u00e9rification du handle",
-    "authVerificationFailed": "\u00c9chec de la v\u00e9rification d'authentification",
-    "authTimeout": "L'authentification a expir\u00e9",
+    "unauthorized": "Vous devez être connecté",
+    "invalidSession": "Votre session a expiré. Veuillez vous reconnecter.",
+    "invalidChallenge": "Le défi d'authentification a expiré. Veuillez réessayer.",
+    "handleMismatch": "Échec de la vérification du handle",
+    "authVerificationFailed": "Échec de la vérification d'authentification",
+    "authTimeout": "L'authentification a expiré",
     "authRequired": "Authentification requise",
     "forbidden": "Vous n'avez pas la permission de faire cela",
-    "banned": "Ce compte n'est pas autoris\u00e9 \u00e0 utiliser ce service",
-    "accessDenied": "Acc\u00e8s refus\u00e9",
-    "notParticipant": "Vous ne participez pas \u00e0 cette conversation",
-    "blockedUser": "Impossible d'envoyer un message \u00e0 cet utilisateur",
-    "selfDm": "Vous ne pouvez pas vous envoyer un message \u00e0 vous-m\u00eame",
+    "banned": "Ce compte n'est pas autorisé à utiliser ce service",
+    "accessDenied": "Accès refusé",
+    "notParticipant": "Vous ne participez pas à cette conversation",
+    "blockedUser": "Impossible d'envoyer un message à cet utilisateur",
+    "selfDm": "Vous ne pouvez pas vous envoyer un message à vous-même",
     "notFound": "Introuvable",
-    "rateLimited": "Trop de requ\u00eates. Veuillez patienter et r\u00e9essayer.",
-    "serverError": "Un probl\u00e8me est survenu de notre c\u00f4t\u00e9",
-    "networkError": "Erreur r\u00e9seau. V\u00e9rifiez votre connexion.",
+    "rateLimited": "Trop de requêtes. Veuillez patienter et réessayer.",
+    "serverError": "Un problème est survenu de notre côté",
+    "networkError": "Erreur réseau. Vérifiez votre connexion.",
     "invalidInput": "Saisie invalide",
     "messageTooLong": "Le message est trop long",
-    "contentFiltered": "Le message a \u00e9t\u00e9 bloqu\u00e9 par le filtre de contenu",
-    "alreadyExists": "Existe d\u00e9j\u00e0"
+    "contentFiltered": "Le message a été bloqué par le filtre de contenu",
+    "alreadyExists": "Existe déjà"
   }
 }

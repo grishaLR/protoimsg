@@ -2,19 +2,22 @@ import { useState } from 'react';
 import {
   View,
   Text,
-  TextInput,
   Pressable,
   ActivityIndicator,
   KeyboardAvoidingView,
   Platform,
   StyleSheet,
 } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '@/services/auth';
 import { AccountBannedError, NotOnAllowlistError } from '@/services/api';
+import { ActorSearchInput } from '@/components/ActorSearchInput';
 import { useTheme } from '@/theme';
 import { spacing, radius, fontSize } from '@/theme/tokens';
+import type { ActorSearchResult } from '@/lib/search-actors';
 
 export default function LoginScreen() {
+  const { t } = useTranslation('auth');
   const { login, isLoading, authPhase, authError } = useAuth();
   const { colors } = useTheme();
   const [handle, setHandle] = useState('');
@@ -29,17 +32,23 @@ export default function LoginScreen() {
 
     setError(null);
     try {
-      await login(trimmed);
+      await login(trimmed, []);
     } catch (err: unknown) {
       console.error('[Login] sign-in error:', err);
       if (err instanceof AccountBannedError) {
-        setError('This account has been suspended.');
+        setError(t('login.suspended'));
       } else if (err instanceof NotOnAllowlistError) {
-        setError('This account is not on the beta allowlist.');
+        setError(t('login.notOnBetaList'));
+      } else if (err instanceof Error && err.message.includes('Another web browser')) {
+        setError(t('login.browserAlreadyOpen'));
       } else {
-        setError('Sign in failed. Please try again.');
+        setError(t('login.signInFailed'));
       }
     }
+  }
+
+  function handleActorSelect(actor: ActorSearchResult) {
+    setHandle(actor.handle);
   }
 
   if (authPhase === 'initializing' || isAuthenticating) {
@@ -47,10 +56,10 @@ export default function LoginScreen() {
       <View style={[styles.container, { backgroundColor: colors.surface }]}>
         <ActivityIndicator size="large" color={colors.primary} />
         <Text style={[styles.phaseText, { color: colors.chromeTextMuted }]}>
-          {authPhase === 'initializing' && 'Loading...'}
-          {authPhase === 'authenticating' && 'Authenticating...'}
-          {authPhase === 'resolving' && 'Resolving profile...'}
-          {authPhase === 'connecting' && 'Connecting to server...'}
+          {authPhase === 'initializing' && t('login.submitLoading')}
+          {authPhase === 'authenticating' && t('login.authenticating')}
+          {authPhase === 'resolving' && t('login.resolvingProfile')}
+          {authPhase === 'connecting' && t('login.connectingToServer')}
         </Text>
       </View>
     );
@@ -62,32 +71,26 @@ export default function LoginScreen() {
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
     >
       <View style={styles.content}>
-        <Text style={[styles.title, { color: colors.baseContent }]}>protoimsg</Text>
+        <Text style={[styles.title, { color: colors.baseContent }]}>{t('login.mobileTitle')}</Text>
         <Text style={[styles.subtitle, { color: colors.chromeTextMuted }]}>
-          sign in with your AT Protocol handle
+          {t('login.mobileSubtitle')}
         </Text>
 
-        <TextInput
-          style={[
-            styles.input,
-            {
-              backgroundColor: colors.base200,
-              color: colors.baseContent,
-              borderColor: colors.base300,
-            },
-          ]}
-          placeholder="handle.bsky.social"
-          placeholderTextColor={colors.chromeTextMuted}
+        <ActorSearchInput
           value={handle}
-          onChangeText={setHandle}
-          autoCapitalize="none"
-          autoCorrect={false}
-          keyboardType="url"
-          returnKeyType="go"
-          onSubmitEditing={() => void handleLogin()}
-          editable={!isLoading}
-          accessibilityLabel="AT Protocol handle"
-          accessibilityHint="Enter your handle to sign in"
+          onInputChange={setHandle}
+          onSelect={handleActorSelect}
+          clearOnSelect={false}
+          placeholder={t('login.handlePlaceholder')}
+          style={styles.searchWrapper}
+          inputProps={{
+            keyboardType: 'url',
+            returnKeyType: 'go',
+            onSubmitEditing: () => void handleLogin(),
+            editable: !isLoading,
+            accessibilityLabel: t('login.handleLabel'),
+            accessibilityHint: t('login.mobileSubtitle'),
+          }}
         />
 
         {(error ?? authError) && (
@@ -105,13 +108,15 @@ export default function LoginScreen() {
           onPress={() => void handleLogin()}
           disabled={isLoading || !handle.trim()}
           accessibilityRole="button"
-          accessibilityLabel="Sign in"
+          accessibilityLabel={t('login.submit')}
           accessibilityState={{ disabled: isLoading || !handle.trim() }}
         >
           {isLoading ? (
             <ActivityIndicator color={colors.primaryContent} />
           ) : (
-            <Text style={[styles.buttonText, { color: colors.primaryContent }]}>Sign In</Text>
+            <Text style={[styles.buttonText, { color: colors.primaryContent }]}>
+              {t('login.submit')}
+            </Text>
           )}
         </Pressable>
       </View>
@@ -133,7 +138,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   title: {
-    fontSize: 32,
+    fontSize: fontSize['3xl'],
     fontWeight: '700',
     marginBottom: spacing[2],
   },
@@ -141,13 +146,8 @@ const styles = StyleSheet.create({
     fontSize: fontSize.md,
     marginBottom: spacing[4],
   },
-  input: {
+  searchWrapper: {
     width: '100%',
-    height: 48,
-    borderRadius: radius.md,
-    paddingHorizontal: spacing[8],
-    fontSize: fontSize.lg,
-    borderWidth: 1,
   },
   error: {
     fontSize: fontSize.md,

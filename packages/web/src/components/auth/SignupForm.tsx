@@ -3,9 +3,34 @@ import { useTranslation, Trans } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import { useTheme } from '../../hooks/useTheme';
 import { THEME_OPTIONS, type Theme } from '../../contexts/ThemeContext';
-import { createPdsAccount, checkHandleAvailability, joinWaitlist } from '../../lib/api';
+import {
+  createAccount,
+  CaptchaFailedError,
+  checkHandleAvailability,
+  joinWaitlist,
+} from '../../lib/api';
+import { TURNSTILE_SITE_KEY } from '../../lib/config';
 import { LanguageSelector } from '../settings/LanguageSelector';
 import styles from './SignupForm.module.css';
+
+declare global {
+  interface Window {
+    turnstile?: {
+      render: (
+        container: HTMLElement,
+        options: {
+          sitekey: string;
+          callback: (token: string) => void;
+          'expired-callback': () => void;
+          'error-callback': () => void;
+          theme?: 'light' | 'dark' | 'auto';
+        },
+      ) => string;
+      reset: (widgetId: string) => void;
+      remove: (widgetId: string) => void;
+    };
+  }
+}
 
 const HANDLE_REGEX = /^[a-zA-Z0-9]([a-zA-Z0-9-]{0,30}[a-zA-Z0-9])?$/;
 
@@ -46,9 +71,13 @@ export function SignupForm() {
   const [submitting, setSubmitting] = useState(false);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [turnstileReady, setTurnstileReady] = useState(!TURNSTILE_SITE_KEY);
 
   const debounceRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const abortRef = useRef<AbortController | undefined>(undefined);
+  const turnstileRef = useRef<HTMLDivElement>(null);
+  const turnstileTokenRef = useRef<string | null>(null);
+  const turnstileWidgetIdRef = useRef<string | null>(null);
 
   const fullHandle = handle ? `${handle}.protoimsg.app` : '';
 
@@ -93,6 +122,60 @@ export function SignupForm() {
     };
   }, []);
 
+  // Load Turnstile script and render widget
+  useEffect(() => {
+    if (!TURNSTILE_SITE_KEY || !turnstileRef.current) return;
+
+    const container = turnstileRef.current;
+    const siteKey = TURNSTILE_SITE_KEY;
+    let cancelled = false;
+
+    function renderWidget() {
+      if (cancelled || !window.turnstile) return;
+      turnstileWidgetIdRef.current = window.turnstile.render(container, {
+        sitekey: siteKey,
+        callback: (token: string) => {
+          turnstileTokenRef.current = token;
+          setTurnstileReady(true);
+        },
+        'expired-callback': () => {
+          turnstileTokenRef.current = null;
+          setTurnstileReady(false);
+          setError(t('signup.captcha.expired'));
+        },
+        'error-callback': () => {
+          turnstileTokenRef.current = null;
+          setTurnstileReady(false);
+          setError(t('signup.captcha.failed'));
+        },
+        theme: 'auto',
+      });
+    }
+
+    const TURNSTILE_SCRIPT_ID = 'cf-turnstile-script';
+
+    // If script already loaded, render immediately
+    if (window.turnstile) {
+      renderWidget();
+    } else if (!document.getElementById(TURNSTILE_SCRIPT_ID)) {
+      // Load the script (only if not already injected by a previous mount)
+      const script = document.createElement('script');
+      script.id = TURNSTILE_SCRIPT_ID;
+      script.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit';
+      script.async = true;
+      script.onload = renderWidget;
+      document.head.appendChild(script);
+    }
+
+    return () => {
+      cancelled = true;
+      if (turnstileWidgetIdRef.current && window.turnstile) {
+        window.turnstile.remove(turnstileWidgetIdRef.current);
+        turnstileWidgetIdRef.current = null;
+      }
+    };
+  }, []);
+
   function handleHandleChange(e: React.ChangeEvent<HTMLInputElement>) {
     const value = e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, '');
     setHandle(value);
@@ -123,6 +206,7 @@ export function SignupForm() {
     password === confirmPassword &&
     tosAccepted &&
     handleStatus === 'available' &&
+    turnstileReady &&
     !submitting;
 
   function handleSubmit(e: React.SyntheticEvent) {
@@ -132,15 +216,30 @@ export function SignupForm() {
     setError(null);
     setSubmitting(true);
 
-    createPdsAccount({ handle: fullHandle, email: email.trim(), password, dob })
+    createAccount({
+      handle: fullHandle,
+      email: email.trim(),
+      password,
+      dob,
+      turnstileToken: turnstileTokenRef.current ?? undefined,
+    })
       .then(() => {
         setSuccess(true);
         // Fire-and-forget: add to waitlist so they get the confirmation email
-        // and appear in the admin panel immediately
         void joinWaitlist(email.trim(), fullHandle);
       })
       .catch((err: unknown) => {
-        setError(err instanceof Error ? err.message : t('signup.error.default'));
+        if (err instanceof CaptchaFailedError) {
+          setError(t('signup.captcha.failed'));
+          // Reset the widget so user can try again
+          turnstileTokenRef.current = null;
+          setTurnstileReady(false);
+          if (turnstileWidgetIdRef.current && window.turnstile) {
+            window.turnstile.reset(turnstileWidgetIdRef.current);
+          }
+        } else {
+          setError(err instanceof Error ? err.message : t('signup.error.default'));
+        }
       })
       .finally(() => {
         setSubmitting(false);
@@ -281,6 +380,8 @@ export function SignupForm() {
           />
         </span>
       </label>
+
+      {TURNSTILE_SITE_KEY && <div ref={turnstileRef} className={styles.turnstile} />}
 
       {error && <p className={styles.error}>{error}</p>}
 

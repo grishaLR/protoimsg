@@ -1,10 +1,11 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { fetchChannelMessages } from '@/services/api';
-import { NSID } from '@protoimsg/shared';
+import { NSID, LIMITS } from '@protoimsg/shared';
 import { createMessageRecord, generateTid } from '@/services/atproto';
 import type { CreateMessageInput } from '@/services/atproto';
 import { useWebSocket } from '@/services/WebSocketContext';
 import { useAuth } from '@/services/auth';
+import { lightTap } from '@/services/haptics';
 import type { MessageView } from '@/types';
 
 const MAX_MESSAGES = 500;
@@ -24,6 +25,7 @@ function cacheKey(roomId: string, channelId: string): string {
 
 export function useMessages(roomId: string, channelId: string | null) {
   const [messages, setMessages] = useState<MessageView[]>([]);
+  const [replyCounts, setReplyCounts] = useState<Record<string, number>>({});
   const [loading, setLoading] = useState(true);
   const [typingUsers, setTypingUsers] = useState<string[]>([]);
   const { send, subscribe } = useWebSocket();
@@ -72,6 +74,7 @@ export function useMessages(roomId: string, channelId: string | null) {
         if (!ac.signal.aborted) {
           const fresh = result.messages.reverse();
           setMessages(fresh);
+          setReplyCounts(result.replyCounts);
           channelCache.set(key, { messages: fresh, ts: Date.now() });
         }
       } catch (err) {
@@ -180,8 +183,10 @@ export function useMessages(roomId: string, channelId: string | null) {
 
   // Send a message with optimistic update
   const sendMessage = useCallback(
-    async (text: string, channelUri: string) => {
+    async (text: string, channelUri: string, reply?: { root: string; parent: string }) => {
       if (!agent || !did || !channelId) return;
+      if (text.length > LIMITS.maxMessageLength) return;
+      void lightTap();
 
       // Pre-generate rkey so we can add the optimistic message immediately
       const rkey = generateTid();
@@ -199,8 +204,8 @@ export function useMessages(roomId: string, channelId: string | null) {
           text,
           facets: undefined,
           embed: undefined,
-          reply_parent: null,
-          reply_root: null,
+          reply_parent: reply?.parent ?? null,
+          reply_root: reply?.root ?? null,
           created_at: new Date().toISOString(),
           indexed_at: new Date().toISOString(),
           pending: true,
@@ -210,6 +215,7 @@ export function useMessages(roomId: string, channelId: string | null) {
       const input: CreateMessageInput = {
         channelUri,
         text,
+        reply,
       };
 
       // Timeout: remove pending message if stuck after 15s
@@ -240,5 +246,5 @@ export function useMessages(roomId: string, channelId: string | null) {
     send({ type: 'channel_typing', roomId, channelId });
   }, [send, roomId, channelId]);
 
-  return { messages, loading, typingUsers, sendMessage, sendTyping };
+  return { messages, replyCounts, loading, typingUsers, sendMessage, sendTyping };
 }

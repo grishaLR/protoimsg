@@ -1,19 +1,16 @@
 {
   "appName": "proto instant messenger",
-
   "status": {
     "online": "Mtandaoni",
     "away": "Sipatikani",
     "idle": "Kimya"
   },
-
   "visibility": {
     "everyone": "Kila mtu",
     "community": "Jamii",
     "innerCircle": "Watu wa karibu",
     "noOne": "Hakuna mtu"
   },
-
   "theme": {
     "aim": "'98 Asili",
     "nytLight": "Minimali Angavu",
@@ -28,13 +25,14 @@
     "black": "Nyeusi",
     "wireframe": "Wireframe"
   },
-
   "nav": {
     "community": "Jamii",
     "rooms": "Vyumba",
-    "feed": "Mlisho"
+    "feed": "Mlisho",
+    "buddies": "Buddies",
+    "chat": "Chat",
+    "profile": "Profile"
   },
-
   "header": {
     "menu": "Menyu",
     "awayMessage": {
@@ -48,7 +46,6 @@
     "minimize": "Punguza",
     "signOut": "Toka"
   },
-
   "statusSelector": {
     "awayMessage": {
       "label": "Ujumbe wa kutokuwepo",
@@ -58,36 +55,34 @@
       "label": "Nani anaweza kuniona"
     }
   },
-
   "connectionBanner": {
-    "message": "Muunganisho umepotea \u2014 inaunganisha tena..."
+    "message": "Muunganisho umepotea — inaunganisha tena..."
   },
-
   "betaBanner": {
     "message": "Tuko katika hatua za mapema na mambo yanaweza kuvunjika! Wasiliana nasi kupitia",
     "dismiss": "Funga"
   },
-
   "errorBoundary": {
     "title": "Kuna tatizo limetokea",
     "fallbackMessage": "Hitilafu isiyotarajiwa imetokea",
     "tryAgain": "Jaribu tena"
   },
-
   "button": {
     "back": "Rudi",
     "cancel": "Ghairi",
     "send": "Tuma",
     "close": "Funga",
     "save": "Hifadhi",
-    "settings": "Mipangilio"
+    "settings": "Mipangilio",
+    "done": "Done",
+    "retry": "Retry",
+    "signIn": "Sign In",
+    "signOut": "Sign Out"
   },
-
   "aria": {
     "expand": "Panua",
     "collapse": "Kunja"
   },
-
   "feedback": {
     "menuItem": "Tuma maoni",
     "title": "Tuma maoni",
@@ -98,7 +93,10 @@
     "success": "Asante! Maoni yametumwa.",
     "error": "Kuna hitilafu. Jaribu tena."
   },
-
+  "rtlRestart": {
+    "title": "Restart Required",
+    "message": "Please restart the app for the layout direction to update."
+  },
   "serverError": {
     "unknown": "Hitilafu isiyojulikana imetokea",
     "unauthorized": "Lazima uwe umeingia",

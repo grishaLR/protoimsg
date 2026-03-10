@@ -4,11 +4,11 @@
     "loading": "Ana lodawa...",
     "empty": "Babu abokai tukuna",
     "createGroup": {
-      "placeholder": "Sunan \u0253ungiya...",
-      "button": "+ \u0136ir\u0137iri \u0181ungiya"
+      "placeholder": "Sunan ɓungiya...",
+      "button": "+ Ķirķiri Ɓungiya"
     },
     "footer": {
-      "chatRooms": "\u0110akunan Tattaunawa",
+      "chatRooms": "Đakunan Tattaunawa",
       "feed": "Labarai"
     },
     "unreadIm": "{{count}} ba a karanta ba",
@@ -21,16 +21,28 @@
       "blocked": "An toshe",
       "followers": "Masu bi",
       "following": "Ana bi"
-    }
+    },
+    "title": "Buddy List",
+    "filterPlaceholder": "Filter buddies...",
+    "addBuddyPlaceholder": "Add buddy by handle...",
+    "loadingBuddyList": "Loading buddy list...",
+    "noMatches": "No matches",
+    "noMatchesDetail": "No buddies matching \"{{query}}\"",
+    "addFirstBuddy": "Add your first buddy",
+    "addFirstBuddyHint": "Find people in chat rooms or search by handle",
+    "noOneOnline": "No one online",
+    "buddyOfflineCount_one": "{{count}} buddy offline",
+    "buddyOfflineCount_other": "{{count}} buddies offline",
+    "onlineCount": "{{online}} of {{total}} online",
+    "removeBuddyConfirm": "Are you sure you want to remove this buddy?"
   },
-
   "buddyMenu": {
     "button": {
-      "title": "Za\u0253uɓɓuka",
-      "ariaLabel": "Za\u0253uɓɓukan aboki"
+      "title": "Zaɓuɓɓuka",
+      "ariaLabel": "Zaɓuɓɓukan aboki"
     },
     "sendIm": "Aika Saƙo",
-    "addToInnerCircle": "\u0136ara zuwa Na Kusa",
+    "addToInnerCircle": "Ķara zuwa Na Kusa",
     "removeFromInnerCircle": "Cire daga Na Kusa",
     "moveTo": "Matsa zuwa...",
     "block": "Toshe",
@@ -41,25 +53,25 @@
     "sendImDisabled": "Mai amfani ba a kan layi ba",
     "videoCall": "Kiran bidiyo",
     "videoCallDisabled": "Mai amfani ba a kan layi ba",
-    "report": "Kai rahoto"
+    "report": "Kai rahoto",
+    "openDm": "Open DM",
+    "call": "Call"
   },
-
   "memberMenu": {
     "button": {
-      "title": "Za\u0253uɓɓuka",
-      "ariaLabel": "Za\u0253uɓɓukan memba"
+      "title": "Zaɓuɓɓuka",
+      "ariaLabel": "Zaɓuɓɓukan memba"
     },
-    "addToBuddyList": "\u0136ara zuwa Jerin Abokai",
+    "addToBuddyList": "Ķara zuwa Jerin Abokai",
     "block": "Toshe",
     "unblock": "Cire toshe",
     "feedback": {
-      "added": "An \u0137ara!",
+      "added": "An ķara!",
       "alreadyInList": "Ya riga yana cikin jerin abokai",
-      "error": "Kuskure wajen \u0137ara aboki"
+      "error": "Kuskure wajen ķara aboki"
     },
     "report": "Kai rahoto"
   },
-
   "messageInput": {
     "placeholder": {
       "default": "Rubuta saƙo... (Enter don aikawa, Shift+Enter don sabon layi)",
@@ -75,9 +87,8 @@
     },
     "send": "Aika"
   },
-
   "messageItem": {
-    "contentWarning": "Garga\u0257in abun ciki",
+    "contentWarning": "Gargaɗin abun ciki",
     "clickToReveal": "Danna don gani",
     "replyCount_one": "amsa {{count}}",
     "replyCount_other": "amsoshi {{count}}",
@@ -94,7 +105,6 @@
       "error": "Kuskure"
     }
   },
-
   "userContextMenu": {
     "addToBuddyList": "Ƙara zuwa Jerin Abokai",
     "block": "Toshe",
@@ -106,7 +116,6 @@
       "error": "Kuskure"
     }
   },
-
   "messageList": {
     "loading": "Ana loda saƙonni...",
     "empty": "Babu saƙonni tukuna. Fara tattaunawa!",
@@ -117,7 +126,6 @@
       "many": "mutane {{count}} suna rubuta..."
     }
   },
-
   "threadPanel": {
     "ariaLabel": "Zaren tattaunawa",
     "title": "Zaren tattaunawa",
@@ -129,7 +137,6 @@
     "replyCount_other": "amsoshi {{count}}",
     "inputPlaceholder": "Amsa a cikin zare..."
   },
-
   "formattingToolbar": {
     "bold": "Mai kauri",
     "italic": "Italik",
@@ -137,18 +144,15 @@
     "code": "Lambar",
     "blockquote": "Ambato"
   },
-
   "memberList": {
     "heading": "Mambobi ({{count}})"
   },
-
   "groupHeader": {
-    "renameGroup": "Sake sunan \u0253ungiya",
-    "deleteGroup": "Share \u0253ungiya",
-    "expand": "Bu\u0257e",
+    "renameGroup": "Sake sunan ɓungiya",
+    "deleteGroup": "Share ɓungiya",
+    "expand": "Buɗe",
     "collapse": "Rufe"
   },
-
   "gif": {
     "title": "GIF",
     "searchPlaceholder": "Nemo GIF...",
@@ -161,7 +165,6 @@
     "confirm": "Aika",
     "back": "Koma"
   },
-
   "videoCall": {
     "incoming": {
       "ariaLabel": "Kiran bidiyo mai shigowa",
@@ -169,7 +172,10 @@
       "accept": "Karɓi kira",
       "acceptAriaLabel": "Karɓi kiran da ke shigowa",
       "reject": "Ƙi kira",
-      "rejectAriaLabel": "Ƙi kiran da ke shigowa"
+      "rejectAriaLabel": "Ƙi kiran da ke shigowa",
+      "banner": "Incoming video call",
+      "declineLabel": "Decline",
+      "acceptLabel": "Accept"
     },
     "calling": "Ana kira...",
     "ringing": "Ana ƙara...",
@@ -186,9 +192,13 @@
     "retry": "Sake gwadawa",
     "error": {
       "mediaPermission": "Ana buƙatar izinin kyamara/makirufo don kiran bidiyo"
-    }
+    },
+    "flip": "Flip",
+    "callFailed": "Call Failed",
+    "hangUp": "Hang Up",
+    "micOff": "Mic off",
+    "camOff": "Cam off"
   },
-
   "channel": {
     "heading": "Tashoshi",
     "listAriaLabel": "Jerin tashoshi",
@@ -211,7 +221,6 @@
       "default": "An kasa ƙirƙiri tashar"
     }
   },
-
   "report": {
     "title": "Kai rahoton mai amfani",
     "subjectLabel": "Mai amfani",
@@ -236,23 +245,22 @@
     "removeAttachment": "Cire abin da aka haɗa",
     "fileSizeError": "Fayil ya yi girma. Mafi girma 2 MB."
   },
-
   "poll": {
-    "createPoll": "\u0136ir\u0137iri Za\u0253e",
+    "createPoll": "Ķirķiri Zaɓe",
     "questionLabel": "Tambaya",
     "questionPlaceholder": "Yi tambaya...",
-    "optionsLabel": "Za\u0253u\u0253\u0253uka",
-    "optionPlaceholder": "Za\u0253i {{n}}",
-    "addOption": "\u0136ara Za\u0253i",
-    "removeOption": "Cire za\u0253i",
-    "allowMultiple": "Yarda da za\u0253uɓɓuka da yawa",
-    "expires": "Ya \u0137are",
-    "expired": "Za\u0253en ya \u0137are",
-    "expiresIn": "Zai \u0137are a {{time}}",
-    "totalVotes_one": "ku\u0257i {{count}}",
-    "totalVotes_other": "ku\u0257i {{count}}",
-    "vote": "Aika Ku\u0257i",
-    "create": "\u0136ir\u0137ira",
+    "optionsLabel": "Zaɓuɓɓuka",
+    "optionPlaceholder": "Zaɓi {{n}}",
+    "addOption": "Ķara Zaɓi",
+    "removeOption": "Cire zaɓi",
+    "allowMultiple": "Yarda da zaɓuɓɓuka da yawa",
+    "expires": "Ya ķare",
+    "expired": "Zaɓen ya ķare",
+    "expiresIn": "Zai ķare a {{time}}",
+    "totalVotes_one": "kuɗi {{count}}",
+    "totalVotes_other": "kuɗi {{count}}",
+    "vote": "Aika Kuɗi",
+    "create": "Ķirķira",
     "cancel": "Soke",
     "expiry": {
       "none": "Babu iyaka",
@@ -263,11 +271,10 @@
       "1w": "Mako 1"
     },
     "error": {
-      "minOptions": "Ana bu\u0137atar za\u0253u\u0253\u0253uka 2 a \u0137alla",
-      "default": "Kuskure wajen \u0137ir\u0137irar za\u0253e"
+      "minOptions": "Ana buķatar zaɓuɓɓuka 2 a ķalla",
+      "default": "Kuskure wajen ķirķirar zaɓe"
     }
   },
-
   "reportContent": {
     "title": "Rahoto",
     "subjectLabel": "Batun",
@@ -284,5 +291,29 @@
     "success": "An aika rahoton. Za mu duba.",
     "error": "An kasa aika rahoton.",
     "fileSizeError": "Fayil ya yi girma (mafi girma 2 MB)"
+  },
+  "moderation": {
+    "ban": "Ban from Room",
+    "banConfirm": "Ban this user from the room?",
+    "banned": "Banned",
+    "unban": "Unban",
+    "makeMod": "Make Moderator",
+    "removeMod": "Remove Moderator",
+    "modAdded": "Moderator added",
+    "modRemoved": "Moderator removed",
+    "error": "Action failed"
+  },
+  "roomSettings": {
+    "title": "Room Settings",
+    "slowMode": "Slow Mode (seconds)",
+    "slowModeHint": "0 = off",
+    "minAccountAge": "Min Account Age (days)",
+    "allowlist": "Allowlist Only",
+    "allowlistHint": "Only allowlisted users can send messages",
+    "save": "Save",
+    "saving": "Saving...",
+    "saved": "Settings saved",
+    "cancel": "Cancel",
+    "error": "Failed to save settings"
   }
 }

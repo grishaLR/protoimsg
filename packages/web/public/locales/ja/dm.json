@@ -4,12 +4,14 @@
     "ariaLabel": "DM メッセージを入力",
     "send": "送信"
   },
-
   "messageList": {
     "empty": "まだメッセージがありません。挨拶してみましょう！",
     "typing": "入力中..."
   },
 
+  "typing": {
+    "label": "typing"
+  },
   "popover": {
     "ariaLabel": "{{recipientDid}} との DM 会話",
     "header": {
@@ -38,7 +40,6 @@
       "ariaLabel": "会話を閉じる"
     }
   },
-
   "notification": {
     "ariaLabel": "{{senderDid}} からの新しいメッセージ",
     "incoming": "チャットしたがっています",
@@ -47,13 +48,23 @@
       "ariaLabel": "通知を閉じる"
     }
   },
-
   "popoverContainer": {
     "ariaLabel": "DM 通知"
   },
-
   "window": {
     "connecting": "接続中…",
     "waitingForConnection": "接続待ち…"
+  },
+  "status": {
+    "connecting": "Connecting...",
+    "connected": "Connected",
+    "connectionFailed": "Connection failed",
+    "closingIn": "Partner disconnected — closing in {{seconds}}s",
+    "saySomething": "Say something!",
+    "waitingForConnection": "Waiting for connection..."
+  },
+  "devClientRequired": {
+    "title": "Dev Client Required",
+    "description": "DMs require WebRTC which needs a native dev client build. Run expo prebuild then build with Xcode or Android Studio."
   }
 }

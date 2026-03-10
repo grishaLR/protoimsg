@@ -1,10 +1,10 @@
 {
   "createRoom": {
-    "title": "\u0136ir\u0137iri \u0110aki",
+    "title": "Ķirķiri Đaki",
     "nameLabel": "Suna",
-    "namePlaceholder": "Sunan \u0257aki",
+    "namePlaceholder": "Sunan ɗaki",
     "descriptionLabel": "Bayani",
-    "descriptionPlaceholder": "Me wannan \u0257akin yake magana a kai?",
+    "descriptionPlaceholder": "Me wannan ɗakin yake magana a kai?",
     "topicLabel": "Batu",
     "topicPlaceholder": "Batun da ake tattaunawa a yanzu",
     "purposeLabel": "Manufa",
@@ -21,42 +21,42 @@
       "private": "Mai zaman kansa"
     },
     "categoryLabel": "Rukunin",
-    "categoryPlaceholder": "misali, ki\u0257a, fasaha, wasanni",
-    "categoryCreate": "\u0136ir\u0137ira: {{value}}",
+    "categoryPlaceholder": "misali, kiɗa, fasaha, wasanni",
+    "categoryCreate": "Ķirķira: {{value}}",
     "error": {
-      "default": "Ba a sami damar \u0137ir\u0137irar \u0257aki ba"
+      "default": "Ba a sami damar ķirķirar ɗaki ba"
     },
     "cancel": "Soke",
-    "submitting": "Ana \u0137ir\u0137irawa...",
-    "submit": "\u0136ir\u0137ira"
+    "submitting": "Ana ķirķirawa...",
+    "submit": "Ķirķira"
   },
-
   "roomList": {
-    "empty": "Ba a sami \u0257akuna ba. \u0136ir\u0137iri \u0257aya don farawa!"
+    "empty": "Ba a sami ɗakuna ba. Ķirķiri ɗaya don farawa!",
+    "noRooms": "No rooms yet"
   },
-
   "roomCard": {
-    "createdDate": "An \u0137ir\u0137ira {{date}}",
+    "createdDate": "An ķirķira {{date}}",
     "translate": "Fassara",
     "translating": "Ana fassarawa...",
     "translatedTo": "An fassara zuwa {{lang}}",
     "showOriginal": "Nuna asali"
   },
-
   "directory": {
-    "searchPlaceholder": "Nemo \u0257akuna...",
-    "createButton": "\u0136ir\u0137iri \u0110aki",
-    "loading": "Ana loda \u0257akuna...",
+    "searchPlaceholder": "Nemo ɗakuna...",
+    "createButton": "Ķirķiri Đaki",
+    "loading": "Ana loda ɗakuna...",
     "allCategories": "Duka",
     "publicRoomsHeader": "Ɗakunan Hira na Jama'a",
-    "publicRoomsInfo": "Ɗakunan hira wurare ne na jama'a — kamar fitowa waje a bainar jama'a. Ana adana saƙonni a kan AT Protocol kuma kowa zai iya ganinsu, ko da yanayin ku a jerin abokai yana a ɓoye."
+    "publicRoomsInfo": "Ɗakunan hira wurare ne na jama'a — kamar fitowa waje a bainar jama'a. Ana adana saƙonni a kan AT Protocol kuma kowa zai iya ganinsu, ko da yanayin ku a jerin abokai yana a ɓoye.",
+    "title": "Chat Rooms",
+    "roomCount_one": "{{count}} room",
+    "roomCount_other": "{{count}} rooms"
   },
-
   "chatRoom": {
-    "invalidId": "ID na \u0257aki ba daidai ba",
-    "loading": "Ana shirya \u0257aki...",
-    "notFound": "Ba a sami \u0257akin ba",
-    "backToRooms": "\u0110akuna",
+    "invalidId": "ID na ɗaki ba daidai ba",
+    "loading": "Ana shirya ɗaki...",
+    "notFound": "Ba a sami ɗakin ba",
+    "backToRooms": "Đakuna",
     "channelSwitcher": "Zaɓi tashar",
     "createChannel": "Ƙirƙiri tashar",
     "collapseChannels": "Rufe tashoshi",
@@ -64,6 +64,9 @@
     "members": "Mambobi",
     "sendFailed": "An kasa aika saƙo. Da fatan za a sake gwadawa.",
     "dismiss": "Rufe",
-    "reportRoom": "Rahoto ɗakin"
+    "reportRoom": "Rahoto ɗakin",
+    "noOneHereYet": "No one else here yet",
+    "noMessagesYet": "No messages yet. Say something!",
+    "settings": "Room Settings"
   }
 }

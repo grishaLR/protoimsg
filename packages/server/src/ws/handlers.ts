@@ -15,6 +15,7 @@ import { checkUserAccess, checkMessageContent } from '../moderation/service.js';
 import type { BlockService } from '../moderation/block-service.js';
 import type { LabelerService } from '../moderation/labeler-service.js';
 import type { BotService } from '../bot/service.js';
+import type { NotificationService } from '../notifications/service.js';
 import { createLogger } from '../logger.js';
 import { incDmsSent, incMessagesSent } from '../stats/queries.js';
 import {
@@ -88,6 +89,7 @@ export async function handleClientMessage(
   labelerService: LabelerService,
   callSubs: DmSubscriptions,
   botService: BotService | null,
+  notificationService?: NotificationService | null,
 ): Promise<void> {
   // Rate limit: per-socket for tab fairness, per-DID to cap total throughput
   const socketId = (ws as WebSocket & { socketId?: string }).socketId ?? did;
@@ -480,6 +482,23 @@ export async function handleClientMessage(
         },
         ws,
       );
+
+      // Push notification when recipient has no active WS connections
+      if (notificationService && recipientDid) {
+        const recipientSockets = userSockets.get(recipientDid);
+        const hasActiveWs = [...recipientSockets].some((s) => s.readyState === s.OPEN);
+        if (!hasActiveWs) {
+          void notificationService.sendNotification(
+            recipientDid,
+            'New message',
+            `@${handle} sent you a message`,
+            {
+              type: 'dm',
+              senderDid: did,
+            },
+          );
+        }
+      }
       break;
     }
 
@@ -648,6 +667,21 @@ export async function handleClientMessage(
                   type: 'incoming_call',
                   data: { conversationId: conversationId, senderDid: did, offer: offer },
                 }),
+              );
+            }
+          }
+          // Push notification when recipient has no active WS connections
+          if (notificationService) {
+            const hasActiveWs = [...recipientSockets].some((s) => s.readyState === s.OPEN);
+            if (!hasActiveWs) {
+              void notificationService.sendNotification(
+                recipientDid,
+                'Incoming call',
+                `@${handle} is calling you`,
+                {
+                  type: 'call',
+                  senderDid: did,
+                },
               );
             }
           }
@@ -974,8 +1008,22 @@ export async function handleClientMessage(
                 createdAt: record.createdAt,
               },
             });
-            for (const mws of userSockets.get(mentionedDid)) {
+            const mentionedSocs = userSockets.get(mentionedDid);
+            for (const mws of mentionedSocs) {
               if (mws.readyState === mws.OPEN) mws.send(payload);
+            }
+
+            // Push notification when mentioned user has no active WS connections
+            if (notificationService) {
+              const hasActiveWs = [...mentionedSocs].some((s) => s.readyState === s.OPEN);
+              if (!hasActiveWs) {
+                void notificationService.sendNotification(
+                  mentionedDid,
+                  `Mentioned in #${room.name}`,
+                  `@${handle} mentioned you: ${preview}`,
+                  { type: 'mention', roomId, channelId },
+                );
+              }
             }
           }
         }

@@ -21,9 +21,31 @@
       "blocked": "ब्लॉक किए गए",
       "followers": "फ़ॉलोअर्स",
       "following": "फ़ॉलो किए गए"
+    },
+    "title": "Buddy List",
+    "filterPlaceholder": "Filter buddies...",
+    "addBuddyPlaceholder": "Add buddy by handle...",
+    "loadingBuddyList": "Loading buddy list...",
+    "noMatches": "No matches",
+    "noMatchesDetail": "No buddies matching \"{{query}}\"",
+    "addFirstBuddy": "Add your first buddy",
+    "addFirstBuddyHint": "Find people in chat rooms or search by handle",
+    "noOneOnline": "No one online",
+    "buddyOfflineCount_one": "{{count}} buddy offline",
+    "buddyOfflineCount_other": "{{count}} buddies offline",
+    "onlineCount": "{{online}} of {{total}} online",
+    "removeBuddyConfirm": "Are you sure you want to remove this buddy?",
+    "germ": {
+      "checkFailed": "Could not check GERM status for this user.",
+      "notEnabled": "This user does not have GERM messaging enabled.",
+      "openFailed": "Failed to open GERM messaging."
+    },
+    "accessibility": {
+      "messageBuddy": "Message {{name}}, {{status}}",
+      "callBuddy": "Call {{name}}",
+      "groupHeader": "{{group}} group, {{online}} of {{total}} online"
     }
   },
-
   "buddyMenu": {
     "button": {
       "title": "विकल्प",
@@ -41,9 +63,10 @@
     "sendImDisabled": "उपयोगकर्ता ऑफ़लाइन है",
     "videoCall": "वीडियो कॉल",
     "videoCallDisabled": "उपयोगकर्ता ऑफ़लाइन है",
-    "report": "उपयोगकर्ता की रिपोर्ट करें"
+    "report": "उपयोगकर्ता की रिपोर्ट करें",
+    "openDm": "Open DM",
+    "call": "Call"
   },
-
   "memberMenu": {
     "button": {
       "title": "विकल्प",
@@ -59,7 +82,6 @@
     },
     "report": "उपयोगकर्ता की रिपोर्ट करें"
   },
-
   "messageInput": {
     "placeholder": {
       "default": "संदेश लिखें... (भेजने के लिए Enter, नई लाइन के लिए Shift+Enter)",
@@ -75,7 +97,6 @@
     },
     "send": "भेजें"
   },
-
   "messageItem": {
     "contentWarning": "सामग्री चेतावनी",
     "clickToReveal": "देखने के लिए क्लिक करें",
@@ -94,7 +115,6 @@
       "error": "त्रुटि"
     }
   },
-
   "userContextMenu": {
     "addToBuddyList": "दोस्तों की सूची में जोड़ें",
     "block": "ब्लॉक करें",
@@ -106,7 +126,6 @@
       "error": "त्रुटि"
     }
   },
-
   "messageList": {
     "loading": "संदेश लोड हो रहे हैं...",
     "empty": "अभी कोई संदेश नहीं। बातचीत शुरू करें!",
@@ -117,7 +136,6 @@
       "many": "{{count}} लोग टाइप कर रहे हैं..."
     }
   },
-
   "threadPanel": {
     "ariaLabel": "थ्रेड",
     "title": "थ्रेड",
@@ -129,7 +147,6 @@
     "replyCount_other": "{{count}} जवाब",
     "inputPlaceholder": "थ्रेड में जवाब दें..."
   },
-
   "formattingToolbar": {
     "bold": "बोल्ड",
     "italic": "इटैलिक",
@@ -137,18 +154,15 @@
     "code": "कोड",
     "blockquote": "ब्लॉककोट"
   },
-
   "memberList": {
     "heading": "सदस्य ({{count}})"
   },
-
   "groupHeader": {
     "renameGroup": "ग्रुप का नाम बदलें",
     "deleteGroup": "ग्रुप हटाएँ",
     "expand": "विस्तार करें",
     "collapse": "संक्षिप्त करें"
   },
-
   "gif": {
     "title": "GIF",
     "searchPlaceholder": "GIF खोजें...",
@@ -161,7 +175,6 @@
     "confirm": "भेजें",
     "back": "वापस"
   },
-
   "videoCall": {
     "incoming": {
       "ariaLabel": "आने वाला वीडियो कॉल",
@@ -169,7 +182,10 @@
       "accept": "कॉल स्वीकार करें",
       "acceptAriaLabel": "आने वाला कॉल स्वीकार करें",
       "reject": "कॉल अस्वीकार करें",
-      "rejectAriaLabel": "आने वाला कॉल अस्वीकार करें"
+      "rejectAriaLabel": "आने वाला कॉल अस्वीकार करें",
+      "banner": "Incoming video call",
+      "declineLabel": "Decline",
+      "acceptLabel": "Accept"
     },
     "calling": "कॉल कर रहे हैं...",
     "ringing": "रिंग हो रहा है...",
@@ -186,9 +202,13 @@
     "stopSharing": "शेयरिंग बंद करें",
     "error": {
       "mediaPermission": "वीडियो कॉल के लिए कैमरा/माइक की अनुमति ज़रूरी है"
-    }
+    },
+    "flip": "Flip",
+    "callFailed": "Call Failed",
+    "hangUp": "Hang Up",
+    "micOff": "Mic off",
+    "camOff": "Cam off"
   },
-
   "channel": {
     "heading": "चैनल",
     "listAriaLabel": "चैनल सूची",
@@ -211,7 +231,6 @@
       "default": "चैनल बनाने में विफल"
     }
   },
-
   "report": {
     "title": "उपयोगकर्ता की रिपोर्ट करें",
     "subjectLabel": "उपयोगकर्ता",
@@ -236,7 +255,6 @@
     "removeAttachment": "अटैचमेंट हटाएँ",
     "fileSizeError": "फ़ाइल बहुत बड़ी है। अधिकतम आकार 2 MB है।"
   },
-
   "poll": {
     "createPoll": "पोल बनाएँ",
     "questionLabel": "प्रश्न",
@@ -267,7 +285,6 @@
       "default": "पोल बनाने में विफल"
     }
   },
-
   "reportContent": {
     "title": "रिपोर्ट करें",
     "subjectLabel": "विषय",
@@ -284,5 +301,29 @@
     "success": "रिपोर्ट भेज दी गई। हम इसकी जाँच करेंगे।",
     "error": "रिपोर्ट भेजने में विफल।",
     "fileSizeError": "फ़ाइल बहुत बड़ी है (अधिकतम 2 MB)"
+  },
+  "moderation": {
+    "ban": "Ban from Room",
+    "banConfirm": "Ban this user from the room?",
+    "banned": "Banned",
+    "unban": "Unban",
+    "makeMod": "Make Moderator",
+    "removeMod": "Remove Moderator",
+    "modAdded": "Moderator added",
+    "modRemoved": "Moderator removed",
+    "error": "Action failed"
+  },
+  "roomSettings": {
+    "title": "Room Settings",
+    "slowMode": "Slow Mode (seconds)",
+    "slowModeHint": "0 = off",
+    "minAccountAge": "Min Account Age (days)",
+    "allowlist": "Allowlist Only",
+    "allowlistHint": "Only allowlisted users can send messages",
+    "save": "Save",
+    "saving": "Saving...",
+    "saved": "Settings saved",
+    "cancel": "Cancel",
+    "error": "Failed to save settings"
   }
 }

@@ -30,28 +30,29 @@
     "submitting": "Đang tạo...",
     "submit": "Tạo"
   },
-
   "roomList": {
-    "empty": "Chưa có phòng nào. Hãy tạo phòng đầu tiên!"
+    "empty": "Chưa có phòng nào. Hãy tạo phòng đầu tiên!",
+    "noRooms": "No rooms yet"
   },
-
   "roomCard": {
     "createdDate": "Tạo ngày {{date}}",
     "translate": "Dịch",
     "translating": "Đang dịch...",
     "translatedTo": "Đã dịch sang {{lang}}",
-    "showOriginal": "Xem bản gốc"
+    "showOriginal": "Xem bản gốc",
+    "slowMode": "slow: {{seconds}}s"
   },
-
   "directory": {
     "searchPlaceholder": "Tìm phòng...",
     "createButton": "Tạo phòng",
     "loading": "Đang tải danh sách phòng...",
     "allCategories": "Tất cả",
     "publicRoomsHeader": "Phòng chat công khai",
-    "publicRoomsInfo": "Phòng chat là không gian công cộng — giống như ra ngoài nơi công cộng. Tin nhắn được lưu trữ trên giao thức AT và bất kỳ ai cũng có thể xem, ngay cả khi trạng thái danh sách bạn bè của bạn được đặt thành ẩn."
+    "publicRoomsInfo": "Phòng chat là không gian công cộng — giống như ra ngoài nơi công cộng. Tin nhắn được lưu trữ trên giao thức AT và bất kỳ ai cũng có thể xem, ngay cả khi trạng thái danh sách bạn bè của bạn được đặt thành ẩn.",
+    "title": "Chat Rooms",
+    "roomCount_one": "{{count}} room",
+    "roomCount_other": "{{count}} rooms"
   },
-
   "chatRoom": {
     "invalidId": "ID phòng không hợp lệ",
     "loading": "Đang thiết lập phòng...",
@@ -64,6 +65,15 @@
     "expandChannels": "Mở rộng kênh",
     "sendFailed": "Gửi tin nhắn thất bại. Vui lòng thử lại.",
     "dismiss": "Bỏ qua",
-    "reportRoom": "Báo cáo phòng"
+    "reportRoom": "Báo cáo phòng",
+    "noOneHereYet": "No one else here yet",
+    "noMessagesYet": "No messages yet. Say something!",
+    "settings": "Room Settings"
+  },
+  "accessibility": {
+    "messageInput": "Message input",
+    "sendMessage": "Send message",
+    "slowModeWait": "Slow mode: {{seconds}}s",
+    "channel": "Channel {{name}}"
   }
 }

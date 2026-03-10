@@ -11,6 +11,10 @@ export const SIGNUP_ENABLED: boolean = import.meta.env.VITE_SIGNUP_ENABLED !== '
 /** Feature flag: set VITE_BOT_ENABLED=true to enable ProtoBuddy bot. */
 export const BOT_ENABLED: boolean = import.meta.env.VITE_BOT_ENABLED === 'true';
 
+/** Cloudflare Turnstile site key for signup CAPTCHA (optional — skipped when absent). */
+export const TURNSTILE_SITE_KEY: string | undefined =
+  (import.meta.env.VITE_TURNSTILE_SITE_KEY as string | undefined) || undefined;
+
 /** True when running inside a Tauri v2 desktop shell. */
 // __TAURI_INTERNALS__ is injected before page scripts run (unlike __TAURI__ which
 // may not be available during top-level execution — see tauri-apps/tauri#12990).

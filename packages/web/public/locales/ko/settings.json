@@ -1,12 +1,10 @@
 {
   "back": "뒤로",
-
   "accountInfo": {
     "title": "계정 정보",
     "didLabel": "DID",
     "handleLabel": "핸들"
   },
-
   "editProfile": {
     "title": "프로필 수정",
     "loading": "프로필 불러오는 중...",
@@ -16,27 +14,22 @@
     "saving": "저장 중...",
     "save": "저장"
   },
-
   "appearance": {
     "title": "화면 설정"
   },
-
   "language": {
     "title": "언어"
   },
-
   "translation": {
     "title": "번역",
     "autoTranslate": "게시글 자동 번역",
     "autoTranslateHint": "피드 게시글과 소개를 자동으로 내 언어로 번역합니다"
   },
-
   "notifications": {
     "title": "알림",
     "enableSounds": "소리 켜기",
     "enableSoundsHint": "접속/퇴장, 새 메시지, 수신 전화 시 소리를 재생합니다"
   },
-
   "privacy": {
     "title": "개인정보",
     "ipProtectionLabel": "통화 시 IP 보호",
@@ -46,9 +39,11 @@
     "options": {
       "nonInnerCircle": "친한 친구는 직접 연결, 그 외에는 릴레이 (권장)",
       "all": "모든 사람에게 IP 숨기기"
-    }
+    },
+    "relayExceptIc": "Relay except IC",
+    "relayAlways": "Relay always",
+    "ipDescription": "Controls whether calls and DMs use a relay to protect your IP address."
   },
-
   "changePassword": {
     "title": "비밀번호 변경",
     "description": "본인 확인을 위해 이메일로 코드를 보내드립니다.",
@@ -75,9 +70,14 @@
       "mismatch": "비밀번호가 일치하지 않습니다."
     }
   },
-
   "actions": {
     "title": "작업",
     "signOut": "로그아웃"
+  },
+  "profile": {
+    "title": "Profile"
+  },
+  "preferences": {
+    "title": "Preferences"
   }
 }

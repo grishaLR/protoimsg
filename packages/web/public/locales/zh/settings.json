@@ -1,12 +1,10 @@
 {
   "back": "返回",
-
   "accountInfo": {
     "title": "账户信息",
     "didLabel": "DID",
     "handleLabel": "Handle"
   },
-
   "editProfile": {
     "title": "编辑个人资料",
     "loading": "加载个人资料中...",
@@ -16,27 +14,22 @@
     "saving": "保存中...",
     "save": "保存"
   },
-
   "appearance": {
     "title": "外观"
   },
-
   "language": {
     "title": "语言"
   },
-
   "translation": {
     "title": "翻译",
     "autoTranslate": "自动翻译帖子",
     "autoTranslateHint": "自动将动态帖子和个人简介翻译为你的语言"
   },
-
   "notifications": {
     "title": "通知",
     "enableSounds": "启用提示音",
     "enableSoundsHint": "在上下线、新消息和来电时播放提示音"
   },
-
   "privacy": {
     "title": "隐私",
     "ipProtectionLabel": "通话 IP 保护",
@@ -46,9 +39,11 @@
     "options": {
       "nonInnerCircle": "密友圈直接连接，其他人使用中继（推荐）",
       "all": "对所有人隐藏我的 IP"
-    }
+    },
+    "relayExceptIc": "Relay except IC",
+    "relayAlways": "Relay always",
+    "ipDescription": "Controls whether calls and DMs use a relay to protect your IP address."
   },
-
   "changePassword": {
     "title": "修改密码",
     "description": "我们将向您的邮箱发送验证码以验证您的身份。",
@@ -75,9 +70,14 @@
       "mismatch": "两次输入的密码不一致。"
     }
   },
-
   "actions": {
     "title": "操作",
     "signOut": "退出登录"
+  },
+  "profile": {
+    "title": "Profile"
+  },
+  "preferences": {
+    "title": "Preferences"
   }
 }

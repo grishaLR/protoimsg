@@ -21,9 +21,31 @@
       "blocked": "محظور",
       "followers": "المتابعون",
       "following": "المُتابَعون"
+    },
+    "title": "Buddy List",
+    "filterPlaceholder": "Filter buddies...",
+    "addBuddyPlaceholder": "Add buddy by handle...",
+    "loadingBuddyList": "Loading buddy list...",
+    "noMatches": "No matches",
+    "noMatchesDetail": "No buddies matching \"{{query}}\"",
+    "addFirstBuddy": "Add your first buddy",
+    "addFirstBuddyHint": "Find people in chat rooms or search by handle",
+    "noOneOnline": "No one online",
+    "buddyOfflineCount_one": "{{count}} buddy offline",
+    "buddyOfflineCount_other": "{{count}} buddies offline",
+    "onlineCount": "{{online}} of {{total}} online",
+    "removeBuddyConfirm": "Are you sure you want to remove this buddy?",
+    "germ": {
+      "checkFailed": "Could not check GERM status for this user.",
+      "notEnabled": "This user does not have GERM messaging enabled.",
+      "openFailed": "Failed to open GERM messaging."
+    },
+    "accessibility": {
+      "messageBuddy": "Message {{name}}, {{status}}",
+      "callBuddy": "Call {{name}}",
+      "groupHeader": "{{group}} group, {{online}} of {{total}} online"
     }
   },
-
   "buddyMenu": {
     "button": {
       "title": "خيارات",
@@ -41,9 +63,10 @@
     "sendImDisabled": "المستخدم غير متصل",
     "videoCall": "مكالمة فيديو",
     "videoCallDisabled": "المستخدم غير متصل",
-    "report": "الإبلاغ عن مستخدم"
+    "report": "الإبلاغ عن مستخدم",
+    "openDm": "Open DM",
+    "call": "Call"
   },
-
   "memberMenu": {
     "button": {
       "title": "خيارات",
@@ -59,7 +82,6 @@
     },
     "report": "الإبلاغ عن مستخدم"
   },
-
   "messageInput": {
     "placeholder": {
       "default": "اكتب رسالة... (Enter للإرسال، Shift+Enter لسطر جديد)",
@@ -75,7 +97,6 @@
     },
     "send": "إرسال"
   },
-
   "messageItem": {
     "contentWarning": "تحذير المحتوى",
     "clickToReveal": "انقر للكشف",
@@ -97,7 +118,6 @@
       "error": "خطأ"
     }
   },
-
   "userContextMenu": {
     "addToBuddyList": "إضافة إلى قائمة الأصدقاء",
     "block": "حظر",
@@ -109,7 +129,6 @@
       "error": "خطأ"
     }
   },
-
   "messageList": {
     "loading": "جارٍ تحميل الرسائل...",
     "empty": "لا توجد رسائل بعد. ابدأ المحادثة!",
@@ -120,7 +139,6 @@
       "many": "{{count}} أشخاص يكتبون..."
     }
   },
-
   "threadPanel": {
     "ariaLabel": "المحادثة",
     "title": "المحادثة",
@@ -135,7 +153,6 @@
     "replyCount_other": "{{count}} رد",
     "inputPlaceholder": "الرد في المحادثة..."
   },
-
   "formattingToolbar": {
     "bold": "عريض",
     "italic": "مائل",
@@ -143,18 +160,15 @@
     "code": "كود",
     "blockquote": "اقتباس"
   },
-
   "memberList": {
     "heading": "الأعضاء ({{count}})"
   },
-
   "groupHeader": {
     "renameGroup": "إعادة تسمية المجموعة",
     "deleteGroup": "حذف المجموعة",
     "expand": "توسيع",
     "collapse": "طي"
   },
-
   "gif": {
     "title": "صور متحركة",
     "searchPlaceholder": "البحث عن صور متحركة...",
@@ -167,7 +181,6 @@
     "confirm": "إرسال",
     "back": "رجوع"
   },
-
   "videoCall": {
     "incoming": {
       "ariaLabel": "مكالمة فيديو واردة",
@@ -175,7 +188,10 @@
       "accept": "قبول المكالمة",
       "acceptAriaLabel": "قبول المكالمة الواردة",
       "reject": "رفض المكالمة",
-      "rejectAriaLabel": "رفض المكالمة الواردة"
+      "rejectAriaLabel": "رفض المكالمة الواردة",
+      "banner": "Incoming video call",
+      "declineLabel": "Decline",
+      "acceptLabel": "Accept"
     },
     "calling": "جارٍ الاتصال...",
     "ringing": "جارٍ الرنين...",
@@ -192,9 +208,13 @@
     "retry": "إعادة المحاولة",
     "error": {
       "mediaPermission": "يلزم إذن الكاميرا/الميكروفون لمكالمات الفيديو"
-    }
+    },
+    "flip": "Flip",
+    "callFailed": "Call Failed",
+    "hangUp": "Hang Up",
+    "micOff": "Mic off",
+    "camOff": "Cam off"
   },
-
   "channel": {
     "heading": "القنوات",
     "listAriaLabel": "قائمة القنوات",
@@ -217,7 +237,6 @@
       "default": "فشل إنشاء القناة"
     }
   },
-
   "report": {
     "title": "الإبلاغ عن مستخدم",
     "subjectLabel": "المستخدم",
@@ -242,7 +261,6 @@
     "removeAttachment": "إزالة المرفق",
     "fileSizeError": "الملف كبير جداً. الحد الأقصى 2 ميغابايت."
   },
-
   "poll": {
     "createPoll": "إنشاء استطلاع",
     "questionLabel": "السؤال",
@@ -276,7 +294,6 @@
       "default": "فشل في إنشاء الاستطلاع"
     }
   },
-
   "reportContent": {
     "title": "إبلاغ",
     "subjectLabel": "الموضوع",
@@ -293,5 +310,29 @@
     "success": "تم إرسال البلاغ. سننظر في الأمر.",
     "error": "فشل إرسال البلاغ.",
     "fileSizeError": "الملف كبير جدًا (الحد الأقصى 2 ميجابايت)"
+  },
+  "moderation": {
+    "ban": "Ban from Room",
+    "banConfirm": "Ban this user from the room?",
+    "banned": "Banned",
+    "unban": "Unban",
+    "makeMod": "Make Moderator",
+    "removeMod": "Remove Moderator",
+    "modAdded": "Moderator added",
+    "modRemoved": "Moderator removed",
+    "error": "Action failed"
+  },
+  "roomSettings": {
+    "title": "Room Settings",
+    "slowMode": "Slow Mode (seconds)",
+    "slowModeHint": "0 = off",
+    "minAccountAge": "Min Account Age (days)",
+    "allowlist": "Allowlist Only",
+    "allowlistHint": "Only allowlisted users can send messages",
+    "save": "Save",
+    "saving": "Saving...",
+    "saved": "Settings saved",
+    "cancel": "Cancel",
+    "error": "Failed to save settings"
   }
 }

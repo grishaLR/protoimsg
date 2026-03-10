@@ -1,19 +1,18 @@
 {
   "appName": "proto instant messenger",
-
   "status": {
     "online": "В сети",
     "away": "Отошёл",
-    "idle": "Неактивен"
+    "idle": "Неактивен",
+    "offline": "Offline",
+    "disconnected": "Disconnected"
   },
-
   "visibility": {
     "everyone": "Все",
     "community": "Сообщество",
     "innerCircle": "Ближний круг",
     "noOne": "Никто"
   },
-
   "theme": {
     "aim": "'98 Классика",
     "nytLight": "Минимализм Светлый",
@@ -28,13 +27,14 @@
     "black": "Чёрный",
     "wireframe": "Каркас"
   },
-
   "nav": {
     "community": "Сообщество",
     "rooms": "Комнаты",
-    "feed": "Лента"
+    "feed": "Лента",
+    "buddies": "Buddies",
+    "chat": "Chat",
+    "profile": "Profile"
   },
-
   "header": {
     "menu": "Меню",
     "awayMessage": {
@@ -48,7 +48,6 @@
     "minimize": "Свернуть",
     "signOut": "Выйти"
   },
-
   "statusSelector": {
     "awayMessage": {
       "label": "Сообщение отсутствия",
@@ -58,36 +57,34 @@
       "label": "Кто меня видит"
     }
   },
-
   "connectionBanner": {
     "message": "Соединение потеряно — переподключение..."
   },
-
   "betaBanner": {
     "message": "Мы на ранней стадии, и что-то может сломаться! Свяжитесь с нами:",
     "dismiss": "Закрыть"
   },
-
   "errorBoundary": {
     "title": "Что-то пошло не так",
     "fallbackMessage": "Произошла непредвиденная ошибка",
     "tryAgain": "Попробовать снова"
   },
-
   "button": {
     "back": "Назад",
     "cancel": "Отмена",
     "send": "Отправить",
     "close": "Закрыть",
     "save": "Сохранить",
-    "settings": "Настройки"
+    "settings": "Настройки",
+    "done": "Done",
+    "retry": "Retry",
+    "signIn": "Sign In",
+    "signOut": "Sign Out"
   },
-
   "aria": {
     "expand": "Развернуть",
     "collapse": "Свернуть"
   },
-
   "feedback": {
     "menuItem": "Отправить отзыв",
     "title": "Отправить отзыв",
@@ -98,7 +95,10 @@
     "success": "Спасибо! Отзыв отправлен.",
     "error": "Что-то пошло не так. Попробуйте ещё раз."
   },
-
+  "rtlRestart": {
+    "title": "Restart Required",
+    "message": "Please restart the app for the layout direction to update."
+  },
   "serverError": {
     "unknown": "Произошла неизвестная ошибка",
     "unauthorized": "Необходимо войти в систему",

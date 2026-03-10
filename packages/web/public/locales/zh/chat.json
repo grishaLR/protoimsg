@@ -21,9 +21,31 @@
       "blocked": "已屏蔽",
       "followers": "粉丝",
       "following": "关注"
+    },
+    "title": "Buddy List",
+    "filterPlaceholder": "Filter buddies...",
+    "addBuddyPlaceholder": "Add buddy by handle...",
+    "loadingBuddyList": "Loading buddy list...",
+    "noMatches": "No matches",
+    "noMatchesDetail": "No buddies matching \"{{query}}\"",
+    "addFirstBuddy": "Add your first buddy",
+    "addFirstBuddyHint": "Find people in chat rooms or search by handle",
+    "noOneOnline": "No one online",
+    "buddyOfflineCount_one": "{{count}} buddy offline",
+    "buddyOfflineCount_other": "{{count}} buddies offline",
+    "onlineCount": "{{online}} of {{total}} online",
+    "removeBuddyConfirm": "Are you sure you want to remove this buddy?",
+    "germ": {
+      "checkFailed": "Could not check GERM status for this user.",
+      "notEnabled": "This user does not have GERM messaging enabled.",
+      "openFailed": "Failed to open GERM messaging."
+    },
+    "accessibility": {
+      "messageBuddy": "Message {{name}}, {{status}}",
+      "callBuddy": "Call {{name}}",
+      "groupHeader": "{{group}} group, {{online}} of {{total}} online"
     }
   },
-
   "buddyMenu": {
     "button": {
       "title": "选项",
@@ -41,9 +63,10 @@
     "sendImDisabled": "用户不在线",
     "videoCall": "视频通话",
     "videoCallDisabled": "用户不在线",
-    "report": "举报用户"
+    "report": "举报用户",
+    "openDm": "Open DM",
+    "call": "Call"
   },
-
   "memberMenu": {
     "button": {
       "title": "选项",
@@ -59,7 +82,6 @@
     },
     "report": "举报用户"
   },
-
   "messageInput": {
     "placeholder": {
       "default": "输入消息...（回车发送，Shift+回车换行）",
@@ -75,7 +97,6 @@
     },
     "send": "发送"
   },
-
   "messageItem": {
     "contentWarning": "内容警告",
     "clickToReveal": "点击查看",
@@ -94,7 +115,6 @@
       "error": "错误"
     }
   },
-
   "userContextMenu": {
     "addToBuddyList": "添加到好友列表",
     "block": "屏蔽",
@@ -106,7 +126,6 @@
       "error": "错误"
     }
   },
-
   "messageList": {
     "loading": "加载消息中...",
     "empty": "还没有消息，开始聊天吧！",
@@ -117,7 +136,6 @@
       "many": "{{count}} 人正在输入..."
     }
   },
-
   "threadPanel": {
     "ariaLabel": "话题",
     "title": "话题",
@@ -129,7 +147,6 @@
     "replyCount_other": "{{count}} 条回复",
     "inputPlaceholder": "在话题中回复..."
   },
-
   "formattingToolbar": {
     "bold": "加粗",
     "italic": "斜体",
@@ -137,18 +154,15 @@
     "code": "代码",
     "blockquote": "引用"
   },
-
   "memberList": {
     "heading": "成员 ({{count}})"
   },
-
   "groupHeader": {
     "renameGroup": "重命名分组",
     "deleteGroup": "删除分组",
     "expand": "展开",
     "collapse": "收起"
   },
-
   "gif": {
     "title": "GIF",
     "searchPlaceholder": "搜索 GIF...",
@@ -161,7 +175,6 @@
     "confirm": "发送",
     "back": "返回"
   },
-
   "videoCall": {
     "incoming": {
       "ariaLabel": "来电视频通话",
@@ -169,7 +182,10 @@
       "accept": "接听",
       "acceptAriaLabel": "接听来电",
       "reject": "拒绝",
-      "rejectAriaLabel": "拒绝来电"
+      "rejectAriaLabel": "拒绝来电",
+      "banner": "Incoming video call",
+      "declineLabel": "Decline",
+      "acceptLabel": "Accept"
     },
     "calling": "呼叫中...",
     "ringing": "响铃中...",
@@ -186,9 +202,13 @@
     "stopSharing": "停止共享",
     "error": {
       "mediaPermission": "视频通话需要摄像头/麦克风权限"
-    }
+    },
+    "flip": "Flip",
+    "callFailed": "Call Failed",
+    "hangUp": "Hang Up",
+    "micOff": "Mic off",
+    "camOff": "Cam off"
   },
-
   "channel": {
     "heading": "频道",
     "listAriaLabel": "频道列表",
@@ -211,7 +231,6 @@
       "default": "创建频道失败"
     }
   },
-
   "report": {
     "title": "举报用户",
     "subjectLabel": "用户",
@@ -236,7 +255,6 @@
     "removeAttachment": "移除附件",
     "fileSizeError": "文件过大，最大 2 MB。"
   },
-
   "poll": {
     "createPoll": "创建投票",
     "questionLabel": "问题",
@@ -267,7 +285,6 @@
       "default": "创建投票失败"
     }
   },
-
   "reportContent": {
     "title": "举报",
     "subjectLabel": "对象",
@@ -284,5 +301,29 @@
     "success": "举报已提交，我们会进行调查。",
     "error": "提交举报失败。",
     "fileSizeError": "文件过大（最大 2 MB）"
+  },
+  "moderation": {
+    "ban": "Ban from Room",
+    "banConfirm": "Ban this user from the room?",
+    "banned": "Banned",
+    "unban": "Unban",
+    "makeMod": "Make Moderator",
+    "removeMod": "Remove Moderator",
+    "modAdded": "Moderator added",
+    "modRemoved": "Moderator removed",
+    "error": "Action failed"
+  },
+  "roomSettings": {
+    "title": "Room Settings",
+    "slowMode": "Slow Mode (seconds)",
+    "slowModeHint": "0 = off",
+    "minAccountAge": "Min Account Age (days)",
+    "allowlist": "Allowlist Only",
+    "allowlistHint": "Only allowlisted users can send messages",
+    "save": "Save",
+    "saving": "Saving...",
+    "saved": "Settings saved",
+    "cancel": "Cancel",
+    "error": "Failed to save settings"
   }
 }

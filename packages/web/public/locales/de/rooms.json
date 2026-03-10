@@ -30,28 +30,29 @@
     "submitting": "Wird erstellt...",
     "submit": "Erstellen"
   },
-
   "roomList": {
-    "empty": "Keine Räume gefunden. Erstelle einen, um loszulegen!"
+    "empty": "Keine Räume gefunden. Erstelle einen, um loszulegen!",
+    "noRooms": "No rooms yet"
   },
-
   "roomCard": {
     "createdDate": "Erstellt am {{date}}",
     "translate": "Übersetzen",
     "translating": "Wird übersetzt...",
     "translatedTo": "Übersetzt nach {{lang}}",
-    "showOriginal": "Original anzeigen"
+    "showOriginal": "Original anzeigen",
+    "slowMode": "slow: {{seconds}}s"
   },
-
   "directory": {
     "searchPlaceholder": "Räume suchen...",
     "createButton": "Raum erstellen",
     "loading": "Räume werden geladen...",
     "allCategories": "Alle",
     "publicRoomsHeader": "Öffentliche Chaträume",
-    "publicRoomsInfo": "Chaträume sind öffentliche Bereiche — wie draußen in der Öffentlichkeit. Nachrichten werden im AT-Protokoll gespeichert und sind für alle sichtbar, auch wenn dein Status in der Freundesliste auf unsichtbar steht."
+    "publicRoomsInfo": "Chaträume sind öffentliche Bereiche — wie draußen in der Öffentlichkeit. Nachrichten werden im AT-Protokoll gespeichert und sind für alle sichtbar, auch wenn dein Status in der Freundesliste auf unsichtbar steht.",
+    "title": "Chat Rooms",
+    "roomCount_one": "{{count}} room",
+    "roomCount_other": "{{count}} rooms"
   },
-
   "chatRoom": {
     "invalidId": "Ungültige Raum-ID",
     "loading": "Raum wird eingerichtet...",
@@ -64,6 +65,15 @@
     "expandChannels": "Kanäle aufklappen",
     "sendFailed": "Nachricht konnte nicht gesendet werden. Bitte versuch es erneut.",
     "dismiss": "Schließen",
-    "reportRoom": "Raum melden"
+    "reportRoom": "Raum melden",
+    "noOneHereYet": "No one else here yet",
+    "noMessagesYet": "No messages yet. Say something!",
+    "settings": "Room Settings"
+  },
+  "accessibility": {
+    "messageInput": "Message input",
+    "sendMessage": "Send message",
+    "slowModeWait": "Slow mode: {{seconds}}s",
+    "channel": "Channel {{name}}"
   }
 }

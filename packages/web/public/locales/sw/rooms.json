@@ -30,11 +30,10 @@
     "submitting": "Inaunda...",
     "submit": "Unda"
   },
-
   "roomList": {
-    "empty": "Hakuna vyumba vilivyopatikana. Unda kimoja kuanza!"
+    "empty": "Hakuna vyumba vilivyopatikana. Unda kimoja kuanza!",
+    "noRooms": "No rooms yet"
   },
-
   "roomCard": {
     "createdDate": "Iliundwa {{date}}",
     "translate": "Tafsiri",
@@ -42,16 +41,17 @@
     "translatedTo": "Imetafsiriwa kwa {{lang}}",
     "showOriginal": "Onyesha asili"
   },
-
   "directory": {
     "searchPlaceholder": "Tafuta vyumba...",
     "createButton": "Unda Chumba",
     "loading": "Inapakia vyumba...",
     "allCategories": "Zote",
     "publicRoomsHeader": "Vyumba vya Mazungumzo vya Umma",
-    "publicRoomsInfo": "Vyumba vya mazungumzo ni maeneo ya umma — kama kutoka nje hadharani. Ujumbe huhifadhiwa kwenye itifaki ya AT na unaonekana na mtu yeyote, hata kama hali yako kwenye orodha ya marafiki imewekwa kuwa haionekani."
+    "publicRoomsInfo": "Vyumba vya mazungumzo ni maeneo ya umma — kama kutoka nje hadharani. Ujumbe huhifadhiwa kwenye itifaki ya AT na unaonekana na mtu yeyote, hata kama hali yako kwenye orodha ya marafiki imewekwa kuwa haionekani.",
+    "title": "Chat Rooms",
+    "roomCount_one": "{{count}} room",
+    "roomCount_other": "{{count}} rooms"
   },
-
   "chatRoom": {
     "invalidId": "Kitambulisho batili cha chumba",
     "loading": "Chumba kinaandaliwa...",
@@ -64,6 +64,9 @@
     "members": "Wanachama",
     "sendFailed": "Ujumbe haujatumwa. Tafadhali jaribu tena.",
     "dismiss": "Funga",
-    "reportRoom": "Ripoti chumba"
+    "reportRoom": "Ripoti chumba",
+    "noOneHereYet": "No one else here yet",
+    "noMessagesYet": "No messages yet. Say something!",
+    "settings": "Room Settings"
   }
 }

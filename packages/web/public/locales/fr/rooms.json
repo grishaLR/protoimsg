@@ -1,6 +1,6 @@
 {
   "createRoom": {
-    "title": "Cr\u00e9er un salon",
+    "title": "Créer un salon",
     "nameLabel": "Nom",
     "namePlaceholder": "Nom du salon",
     "descriptionLabel": "Description",
@@ -10,48 +10,49 @@
     "purposeLabel": "Objectif",
     "purpose": {
       "discussion": "Discussion",
-      "event": "\u00c9v\u00e9nement",
-      "community": "Communaut\u00e9",
+      "event": "Événement",
+      "community": "Communauté",
       "support": "Entraide"
     },
-    "visibilityLabel": "Visibilit\u00e9",
+    "visibilityLabel": "Visibilité",
     "visibility": {
       "public": "Public",
-      "unlisted": "Non r\u00e9f\u00e9renc\u00e9",
-      "private": "Priv\u00e9"
+      "unlisted": "Non référencé",
+      "private": "Privé"
     },
-    "categoryLabel": "Cat\u00e9gorie",
+    "categoryLabel": "Catégorie",
     "categoryPlaceholder": "ex., musique, tech, jeux",
-    "categoryCreate": "Cr\u00e9er : {{value}}",
+    "categoryCreate": "Créer : {{value}}",
     "error": {
-      "default": "\u00c9chec de la cr\u00e9ation du salon"
+      "default": "Échec de la création du salon"
     },
     "cancel": "Annuler",
-    "submitting": "Cr\u00e9ation...",
-    "submit": "Cr\u00e9er"
+    "submitting": "Création...",
+    "submit": "Créer"
   },
-
   "roomList": {
-    "empty": "Aucun salon trouv\u00e9. Cr\u00e9ez-en un pour commencer !"
+    "empty": "Aucun salon trouvé. Créez-en un pour commencer !",
+    "noRooms": "No rooms yet"
   },
-
   "roomCard": {
-    "createdDate": "Cr\u00e9\u00e9 le {{date}}",
+    "createdDate": "Créé le {{date}}",
     "translate": "Traduire",
     "translating": "Traduction en cours...",
     "translatedTo": "Traduit en {{lang}}",
-    "showOriginal": "Afficher l'original"
+    "showOriginal": "Afficher l'original",
+    "slowMode": "slow: {{seconds}}s"
   },
-
   "directory": {
     "searchPlaceholder": "Rechercher des salons...",
-    "createButton": "Cr\u00e9er un salon",
+    "createButton": "Créer un salon",
     "loading": "Chargement des salons...",
     "allCategories": "Toutes",
     "publicRoomsHeader": "Salons de discussion publics",
-    "publicRoomsInfo": "Les salons de discussion sont des espaces publics — comme sortir dans la rue. Les messages sont stockés sur le protocole AT et visibles par tous, même si votre statut dans la liste d'amis est réglé sur invisible."
+    "publicRoomsInfo": "Les salons de discussion sont des espaces publics — comme sortir dans la rue. Les messages sont stockés sur le protocole AT et visibles par tous, même si votre statut dans la liste d'amis est réglé sur invisible.",
+    "title": "Chat Rooms",
+    "roomCount_one": "{{count}} room",
+    "roomCount_other": "{{count}} rooms"
   },
-
   "chatRoom": {
     "invalidId": "Identifiant de salon invalide",
     "loading": "Configuration du salon en cours...",
@@ -59,11 +60,20 @@
     "backToRooms": "Salons",
     "members": "Membres",
     "channelSwitcher": "Choisir un canal",
-    "createChannel": "Cr\u00e9er un canal",
+    "createChannel": "Créer un canal",
     "collapseChannels": "Replier les canaux",
-    "expandChannels": "D\u00e9plier les canaux",
-    "sendFailed": "\u00c9chec de l'envoi du message. Veuillez r\u00e9essayer.",
+    "expandChannels": "Déplier les canaux",
+    "sendFailed": "Échec de l'envoi du message. Veuillez réessayer.",
     "dismiss": "Ignorer",
-    "reportRoom": "Signaler le salon"
+    "reportRoom": "Signaler le salon",
+    "noOneHereYet": "No one else here yet",
+    "noMessagesYet": "No messages yet. Say something!",
+    "settings": "Room Settings"
+  },
+  "accessibility": {
+    "messageInput": "Message input",
+    "sendMessage": "Send message",
+    "slowModeWait": "Slow mode: {{seconds}}s",
+    "channel": "Channel {{name}}"
   }
 }

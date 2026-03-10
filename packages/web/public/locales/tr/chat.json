@@ -21,9 +21,31 @@
       "blocked": "Engellenenler",
       "followers": "Takipçiler",
       "following": "Takip Edilenler"
+    },
+    "title": "Buddy List",
+    "filterPlaceholder": "Filter buddies...",
+    "addBuddyPlaceholder": "Add buddy by handle...",
+    "loadingBuddyList": "Loading buddy list...",
+    "noMatches": "No matches",
+    "noMatchesDetail": "No buddies matching \"{{query}}\"",
+    "addFirstBuddy": "Add your first buddy",
+    "addFirstBuddyHint": "Find people in chat rooms or search by handle",
+    "noOneOnline": "No one online",
+    "buddyOfflineCount_one": "{{count}} buddy offline",
+    "buddyOfflineCount_other": "{{count}} buddies offline",
+    "onlineCount": "{{online}} of {{total}} online",
+    "removeBuddyConfirm": "Are you sure you want to remove this buddy?",
+    "germ": {
+      "checkFailed": "Could not check GERM status for this user.",
+      "notEnabled": "This user does not have GERM messaging enabled.",
+      "openFailed": "Failed to open GERM messaging."
+    },
+    "accessibility": {
+      "messageBuddy": "Message {{name}}, {{status}}",
+      "callBuddy": "Call {{name}}",
+      "groupHeader": "{{group}} group, {{online}} of {{total}} online"
     }
   },
-
   "buddyMenu": {
     "button": {
       "title": "Seçenekler",
@@ -41,9 +63,10 @@
     "sendImDisabled": "Kullanıcı çevrimdışı",
     "videoCall": "Görüntülü Arama",
     "videoCallDisabled": "Kullanıcı çevrimdışı",
-    "report": "Kullanıcıyı Şikayet Et"
+    "report": "Kullanıcıyı Şikayet Et",
+    "openDm": "Open DM",
+    "call": "Call"
   },
-
   "memberMenu": {
     "button": {
       "title": "Seçenekler",
@@ -59,7 +82,6 @@
     },
     "report": "Kullanıcıyı Şikayet Et"
   },
-
   "messageInput": {
     "placeholder": {
       "default": "Mesaj yaz... (Göndermek için Enter, yeni satır için Shift+Enter)",
@@ -75,7 +97,6 @@
     },
     "send": "Gönder"
   },
-
   "messageItem": {
     "contentWarning": "İçerik uyarısı",
     "clickToReveal": "Görmek için tıkla",
@@ -94,7 +115,6 @@
       "error": "Hata"
     }
   },
-
   "userContextMenu": {
     "addToBuddyList": "Arkadaş Listesine Ekle",
     "block": "Engelle",
@@ -106,7 +126,6 @@
       "error": "Hata"
     }
   },
-
   "messageList": {
     "loading": "Mesajlar yükleniyor...",
     "empty": "Henüz mesaj yok. Sohbeti başlat!",
@@ -117,7 +136,6 @@
       "many": "{{count}} kişi yazıyor..."
     }
   },
-
   "threadPanel": {
     "ariaLabel": "Konu",
     "title": "Konu",
@@ -129,7 +147,6 @@
     "replyCount_other": "{{count}} yanıt",
     "inputPlaceholder": "Konuya yanıt yaz..."
   },
-
   "formattingToolbar": {
     "bold": "Kalın",
     "italic": "İtalik",
@@ -137,18 +154,15 @@
     "code": "Kod",
     "blockquote": "Alıntı"
   },
-
   "memberList": {
     "heading": "Üyeler ({{count}})"
   },
-
   "groupHeader": {
     "renameGroup": "Grubu yeniden adlandır",
     "deleteGroup": "Grubu sil",
     "expand": "Genişlet",
     "collapse": "Daralt"
   },
-
   "gif": {
     "title": "GIF'ler",
     "searchPlaceholder": "GIF ara...",
@@ -161,7 +175,6 @@
     "confirm": "Gönder",
     "back": "Geri"
   },
-
   "videoCall": {
     "incoming": {
       "ariaLabel": "Gelen görüntülü arama",
@@ -169,7 +182,10 @@
       "accept": "Aramayı kabul et",
       "acceptAriaLabel": "Gelen aramayı kabul et",
       "reject": "Aramayı reddet",
-      "rejectAriaLabel": "Gelen aramayı reddet"
+      "rejectAriaLabel": "Gelen aramayı reddet",
+      "banner": "Incoming video call",
+      "declineLabel": "Decline",
+      "acceptLabel": "Accept"
     },
     "calling": "Aranıyor...",
     "ringing": "Çalıyor...",
@@ -186,9 +202,13 @@
     "stopSharing": "Paylaşımı durdur",
     "error": {
       "mediaPermission": "Görüntülü arama için kamera/mikrofon izni gerekli"
-    }
+    },
+    "flip": "Flip",
+    "callFailed": "Call Failed",
+    "hangUp": "Hang Up",
+    "micOff": "Mic off",
+    "camOff": "Cam off"
   },
-
   "channel": {
     "heading": "Kanallar",
     "listAriaLabel": "Kanal listesi",
@@ -211,7 +231,6 @@
       "default": "Kanal oluşturulamadı"
     }
   },
-
   "report": {
     "title": "Kullanıcıyı Şikayet Et",
     "subjectLabel": "Kullanıcı",
@@ -236,7 +255,6 @@
     "removeAttachment": "Eki kaldır",
     "fileSizeError": "Dosya çok büyük. Maksimum boyut 2 MB."
   },
-
   "poll": {
     "createPoll": "Anket Oluştur",
     "questionLabel": "Soru",
@@ -267,7 +285,6 @@
       "default": "Anket oluşturulamadı"
     }
   },
-
   "reportContent": {
     "title": "Şikayet Et",
     "subjectLabel": "Konu",
@@ -284,5 +301,29 @@
     "success": "Şikayet gönderildi. İnceleyeceğiz.",
     "error": "Şikayet gönderilemedi.",
     "fileSizeError": "Dosya çok büyük (maks. 2 MB)"
+  },
+  "moderation": {
+    "ban": "Ban from Room",
+    "banConfirm": "Ban this user from the room?",
+    "banned": "Banned",
+    "unban": "Unban",
+    "makeMod": "Make Moderator",
+    "removeMod": "Remove Moderator",
+    "modAdded": "Moderator added",
+    "modRemoved": "Moderator removed",
+    "error": "Action failed"
+  },
+  "roomSettings": {
+    "title": "Room Settings",
+    "slowMode": "Slow Mode (seconds)",
+    "slowModeHint": "0 = off",
+    "minAccountAge": "Min Account Age (days)",
+    "allowlist": "Allowlist Only",
+    "allowlistHint": "Only allowlisted users can send messages",
+    "save": "Save",
+    "saving": "Saving...",
+    "saved": "Settings saved",
+    "cancel": "Cancel",
+    "error": "Failed to save settings"
   }
 }

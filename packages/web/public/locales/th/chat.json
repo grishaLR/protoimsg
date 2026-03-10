@@ -21,9 +21,31 @@
       "blocked": "ถูกบล็อก",
       "followers": "ผู้ติดตาม",
       "following": "กำลังติดตาม"
+    },
+    "title": "Buddy List",
+    "filterPlaceholder": "Filter buddies...",
+    "addBuddyPlaceholder": "Add buddy by handle...",
+    "loadingBuddyList": "Loading buddy list...",
+    "noMatches": "No matches",
+    "noMatchesDetail": "No buddies matching \"{{query}}\"",
+    "addFirstBuddy": "Add your first buddy",
+    "addFirstBuddyHint": "Find people in chat rooms or search by handle",
+    "noOneOnline": "No one online",
+    "buddyOfflineCount_one": "{{count}} buddy offline",
+    "buddyOfflineCount_other": "{{count}} buddies offline",
+    "onlineCount": "{{online}} of {{total}} online",
+    "removeBuddyConfirm": "Are you sure you want to remove this buddy?",
+    "germ": {
+      "checkFailed": "Could not check GERM status for this user.",
+      "notEnabled": "This user does not have GERM messaging enabled.",
+      "openFailed": "Failed to open GERM messaging."
+    },
+    "accessibility": {
+      "messageBuddy": "Message {{name}}, {{status}}",
+      "callBuddy": "Call {{name}}",
+      "groupHeader": "{{group}} group, {{online}} of {{total}} online"
     }
   },
-
   "buddyMenu": {
     "button": {
       "title": "ตัวเลือก",
@@ -41,9 +63,10 @@
     "sendImDisabled": "ผู้ใช้ออฟไลน์",
     "videoCall": "วิดีโอคอล",
     "videoCallDisabled": "ผู้ใช้ออฟไลน์",
-    "report": "รายงานผู้ใช้"
+    "report": "รายงานผู้ใช้",
+    "openDm": "Open DM",
+    "call": "Call"
   },
-
   "memberMenu": {
     "button": {
       "title": "ตัวเลือก",
@@ -59,7 +82,6 @@
     },
     "report": "รายงานผู้ใช้"
   },
-
   "messageInput": {
     "placeholder": {
       "default": "พิมพ์ข้อความ... (Enter เพื่อส่ง, Shift+Enter ขึ้นบรรทัดใหม่)",
@@ -75,7 +97,6 @@
     },
     "send": "ส่ง"
   },
-
   "messageItem": {
     "contentWarning": "คำเตือนเนื้อหา",
     "clickToReveal": "คลิกเพื่อแสดง",
@@ -94,7 +115,6 @@
       "error": "ข้อผิดพลาด"
     }
   },
-
   "userContextMenu": {
     "addToBuddyList": "เพิ่มในรายชื่อเพื่อน",
     "block": "บล็อก",
@@ -106,7 +126,6 @@
       "error": "ข้อผิดพลาด"
     }
   },
-
   "messageList": {
     "loading": "กำลังโหลดข้อความ...",
     "empty": "ยังไม่มีข้อความ เริ่มสนทนากันเลย!",
@@ -117,7 +136,6 @@
       "many": "{{count}} คนกำลังพิมพ์..."
     }
   },
-
   "threadPanel": {
     "ariaLabel": "เธรด",
     "title": "เธรด",
@@ -129,7 +147,6 @@
     "replyCount_other": "{{count}} ข้อความตอบกลับ",
     "inputPlaceholder": "ตอบกลับในเธรด..."
   },
-
   "formattingToolbar": {
     "bold": "ตัวหนา",
     "italic": "ตัวเอียง",
@@ -137,18 +154,15 @@
     "code": "โค้ด",
     "blockquote": "บล็อกอ้างอิง"
   },
-
   "memberList": {
     "heading": "สมาชิก ({{count}})"
   },
-
   "groupHeader": {
     "renameGroup": "เปลี่ยนชื่อกลุ่ม",
     "deleteGroup": "ลบกลุ่ม",
     "expand": "ขยาย",
     "collapse": "ย่อ"
   },
-
   "gif": {
     "title": "GIF",
     "searchPlaceholder": "ค้นหา GIF...",
@@ -161,7 +175,6 @@
     "confirm": "ส่ง",
     "back": "กลับ"
   },
-
   "videoCall": {
     "incoming": {
       "ariaLabel": "วิดีโอคอลเข้า",
@@ -169,7 +182,10 @@
       "accept": "รับสาย",
       "acceptAriaLabel": "รับวิดีโอคอลเข้า",
       "reject": "วางสาย",
-      "rejectAriaLabel": "ปฏิเสธวิดีโอคอลเข้า"
+      "rejectAriaLabel": "ปฏิเสธวิดีโอคอลเข้า",
+      "banner": "Incoming video call",
+      "declineLabel": "Decline",
+      "acceptLabel": "Accept"
     },
     "calling": "กำลังโทร...",
     "ringing": "กำลังเรียก...",
@@ -186,9 +202,13 @@
     "stopSharing": "หยุดแชร์",
     "error": {
       "mediaPermission": "ต้องอนุญาตกล้อง/ไมค์เพื่อใช้วิดีโอคอล"
-    }
+    },
+    "flip": "Flip",
+    "callFailed": "Call Failed",
+    "hangUp": "Hang Up",
+    "micOff": "Mic off",
+    "camOff": "Cam off"
   },
-
   "channel": {
     "heading": "แชนเนล",
     "listAriaLabel": "รายชื่อแชนเนล",
@@ -211,7 +231,6 @@
       "default": "สร้างแชนเนลไม่สำเร็จ"
     }
   },
-
   "report": {
     "title": "รายงานผู้ใช้",
     "subjectLabel": "ผู้ใช้",
@@ -236,7 +255,6 @@
     "removeAttachment": "ลบไฟล์แนบ",
     "fileSizeError": "ไฟล์ใหญ่เกินไป ขนาดสูงสุด 2 MB"
   },
-
   "poll": {
     "createPoll": "สร้างโพล",
     "questionLabel": "คำถาม",
@@ -267,7 +285,6 @@
       "default": "สร้างโพลไม่สำเร็จ"
     }
   },
-
   "reportContent": {
     "title": "รายงาน",
     "subjectLabel": "เรื่อง",
@@ -284,5 +301,29 @@
     "success": "ส่งรายงานแล้ว เราจะตรวจสอบให้",
     "error": "ส่งรายงานไม่สำเร็จ",
     "fileSizeError": "ไฟล์ใหญ่เกินไป (สูงสุด 2 MB)"
+  },
+  "moderation": {
+    "ban": "Ban from Room",
+    "banConfirm": "Ban this user from the room?",
+    "banned": "Banned",
+    "unban": "Unban",
+    "makeMod": "Make Moderator",
+    "removeMod": "Remove Moderator",
+    "modAdded": "Moderator added",
+    "modRemoved": "Moderator removed",
+    "error": "Action failed"
+  },
+  "roomSettings": {
+    "title": "Room Settings",
+    "slowMode": "Slow Mode (seconds)",
+    "slowModeHint": "0 = off",
+    "minAccountAge": "Min Account Age (days)",
+    "allowlist": "Allowlist Only",
+    "allowlistHint": "Only allowlisted users can send messages",
+    "save": "Save",
+    "saving": "Saving...",
+    "saved": "Settings saved",
+    "cancel": "Cancel",
+    "error": "Failed to save settings"
   }
 }

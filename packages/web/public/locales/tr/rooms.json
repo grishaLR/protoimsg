@@ -30,28 +30,29 @@
     "submitting": "Oluşturuluyor...",
     "submit": "Oluştur"
   },
-
   "roomList": {
-    "empty": "Oda bulunamadı. Başlamak için bir tane oluştur!"
+    "empty": "Oda bulunamadı. Başlamak için bir tane oluştur!",
+    "noRooms": "No rooms yet"
   },
-
   "roomCard": {
     "createdDate": "{{date}} tarihinde oluşturuldu",
     "translate": "Çevir",
     "translating": "Çevriliyor...",
     "translatedTo": "{{lang}} diline çevrildi",
-    "showOriginal": "Orijinali göster"
+    "showOriginal": "Orijinali göster",
+    "slowMode": "slow: {{seconds}}s"
   },
-
   "directory": {
     "searchPlaceholder": "Oda ara...",
     "createButton": "Oda Oluştur",
     "loading": "Odalar yükleniyor...",
     "allCategories": "Tümü",
     "publicRoomsHeader": "Herkese Açık Sohbet Odaları",
-    "publicRoomsInfo": "Sohbet odaları herkese açık alanlardır — dışarıda herkesin içinde olmak gibi. Mesajlar AT Protokolü'nde saklanır ve arkadaş listesindeki durumunuz görünmez olsa bile herkes tarafından görülebilir."
+    "publicRoomsInfo": "Sohbet odaları herkese açık alanlardır — dışarıda herkesin içinde olmak gibi. Mesajlar AT Protokolü'nde saklanır ve arkadaş listesindeki durumunuz görünmez olsa bile herkes tarafından görülebilir.",
+    "title": "Chat Rooms",
+    "roomCount_one": "{{count}} room",
+    "roomCount_other": "{{count}} rooms"
   },
-
   "chatRoom": {
     "invalidId": "Geçersiz oda kimliği",
     "loading": "Oda hazırlanıyor...",
@@ -64,6 +65,15 @@
     "expandChannels": "Kanalları genişlet",
     "sendFailed": "Mesaj gönderilemedi. Lütfen tekrar dene.",
     "dismiss": "Kapat",
-    "reportRoom": "Odayı Şikayet Et"
+    "reportRoom": "Odayı Şikayet Et",
+    "noOneHereYet": "No one else here yet",
+    "noMessagesYet": "No messages yet. Say something!",
+    "settings": "Room Settings"
+  },
+  "accessibility": {
+    "messageInput": "Message input",
+    "sendMessage": "Send message",
+    "slowModeWait": "Slow mode: {{seconds}}s",
+    "channel": "Channel {{name}}"
   }
 }

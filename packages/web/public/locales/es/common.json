@@ -1,19 +1,18 @@
 {
   "appName": "proto instant messenger",
-
   "status": {
     "online": "En línea",
     "away": "Ausente",
-    "idle": "Inactivo"
+    "idle": "Inactivo",
+    "offline": "Offline",
+    "disconnected": "Disconnected"
   },
-
   "visibility": {
     "everyone": "Todos",
     "community": "Comunidad",
     "innerCircle": "Círculo íntimo",
     "noOne": "Nadie"
   },
-
   "theme": {
     "aim": "'98 Clásico",
     "nytLight": "Minimalista Claro",
@@ -28,13 +27,14 @@
     "black": "Negro",
     "wireframe": "Wireframe"
   },
-
   "nav": {
     "community": "Comunidad",
     "rooms": "Salas",
-    "feed": "Feed"
+    "feed": "Feed",
+    "buddies": "Buddies",
+    "chat": "Chat",
+    "profile": "Profile"
   },
-
   "header": {
     "menu": "Menú",
     "awayMessage": {
@@ -48,7 +48,6 @@
     "minimize": "Minimizar",
     "signOut": "Cerrar sesión"
   },
-
   "statusSelector": {
     "awayMessage": {
       "label": "Mensaje de ausencia",
@@ -58,36 +57,34 @@
       "label": "Quién puede verme"
     }
   },
-
   "connectionBanner": {
     "message": "Conexión perdida — reconectando..."
   },
-
   "betaBanner": {
     "message": "Estamos en etapas tempranas y las cosas pueden fallar. ¡Contáctanos en",
     "dismiss": "Cerrar"
   },
-
   "errorBoundary": {
     "title": "Algo salió mal",
     "fallbackMessage": "Ocurrió un error inesperado",
     "tryAgain": "Intentar de nuevo"
   },
-
   "button": {
     "back": "Atrás",
     "cancel": "Cancelar",
     "send": "Enviar",
     "close": "Cerrar",
     "save": "Guardar",
-    "settings": "Ajustes"
+    "settings": "Ajustes",
+    "done": "Done",
+    "retry": "Retry",
+    "signIn": "Sign In",
+    "signOut": "Sign Out"
   },
-
   "aria": {
     "expand": "Expandir",
     "collapse": "Contraer"
   },
-
   "feedback": {
     "menuItem": "Enviar comentarios",
     "title": "Enviar comentarios",
@@ -98,7 +95,10 @@
     "success": "¡Gracias! Comentarios enviados.",
     "error": "Algo salió mal. Intenta de nuevo."
   },
-
+  "rtlRestart": {
+    "title": "Restart Required",
+    "message": "Please restart the app for the layout direction to update."
+  },
   "serverError": {
     "unknown": "Ocurrió un error desconocido",
     "unauthorized": "Debes iniciar sesión",

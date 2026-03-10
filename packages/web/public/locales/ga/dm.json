@@ -1,52 +1,70 @@
 {
   "input": {
-    "placeholder": "Cl\u00f3scr\u00edobh teachtaireacht...",
-    "ariaLabel": "Cl\u00f3scr\u00edobh teachtaireacht DM",
+    "placeholder": "Clóscríobh teachtaireacht...",
+    "ariaLabel": "Clóscríobh teachtaireacht DM",
     "send": "Seol"
   },
-
   "messageList": {
-    "empty": "Gan teachtaireachta\u00ed f\u00f3s. Abair hal\u00f3!",
-    "typing": "ag cl\u00f3scr\u00edobh..."
+    "empty": "Gan teachtaireachtaí fós. Abair haló!",
+    "typing": "ag clóscríobh..."
   },
 
+  "typing": {
+    "label": "typing"
+  },
   "popover": {
-    "ariaLabel": "Comhr\u00e1 DM le {{recipientDid}}",
+    "ariaLabel": "Comhrá DM le {{recipientDid}}",
     "header": {
       "ariaLabel": {
-        "expand": "DM le {{recipientDid}} \u2014 clic\u00e1il chun leathn\u00fa",
-        "minimize": "DM le {{recipientDid}} \u2014 clic\u00e1il chun \u00edoslaghd\u00fa"
+        "expand": "DM le {{recipientDid}} — clicáil chun leathnú",
+        "minimize": "DM le {{recipientDid}} — clicáil chun íoslaghdú"
       }
     },
-    "unreadAriaLabel": "{{count}} teachtaireacht neamhl\u00e9ite",
+    "unreadAriaLabel": "{{count}} teachtaireacht neamhléite",
     "unreadOverflow": "99+",
-    "connecting": "Ag ceangal\u2026",
+    "connecting": "Ag ceangal…",
     "connectionFailed": "Theip ar an gceangal",
-    "peerClosed": "D\u00fanadh an comhr\u00e1. \u00das\u00e1id Germ le haghaidh teachtaireachta\u00ed as l\u00edne.",
+    "peerClosed": "Dúnadh an comhrá. Úsáid Germ le haghaidh teachtaireachtaí as líne.",
     "minimize": {
       "titleExpand": "Leathnaigh",
-      "titleMinimize": "\u00cdoslaghda\u00edgh",
+      "titleMinimize": "Íoslaghdaígh",
       "ariaLabel": {
-        "expand": "Leathnaigh comhr\u00e1",
-        "minimize": "\u00cdoslaghda\u00edgh comhr\u00e1"
+        "expand": "Leathnaigh comhrá",
+        "minimize": "Íoslaghdaígh comhrá"
       }
     },
     "close": {
-      "title": "D\u00fan",
-      "ariaLabel": "D\u00fan comhr\u00e1"
-    }
+      "title": "Dún",
+      "ariaLabel": "Dún comhrá"
+    },
+    "retry": "Retry",
+    "closingCountdown": "Chat ended. Closing in {{seconds}}s…"
   },
-
   "notification": {
-    "ariaLabel": "Teachtaireacht nua \u00f3 {{senderDid}}",
-    "incoming": "ag iarraidh comhr\u00e1",
+    "ariaLabel": "Teachtaireacht nua ó {{senderDid}}",
+    "incoming": "ag iarraidh comhrá",
     "dismiss": {
-      "title": "D\u00edbir",
-      "ariaLabel": "D\u00edbir f\u00f3gra"
+      "title": "Díbir",
+      "ariaLabel": "Díbir fógra"
     }
   },
-
   "popoverContainer": {
-    "ariaLabel": "F\u00f3gra\u00ed DM"
+    "ariaLabel": "Fógraí DM"
+  },
+  "window": {
+    "connecting": "Connecting…",
+    "waitingForConnection": "Waiting for connection…"
+  },
+  "status": {
+    "connecting": "Connecting...",
+    "connected": "Connected",
+    "connectionFailed": "Connection failed",
+    "closingIn": "Partner disconnected — closing in {{seconds}}s",
+    "saySomething": "Say something!",
+    "waitingForConnection": "Waiting for connection..."
+  },
+  "devClientRequired": {
+    "title": "Dev Client Required",
+    "description": "DMs require WebRTC which needs a native dev client build. Run expo prebuild then build with Xcode or Android Studio."
   }
 }

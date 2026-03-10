@@ -1,12 +1,10 @@
 {
   "back": "Ar Ais",
-
   "accountInfo": {
     "title": "Eolas Cuntais",
     "didLabel": "DID",
     "handleLabel": "Ainm Láimhseála"
   },
-
   "editProfile": {
     "title": "Cuir Próifíl in Eagar",
     "loading": "Ag lódáil próifíle...",
@@ -16,27 +14,22 @@
     "saving": "Á shábháil...",
     "save": "Sábháil"
   },
-
   "appearance": {
     "title": "Cuma"
   },
-
   "language": {
     "title": "Teanga"
   },
-
   "translation": {
     "title": "Aistriúchán",
     "autoTranslate": "Uath-aistrigh postálacha",
     "autoTranslateHint": "Aistrigh postálacha fotha agus beathaisnéisí go huathoibríoch go do theanga"
   },
-
   "notifications": {
     "title": "Fógraí",
     "enableSounds": "Cumasaigh fuaimeanna",
     "enableSoundsHint": "Seinn fuaimeanna le haghaidh doras oscailte/dúnta, teachtaireachtaí nua agus glaonna ag teacht isteach"
   },
-
   "privacy": {
     "title": "Príobháideachas",
     "ipProtectionLabel": "Cosaint IP do ghlaonna",
@@ -46,9 +39,11 @@
     "options": {
       "nonInnerCircle": "Díreach don chiorcal inmheánach, sealaíocht do chách eile (molta)",
       "all": "Folaigh mo IP ó chách"
-    }
+    },
+    "relayExceptIc": "Relay except IC",
+    "relayAlways": "Relay always",
+    "ipDescription": "Controls whether calls and DMs use a relay to protect your IP address."
   },
-
   "changePassword": {
     "title": "Athraigh Pasfhocal",
     "description": "Seolfaimid cód chuig do ríomhphost chun d'aitheantas a fhíorú.",
@@ -75,9 +70,14 @@
       "mismatch": "Ní hionann na pasfhocail."
     }
   },
-
   "actions": {
     "title": "Gníomhartha",
     "signOut": "Sínigh Amach"
+  },
+  "profile": {
+    "title": "Profile"
+  },
+  "preferences": {
+    "title": "Preferences"
   }
 }

@@ -21,9 +21,31 @@
       "blocked": "차단됨",
       "followers": "팔로워",
       "following": "팔로잉"
+    },
+    "title": "Buddy List",
+    "filterPlaceholder": "Filter buddies...",
+    "addBuddyPlaceholder": "Add buddy by handle...",
+    "loadingBuddyList": "Loading buddy list...",
+    "noMatches": "No matches",
+    "noMatchesDetail": "No buddies matching \"{{query}}\"",
+    "addFirstBuddy": "Add your first buddy",
+    "addFirstBuddyHint": "Find people in chat rooms or search by handle",
+    "noOneOnline": "No one online",
+    "buddyOfflineCount_one": "{{count}} buddy offline",
+    "buddyOfflineCount_other": "{{count}} buddies offline",
+    "onlineCount": "{{online}} of {{total}} online",
+    "removeBuddyConfirm": "Are you sure you want to remove this buddy?",
+    "germ": {
+      "checkFailed": "Could not check GERM status for this user.",
+      "notEnabled": "This user does not have GERM messaging enabled.",
+      "openFailed": "Failed to open GERM messaging."
+    },
+    "accessibility": {
+      "messageBuddy": "Message {{name}}, {{status}}",
+      "callBuddy": "Call {{name}}",
+      "groupHeader": "{{group}} group, {{online}} of {{total}} online"
     }
   },
-
   "buddyMenu": {
     "button": {
       "title": "옵션",
@@ -41,9 +63,10 @@
     "sendImDisabled": "사용자가 오프라인입니다",
     "videoCall": "영상 통화",
     "videoCallDisabled": "사용자가 오프라인입니다",
-    "report": "사용자 신고"
+    "report": "사용자 신고",
+    "openDm": "Open DM",
+    "call": "Call"
   },
-
   "memberMenu": {
     "button": {
       "title": "옵션",
@@ -59,7 +82,6 @@
     },
     "report": "사용자 신고"
   },
-
   "messageInput": {
     "placeholder": {
       "default": "메시지를 입력하세요... (Enter로 전송, Shift+Enter로 줄바꿈)",
@@ -75,7 +97,6 @@
     },
     "send": "보내기"
   },
-
   "messageItem": {
     "contentWarning": "콘텐츠 경고",
     "clickToReveal": "클릭하여 표시",
@@ -94,7 +115,6 @@
       "error": "오류"
     }
   },
-
   "userContextMenu": {
     "addToBuddyList": "친구 목록에 추가",
     "block": "차단",
@@ -106,7 +126,6 @@
       "error": "오류"
     }
   },
-
   "messageList": {
     "loading": "메시지 불러오는 중...",
     "empty": "아직 메시지가 없습니다. 대화를 시작해 보세요!",
@@ -117,7 +136,6 @@
       "many": "{{count}}명이 입력 중..."
     }
   },
-
   "threadPanel": {
     "ariaLabel": "스레드",
     "title": "스레드",
@@ -129,7 +147,6 @@
     "replyCount_other": "답장 {{count}}개",
     "inputPlaceholder": "스레드에 답장..."
   },
-
   "formattingToolbar": {
     "bold": "굵게",
     "italic": "기울임",
@@ -137,18 +154,15 @@
     "code": "코드",
     "blockquote": "인용"
   },
-
   "memberList": {
     "heading": "멤버 ({{count}})"
   },
-
   "groupHeader": {
     "renameGroup": "그룹 이름 변경",
     "deleteGroup": "그룹 삭제",
     "expand": "펼치기",
     "collapse": "접기"
   },
-
   "gif": {
     "title": "GIF",
     "searchPlaceholder": "GIF 검색...",
@@ -161,7 +175,6 @@
     "confirm": "보내기",
     "back": "뒤로"
   },
-
   "videoCall": {
     "incoming": {
       "ariaLabel": "수신 영상 통화",
@@ -169,7 +182,10 @@
       "accept": "통화 수락",
       "acceptAriaLabel": "수신 통화 수락",
       "reject": "통화 거절",
-      "rejectAriaLabel": "수신 통화 거절"
+      "rejectAriaLabel": "수신 통화 거절",
+      "banner": "Incoming video call",
+      "declineLabel": "Decline",
+      "acceptLabel": "Accept"
     },
     "calling": "전화 거는 중...",
     "ringing": "벨 울리는 중...",
@@ -186,9 +202,13 @@
     "stopSharing": "공유 중지",
     "error": {
       "mediaPermission": "영상 통화를 위해 카메라/마이크 권한이 필요합니다"
-    }
+    },
+    "flip": "Flip",
+    "callFailed": "Call Failed",
+    "hangUp": "Hang Up",
+    "micOff": "Mic off",
+    "camOff": "Cam off"
   },
-
   "channel": {
     "heading": "채널",
     "listAriaLabel": "채널 목록",
@@ -211,7 +231,6 @@
       "default": "채널 생성에 실패했습니다"
     }
   },
-
   "report": {
     "title": "사용자 신고",
     "subjectLabel": "사용자",
@@ -236,7 +255,6 @@
     "removeAttachment": "첨부 파일 제거",
     "fileSizeError": "파일이 너무 큽니다. 최대 크기는 2 MB입니다."
   },
-
   "poll": {
     "createPoll": "투표 만들기",
     "questionLabel": "질문",
@@ -267,7 +285,6 @@
       "default": "투표 생성에 실패했습니다"
     }
   },
-
   "reportContent": {
     "title": "신고",
     "subjectLabel": "대상",
@@ -284,5 +301,29 @@
     "success": "신고가 접수되었습니다. 확인하겠습니다.",
     "error": "신고 제출에 실패했습니다.",
     "fileSizeError": "파일이 너무 큽니다 (최대 2 MB)"
+  },
+  "moderation": {
+    "ban": "Ban from Room",
+    "banConfirm": "Ban this user from the room?",
+    "banned": "Banned",
+    "unban": "Unban",
+    "makeMod": "Make Moderator",
+    "removeMod": "Remove Moderator",
+    "modAdded": "Moderator added",
+    "modRemoved": "Moderator removed",
+    "error": "Action failed"
+  },
+  "roomSettings": {
+    "title": "Room Settings",
+    "slowMode": "Slow Mode (seconds)",
+    "slowModeHint": "0 = off",
+    "minAccountAge": "Min Account Age (days)",
+    "allowlist": "Allowlist Only",
+    "allowlistHint": "Only allowlisted users can send messages",
+    "save": "Save",
+    "saving": "Saving...",
+    "saved": "Settings saved",
+    "cancel": "Cancel",
+    "error": "Failed to save settings"
   }
 }

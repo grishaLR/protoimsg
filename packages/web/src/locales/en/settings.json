@@ -37,8 +37,19 @@
     "enableSoundsHint": "Play sounds for door open/close, new messages, and incoming calls"
   },
 
+  "profile": {
+    "title": "Profile"
+  },
+
+  "preferences": {
+    "title": "Preferences"
+  },
+
   "privacy": {
     "title": "Privacy",
+    "relayExceptIc": "Relay except IC",
+    "relayAlways": "Relay always",
+    "ipDescription": "Controls whether calls and DMs use a relay to protect your IP address.",
     "ipProtectionLabel": "IP protection for calls",
     "ipProtectionHint": "Direct connections to inner circle have low latency and a clear, snappy picture but expose your IP to the other caller. Relay hides your IP address but may add some latency.",
     "directConnectionInfo": "A direct connection is pure peer-to-peer. Your call goes straight to the other person with no server in between, which means low latency and a clear, snappy picture. The trade-off is that your IP address is visible to them. Think of your IP address like the front door of your house on the internet. Your inner circle should be people you'd trust with your physical address. If you'd be comfortable with that, direct connections are fine.",

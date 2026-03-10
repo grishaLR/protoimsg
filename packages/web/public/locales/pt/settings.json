@@ -1,54 +1,49 @@
 {
   "back": "Voltar",
-
   "accountInfo": {
-    "title": "Informa\u00e7\u00f5es da conta",
+    "title": "Informações da conta",
     "didLabel": "DID",
     "handleLabel": "Handle"
   },
-
   "editProfile": {
     "title": "Editar perfil",
     "loading": "Carregando perfil...",
     "changeAvatar": "Alterar avatar",
-    "displayNameLabel": "Nome de exibi\u00e7\u00e3o",
+    "displayNameLabel": "Nome de exibição",
     "bioLabel": "Bio",
     "saving": "Salvando...",
     "save": "Salvar"
   },
-
   "appearance": {
-    "title": "Apar\u00eancia"
+    "title": "Aparência"
   },
-
   "language": {
     "title": "Idioma"
   },
-
   "translation": {
-    "title": "Tradu\u00e7\u00e3o",
-    "autoTranslate": "Traduzir publica\u00e7\u00f5es automaticamente",
-    "autoTranslateHint": "Traduzir automaticamente publica\u00e7\u00f5es e bios para o seu idioma"
+    "title": "Tradução",
+    "autoTranslate": "Traduzir publicações automaticamente",
+    "autoTranslateHint": "Traduzir automaticamente publicações e bios para o seu idioma"
   },
-
   "notifications": {
-    "title": "Notifica\u00e7\u00f5es",
+    "title": "Notificações",
     "enableSounds": "Ativar sons",
-    "enableSoundsHint": "Tocar sons para conex\u00f5es/desconex\u00f5es, novas mensagens e chamadas recebidas"
+    "enableSoundsHint": "Tocar sons para conexões/desconexões, novas mensagens e chamadas recebidas"
   },
-
   "privacy": {
     "title": "Privacidade",
-    "ipProtectionLabel": "Prote\u00e7\u00e3o de IP para chamadas",
-    "ipProtectionHint": "Conex\u00f5es diretas com o c\u00edrculo \u00edntimo t\u00eam baixa lat\u00eancia e uma imagem n\u00edtida e \u00e1gil, mas exp\u00f5em seu IP ao outro usu\u00e1rio. O relay oculta seu endere\u00e7o IP, mas pode adicionar alguma lat\u00eancia.",
-    "directConnectionInfo": "Uma conex\u00e3o direta \u00e9 puramente ponto a ponto. Sua chamada vai direto para a outra pessoa, sem nenhum servidor no meio, o que significa baixa lat\u00eancia e uma imagem n\u00edtida e r\u00e1pida. A contrapartida \u00e9 que seu endere\u00e7o IP fica vis\u00edvel para ela. Pense no seu endere\u00e7o IP como a porta da frente da sua casa na internet. Seu c\u00edrculo \u00edntimo deve ser composto por pessoas em quem voc\u00ea confiaria seu endere\u00e7o f\u00edsico. Se voc\u00ea se sente confort\u00e1vel com isso, conex\u00f5es diretas s\u00e3o adequadas.",
-    "relayInfo": "Com o relay, sua chamada \u00e9 roteada pelo nosso servidor em vez de ir diretamente para a outra pessoa, ent\u00e3o nenhum dos dois v\u00ea o endere\u00e7o IP do outro. Tecnicamente n\u00e3o \u00e9 ponto a ponto, mas usamos isso exclusivamente para ocultar seu IP. Sua chamada continua criptografada com DTLS-SRTP, o que significa que as chaves de criptografia s\u00e3o negociadas diretamente entre voc\u00ea e o outro. Nosso servidor relay apenas encaminha os pacotes e n\u00e3o pode ver nem ouvir nada.",
+    "ipProtectionLabel": "Proteção de IP para chamadas",
+    "ipProtectionHint": "Conexões diretas com o círculo íntimo têm baixa latência e uma imagem nítida e ágil, mas expõem seu IP ao outro usuário. O relay oculta seu endereço IP, mas pode adicionar alguma latência.",
+    "directConnectionInfo": "Uma conexão direta é puramente ponto a ponto. Sua chamada vai direto para a outra pessoa, sem nenhum servidor no meio, o que significa baixa latência e uma imagem nítida e rápida. A contrapartida é que seu endereço IP fica visível para ela. Pense no seu endereço IP como a porta da frente da sua casa na internet. Seu círculo íntimo deve ser composto por pessoas em quem você confiaria seu endereço físico. Se você se sente confortável com isso, conexões diretas são adequadas.",
+    "relayInfo": "Com o relay, sua chamada é roteada pelo nosso servidor em vez de ir diretamente para a outra pessoa, então nenhum dos dois vê o endereço IP do outro. Tecnicamente não é ponto a ponto, mas usamos isso exclusivamente para ocultar seu IP. Sua chamada continua criptografada com DTLS-SRTP, o que significa que as chaves de criptografia são negociadas diretamente entre você e o outro. Nosso servidor relay apenas encaminha os pacotes e não pode ver nem ouvir nada.",
     "options": {
-      "nonInnerCircle": "Direto para o c\u00edrculo \u00edntimo, relay para todos os outros (recomendado)",
+      "nonInnerCircle": "Direto para o círculo íntimo, relay para todos os outros (recomendado)",
       "all": "Ocultar meu IP de todos"
-    }
+    },
+    "relayExceptIc": "Relay except IC",
+    "relayAlways": "Relay always",
+    "ipDescription": "Controls whether calls and DMs use a relay to protect your IP address."
   },
-
   "changePassword": {
     "title": "Alterar Senha",
     "description": "Enviaremos um código para seu e-mail para verificar sua identidade.",
@@ -75,9 +70,14 @@
       "mismatch": "As senhas não coincidem."
     }
   },
-
   "actions": {
-    "title": "A\u00e7\u00f5es",
+    "title": "Ações",
     "signOut": "Sair"
+  },
+  "profile": {
+    "title": "Profile"
+  },
+  "preferences": {
+    "title": "Preferences"
   }
 }

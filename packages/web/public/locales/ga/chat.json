@@ -21,9 +21,31 @@
       "blocked": "Coiscthe",
       "followers": "Leantóirí",
       "following": "Ag leanúint"
+    },
+    "title": "Buddy List",
+    "filterPlaceholder": "Filter buddies...",
+    "addBuddyPlaceholder": "Add buddy by handle...",
+    "loadingBuddyList": "Loading buddy list...",
+    "noMatches": "No matches",
+    "noMatchesDetail": "No buddies matching \"{{query}}\"",
+    "addFirstBuddy": "Add your first buddy",
+    "addFirstBuddyHint": "Find people in chat rooms or search by handle",
+    "noOneOnline": "No one online",
+    "buddyOfflineCount_one": "{{count}} buddy offline",
+    "buddyOfflineCount_other": "{{count}} buddies offline",
+    "onlineCount": "{{online}} of {{total}} online",
+    "removeBuddyConfirm": "Are you sure you want to remove this buddy?",
+    "germ": {
+      "checkFailed": "Could not check GERM status for this user.",
+      "notEnabled": "This user does not have GERM messaging enabled.",
+      "openFailed": "Failed to open GERM messaging."
+    },
+    "accessibility": {
+      "messageBuddy": "Message {{name}}, {{status}}",
+      "callBuddy": "Call {{name}}",
+      "groupHeader": "{{group}} group, {{online}} of {{total}} online"
     }
   },
-
   "buddyMenu": {
     "button": {
       "title": "Roghanna",
@@ -41,9 +63,10 @@
     "sendImDisabled": "Tá an t-úsáideoir as líne",
     "videoCall": "Físghlao",
     "videoCallDisabled": "Tá an t-úsáideoir as líne",
-    "report": "Tuairiscigh úsáideoir"
+    "report": "Tuairiscigh úsáideoir",
+    "openDm": "Open DM",
+    "call": "Call"
   },
-
   "memberMenu": {
     "button": {
       "title": "Roghanna",
@@ -59,7 +82,6 @@
     },
     "report": "Tuairiscigh úsáideoir"
   },
-
   "messageInput": {
     "placeholder": {
       "default": "Clóscríobh teachtaireacht... (Enter chun seoladh, Shift+Enter le haghaidh líne nua)",
@@ -75,7 +97,6 @@
     },
     "send": "Seol"
   },
-
   "messageItem": {
     "contentWarning": "Rabhadh inneachair",
     "clickToReveal": "Cliceáil chun nochtadh",
@@ -94,7 +115,6 @@
       "error": "Earráid"
     }
   },
-
   "userContextMenu": {
     "addToBuddyList": "Cuir le Liosta Cairde",
     "block": "Coisc",
@@ -106,7 +126,6 @@
       "error": "Earráid"
     }
   },
-
   "messageList": {
     "loading": "Ag lódáil teachtaireachtaí...",
     "empty": "Gan teachtaireachtaí fós. Tosaigh an comhrá!",
@@ -117,7 +136,6 @@
       "many": "{{count}} duine ag clóscríobh..."
     }
   },
-
   "threadPanel": {
     "ariaLabel": "Snáithe",
     "title": "Snáithe",
@@ -129,7 +147,6 @@
     "replyCount_other": "{{count}} freagra",
     "inputPlaceholder": "Freagair sa snáithe..."
   },
-
   "formattingToolbar": {
     "bold": "Trom",
     "italic": "Iodálach",
@@ -137,18 +154,15 @@
     "code": "Cód",
     "blockquote": "Blocsliocht"
   },
-
   "memberList": {
     "heading": "Baill ({{count}})"
   },
-
   "groupHeader": {
     "renameGroup": "Athainmnigh grúpa",
     "deleteGroup": "Scrios grúpa",
     "expand": "Leathnaigh",
     "collapse": "Laghdaigh"
   },
-
   "gif": {
     "title": "GIFanna",
     "searchPlaceholder": "Cuardaigh GIFanna...",
@@ -161,7 +175,6 @@
     "confirm": "Seol",
     "back": "Ar Ais"
   },
-
   "videoCall": {
     "incoming": {
       "ariaLabel": "Físghlao ag teacht isteach",
@@ -169,7 +182,10 @@
       "accept": "Glac leis an nglao",
       "acceptAriaLabel": "Glac leis an nglao atá ag teacht isteach",
       "reject": "Diúltaigh don ghlao",
-      "rejectAriaLabel": "Diúltaigh don ghlao atá ag teacht isteach"
+      "rejectAriaLabel": "Diúltaigh don ghlao atá ag teacht isteach",
+      "banner": "Incoming video call",
+      "declineLabel": "Decline",
+      "acceptLabel": "Accept"
     },
     "calling": "Ag glaoch...",
     "ringing": "Ag bualadh...",
@@ -186,9 +202,13 @@
     "retry": "Bain triail eile as",
     "error": {
       "mediaPermission": "Teastaíonn cead ceamara/micreafóin le haghaidh físghlaonna"
-    }
+    },
+    "flip": "Flip",
+    "callFailed": "Call Failed",
+    "hangUp": "Hang Up",
+    "micOff": "Mic off",
+    "camOff": "Cam off"
   },
-
   "channel": {
     "heading": "Cainéil",
     "listAriaLabel": "Liosta cainéal",
@@ -211,7 +231,6 @@
       "default": "Theip ar chruthú an chainéil"
     }
   },
-
   "report": {
     "title": "Tuairiscigh úsáideoir",
     "subjectLabel": "Úsáideoir",
@@ -236,7 +255,6 @@
     "removeAttachment": "Bain ceangaltán",
     "fileSizeError": "Comhad rómhór. Uasmhéid 2 MB."
   },
-
   "poll": {
     "createPoll": "Cruthaigh Vótáil",
     "questionLabel": "Ceist",
@@ -267,7 +285,6 @@
       "default": "Theip ar chruthú vótála"
     }
   },
-
   "reportContent": {
     "title": "Tuairiscigh",
     "subjectLabel": "Ábhar",
@@ -284,5 +301,29 @@
     "success": "Tuairisc seolta. Breathnóimid air.",
     "error": "Theip ar sheoladh na tuairisce.",
     "fileSizeError": "Comhad rómhór (uasmhéid 2 MB)"
+  },
+  "moderation": {
+    "ban": "Ban from Room",
+    "banConfirm": "Ban this user from the room?",
+    "banned": "Banned",
+    "unban": "Unban",
+    "makeMod": "Make Moderator",
+    "removeMod": "Remove Moderator",
+    "modAdded": "Moderator added",
+    "modRemoved": "Moderator removed",
+    "error": "Action failed"
+  },
+  "roomSettings": {
+    "title": "Room Settings",
+    "slowMode": "Slow Mode (seconds)",
+    "slowModeHint": "0 = off",
+    "minAccountAge": "Min Account Age (days)",
+    "allowlist": "Allowlist Only",
+    "allowlistHint": "Only allowlisted users can send messages",
+    "save": "Save",
+    "saving": "Saving...",
+    "saved": "Settings saved",
+    "cancel": "Cancel",
+    "error": "Failed to save settings"
   }
 }

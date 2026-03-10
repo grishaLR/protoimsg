@@ -1,12 +1,10 @@
 {
   "back": "กลับ",
-
   "accountInfo": {
     "title": "ข้อมูลบัญชี",
     "didLabel": "DID",
     "handleLabel": "Handle"
   },
-
   "editProfile": {
     "title": "แก้ไขโปรไฟล์",
     "loading": "กำลังโหลดโปรไฟล์...",
@@ -16,27 +14,22 @@
     "saving": "กำลังบันทึก...",
     "save": "บันทึก"
   },
-
   "appearance": {
     "title": "รูปลักษณ์"
   },
-
   "language": {
     "title": "ภาษา"
   },
-
   "translation": {
     "title": "การแปล",
     "autoTranslate": "แปลโพสต์อัตโนมัติ",
     "autoTranslateHint": "แปลโพสต์ในฟีดและประวัติเป็นภาษาของคุณโดยอัตโนมัติ"
   },
-
   "notifications": {
     "title": "การแจ้งเตือน",
     "enableSounds": "เปิดเสียง",
     "enableSoundsHint": "เล่นเสียงเมื่อประตูเปิด/ปิด ข้อความใหม่ และสายเข้า"
   },
-
   "privacy": {
     "title": "ความเป็นส่วนตัว",
     "ipProtectionLabel": "การปกป้อง IP สำหรับการโทร",
@@ -46,9 +39,11 @@
     "options": {
       "nonInnerCircle": "เชื่อมต่อตรงสำหรับเพื่อนสนิท รีเลย์สำหรับคนอื่น (แนะนำ)",
       "all": "ซ่อน IP จากทุกคน"
-    }
+    },
+    "relayExceptIc": "Relay except IC",
+    "relayAlways": "Relay always",
+    "ipDescription": "Controls whether calls and DMs use a relay to protect your IP address."
   },
-
   "changePassword": {
     "title": "เปลี่ยนรหัสผ่าน",
     "description": "เราจะส่งรหัสไปยังอีเมลของคุณเพื่อยืนยันตัวตน",
@@ -75,9 +70,14 @@
       "mismatch": "รหัสผ่านไม่ตรงกัน"
     }
   },
-
   "actions": {
     "title": "การกระทำ",
     "signOut": "ออกจากระบบ"
+  },
+  "profile": {
+    "title": "Profile"
+  },
+  "preferences": {
+    "title": "Preferences"
   }
 }

@@ -30,28 +30,29 @@
     "submitting": "作成中...",
     "submit": "作成"
   },
-
   "roomList": {
-    "empty": "ルームが見つかりません。作成して始めましょう！"
+    "empty": "ルームが見つかりません。作成して始めましょう！",
+    "noRooms": "No rooms yet"
   },
-
   "roomCard": {
     "createdDate": "作成日 {{date}}",
     "translate": "翻訳",
     "translating": "翻訳中...",
     "translatedTo": "{{lang}}に翻訳済み",
-    "showOriginal": "原文を表示"
+    "showOriginal": "原文を表示",
+    "slowMode": "slow: {{seconds}}s"
   },
-
   "directory": {
     "searchPlaceholder": "ルームを検索...",
     "createButton": "ルームを作成",
     "loading": "ルームを読み込み中...",
     "allCategories": "すべて",
     "publicRoomsHeader": "公開チャットルーム",
-    "publicRoomsInfo": "チャットルームは公共の場です — 外出して人前にいるようなものです。メッセージはATプロトコルに保存され、バディリストのステータスが非表示でも誰でも見ることができます。"
+    "publicRoomsInfo": "チャットルームは公共の場です — 外出して人前にいるようなものです。メッセージはATプロトコルに保存され、バディリストのステータスが非表示でも誰でも見ることができます。",
+    "title": "Chat Rooms",
+    "roomCount_one": "{{count}} room",
+    "roomCount_other": "{{count}} rooms"
   },
-
   "chatRoom": {
     "invalidId": "無効なルーム ID",
     "loading": "ルームを準備中...",
@@ -64,6 +65,15 @@
     "expandChannels": "チャンネルを展開",
     "sendFailed": "メッセージの送信に失敗しました。もう一度お試しください。",
     "dismiss": "閉じる",
-    "reportRoom": "ルームを通報"
+    "reportRoom": "ルームを通報",
+    "noOneHereYet": "No one else here yet",
+    "noMessagesYet": "No messages yet. Say something!",
+    "settings": "Room Settings"
+  },
+  "accessibility": {
+    "messageInput": "Message input",
+    "sendMessage": "Send message",
+    "slowModeWait": "Slow mode: {{seconds}}s",
+    "channel": "Channel {{name}}"
   }
 }

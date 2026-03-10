@@ -1,12 +1,10 @@
 {
   "back": "Geri",
-
   "accountInfo": {
     "title": "Hesap Bilgileri",
     "didLabel": "DID",
     "handleLabel": "Handle"
   },
-
   "editProfile": {
     "title": "Profili Düzenle",
     "loading": "Profil yükleniyor...",
@@ -16,27 +14,22 @@
     "saving": "Kaydediliyor...",
     "save": "Kaydet"
   },
-
   "appearance": {
     "title": "Görünüm"
   },
-
   "language": {
     "title": "Dil"
   },
-
   "translation": {
     "title": "Çeviri",
     "autoTranslate": "Gönderileri otomatik çevir",
     "autoTranslateHint": "Akış gönderilerini ve biyografileri otomatik olarak senin diline çevir"
   },
-
   "notifications": {
     "title": "Bildirimler",
     "enableSounds": "Sesleri etkinleştir",
     "enableSoundsHint": "Giriş/çıkış, yeni mesajlar ve gelen aramalar için ses çal"
   },
-
   "privacy": {
     "title": "Gizlilik",
     "ipProtectionLabel": "Aramalar için IP koruması",
@@ -46,9 +39,11 @@
     "options": {
       "nonInnerCircle": "Yakın çevre için doğrudan, diğerleri için relay (önerilen)",
       "all": "IP adresimi herkesten gizle"
-    }
+    },
+    "relayExceptIc": "Relay except IC",
+    "relayAlways": "Relay always",
+    "ipDescription": "Controls whether calls and DMs use a relay to protect your IP address."
   },
-
   "changePassword": {
     "title": "Şifre Değiştir",
     "description": "Kimliğinizi doğrulamak için e-postanıza bir kod göndereceğiz.",
@@ -75,9 +70,14 @@
       "mismatch": "Şifreler eşleşmiyor."
     }
   },
-
   "actions": {
     "title": "İşlemler",
     "signOut": "Çıkış Yap"
+  },
+  "profile": {
+    "title": "Profile"
+  },
+  "preferences": {
+    "title": "Preferences"
   }
 }

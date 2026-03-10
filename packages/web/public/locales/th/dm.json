@@ -4,12 +4,14 @@
     "ariaLabel": "พิมพ์ข้อความ DM",
     "send": "ส่ง"
   },
-
   "messageList": {
     "empty": "ยังไม่มีข้อความ ทักทายกันเลย!",
     "typing": "กำลังพิมพ์..."
   },
 
+  "typing": {
+    "label": "typing"
+  },
   "popover": {
     "ariaLabel": "สนทนา DM กับ {{recipientDid}}",
     "header": {
@@ -38,7 +40,6 @@
       "ariaLabel": "ปิดการสนทนา"
     }
   },
-
   "notification": {
     "ariaLabel": "ข้อความใหม่จาก {{senderDid}}",
     "incoming": "อยากแชท",
@@ -47,13 +48,23 @@
       "ariaLabel": "ปิดการแจ้งเตือน"
     }
   },
-
   "popoverContainer": {
     "ariaLabel": "การแจ้งเตือน DM"
   },
-
   "window": {
     "connecting": "กำลังเชื่อมต่อ…",
     "waitingForConnection": "กำลังรอการเชื่อมต่อ…"
+  },
+  "status": {
+    "connecting": "Connecting...",
+    "connected": "Connected",
+    "connectionFailed": "Connection failed",
+    "closingIn": "Partner disconnected — closing in {{seconds}}s",
+    "saySomething": "Say something!",
+    "waitingForConnection": "Waiting for connection..."
+  },
+  "devClientRequired": {
+    "title": "Dev Client Required",
+    "description": "DMs require WebRTC which needs a native dev client build. Run expo prebuild then build with Xcode or Android Studio."
   }
 }

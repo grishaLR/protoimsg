@@ -4,12 +4,14 @@
     "ariaLabel": "DM 메시지 입력",
     "send": "보내기"
   },
-
   "messageList": {
     "empty": "아직 메시지가 없습니다. 인사해 보세요!",
     "typing": "입력 중..."
   },
 
+  "typing": {
+    "label": "typing"
+  },
   "popover": {
     "ariaLabel": "{{recipientDid}}와(과)의 DM 대화",
     "header": {
@@ -38,7 +40,6 @@
       "ariaLabel": "대화 닫기"
     }
   },
-
   "notification": {
     "ariaLabel": "{{senderDid}}님의 새 메시지",
     "incoming": "채팅을 원합니다",
@@ -47,13 +48,23 @@
       "ariaLabel": "알림 닫기"
     }
   },
-
   "popoverContainer": {
     "ariaLabel": "DM 알림"
   },
-
   "window": {
     "connecting": "연결 중…",
     "waitingForConnection": "연결 대기 중…"
+  },
+  "status": {
+    "connecting": "Connecting...",
+    "connected": "Connected",
+    "connectionFailed": "Connection failed",
+    "closingIn": "Partner disconnected — closing in {{seconds}}s",
+    "saySomething": "Say something!",
+    "waitingForConnection": "Waiting for connection..."
+  },
+  "devClientRequired": {
+    "title": "Dev Client Required",
+    "description": "DMs require WebRTC which needs a native dev client build. Run expo prebuild then build with Xcode or Android Studio."
   }
 }

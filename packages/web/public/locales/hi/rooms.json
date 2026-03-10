@@ -30,28 +30,29 @@
     "submitting": "बना रहे हैं...",
     "submit": "बनाएँ"
   },
-
   "roomList": {
-    "empty": "कोई रूम नहीं मिला। शुरू करने के लिए एक बनाएँ!"
+    "empty": "कोई रूम नहीं मिला। शुरू करने के लिए एक बनाएँ!",
+    "noRooms": "No rooms yet"
   },
-
   "roomCard": {
     "createdDate": "{{date}} को बनाया गया",
     "translate": "अनुवाद करें",
     "translating": "अनुवाद हो रहा है...",
     "translatedTo": "{{lang}} में अनुवादित",
-    "showOriginal": "मूल दिखाएँ"
+    "showOriginal": "मूल दिखाएँ",
+    "slowMode": "slow: {{seconds}}s"
   },
-
   "directory": {
     "searchPlaceholder": "रूम खोजें...",
     "createButton": "रूम बनाएँ",
     "loading": "रूम लोड हो रहे हैं...",
     "allCategories": "सभी",
     "publicRoomsHeader": "सार्वजनिक चैट रूम",
-    "publicRoomsInfo": "चैट रूम सार्वजनिक स्थान हैं — जैसे बाहर सार्वजनिक जगह पर जाना। संदेश AT प्रोटोकॉल पर संग्रहीत होते हैं और किसी को भी दिखाई देते हैं, भले ही आपकी बडी लिस्ट की स्थिति अदृश्य हो।"
+    "publicRoomsInfo": "चैट रूम सार्वजनिक स्थान हैं — जैसे बाहर सार्वजनिक जगह पर जाना। संदेश AT प्रोटोकॉल पर संग्रहीत होते हैं और किसी को भी दिखाई देते हैं, भले ही आपकी बडी लिस्ट की स्थिति अदृश्य हो।",
+    "title": "Chat Rooms",
+    "roomCount_one": "{{count}} room",
+    "roomCount_other": "{{count}} rooms"
   },
-
   "chatRoom": {
     "invalidId": "अमान्य रूम ID",
     "loading": "रूम तैयार हो रहा है...",
@@ -64,6 +65,15 @@
     "expandChannels": "चैनल विस्तार करें",
     "sendFailed": "संदेश भेजने में विफल। कृपया फिर से कोशिश करें।",
     "dismiss": "खारिज करें",
-    "reportRoom": "रूम की रिपोर्ट करें"
+    "reportRoom": "रूम की रिपोर्ट करें",
+    "noOneHereYet": "No one else here yet",
+    "noMessagesYet": "No messages yet. Say something!",
+    "settings": "Room Settings"
+  },
+  "accessibility": {
+    "messageInput": "Message input",
+    "sendMessage": "Send message",
+    "slowModeWait": "Slow mode: {{seconds}}s",
+    "channel": "Channel {{name}}"
   }
 }

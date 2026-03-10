@@ -13,7 +13,7 @@ import {
 import { Agent } from '@atproto/api';
 import { ExpoOAuthClient } from '@atproto/oauth-client-expo';
 import type { OAuthSession } from '@atproto/oauth-client-expo';
-import { buildOAuthScope, OAUTH_SCOPE_ALL, type OptionalScopeGroup } from '@protoimsg/shared';
+import { buildOAuthScope, type OptionalScopeGroup } from '@protoimsg/shared';
 import { OAUTH_CLIENT_ID, OAUTH_REDIRECT_URI } from './config';
 import {
   AccountBannedError,
@@ -32,6 +32,7 @@ import {
   setStoredHandle,
   clearAllAuth,
 } from './storage';
+import { registerForPushNotifications, unregisterPushNotifications } from './notifications';
 
 export type AuthPhase =
   | 'initializing'
@@ -73,7 +74,7 @@ function getOAuthClient(): ExpoOAuthClient {
       redirect_uris: [OAUTH_REDIRECT_URI],
       application_type: 'native',
       dpop_bound_access_tokens: true,
-      scope: OAUTH_SCOPE_ALL,
+      scope: buildOAuthScope([]),
       token_endpoint_auth_method: 'none',
       response_types: ['code'],
       grant_types: ['authorization_code', 'refresh_token'],
@@ -163,6 +164,8 @@ async function finalizeSession(
     setServerToken(token);
     setServerTokenState(token);
     setAuthPhase('ready');
+    // Register push token after successful server auth
+    void registerForPushNotifications();
   } catch (err: unknown) {
     if (err instanceof AccountBannedError || err instanceof NotOnAllowlistError) {
       const client = getOAuthClient();
@@ -300,6 +303,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const logout = useCallback(() => {
     const sub = did;
+    void unregisterPushNotifications();
     void deleteServerSession();
     clearAuth();
     if (sub) {
