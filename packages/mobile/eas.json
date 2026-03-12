@@ -4,6 +4,9 @@
     "appVersionSource": "remote"
   },
   "build": {
+    "base": {
+      "node": "22.0.0"
+    },
     "development": {
       "developmentClient": true,
       "distribution": "internal",
@@ -23,16 +26,16 @@
     "production": {
       "autoIncrement": true,
       "env": {
-        "EXPO_PUBLIC_API_URL": "https://protoimsg.app"
+        "EXPO_PUBLIC_API_URL": "https://protoimsg.fly.dev"
       }
     }
   },
   "submit": {
     "production": {
       "ios": {
-        "appleId": "APPLE_ID_PLACEHOLDER",
-        "ascAppId": "ASC_APP_ID_PLACEHOLDER",
-        "appleTeamId": "TEAM_ID_PLACEHOLDER"
+        "appleId": "grisha617@gmail.com",
+        "ascAppId": "6759896386",
+        "appleTeamId": "5PFKCJ6Y3Q"
       },
       "android": {
         "serviceAccountKeyPath": "./google-services.json",

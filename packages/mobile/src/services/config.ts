@@ -7,7 +7,7 @@ declare const __DEV__: boolean;
 /** protoimsg server URL. Override with EXPO_PUBLIC_API_URL env var. */
 export const API_URL =
   process.env.EXPO_PUBLIC_API_URL ??
-  (__DEV__ ? 'https://protoimsg-staging.fly.dev' : 'https://protoimsg.app');
+  (__DEV__ ? 'https://protoimsg-staging.fly.dev' : 'https://protoimsg.fly.dev');
 
 /** WebSocket URL derived from API_URL. */
 export const WS_URL = API_URL.replace(/^http/, 'ws') + '/ws';
