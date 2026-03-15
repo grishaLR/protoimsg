@@ -20,7 +20,7 @@
     "unreadOverflow": "99+",
     "connecting": "Inaunganisha…",
     "connectionFailed": "Muunganisho umeshindwa",
-    "peerClosed": "Mazungumzo yamefungwa. Tumia Germ kwa ujumbe nje ya mtandao.",
+    "peerClosed": "Mazungumzo yamefungwa. Jaribu Germ (ya watu wengine) kwa ujumbe uliofichwa nje ya mtandao.",
     "minimize": {
       "titleExpand": "Panua",
       "titleMinimize": "Punguza",

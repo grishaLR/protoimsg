@@ -36,9 +36,9 @@
     "onlineCount": "{{online}} of {{total}} online",
     "removeBuddyConfirm": "Are you sure you want to remove this buddy?",
     "germ": {
-      "checkFailed": "Could not check GERM status for this user.",
-      "notEnabled": "This user does not have GERM messaging enabled.",
-      "openFailed": "Failed to open GERM messaging."
+      "checkFailed": "Bu kullanıcının Germ durumu kontrol edilemedi.",
+      "notEnabled": "Bu kullanıcı Germ'i (üçüncü taraf şifreli mesajlaşma uygulaması) etkinleştirmemiş.",
+      "openFailed": "Germ açılamadı."
     },
     "accessibility": {
       "messageBuddy": "Message {{name}}, {{status}}",
@@ -58,7 +58,7 @@
     "block": "Engelle",
     "unblock": "Engeli Kaldır",
     "remove": "Kaldır",
-    "messageOnGerm": "Germ'de Mesaj Gönder",
+    "messageOnGerm": "Germ'de Aç ↗",
     "addToCommunity": "Topluluğa Ekle",
     "sendImDisabled": "Kullanıcı çevrimdışı",
     "videoCall": "Görüntülü Arama",

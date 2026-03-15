@@ -25,7 +25,7 @@
     "connecting": "Bağlanılıyor...",
     "connectionFailed": "Bağlantı başarısız",
     "retry": "Tekrar dene",
-    "peerClosed": "Sohbet kapatıldı. Çevrimdışı mesajlar için Germ kullan.",
+    "peerClosed": "Sohbet kapatıldı. Çevrimdışı şifreli mesajlaşma için Germ'i (üçüncü taraf) dene.",
     "closingCountdown": "Sohbet bitti. {{seconds}}sn sonra kapanacak...",
     "minimize": {
       "titleExpand": "Genişlet",

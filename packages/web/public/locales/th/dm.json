@@ -25,7 +25,7 @@
     "connecting": "กำลังเชื่อมต่อ…",
     "connectionFailed": "การเชื่อมต่อล้มเหลว",
     "retry": "ลองใหม่",
-    "peerClosed": "แชทปิดแล้ว ใช้ Germ สำหรับข้อความออฟไลน์",
+    "peerClosed": "แชทปิดแล้ว ลอง Germ (บุคคลที่สาม) สำหรับข้อความเข้ารหัสแบบออฟไลน์",
     "closingCountdown": "แชทจบแล้ว ปิดใน {{seconds}} วินาที…",
     "minimize": {
       "titleExpand": "ขยาย",

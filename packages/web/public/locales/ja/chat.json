@@ -36,9 +36,9 @@
     "onlineCount": "{{online}} of {{total}} online",
     "removeBuddyConfirm": "Are you sure you want to remove this buddy?",
     "germ": {
-      "checkFailed": "Could not check GERM status for this user.",
-      "notEnabled": "This user does not have GERM messaging enabled.",
-      "openFailed": "Failed to open GERM messaging."
+      "checkFailed": "このユーザーの Germ ステータスを確認できませんでした。",
+      "notEnabled": "このユーザーは Germ（サードパーティの暗号化メッセンジャー）を有効にしていません。",
+      "openFailed": "Germ を開けませんでした。"
     },
     "accessibility": {
       "messageBuddy": "Message {{name}}, {{status}}",
@@ -58,7 +58,7 @@
     "block": "ブロック",
     "unblock": "ブロック解除",
     "remove": "削除",
-    "messageOnGerm": "Germ でメッセージ",
+    "messageOnGerm": "Germ で開く ↗",
     "addToCommunity": "コミュニティに追加",
     "sendImDisabled": "ユーザーはオフラインです",
     "videoCall": "ビデオ通話",

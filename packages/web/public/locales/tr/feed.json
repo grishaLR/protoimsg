@@ -74,8 +74,8 @@
     "translating": "Çevriliyor...",
     "translatedTo": "{{lang}} diline çevrildi",
     "showOriginal": "Orijinali göster",
-    "messageOnGerm": "Germ'de Mesaj Gönder",
-    "germDm": "Germ DM"
+    "messageOnGerm": "Germ'de Aç ↗",
+    "germDm": "Germ ↗"
   },
 
   "threadView": {

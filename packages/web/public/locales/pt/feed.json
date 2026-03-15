@@ -74,8 +74,8 @@
     "translating": "Traduzindo...",
     "translatedTo": "Traduzido para {{lang}}",
     "showOriginal": "Mostrar original",
-    "messageOnGerm": "Mensagem no Germ",
-    "germDm": "MD Germ"
+    "messageOnGerm": "Abrir no Germ ↗",
+    "germDm": "Germ ↗"
   },
 
   "threadView": {

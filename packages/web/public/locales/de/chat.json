@@ -36,9 +36,9 @@
     "onlineCount": "{{online}} of {{total}} online",
     "removeBuddyConfirm": "Are you sure you want to remove this buddy?",
     "germ": {
-      "checkFailed": "Could not check GERM status for this user.",
-      "notEnabled": "This user does not have GERM messaging enabled.",
-      "openFailed": "Failed to open GERM messaging."
+      "checkFailed": "Germ-Status für diesen Nutzer konnte nicht geprüft werden.",
+      "notEnabled": "Dieser Nutzer hat Germ (einen verschlüsselten Drittanbieter-Messenger) nicht aktiviert.",
+      "openFailed": "Germ konnte nicht geöffnet werden."
     },
     "accessibility": {
       "messageBuddy": "Message {{name}}, {{status}}",
@@ -58,7 +58,7 @@
     "block": "Blockieren",
     "unblock": "Entblocken",
     "remove": "Entfernen",
-    "messageOnGerm": "Nachricht über Germ",
+    "messageOnGerm": "In Germ öffnen ↗",
     "addToCommunity": "Zur Community hinzufügen",
     "sendImDisabled": "Nutzer ist offline",
     "videoCall": "Videoanruf",

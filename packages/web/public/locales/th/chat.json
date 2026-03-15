@@ -36,9 +36,9 @@
     "onlineCount": "{{online}} of {{total}} online",
     "removeBuddyConfirm": "Are you sure you want to remove this buddy?",
     "germ": {
-      "checkFailed": "Could not check GERM status for this user.",
-      "notEnabled": "This user does not have GERM messaging enabled.",
-      "openFailed": "Failed to open GERM messaging."
+      "checkFailed": "ไม่สามารถตรวจสอบสถานะ Germ ของผู้ใช้รายนี้ได้",
+      "notEnabled": "ผู้ใช้รายนี้ยังไม่ได้เปิดใช้งาน Germ (แอปส่งข้อความเข้ารหัสจากบุคคลที่สาม)",
+      "openFailed": "เปิด Germ ไม่สำเร็จ"
     },
     "accessibility": {
       "messageBuddy": "Message {{name}}, {{status}}",
@@ -58,7 +58,7 @@
     "block": "บล็อก",
     "unblock": "เลิกบล็อก",
     "remove": "ลบออก",
-    "messageOnGerm": "ส่งข้อความบน Germ",
+    "messageOnGerm": "เปิดใน Germ ↗",
     "addToCommunity": "เพิ่มในชุมชน",
     "sendImDisabled": "ผู้ใช้ออฟไลน์",
     "videoCall": "วิดีโอคอล",

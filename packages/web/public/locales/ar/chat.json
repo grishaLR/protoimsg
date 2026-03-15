@@ -36,9 +36,9 @@
     "onlineCount": "{{online}} of {{total}} online",
     "removeBuddyConfirm": "Are you sure you want to remove this buddy?",
     "germ": {
-      "checkFailed": "Could not check GERM status for this user.",
-      "notEnabled": "This user does not have GERM messaging enabled.",
-      "openFailed": "Failed to open GERM messaging."
+      "checkFailed": "تعذّر التحقق من حالة Germ لهذا المستخدم.",
+      "notEnabled": "لم يُفعّل هذا المستخدم Germ (برنامج مراسلة مشفّر من طرف ثالث).",
+      "openFailed": "فشل فتح Germ."
     },
     "accessibility": {
       "messageBuddy": "Message {{name}}, {{status}}",
@@ -58,7 +58,7 @@
     "block": "حظر",
     "unblock": "إلغاء الحظر",
     "remove": "إزالة",
-    "messageOnGerm": "مراسلة عبر Germ",
+    "messageOnGerm": "فتح في Germ ↗",
     "addToCommunity": "إضافة إلى المجتمع",
     "sendImDisabled": "المستخدم غير متصل",
     "videoCall": "مكالمة فيديو",

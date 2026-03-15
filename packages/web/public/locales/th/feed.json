@@ -74,8 +74,8 @@
     "translating": "กำลังแปล...",
     "translatedTo": "แปลเป็น{{lang}}",
     "showOriginal": "แสดงต้นฉบับ",
-    "messageOnGerm": "ส่งข้อความบน Germ",
-    "germDm": "Germ DM"
+    "messageOnGerm": "เปิดใน Germ ↗",
+    "germDm": "Germ ↗"
   },
 
   "threadView": {

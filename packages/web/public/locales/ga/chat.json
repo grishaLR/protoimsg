@@ -36,9 +36,9 @@
     "onlineCount": "{{online}} of {{total}} online",
     "removeBuddyConfirm": "Are you sure you want to remove this buddy?",
     "germ": {
-      "checkFailed": "Could not check GERM status for this user.",
-      "notEnabled": "This user does not have GERM messaging enabled.",
-      "openFailed": "Failed to open GERM messaging."
+      "checkFailed": "Níorbh fhéidir stádas Germ an úsáideora seo a sheiceáil.",
+      "notEnabled": "Níl Germ cumasaithe ag an úsáideoir seo (teachtaire criptithe tríú páirtí).",
+      "openFailed": "Theip ar oscailt Germ."
     },
     "accessibility": {
       "messageBuddy": "Message {{name}}, {{status}}",
@@ -58,7 +58,7 @@
     "block": "Coisc",
     "unblock": "Díchoisc",
     "remove": "Bain",
-    "messageOnGerm": "Teachtaireacht ar Germ",
+    "messageOnGerm": "Oscail i Germ ↗",
     "addToCommunity": "Cuir leis an bpobal",
     "sendImDisabled": "Tá an t-úsáideoir as líne",
     "videoCall": "Físghlao",

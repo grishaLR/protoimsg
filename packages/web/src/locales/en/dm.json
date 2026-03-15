@@ -27,7 +27,7 @@
     "connecting": "Connecting\u2026",
     "connectionFailed": "Connection failed",
     "retry": "Retry",
-    "peerClosed": "Chat closed. Use Germ for offline messaging.",
+    "peerClosed": "Chat closed. Try Germ (third-party) for offline encrypted messaging.",
     "closingCountdown": "Chat ended. Closing in {{seconds}}s\u2026",
     "minimize": {
       "titleExpand": "Expand",
