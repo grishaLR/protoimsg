@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import {
   View,
   Text,
@@ -17,7 +17,12 @@ import Animated, { useSharedValue, useAnimatedStyle, withTiming } from 'react-na
 import { useTranslation } from 'react-i18next';
 import { useLocalSearchParams, useNavigation, useRouter } from 'expo-router';
 import { useProfileDetail } from '@/hooks/useProfileDetail';
-import { useAuthorFeed, type AnnotatedFeedPost } from '@/hooks/useAuthorFeed';
+import { ScrollView } from 'react-native';
+import {
+  useAuthorFeed,
+  type AnnotatedFeedPost,
+  type AuthorFeedFilter,
+} from '@/hooks/useAuthorFeed';
 import { useGermDeclaration } from '@/hooks/useGermDeclaration';
 import { useContentTranslation } from '@/hooks/useContentTranslation';
 import { useAuth } from '@/services/auth';
@@ -39,6 +44,7 @@ export default function ProfileScreen() {
   const navigation = useNavigation();
   const router = useRouter();
   const { colors } = useTheme();
+  const [feedFilter, setFeedFilter] = useState<AuthorFeedFilter>('posts_and_author_threads');
   const { profile, loading: profileLoading, error: profileError } = useProfileDetail(did);
   const {
     posts,
@@ -47,7 +53,7 @@ export default function ProfileScreen() {
     refresh,
     refreshing,
     loadingMore,
-  } = useAuthorFeed(did);
+  } = useAuthorFeed(did, feedFilter);
   const { canMessage: hasGerm, germUrl } = useGermDeclaration(did);
   const {
     available: translateAvailable,
@@ -228,12 +234,44 @@ export default function ProfileScreen() {
         </View>
       ) : null}
 
-      {/* Posts heading */}
-      <View style={[styles.postsHeading, { borderTopColor: colors.base200 }]}>
-        <Text style={[styles.postsHeadingText, { color: colors.baseContent }]}>
-          {t('feed:profileView.postsSection', { defaultValue: 'Posts' })}
-        </Text>
-      </View>
+      {/* Feed filter tabs */}
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        style={[styles.filterBar, { borderTopColor: colors.base200 }]}
+        contentContainerStyle={styles.filterBarContent}
+      >
+        {[
+          { key: 'posts_and_author_threads' as const, label: 'Posts' },
+          { key: 'posts_with_replies' as const, label: 'Replies' },
+          { key: 'posts_with_media' as const, label: 'Media' },
+          { key: 'videos_only' as const, label: 'Videos' },
+        ].map((tab) => {
+          const active = feedFilter === tab.key;
+          return (
+            <Pressable
+              key={tab.key}
+              style={[
+                styles.filterTab,
+                active && [styles.filterTabActive, { borderBottomColor: colors.primary }],
+              ]}
+              onPress={() => {
+                setFeedFilter(tab.key);
+              }}
+            >
+              <Text
+                style={[
+                  styles.filterTabText,
+                  { color: active ? colors.baseContent : colors.chromeTextMuted },
+                  active && styles.filterTabTextActive,
+                ]}
+              >
+                {tab.label}
+              </Text>
+            </Pressable>
+          );
+        })}
+      </ScrollView>
     </View>
   );
 
@@ -390,13 +428,28 @@ const styles = StyleSheet.create({
     fontSize: fontSize.base,
     fontWeight: '600',
   },
-  postsHeading: {
+  filterBar: {
     borderTopWidth: 1,
-    paddingHorizontal: spacing[6],
-    paddingVertical: spacing[4],
+    flexGrow: 0,
   },
-  postsHeadingText: {
-    fontSize: fontSize.base,
+  filterBarContent: {
+    paddingHorizontal: spacing[4],
+    gap: spacing[1],
+  },
+  filterTab: {
+    paddingHorizontal: spacing[4],
+    paddingVertical: spacing[3],
+    borderBottomWidth: 2,
+    borderBottomColor: 'transparent',
+  },
+  filterTabActive: {
+    borderBottomWidth: 2,
+  },
+  filterTabText: {
+    fontSize: fontSize.sm,
+    fontWeight: '500',
+  },
+  filterTabTextActive: {
     fontWeight: '700',
   },
   footer: {

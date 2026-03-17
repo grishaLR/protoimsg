@@ -62,19 +62,44 @@ interface UseAuthorFeedResult {
   refreshing: boolean;
 }
 
-export function useAuthorFeed(did: string | undefined): UseAuthorFeedResult {
+export type AuthorFeedFilter =
+  | 'posts_and_author_threads'
+  | 'posts_with_replies'
+  | 'posts_with_media'
+  | 'posts_no_replies'
+  | 'videos_only';
+
+export function useAuthorFeed(
+  did: string | undefined,
+  filter: AuthorFeedFilter = 'posts_and_author_threads',
+): UseAuthorFeedResult {
   const queryClient = useQueryClient();
 
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading, isRefetching, error } =
     useInfiniteQuery({
-      queryKey: [PERSISTED_QUERY_ROOT, 'author-feed', did],
+      queryKey: [PERSISTED_QUERY_ROOT, 'author-feed', did, filter],
       queryFn: async ({ pageParam }) => {
+        // videos_only uses posts_with_media API filter + client-side video check
+        const apiFilter = filter === 'videos_only' ? 'posts_with_media' : filter;
         const res = await publicAgent.app.bsky.feed.getAuthorFeed({
           actor: did ?? '',
-          filter: 'posts_and_author_threads',
+          filter: apiFilter,
           limit: 30,
           cursor: pageParam,
         });
+        if (filter === 'videos_only') {
+          res.data.feed = res.data.feed.filter((item) => {
+            const embed = item.post.embed as Record<string, unknown> | undefined;
+            if (!embed) return false;
+            const type = embed.$type as string | undefined;
+            if (type === 'app.bsky.embed.video#view') return true;
+            if (type === 'app.bsky.embed.recordWithMedia#view') {
+              const media = (embed as { media?: Record<string, unknown> }).media;
+              return (media?.$type as string | undefined) === 'app.bsky.embed.video#view';
+            }
+            return false;
+          });
+        }
         return res.data;
       },
       initialPageParam: undefined as string | undefined,
@@ -122,7 +147,7 @@ export function useAuthorFeed(did: string | undefined): UseAuthorFeedResult {
 
   const refresh = useCallback(async () => {
     await queryClient.invalidateQueries({
-      queryKey: [PERSISTED_QUERY_ROOT, 'author-feed', did],
+      queryKey: [PERSISTED_QUERY_ROOT, 'author-feed', did, filter],
     });
   }, [queryClient, did]);
 

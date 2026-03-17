@@ -17,9 +17,11 @@ import type { AppBskyFeedDefs } from '@atproto/api';
 import { useFeed } from '@/hooks/useFeed';
 import { FeedPost } from '@/components/FeedPost';
 import { Avatar } from '@/components/Avatar';
+import { ActorSearchInput } from '@/components/ActorSearchInput';
 import { useAuth } from '@/services/auth';
 import { useProfile } from '@/services/ProfileContext';
 import { ActiveVideoProvider, useActiveVideo } from '@/services/ActiveVideoContext';
+import type { ActorSearchResult } from '@/lib/search-actors';
 import { useTheme } from '@/theme';
 import { spacing, fontSize } from '@/theme/tokens';
 
@@ -39,6 +41,13 @@ function FeedScreenInner() {
   const myProfile = useProfile(did);
   const { setActiveVideo } = useActiveVideo();
   const { posts, loading, loadingMore, error, loadMore, refresh, refreshing } = useFeed(undefined); // "Following" timeline
+
+  const handleSearchSelect = useCallback(
+    (actor: ActorSearchResult) => {
+      router.push(`/profile/${encodeURIComponent(actor.did)}` as never);
+    },
+    [router],
+  );
 
   // Viewability tracking for autoplay — must be stable refs (FlatList requirement)
   const setActiveVideoRef = useRef(setActiveVideo);
@@ -105,6 +114,14 @@ function FeedScreenInner() {
         <Text style={[styles.title, { color: colors.baseContent }]}>
           {t('feedView.title', { defaultValue: 'Feed' })}
         </Text>
+      </View>
+      {/* Search bar */}
+      <View style={[styles.searchBar, { borderBottomColor: colors.base200 }]}>
+        <ActorSearchInput
+          onSelect={handleSearchSelect}
+          placeholder={t('feedView.searchPlaceholder', { defaultValue: 'Search people...' })}
+          style={styles.searchInput}
+        />
       </View>
       {/* Compose bar */}
       <Pressable
@@ -180,6 +197,15 @@ const styles = StyleSheet.create({
   emptyText: {
     fontSize: fontSize.base,
     textAlign: 'center',
+  },
+  searchBar: {
+    paddingHorizontal: spacing[4],
+    paddingVertical: spacing[3],
+    borderBottomWidth: 1,
+    zIndex: 10,
+  },
+  searchInput: {
+    zIndex: 10,
   },
   composeBar: {
     flexDirection: 'row',
