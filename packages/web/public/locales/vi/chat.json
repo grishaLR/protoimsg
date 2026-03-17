@@ -325,5 +325,12 @@
     "saved": "Settings saved",
     "cancel": "Cancel",
     "error": "Failed to save settings"
+  },
+  "userPopoverCard": {
+    "viewProfile": "Xem hồ sơ",
+    "addToBuddyList": "Thêm vào danh sách bạn bè",
+    "added": "Đã thêm!",
+    "alreadyInList": "Đã có trong danh sách",
+    "error": "Lỗi"
   }
 }

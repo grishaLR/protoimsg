@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import { IS_TAURI } from '../lib/config';
 import { useRoom } from '../hooks/useRoom';
 import { useMessages } from '../hooks/useMessages';
@@ -13,6 +13,7 @@ import { addToBuddyList } from '../lib/atproto';
 import { useWebSocket } from '../contexts/WebSocketContext';
 import type { ServerMessage } from '@protoimsg/shared';
 import { RoomModContext } from '../contexts/RoomModContext';
+import { ViewProfileProvider } from '../contexts/ViewProfileContext';
 import { MessageList } from '../components/chat/MessageList';
 import { MessageInput } from '../components/chat/MessageInput';
 import { MemberList } from '../components/chat/MemberList';
@@ -39,6 +40,7 @@ export function ChatRoomPage() {
 
 function ChatRoomContent({ roomId }: { roomId: string }) {
   const { t } = useTranslation('rooms');
+  const navigate = useNavigate();
   const { did, agent } = useAuth();
   const { send, subscribe } = useWebSocket();
   const {
@@ -203,6 +205,13 @@ function ChatRoomContent({ roomId }: { roomId: string }) {
     [agent, send],
   );
 
+  const handleViewProfile = useCallback(
+    (profileDid: string) => {
+      void navigate('/', { state: { tab: 'buddies', profile: profileDid } });
+    },
+    [navigate],
+  );
+
   // Close thread when switching channels
   useEffect(() => {
     setActiveThread(null);
@@ -245,212 +254,214 @@ function ChatRoomContent({ roomId }: { roomId: string }) {
   if (!room) return <div className={styles.error}>{t('chatRoom.notFound')}</div>;
 
   return (
-    <RoomModContext.Provider value={roomModValue}>
-      <div className={styles.page}>
-        <header className={styles.header} data-tauri-drag-region="">
-          {!IS_TAURI && (
-            <Link to="/" state={{ tab: 'rooms' }} className={styles.back}>
-              <ArrowLeft size={14} /> {t('chatRoom.backToRooms')}
-            </Link>
-          )}
-          <h1 className={styles.roomName}>
-            {(autoTranslate && getTranslation(room.name)) || room.name}
-          </h1>
-          <ChannelSwitcher
-            channels={channels}
-            activeChannel={activeChannel}
-            onSelect={setActiveChannelId}
-            onCreateChannel={
-              isOwner
-                ? () => {
-                    setShowCreateChannel(true);
-                  }
-                : undefined
-            }
-          />
-          {room.description && (
-            <span className={styles.description}>
-              {(autoTranslate && getTranslation(room.description)) || room.description}
-            </span>
-          )}
-          {isCurrentUserOwnerOrMod && (
-            <button
-              className={styles.settingsBtn}
-              type="button"
-              onClick={() => {
-                setShowSettings(true);
-              }}
-              title={t('chatRoom.settings')}
-              aria-label={t('chatRoom.settings')}
-            >
-              <Settings size={14} />
-            </button>
-          )}
-          <button
-            className={styles.membersBtn}
-            type="button"
-            onClick={() => {
-              setShowMembers((v) => !v);
-            }}
-          >
-            {t('chatRoom.members')}
-          </button>
-          {!isOwner && (
-            <button
-              className={styles.reportRoomBtn}
-              type="button"
-              onClick={() => {
-                setReportTarget({ uri: room.uri, label: room.name, roomId });
-              }}
-              title={t('chatRoom.reportRoom')}
-              aria-label={t('chatRoom.reportRoom')}
-            >
-              <Flag size={14} />
-            </button>
-          )}
-          <WindowControls />
-        </header>
-        <div className={styles.content}>
-          {channels.length > 1 &&
-            (channelSidebarOpen ? (
-              <aside className={styles.channelSidebar}>
-                <ChannelList
-                  channels={channels}
-                  activeChannelId={activeChannelId}
-                  onSelect={setActiveChannelId}
-                  canCreate={isOwner}
-                  onCreateChannel={() => {
-                    setShowCreateChannel(true);
-                  }}
-                  onCollapse={toggleChannelSidebar}
-                />
-              </aside>
-            ) : (
-              <button
-                className={styles.expandSidebarBtn}
-                type="button"
-                onClick={toggleChannelSidebar}
-                aria-label={t('chatRoom.expandChannels')}
-                title={t('chatRoom.expandChannels')}
-              >
-                <PanelLeftOpen size={14} />
-              </button>
-            ))}
-          <div className={styles.chatArea}>
-            <MessageList
-              messages={filteredMessages}
-              polls={polls}
-              loading={msgLoading}
-              typingUsers={filteredTyping}
-              replyCounts={replyCounts}
-              onOpenThread={handleOpenThread}
-              onReport={handleReport}
-              onAddBuddy={handleAddBuddy}
-              onVote={(pollId, pollUri, opts) => {
-                void castVote(pollId, pollUri, opts);
-              }}
-              systemMessages={systemMessages}
-            />
-            {sendError && (
-              <div className={styles.sendError} role="alert">
-                {sendError}
-                <button
-                  type="button"
-                  onClick={() => {
-                    setSendError(null);
-                  }}
-                >
-                  {t('chatRoom.dismiss')}
-                </button>
-              </div>
+    <ViewProfileProvider value={handleViewProfile}>
+      <RoomModContext.Provider value={roomModValue}>
+        <div className={styles.page}>
+          <header className={styles.header} data-tauri-drag-region="">
+            {!IS_TAURI && (
+              <Link to="/" state={{ tab: 'rooms' }} className={styles.back}>
+                <ArrowLeft size={14} /> {t('chatRoom.backToRooms')}
+              </Link>
             )}
-            <MessageInput
-              onSend={(text) => {
-                if (!activeChannel) return;
-                // Intercept /sc commands — send as bot_room_command instead of ATProto record
-                if (text.startsWith('/sc ') || text === '/sc') {
-                  const commandText = text.slice(4).trim() || 'help';
-                  send({
-                    type: 'bot_room_command',
-                    text: commandText,
-                    roomId,
-                    channelId: activeChannel.id,
-                  });
-                  return;
-                }
-                setSendError(null);
-                sendMessage(text, activeChannel.uri).catch(() => {
-                  setSendError(t('chatRoom.sendFailed'));
-                });
+            <h1 className={styles.roomName}>
+              {(autoTranslate && getTranslation(room.name)) || room.name}
+            </h1>
+            <ChannelSwitcher
+              channels={channels}
+              activeChannel={activeChannel}
+              onSelect={setActiveChannelId}
+              onCreateChannel={
+                isOwner
+                  ? () => {
+                      setShowCreateChannel(true);
+                    }
+                  : undefined
+              }
+            />
+            {room.description && (
+              <span className={styles.description}>
+                {(autoTranslate && getTranslation(room.description)) || room.description}
+              </span>
+            )}
+            {isCurrentUserOwnerOrMod && (
+              <button
+                className={styles.settingsBtn}
+                type="button"
+                onClick={() => {
+                  setShowSettings(true);
+                }}
+                title={t('chatRoom.settings')}
+                aria-label={t('chatRoom.settings')}
+              >
+                <Settings size={14} />
+              </button>
+            )}
+            <button
+              className={styles.membersBtn}
+              type="button"
+              onClick={() => {
+                setShowMembers((v) => !v);
               }}
-              onTyping={sendTyping}
-              onCreatePoll={(input) => {
-                if (activeChannel) void createPoll(input, activeChannel.uri);
-              }}
-              onSendWithEmbed={(text, embed) => {
-                if (activeChannel) {
+            >
+              {t('chatRoom.members')}
+            </button>
+            {!isOwner && (
+              <button
+                className={styles.reportRoomBtn}
+                type="button"
+                onClick={() => {
+                  setReportTarget({ uri: room.uri, label: room.name, roomId });
+                }}
+                title={t('chatRoom.reportRoom')}
+                aria-label={t('chatRoom.reportRoom')}
+              >
+                <Flag size={14} />
+              </button>
+            )}
+            <WindowControls />
+          </header>
+          <div className={styles.content}>
+            {channels.length > 1 &&
+              (channelSidebarOpen ? (
+                <aside className={styles.channelSidebar}>
+                  <ChannelList
+                    channels={channels}
+                    activeChannelId={activeChannelId}
+                    onSelect={setActiveChannelId}
+                    canCreate={isOwner}
+                    onCreateChannel={() => {
+                      setShowCreateChannel(true);
+                    }}
+                    onCollapse={toggleChannelSidebar}
+                  />
+                </aside>
+              ) : (
+                <button
+                  className={styles.expandSidebarBtn}
+                  type="button"
+                  onClick={toggleChannelSidebar}
+                  aria-label={t('chatRoom.expandChannels')}
+                  title={t('chatRoom.expandChannels')}
+                >
+                  <PanelLeftOpen size={14} />
+                </button>
+              ))}
+            <div className={styles.chatArea}>
+              <MessageList
+                messages={filteredMessages}
+                polls={polls}
+                loading={msgLoading}
+                typingUsers={filteredTyping}
+                replyCounts={replyCounts}
+                onOpenThread={handleOpenThread}
+                onReport={handleReport}
+                onAddBuddy={handleAddBuddy}
+                onVote={(pollId, pollUri, opts) => {
+                  void castVote(pollId, pollUri, opts);
+                }}
+                systemMessages={systemMessages}
+              />
+              {sendError && (
+                <div className={styles.sendError} role="alert">
+                  {sendError}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSendError(null);
+                    }}
+                  >
+                    {t('chatRoom.dismiss')}
+                  </button>
+                </div>
+              )}
+              <MessageInput
+                onSend={(text) => {
+                  if (!activeChannel) return;
+                  // Intercept /sc commands — send as bot_room_command instead of ATProto record
+                  if (text.startsWith('/sc ') || text === '/sc') {
+                    const commandText = text.slice(4).trim() || 'help';
+                    send({
+                      type: 'bot_room_command',
+                      text: commandText,
+                      roomId,
+                      channelId: activeChannel.id,
+                    });
+                    return;
+                  }
                   setSendError(null);
-                  sendMessage(text, activeChannel.uri, undefined, embed).catch(() => {
+                  sendMessage(text, activeChannel.uri).catch(() => {
                     setSendError(t('chatRoom.sendFailed'));
                   });
-                }
-              }}
-            />
+                }}
+                onTyping={sendTyping}
+                onCreatePoll={(input) => {
+                  if (activeChannel) void createPoll(input, activeChannel.uri);
+                }}
+                onSendWithEmbed={(text, embed) => {
+                  if (activeChannel) {
+                    setSendError(null);
+                    sendMessage(text, activeChannel.uri, undefined, embed).catch(() => {
+                      setSendError(t('chatRoom.sendFailed'));
+                    });
+                  }
+                }}
+              />
+            </div>
+            {activeThread && activeChannel && (
+              <ThreadPanel
+                thread={activeThread}
+                channelUri={activeChannel.uri}
+                liveMessages={messages}
+                onClose={handleCloseThread}
+                onReport={handleReport}
+              />
+            )}
+            <aside className={`${styles.sidebar} ${showMembers ? styles.sidebarOpen : ''}`}>
+              <button
+                className={styles.membersPanelClose}
+                type="button"
+                onClick={() => {
+                  setShowMembers(false);
+                }}
+              >
+                <ArrowLeft size={14} />
+              </button>
+              <MemberList
+                members={members}
+                doorEvents={doorEvents}
+                roomOwnerDid={room.did}
+                moderatorDids={moderatorDids}
+              />
+            </aside>
           </div>
-          {activeThread && activeChannel && (
-            <ThreadPanel
-              thread={activeThread}
-              channelUri={activeChannel.uri}
-              liveMessages={messages}
-              onClose={handleCloseThread}
-              onReport={handleReport}
+          {showCreateChannel && (
+            <CreateChannelModal
+              roomUri={room.uri}
+              onClose={() => {
+                setShowCreateChannel(false);
+              }}
             />
           )}
-          <aside className={`${styles.sidebar} ${showMembers ? styles.sidebarOpen : ''}`}>
-            <button
-              className={styles.membersPanelClose}
-              type="button"
-              onClick={() => {
-                setShowMembers(false);
+          {showSettings && (
+            <RoomSettingsModal
+              room={room}
+              onClose={() => {
+                setShowSettings(false);
               }}
-            >
-              <ArrowLeft size={14} />
-            </button>
-            <MemberList
-              members={members}
-              doorEvents={doorEvents}
-              roomOwnerDid={room.did}
-              moderatorDids={moderatorDids}
             />
-          </aside>
+          )}
+          {reportTarget && (
+            <ReportContentModal
+              subjectUri={reportTarget.uri}
+              subjectLabel={reportTarget.label}
+              roomId={reportTarget.roomId}
+              onClose={() => {
+                setReportTarget(null);
+              }}
+            />
+          )}
         </div>
-        {showCreateChannel && (
-          <CreateChannelModal
-            roomUri={room.uri}
-            onClose={() => {
-              setShowCreateChannel(false);
-            }}
-          />
-        )}
-        {showSettings && (
-          <RoomSettingsModal
-            room={room}
-            onClose={() => {
-              setShowSettings(false);
-            }}
-          />
-        )}
-        {reportTarget && (
-          <ReportContentModal
-            subjectUri={reportTarget.uri}
-            subjectLabel={reportTarget.label}
-            roomId={reportTarget.roomId}
-            onClose={() => {
-              setReportTarget(null);
-            }}
-          />
-        )}
-      </div>
-    </RoomModContext.Provider>
+      </RoomModContext.Provider>
+    </ViewProfileProvider>
   );
 }

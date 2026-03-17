@@ -5,6 +5,15 @@
   min-width: 0;
 }
 
+.clickable {
+  cursor: pointer;
+  border-radius: var(--cm-radius-sm);
+}
+
+.clickable:hover .handle {
+  text-decoration: underline;
+}
+
 .avatar {
   border-radius: var(--cm-radius-avatar);
   flex-shrink: 0;

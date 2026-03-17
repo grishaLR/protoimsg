@@ -334,5 +334,12 @@
     "saved": "Settings saved",
     "cancel": "Cancel",
     "error": "Failed to save settings"
+  },
+  "userPopoverCard": {
+    "viewProfile": "عرض الملف الشخصي",
+    "addToBuddyList": "إضافة إلى قائمة الأصدقاء",
+    "added": "تمت الإضافة!",
+    "alreadyInList": "موجود بالفعل في القائمة",
+    "error": "خطأ"
   }
 }

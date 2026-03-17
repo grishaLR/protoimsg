@@ -10,6 +10,7 @@ import {
   type ReactNode,
 } from 'react';
 import { AppState, type AppStateStatus } from 'react-native';
+import { setAudioModeAsync } from 'expo-audio';
 import { useWebSocket } from './WebSocketContext';
 import { useAuth } from './auth';
 import { fetchIceServers } from './api';
@@ -23,6 +24,11 @@ import {
 } from './peerconnection';
 import { playImNotify } from './sounds';
 import { heavyTap } from './haptics';
+import {
+  requestMediaPermissions,
+  isPermissionDeniedError,
+  showPermissionDeniedAlert,
+} from './permissions';
 import type { ServerMessage, IceCandidateInit } from '@protoimsg/shared';
 
 export interface VideoCall {
@@ -74,6 +80,23 @@ export function VideoCallProvider({ children }: { children: ReactNode }) {
   const activeCallRef = useRef<VideoCall | null>(null);
   activeCallRef.current = activeCall;
 
+  /** Route audio to loudspeaker for calls */
+  const setSpeakerOn = useCallback(async () => {
+    try {
+      await setAudioModeAsync({ playsInSilentMode: true, shouldRouteThroughEarpiece: false });
+    } catch {
+      /* no-op */
+    }
+  }, []);
+
+  const setSpeakerOff = useCallback(async () => {
+    try {
+      await setAudioModeAsync({ playsInSilentMode: true, shouldRouteThroughEarpiece: true });
+    } catch {
+      /* no-op */
+    }
+  }, []);
+
   /** Clean up all WebRTC + media state */
   const cleanUp = useCallback(() => {
     if (peerConnection.current) {
@@ -98,7 +121,8 @@ export function VideoCallProvider({ children }: { children: ReactNode }) {
       incomingCallTimer.current = null;
     }
     setActiveCall(null);
-  }, []);
+    void setSpeakerOff();
+  }, [setSpeakerOff]);
 
   /** Handle remote stream from PeerManager */
   const onRemoteStream = useCallback((_conversationId: string, stream: NativeMediaStream) => {
@@ -147,6 +171,21 @@ export function VideoCallProvider({ children }: { children: ReactNode }) {
       if (!did || !isWebRTCAvailable()) return;
 
       try {
+        // Pre-flight permission check (Android)
+        const perms = await requestMediaPermissions();
+        if (!perms.camera || !perms.mic) {
+          showPermissionDeniedAlert(
+            'Permissions Required',
+            'Camera & microphone access is required for video calls. Please enable in Settings.',
+            'Open Settings',
+            'Cancel',
+          );
+          cleanUp();
+          return;
+        }
+
+        await setSpeakerOn();
+
         const iceServers = await fetchIceServers();
         if (iceServers.length === 0) {
           console.warn('[VideoCall] ICE servers unavailable — video call blocked');
@@ -203,11 +242,20 @@ export function VideoCallProvider({ children }: { children: ReactNode }) {
         });
       } catch (err) {
         console.error('[VideoCall] Failed to start call', err);
-        showCallError('Failed to access camera/microphone.');
+        if (isPermissionDeniedError(err)) {
+          showPermissionDeniedAlert(
+            'Permissions Required',
+            'Camera/mic access denied. Tap Settings to enable.',
+            'Open Settings',
+            'Cancel',
+          );
+        } else {
+          showCallError('Could not start call. Please try again.');
+        }
         cleanUp();
       }
     },
-    [send, did, onRemoteStream, onIceConnectionStateChange, showCallError, cleanUp],
+    [send, did, onRemoteStream, onIceConnectionStateChange, showCallError, cleanUp, setSpeakerOn],
   );
 
   const videoCall = useCallback(
@@ -247,6 +295,21 @@ export function VideoCallProvider({ children }: { children: ReactNode }) {
     }
 
     try {
+      // Pre-flight permission check (Android)
+      const perms = await requestMediaPermissions();
+      if (!perms.camera || !perms.mic) {
+        showPermissionDeniedAlert(
+          'Permissions Required',
+          'Camera & microphone access is required for video calls. Please enable in Settings.',
+          'Open Settings',
+          'Cancel',
+        );
+        cleanUp();
+        return;
+      }
+
+      await setSpeakerOn();
+
       const iceServers = await fetchIceServers();
       if (iceServers.length === 0) {
         console.warn('[VideoCall] ICE servers unavailable — video call blocked');
@@ -321,10 +384,19 @@ export function VideoCallProvider({ children }: { children: ReactNode }) {
       incomingOffer.current = null;
     } catch (err) {
       console.error('[VideoCall] Failed to accept call', err);
-      showCallError('Failed to access camera/microphone.');
+      if (isPermissionDeniedError(err)) {
+        showPermissionDeniedAlert(
+          'Permissions Required',
+          'Camera/mic access denied. Tap Settings to enable.',
+          'Open Settings',
+          'Cancel',
+        );
+      } else {
+        showCallError('Could not start call. Please try again.');
+      }
       cleanUp();
     }
-  }, [send, did, onRemoteStream, onIceConnectionStateChange, showCallError, cleanUp]);
+  }, [send, did, onRemoteStream, onIceConnectionStateChange, showCallError, cleanUp, setSpeakerOn]);
 
   const rejectCall = useCallback(() => {
     const call = activeCallRef.current;

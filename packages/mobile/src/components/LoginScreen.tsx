@@ -22,15 +22,19 @@ export default function LoginScreen() {
   const { colors } = useTheme();
   const [handle, setHandle] = useState('');
   const [error, setError] = useState<string | null>(null);
+  const [submitting, setSubmitting] = useState(false);
 
   const isAuthenticating =
     authPhase === 'authenticating' || authPhase === 'resolving' || authPhase === 'connecting';
 
+  const busy = isLoading || submitting;
+
   async function handleLogin() {
     const trimmed = handle.trim();
-    if (!trimmed) return;
+    if (!trimmed || busy) return;
 
     setError(null);
+    setSubmitting(true);
     try {
       await login(trimmed, []);
     } catch (err: unknown) {
@@ -44,6 +48,8 @@ export default function LoginScreen() {
       } else {
         setError(t('login.signInFailed'));
       }
+    } finally {
+      setSubmitting(false);
     }
   }
 
@@ -87,7 +93,7 @@ export default function LoginScreen() {
             keyboardType: 'url',
             returnKeyType: 'go',
             onSubmitEditing: () => void handleLogin(),
-            editable: !isLoading,
+            editable: !busy,
             accessibilityLabel: t('login.handleLabel'),
             accessibilityHint: t('login.mobileSubtitle'),
           }}
@@ -103,15 +109,15 @@ export default function LoginScreen() {
           style={[
             styles.button,
             { backgroundColor: colors.primary },
-            isLoading && styles.buttonDisabled,
+            (busy || !handle.trim()) && styles.buttonDisabled,
           ]}
           onPress={() => void handleLogin()}
-          disabled={isLoading || !handle.trim()}
+          disabled={busy || !handle.trim()}
           accessibilityRole="button"
           accessibilityLabel={t('login.submit')}
-          accessibilityState={{ disabled: isLoading || !handle.trim() }}
+          accessibilityState={{ disabled: busy || !handle.trim() }}
         >
-          {isLoading ? (
+          {busy ? (
             <ActivityIndicator color={colors.primaryContent} />
           ) : (
             <Text style={[styles.buttonText, { color: colors.primaryContent }]}>

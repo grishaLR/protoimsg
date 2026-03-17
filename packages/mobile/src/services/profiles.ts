@@ -6,6 +6,8 @@ export interface ProfileInfo {
   handle: string;
   displayName?: string;
   avatarUrl?: string;
+  /** Raw ATProto profile for moderation decisions */
+  bskyProfile?: AppBskyActorDefs.ProfileViewBasic;
 }
 
 const BATCH_SIZE = 25;
@@ -37,6 +39,7 @@ export async function fetchProfiles(dids: string[]): Promise<ProfileInfo[]> {
         handle: profile.handle,
         displayName: profile.displayName || undefined,
         avatarUrl: profile.avatar || undefined,
+        bskyProfile: profile,
       });
     }
   }

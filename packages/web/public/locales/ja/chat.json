@@ -325,5 +325,12 @@
     "saved": "Settings saved",
     "cancel": "Cancel",
     "error": "Failed to save settings"
+  },
+  "userPopoverCard": {
+    "viewProfile": "プロフィールを見る",
+    "addToBuddyList": "バディリストに追加",
+    "added": "追加しました！",
+    "alreadyInList": "すでにバディリストにいます",
+    "error": "エラー"
   }
 }

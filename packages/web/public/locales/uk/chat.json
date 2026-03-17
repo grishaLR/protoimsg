@@ -331,5 +331,12 @@
     "saved": "Settings saved",
     "cancel": "Cancel",
     "error": "Failed to save settings"
+  },
+  "userPopoverCard": {
+    "viewProfile": "Переглянути профіль",
+    "addToBuddyList": "Додати до списку друзів",
+    "added": "Додано!",
+    "alreadyInList": "Вже у списку друзів",
+    "error": "Помилка"
   }
 }

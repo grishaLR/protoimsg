@@ -132,6 +132,14 @@
     }
   },
 
+  "userPopoverCard": {
+    "viewProfile": "View Profile",
+    "addToBuddyList": "Add to Buddy List",
+    "added": "Added!",
+    "alreadyInList": "Already in buddy list",
+    "error": "Error"
+  },
+
   "messageList": {
     "loading": "Loading messages...",
     "empty": "No messages yet. Start the conversation!",

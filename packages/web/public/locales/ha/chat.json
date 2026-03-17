@@ -320,5 +320,12 @@
     "saved": "Settings saved",
     "cancel": "Cancel",
     "error": "Failed to save settings"
+  },
+  "userPopoverCard": {
+    "viewProfile": "Duba bayanan martaba",
+    "addToBuddyList": "Ƙara zuwa jerin abokai",
+    "added": "An ƙara!",
+    "alreadyInList": "Yana cikin jerin abokai",
+    "error": "Kuskure"
   }
 }

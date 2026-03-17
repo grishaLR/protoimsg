@@ -325,5 +325,12 @@
     "saved": "Settings saved",
     "cancel": "Cancel",
     "error": "Failed to save settings"
+  },
+  "userPopoverCard": {
+    "viewProfile": "查看个人资料",
+    "addToBuddyList": "添加到好友列表",
+    "added": "已添加！",
+    "alreadyInList": "已在好友列表中",
+    "error": "错误"
   }
 }

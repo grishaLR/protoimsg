@@ -325,5 +325,12 @@
     "saved": "Settings saved",
     "cancel": "Cancel",
     "error": "Failed to save settings"
+  },
+  "userPopoverCard": {
+    "viewProfile": "प्रोफ़ाइल देखें",
+    "addToBuddyList": "मित्र सूची में जोड़ें",
+    "added": "जोड़ा गया!",
+    "alreadyInList": "पहले से मित्र सूची में है",
+    "error": "त्रुटि"
   }
 }

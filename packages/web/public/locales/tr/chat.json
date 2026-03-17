@@ -325,5 +325,12 @@
     "saved": "Settings saved",
     "cancel": "Cancel",
     "error": "Failed to save settings"
+  },
+  "userPopoverCard": {
+    "viewProfile": "Profili görüntüle",
+    "addToBuddyList": "Arkadaş listesine ekle",
+    "added": "Eklendi!",
+    "alreadyInList": "Zaten arkadaş listesinde",
+    "error": "Hata"
   }
 }

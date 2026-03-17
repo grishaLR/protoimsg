@@ -30,10 +30,20 @@ import { Avatar } from '@/components/Avatar';
 import { BeveledView } from '@/components/BeveledView';
 import { AimTitlebar } from '@/components/AimTitlebar';
 import { ActorSearchInput } from '@/components/ActorSearchInput';
+import {
+  Star,
+  MoreHorizontal,
+  ChevronRight,
+  ChevronDown,
+  Bot,
+  UserPlus,
+} from 'lucide-react-native';
 import { useTheme, useAimStyle, AIM_DESKTOP, AIM_WINDOW_SHADOW } from '@/theme';
 import { spacing, dotSize, radius, fontSize } from '@/theme/tokens';
-import { useGermDeclaration } from '@/hooks/useGermDeclaration';
+import { useFollowGraph } from '@/hooks/useFollowGraph';
+import { useBlockSync } from '@/hooks/useBlockSync';
 import { buildGermUrl, type GermMessageMe } from '@/lib/germ';
+import { BOT } from '@protoimsg/shared';
 import type { MemberWithPresence, DoorEvent } from '@/types';
 import type { CommunityGroup } from '@protoimsg/lexicon';
 
@@ -90,23 +100,15 @@ function StatusDot({ status, doorEvent }: { status: string; doorEvent?: DoorEven
 const BuddyRow = React.memo(function BuddyRow({
   buddy,
   doorEvent,
-  onCall,
-  onGerm,
-  showCallButton,
   onLongPress,
 }: {
   buddy: MemberWithPresence;
   doorEvent?: DoorEvent;
-  onCall?: (did: string) => void;
-  onGerm?: (url: string) => void;
-  showCallButton?: boolean;
   onLongPress?: (buddy: MemberWithPresence) => void;
 }) {
   const { t } = useTranslation('chat');
   const { colors } = useTheme();
-  const { isAim } = useAimStyle();
   const profile = useProfile(buddy.did);
-  const { canMessage: hasGerm, germUrl } = useGermDeclaration(buddy.did);
   const displayName =
     profile?.displayName ??
     profile?.handle ??
@@ -120,11 +122,19 @@ const BuddyRow = React.memo(function BuddyRow({
         ? 'rgba(239, 68, 68, 0.08)'
         : undefined;
 
+  const isOffline = buddy.status === 'offline';
+
   return (
     <Pressable
-      style={[styles.buddyRow, flashBg ? { backgroundColor: flashBg } : undefined]}
+      style={[
+        styles.buddyRow,
+        flashBg ? { backgroundColor: flashBg } : undefined,
+        isOffline ? styles.buddyRowOffline : undefined,
+      ]}
       onPress={() => {
-        router.push(`/dm/${encodeURIComponent(buddy.did)}`);
+        if (!isOffline) {
+          router.push(`/dm/${encodeURIComponent(buddy.did)}`);
+        }
       }}
       onLongPress={() => onLongPress?.(buddy)}
       accessibilityRole="button"
@@ -145,7 +155,7 @@ const BuddyRow = React.memo(function BuddyRow({
             {displayName}
           </Text>
           {buddy.isInnerCircle ? (
-            <Text style={[styles.starBadge, { color: colors.primary }]}>★</Text>
+            <Star size={12} color={colors.primary} fill={colors.primary} />
           ) : null}
         </View>
         {profile?.handle ? (
@@ -159,46 +169,15 @@ const BuddyRow = React.memo(function BuddyRow({
           </Text>
         ) : null}
       </View>
-      {hasGerm && germUrl ? (
-        <Pressable
-          style={[
-            styles.callIconButton,
-            {
-              backgroundColor: colors.base200,
-              borderRadius: isAim ? 0 : 14,
-            },
-          ]}
-          onPress={(e) => {
-            e.stopPropagation();
-            onGerm?.(germUrl);
-          }}
-          accessibilityRole="button"
-          accessibilityLabel={`GERM message ${displayName}`}
-          hitSlop={8}
-        >
-          <Text style={[styles.callIconText, { color: colors.secondary }]}>G</Text>
-        </Pressable>
-      ) : null}
-      {showCallButton && buddy.status !== 'offline' ? (
-        <Pressable
-          style={[
-            styles.callIconButton,
-            {
-              backgroundColor: colors.base200,
-              borderRadius: isAim ? 0 : 14,
-            },
-          ]}
-          onPress={(e) => {
-            e.stopPropagation();
-            onCall?.(buddy.did);
-          }}
-          accessibilityRole="button"
-          accessibilityLabel={t('buddyList.accessibility.callBuddy', { name: displayName })}
-          hitSlop={8}
-        >
-          <Text style={[styles.callIconText, { color: colors.primary }]}>C</Text>
-        </Pressable>
-      ) : null}
+      <Pressable
+        style={styles.menuButton}
+        onPress={() => onLongPress?.(buddy)}
+        accessibilityRole="button"
+        accessibilityLabel={t('buddyMenu.button.title', { defaultValue: 'Actions' })}
+        hitSlop={8}
+      >
+        <MoreHorizontal size={18} color={colors.chromeTextMuted} />
+      </Pressable>
     </Pressable>
   );
 });
@@ -216,7 +195,10 @@ export default function BuddyListScreen() {
     addBuddy,
     removeBuddy,
     toggleInnerCircle,
+    blockBuddy,
   } = useBuddyList();
+  const { blockedDids, resync: resyncBlocks } = useBlockSync();
+  const { followers, following } = useFollowGraph();
   const { status, visibleTo } = usePresence();
   const { connected } = useWebSocket();
   const { videoCall } = useVideoCall();
@@ -246,10 +228,6 @@ export default function BuddyListScreen() {
     },
     [videoCall],
   );
-
-  const handleGerm = useCallback((url: string) => {
-    void Linking.openURL(url);
-  }, []);
 
   // Sync inner-circle DIDs to DmContext for IP protection decisions
   useEffect(() => {
@@ -281,11 +259,18 @@ export default function BuddyListScreen() {
         openFailed: t('buddyList.germ.openFailed'),
       };
 
+      const isOffline = buddy.status === 'offline';
+      const isBlocked = blockedDids.has(buddy.did);
+      const blockLabel = isBlocked
+        ? t('buddyMenu.unblock', { defaultValue: 'Unblock' })
+        : t('buddyMenu.block', { defaultValue: 'Block' });
+
       const options = [
-        openDmLabel,
+        !isOffline ? openDmLabel : null,
         germLabel,
         icLabel,
-        buddy.status !== 'offline' && webrtcReady ? callLabel : null,
+        !isOffline && webrtcReady ? callLabel : null,
+        blockLabel,
         removeLabel,
         cancelLabel,
       ].filter((o): o is string => o !== null);
@@ -302,7 +287,9 @@ export default function BuddyListScreen() {
             else if (selected === germLabel && myDid) void tryOpenGerm(buddy.did, myDid, germMsgs);
             else if (selected === icLabel) void toggleInnerCircle(buddy.did);
             else if (selected === callLabel) handleCall(buddy.did);
-            else if (selected === removeLabel) {
+            else if (selected === blockLabel) {
+              void blockBuddy(buddy.did).then(() => void resyncBlocks());
+            } else if (selected === removeLabel) {
               Alert.alert(removeLabel, t('buddyList.removeBuddyConfirm'), [
                 { text: cancelLabel, style: 'cancel' },
                 {
@@ -338,6 +325,10 @@ export default function BuddyListScreen() {
               ]
             : []),
           {
+            text: blockLabel,
+            onPress: () => void blockBuddy(buddy.did).then(() => void resyncBlocks()),
+          },
+          {
             text: removeLabel,
             style: 'destructive' as const,
             onPress: () => void removeBuddy(buddy.did),
@@ -346,7 +337,17 @@ export default function BuddyListScreen() {
         ]);
       }
     },
-    [handleCall, removeBuddy, toggleInnerCircle, webrtcReady, t, myDid],
+    [
+      handleCall,
+      removeBuddy,
+      toggleInnerCircle,
+      blockBuddy,
+      resyncBlocks,
+      blockedDids,
+      webrtcReady,
+      t,
+      myDid,
+    ],
   );
 
   const onRefresh = useCallback(() => {
@@ -360,45 +361,145 @@ export default function BuddyListScreen() {
 
   const query = searchQuery.toLowerCase().trim();
 
-  const sections = useMemo(
-    () =>
-      groups
-        .map((group: CommunityGroup) => {
-          let groupBuddies = group.members
-            .map((m) => buddies.find((b) => b.did === m.did))
-            .filter((b): b is MemberWithPresence => b != null)
-            .sort((a, b) => {
-              const order = (s: string) => (s === 'online' ? 0 : s === 'offline' ? 2 : 1);
-              return order(a.status) - order(b.status);
-            });
+  const sections = useMemo(() => {
+    // Track seen DIDs across groups to prevent the same buddy appearing in multiple sections
+    const seen = new Set<string>();
 
-          const onlineCount = groupBuddies.filter((b) => b.status !== 'offline').length;
-          const totalCount = groupBuddies.length;
+    const result = groups
+      .map((group: CommunityGroup) => {
+        let groupBuddies = group.members
+          .map((m) => buddies.find((b) => b.did === m.did))
+          .filter((b): b is MemberWithPresence => b != null && !seen.has(b.did))
+          .sort((a, b) => {
+            const order = (s: string) => (s === 'online' ? 0 : s === 'offline' ? 2 : 1);
+            return order(a.status) - order(b.status);
+          });
 
-          // Apply search filter
-          if (query) {
-            groupBuddies = groupBuddies.filter((b) => {
-              const p = getProfile(b.did);
-              return (
-                b.did.toLowerCase().includes(query) ||
-                p?.handle.toLowerCase().includes(query) ||
-                p?.displayName?.toLowerCase().includes(query) ||
-                b.awayMessage?.toLowerCase().includes(query)
-              );
-            });
-          }
+        // Mark all members as seen (even before search filter, so they don't appear in other groups)
+        for (const b of groupBuddies) seen.add(b.did);
 
-          return {
-            title: group.name,
-            onlineCount,
-            totalCount,
-            isInnerCircle: group.isInnerCircle ?? false,
-            data: collapsedGroups.has(group.name) ? [] : groupBuddies,
-          };
-        })
-        .filter((s) => s.totalCount > 0 || s.isInnerCircle),
-    [groups, buddies, collapsedGroups, query, getProfile],
-  );
+        const onlineCount = groupBuddies.filter((b) => b.status !== 'offline').length;
+        const totalCount = groupBuddies.length;
+
+        if (query) {
+          groupBuddies = groupBuddies.filter((b) => {
+            const p = getProfile(b.did);
+            return (
+              b.did.toLowerCase().includes(query) ||
+              p?.handle.toLowerCase().includes(query) ||
+              p?.displayName?.toLowerCase().includes(query) ||
+              b.awayMessage?.toLowerCase().includes(query)
+            );
+          });
+        }
+
+        return {
+          title: group.name,
+          onlineCount,
+          totalCount,
+          isInnerCircle: group.isInnerCircle ?? false,
+          isSynthetic: false,
+          data: collapsedGroups.has(group.name) ? [] : groupBuddies,
+        };
+      })
+      .filter((s) => s.totalCount > 0 || s.isInnerCircle);
+
+    // Blocked section
+    const blockedArr = [...blockedDids];
+    if (blockedArr.length > 0 || !query) {
+      let blockedEntries: MemberWithPresence[] = blockedArr.map((did) => ({
+        did,
+        status: 'offline',
+        addedAt: '',
+      }));
+      if (query) {
+        blockedEntries = blockedEntries.filter((b) => {
+          const p = getProfile(b.did);
+          return (
+            b.did.toLowerCase().includes(query) ||
+            p?.handle.toLowerCase().includes(query) ||
+            p?.displayName?.toLowerCase().includes(query)
+          );
+        });
+      }
+      result.push({
+        title: 'Blocked',
+        onlineCount: 0,
+        totalCount: blockedArr.length,
+        isInnerCircle: false,
+        isSynthetic: true,
+        data: collapsedGroups.has('Blocked') ? [] : blockedEntries,
+      });
+    }
+
+    // Following section (exclude buddies already in community)
+    const followingFiltered = following.filter((f) => !buddyDids.has(f.did));
+    if (followingFiltered.length > 0) {
+      let entries: MemberWithPresence[] = followingFiltered.map((f) => ({
+        did: f.did,
+        status: 'offline',
+        addedAt: '',
+      }));
+      if (query) {
+        entries = entries.filter((b) => {
+          const p = getProfile(b.did);
+          return (
+            b.did.toLowerCase().includes(query) ||
+            p?.handle.toLowerCase().includes(query) ||
+            p?.displayName?.toLowerCase().includes(query)
+          );
+        });
+      }
+      result.push({
+        title: 'Following',
+        onlineCount: 0,
+        totalCount: followingFiltered.length,
+        isInnerCircle: false,
+        isSynthetic: true,
+        data: collapsedGroups.has('Following') ? [] : entries,
+      });
+    }
+
+    // Followers section (exclude buddies already in community)
+    const followersFiltered = followers.filter((f) => !buddyDids.has(f.did));
+    if (followersFiltered.length > 0) {
+      let entries: MemberWithPresence[] = followersFiltered.map((f) => ({
+        did: f.did,
+        status: 'offline',
+        addedAt: '',
+      }));
+      if (query) {
+        entries = entries.filter((b) => {
+          const p = getProfile(b.did);
+          return (
+            b.did.toLowerCase().includes(query) ||
+            p?.handle.toLowerCase().includes(query) ||
+            p?.displayName?.toLowerCase().includes(query)
+          );
+        });
+      }
+      result.push({
+        title: 'Followers',
+        onlineCount: 0,
+        totalCount: followersFiltered.length,
+        isInnerCircle: false,
+        isSynthetic: true,
+        data: collapsedGroups.has('Followers') ? [] : entries,
+      });
+    }
+
+    return result;
+  }, [
+    groups,
+    buddies,
+    collapsedGroups,
+    query,
+    getProfile,
+    blockedDids,
+    following,
+    followers,
+    buddyDids,
+  ]);
 
   if (loading) {
     return (
@@ -416,7 +517,6 @@ export default function BuddyListScreen() {
   }
 
   const totalBuddies = buddies.length;
-  const totalOnline = buddies.filter((b) => b.status !== 'offline').length;
 
   const listContent = (
     <>
@@ -494,6 +594,24 @@ export default function BuddyListScreen() {
         ) : null}
       </View>
 
+      {/* ProtoBuddy bot row */}
+      <Pressable
+        style={[styles.buddyRow, { borderBottomWidth: 1, borderBottomColor: colors.base200 }]}
+        onPress={() => {
+          router.push('/bot-dm' as never);
+        }}
+        accessibilityRole="button"
+        accessibilityLabel={BOT.displayName}
+      >
+        <View style={[styles.botAvatar, { backgroundColor: colors.primary }]}>
+          <Bot size={18} color="#fff" />
+        </View>
+        <View style={styles.buddyInfo}>
+          <Text style={[styles.buddyName, { color: colors.baseContent }]}>{BOT.displayName}</Text>
+          <Text style={[styles.buddyHandle, { color: colors.chromeTextMuted }]}>Bot</Text>
+        </View>
+      </Pressable>
+
       <BeveledView
         variant="sunken"
         style={isAim ? styles.aimListBevel : undefined}
@@ -502,16 +620,29 @@ export default function BuddyListScreen() {
         <SectionList
           sections={sections}
           keyExtractor={(item) => item.did}
-          renderItem={({ item }) => (
-            <BuddyRow
-              buddy={item}
-              doorEvent={doorEvents[item.did]}
-              onCall={handleCall}
-              onGerm={handleGerm}
-              showCallButton={webrtcReady}
-              onLongPress={handleLongPress}
-            />
-          )}
+          renderItem={({ item, section }) => {
+            const isSynthetic = (section as (typeof sections)[number]).isSynthetic;
+            return (
+              <View style={styles.syntheticRow}>
+                <BuddyRow
+                  buddy={item}
+                  doorEvent={doorEvents[item.did]}
+                  onLongPress={handleLongPress}
+                />
+                {isSynthetic && section.title !== 'Blocked' && !buddyDids.has(item.did) ? (
+                  <Pressable
+                    style={[styles.addButton, { backgroundColor: colors.primary }]}
+                    onPress={() => void addBuddy(item.did)}
+                    accessibilityRole="button"
+                    accessibilityLabel="Add buddy"
+                    hitSlop={8}
+                  >
+                    <UserPlus size={14} color={colors.primaryContent} />
+                  </Pressable>
+                ) : null}
+              </View>
+            );
+          }}
           renderSectionHeader={({ section }) => (
             <Pressable
               style={styles.sectionHeader}
@@ -526,7 +657,11 @@ export default function BuddyListScreen() {
               })}
             >
               <Text style={[styles.sectionArrow, { color: colors.chromeTextMuted }]}>
-                {collapsedGroups.has(section.title) ? '▸' : '▾'}
+                {collapsedGroups.has(section.title) ? (
+                  <ChevronRight size={14} color={colors.chromeTextMuted} />
+                ) : (
+                  <ChevronDown size={14} color={colors.chromeTextMuted} />
+                )}
               </Text>
               <Text style={[styles.sectionTitle, { color: colors.chromeTextMuted }]}>
                 {section.title}
@@ -578,13 +713,7 @@ export default function BuddyListScreen() {
               )}
             </View>
           }
-          ListFooterComponent={
-            totalBuddies > 0 && !query ? (
-              <Text style={[styles.footerText, { color: colors.chromeTextMuted }]}>
-                {t('buddyList.onlineCount', { online: totalOnline, total: totalBuddies })}
-              </Text>
-            ) : null
-          }
+          ListFooterComponent={null}
         />
       </BeveledView>
     </>
@@ -719,6 +848,9 @@ const styles = StyleSheet.create({
     paddingStart: spacing[16],
     gap: spacing[5],
   },
+  buddyRowOffline: {
+    opacity: 0.5,
+  },
   avatarWrapper: {
     position: 'relative',
   },
@@ -755,16 +887,17 @@ const styles = StyleSheet.create({
     fontStyle: 'italic',
     marginTop: spacing[0.5],
   },
-  callIconButton: {
-    width: 28,
-    height: 28,
+  menuButton: {
+    width: 32,
+    height: 32,
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: spacing[2],
   },
-  callIconText: {
-    fontSize: fontSize.sm,
+  menuButtonText: {
+    fontSize: fontSize.xl,
     fontWeight: '700',
+    lineHeight: fontSize.xl,
   },
   emptyText: {
     fontSize: fontSize.lg,
@@ -779,6 +912,35 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     fontSize: fontSize.sm,
     paddingVertical: spacing[6],
+  },
+  botAvatar: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  botAvatarText: {
+    color: '#fff',
+    fontSize: fontSize.sm,
+    fontWeight: '700',
+  },
+  syntheticRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  addButton: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: spacing[4],
+  },
+  addButtonText: {
+    fontSize: fontSize.lg,
+    fontWeight: '700',
+    lineHeight: fontSize.lg,
   },
   // AIM-specific styles
   aimWindowFrame: {

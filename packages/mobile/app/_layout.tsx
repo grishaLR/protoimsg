@@ -6,17 +6,25 @@ import { useEffect } from 'react';
 import { View } from 'react-native';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
-import { AuthProvider } from '@/services/auth';
+import { AuthProvider, useAuth } from '@/services/auth';
+import { QueryProvider } from '@/lib/query-client';
+import { ModerationProvider } from '@/services/ModerationContext';
 import { TranslationProvider } from '@/services/TranslationContext';
 import { WebSocketProvider } from '@/services/WebSocketContext';
 import { DmProvider } from '@/services/DmContext';
 import { VideoCallProvider } from '@/services/VideoCallContext';
+import { BotDmProvider } from '@/services/BotDmContext';
 import { ThemeProvider, useTheme } from '@/theme';
 import { isDarkTheme } from '@/theme/themes';
 import { ProfileProvider } from '@/services/ProfileContext';
 import { IncomingCallBanner } from '@/components/IncomingCallBanner';
 import { useBlockSync } from '@/hooks/useBlockSync';
 import { setupNotificationResponseListener } from '@/services/notifications';
+
+function QueryGate({ children }: { children: React.ReactNode }) {
+  const { did } = useAuth();
+  return <QueryProvider currentDid={did ?? undefined}>{children}</QueryProvider>;
+}
 
 function BlockSyncGate({ children }: { children: React.ReactNode }) {
   useBlockSync();
@@ -51,6 +59,22 @@ function ThemedStack() {
           options={{ headerShown: true, animation: 'slide_from_right' }}
         />
         <Stack.Screen
+          name="bot-dm"
+          options={{ headerShown: true, animation: 'slide_from_right' }}
+        />
+        <Stack.Screen
+          name="compose"
+          options={{ headerShown: true, presentation: 'modal', animation: 'slide_from_bottom' }}
+        />
+        <Stack.Screen
+          name="profile/[did]"
+          options={{ headerShown: true, animation: 'slide_from_right' }}
+        />
+        <Stack.Screen
+          name="thread/[uri]"
+          options={{ headerShown: true, animation: 'slide_from_right' }}
+        />
+        <Stack.Screen
           name="call/[did]"
           options={{ headerShown: false, presentation: 'fullScreenModal' }}
         />
@@ -64,19 +88,25 @@ export default function RootLayout() {
   return (
     <ThemeProvider>
       <AuthProvider>
-        <TranslationProvider>
-          <WebSocketProvider>
-            <DmProvider>
-              <VideoCallProvider>
-                <ProfileProvider>
-                  <BlockSyncGate>
-                    <ThemedStack />
-                  </BlockSyncGate>
-                </ProfileProvider>
-              </VideoCallProvider>
-            </DmProvider>
-          </WebSocketProvider>
-        </TranslationProvider>
+        <QueryGate>
+          <ModerationProvider>
+            <TranslationProvider>
+              <WebSocketProvider>
+                <DmProvider>
+                  <VideoCallProvider>
+                    <BotDmProvider>
+                      <ProfileProvider>
+                        <BlockSyncGate>
+                          <ThemedStack />
+                        </BlockSyncGate>
+                      </ProfileProvider>
+                    </BotDmProvider>
+                  </VideoCallProvider>
+                </DmProvider>
+              </WebSocketProvider>
+            </TranslationProvider>
+          </ModerationProvider>
+        </QueryGate>
       </AuthProvider>
     </ThemeProvider>
   );

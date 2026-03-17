@@ -320,5 +320,12 @@
     "saved": "Settings saved",
     "cancel": "Cancel",
     "error": "Failed to save settings"
+  },
+  "userPopoverCard": {
+    "viewProfile": "Tazama wasifu",
+    "addToBuddyList": "Ongeza kwenye orodha ya marafiki",
+    "added": "Imeongezwa!",
+    "alreadyInList": "Tayari iko kwenye orodha",
+    "error": "Hitilafu"
   }
 }

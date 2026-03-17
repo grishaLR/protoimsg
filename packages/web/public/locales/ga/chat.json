@@ -325,5 +325,12 @@
     "saved": "Settings saved",
     "cancel": "Cancel",
     "error": "Failed to save settings"
+  },
+  "userPopoverCard": {
+    "viewProfile": "Féach ar phróifíl",
+    "addToBuddyList": "Cuir le liosta cairde",
+    "added": "Curtha leis!",
+    "alreadyInList": "Sa liosta cairde cheana féin",
+    "error": "Earráid"
   }
 }

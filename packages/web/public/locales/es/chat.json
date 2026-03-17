@@ -325,5 +325,12 @@
     "saved": "Settings saved",
     "cancel": "Cancel",
     "error": "Failed to save settings"
+  },
+  "userPopoverCard": {
+    "viewProfile": "Ver perfil",
+    "addToBuddyList": "Agregar a lista de contactos",
+    "added": "¡Agregado!",
+    "alreadyInList": "Ya está en la lista de contactos",
+    "error": "Error"
   }
 }

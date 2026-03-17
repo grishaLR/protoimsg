@@ -270,6 +270,42 @@ export function useBuddyList() {
     [agent, send],
   );
 
+  const blockBuddy = useCallback(
+    async (targetDid: string) => {
+      if (!agent) return;
+      try {
+        await agent.com.atproto.repo.createRecord({
+          repo: agent.assertDid,
+          collection: 'app.bsky.graph.block',
+          record: {
+            $type: 'app.bsky.graph.block',
+            subject: targetDid,
+            createdAt: new Date().toISOString(),
+          },
+        });
+      } catch (err) {
+        console.error('Failed to block user:', err);
+      }
+    },
+    [agent],
+  );
+
+  const unblockBuddy = useCallback(
+    async (targetDid: string, rkey: string) => {
+      if (!agent) return;
+      try {
+        await agent.com.atproto.repo.deleteRecord({
+          repo: agent.assertDid,
+          collection: 'app.bsky.graph.block',
+          rkey,
+        });
+      } catch (err) {
+        console.error('Failed to unblock user:', err);
+      }
+    },
+    [agent],
+  );
+
   // Cleanup door timers
   useEffect(() => {
     return () => {
@@ -288,5 +324,7 @@ export function useBuddyList() {
     removeBuddy,
     toggleInnerCircle,
     innerCircleDids,
+    blockBuddy,
+    unblockBuddy,
   };
 }
