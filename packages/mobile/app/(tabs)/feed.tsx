@@ -1,8 +1,9 @@
-import React, { useCallback, useRef } from 'react';
+import React, { useCallback, useRef, useState } from 'react';
 import {
   View,
   Text,
   FlatList,
+  ScrollView,
   Pressable,
   ActivityIndicator,
   RefreshControl,
@@ -15,6 +16,7 @@ import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import type { AppBskyFeedDefs } from '@atproto/api';
 import { useFeed } from '@/hooks/useFeed';
+import { useSavedFeeds } from '@/hooks/useSavedFeeds';
 import { FeedPost } from '@/components/FeedPost';
 import { Avatar } from '@/components/Avatar';
 import { ActorSearchInput } from '@/components/ActorSearchInput';
@@ -40,7 +42,10 @@ function FeedScreenInner() {
   const { did } = useAuth();
   const myProfile = useProfile(did);
   const { setActiveVideo } = useActiveVideo();
-  const { posts, loading, loadingMore, error, loadMore, refresh, refreshing } = useFeed(undefined); // "Following" timeline
+  const { feeds } = useSavedFeeds();
+  const [activeFeedUri, setActiveFeedUri] = useState<string | undefined>(undefined);
+  const { posts, loading, loadingMore, error, loadMore, refresh, refreshing } =
+    useFeed(activeFeedUri);
 
   const handleSearchSelect = useCallback(
     (actor: ActorSearchResult) => {
@@ -49,7 +54,11 @@ function FeedScreenInner() {
     [router],
   );
 
-  // Viewability tracking for autoplay — must be stable refs (FlatList requirement)
+  const handleFeedSelect = useCallback((uri: string | undefined) => {
+    setActiveFeedUri(uri);
+  }, []);
+
+  // Viewability tracking for autoplay
   const setActiveVideoRef = useRef(setActiveVideo);
   setActiveVideoRef.current = setActiveVideo;
 
@@ -88,7 +97,7 @@ function FeedScreenInner() {
     [],
   );
 
-  if (loading) {
+  if (loading && posts.length === 0) {
     return (
       <SafeAreaView style={[styles.container, { backgroundColor: colors.surface }]}>
         <View style={styles.center}>
@@ -98,7 +107,7 @@ function FeedScreenInner() {
     );
   }
 
-  if (error) {
+  if (error && posts.length === 0) {
     return (
       <SafeAreaView style={[styles.container, { backgroundColor: colors.surface }]}>
         <View style={styles.center}>
@@ -110,11 +119,6 @@ function FeedScreenInner() {
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.surface }]}>
-      <View style={[styles.header, { borderBottomColor: colors.base200 }]}>
-        <Text style={[styles.title, { color: colors.baseContent }]}>
-          {t('feedView.title', { defaultValue: 'Feed' })}
-        </Text>
-      </View>
       {/* Search bar */}
       <View style={[styles.searchBar, { borderBottomColor: colors.base200 }]}>
         <ActorSearchInput
@@ -123,6 +127,43 @@ function FeedScreenInner() {
           style={styles.searchInput}
         />
       </View>
+
+      {/* Feed tabs */}
+      {feeds.length > 1 ? (
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          style={[styles.feedTabBar, { borderBottomColor: colors.base200 }]}
+          contentContainerStyle={styles.feedTabBarContent}
+        >
+          {feeds.map((feed) => {
+            const active = activeFeedUri === feed.uri;
+            return (
+              <Pressable
+                key={feed.uri ?? '__following__'}
+                style={[
+                  styles.feedTab,
+                  active && [styles.feedTabActive, { borderBottomColor: colors.primary }],
+                ]}
+                onPress={() => {
+                  handleFeedSelect(feed.uri);
+                }}
+              >
+                <Text
+                  style={[
+                    styles.feedTabText,
+                    { color: active ? colors.baseContent : colors.chromeTextMuted },
+                    active && styles.feedTabTextActive,
+                  ]}
+                >
+                  {feed.displayName}
+                </Text>
+              </Pressable>
+            );
+          })}
+        </ScrollView>
+      ) : null}
+
       {/* Compose bar */}
       <Pressable
         style={[styles.composeBar, { borderBottomColor: colors.base200 }]}
@@ -135,6 +176,8 @@ function FeedScreenInner() {
           {t('composer.collapsed', { defaultValue: "What's on your mind?" })}
         </Text>
       </Pressable>
+
+      {/* Feed list */}
       <FlatList
         data={posts}
         renderItem={renderItem}
@@ -181,15 +224,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     padding: spacing[12],
   },
-  header: {
-    paddingHorizontal: spacing[8],
-    paddingVertical: spacing[6],
-    borderBottomWidth: 1,
-  },
-  title: {
-    fontSize: fontSize['2xl'],
-    fontWeight: '700',
-  },
   errorText: {
     fontSize: fontSize.base,
     textAlign: 'center',
@@ -206,6 +240,29 @@ const styles = StyleSheet.create({
   },
   searchInput: {
     zIndex: 10,
+  },
+  feedTabBar: {
+    borderBottomWidth: 1,
+    flexGrow: 0,
+  },
+  feedTabBarContent: {
+    paddingHorizontal: spacing[4],
+  },
+  feedTab: {
+    paddingHorizontal: spacing[4],
+    paddingVertical: spacing[3],
+    borderBottomWidth: 2,
+    borderBottomColor: 'transparent',
+  },
+  feedTabActive: {
+    borderBottomWidth: 2,
+  },
+  feedTabText: {
+    fontSize: fontSize.sm,
+    fontWeight: '500',
+  },
+  feedTabTextActive: {
+    fontWeight: '700',
   },
   composeBar: {
     flexDirection: 'row',

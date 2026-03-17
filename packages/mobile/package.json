@@ -34,6 +34,7 @@
     "expo-router": "55.0.4",
     "expo-secure-store": "^55.0.8",
     "expo-status-bar": "~55.0.4",
+    "expo-updates": "~55.0.13",
     "expo-video": "^55.0.10",
     "expo-web-browser": "~55.0.9",
     "i18next": "^24.0.0",
