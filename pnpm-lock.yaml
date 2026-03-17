@@ -194,6 +194,9 @@ importers:
       react-native-webrtc:
         specifier: ^124.0.7
         version: 124.0.7(react-native@0.83.2(@babel/core@7.29.0)(@types/react@19.2.13)(react@19.2.0))
+      react-native-worklets:
+        specifier: ^0.7.4
+        version: 0.7.4(@babel/core@7.29.0)(react-native@0.83.2(@babel/core@7.29.0)(@types/react@19.2.13)(react@19.2.0))(react@19.2.0)
     devDependencies:
       '@babel/core':
         specifier: ^7.25.0

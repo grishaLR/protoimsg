@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { View, Pressable, StyleSheet, Image } from 'react-native';
 import { useVideoPlayer, VideoView } from 'expo-video';
-import { Play, VolumeX } from 'lucide-react-native';
+import { Play, VolumeX, Maximize } from 'lucide-react-native';
 import { useActiveVideo } from '@/services/ActiveVideoContext';
 import { useTheme } from '@/theme';
 import { radius, spacing } from '@/theme/tokens';
@@ -93,7 +93,7 @@ export function VideoPlayer({ playlist, thumbnail, alt, postUri }: VideoPlayerPr
             ref={videoRef}
             player={player}
             style={[styles.video, !ready && { opacity: 0 }]}
-            nativeControls={false}
+            nativeControls
             contentFit="contain"
           />
         </Pressable>
@@ -108,16 +108,29 @@ export function VideoPlayer({ playlist, thumbnail, alt, postUri }: VideoPlayerPr
         </Pressable>
       ) : null}
 
-      {/* Mute indicator */}
-      {started && ready && player.muted ? (
-        <Pressable
-          style={styles.muteButton}
-          onPress={() => {
-            player.muted = !player.muted;
-          }}
-        >
-          <VolumeX size={14} color="#fff" />
-        </Pressable>
+      {/* Controls — mute + fullscreen */}
+      {started && ready ? (
+        <>
+          {player.muted ? (
+            <Pressable
+              style={styles.muteButton}
+              onPress={() => {
+                player.muted = false;
+              }}
+            >
+              <VolumeX size={14} color="#fff" />
+            </Pressable>
+          ) : null}
+          <Pressable
+            style={styles.fullscreenButton}
+            onPress={() => {
+              player.muted = false;
+              void videoRef.current?.enterFullscreen();
+            }}
+          >
+            <Maximize size={14} color="#fff" />
+          </Pressable>
+        </>
       ) : null}
     </View>
   );
@@ -159,6 +172,17 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 20,
     marginLeft: 3,
+  },
+  fullscreenButton: {
+    position: 'absolute',
+    bottom: spacing[2],
+    left: spacing[2],
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: 'rgba(0,0,0,0.6)',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   muteButton: {
     position: 'absolute',
