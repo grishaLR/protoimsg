@@ -151,6 +151,32 @@ const botRoomCommand = z.object({
   channelId: z.string().min(1),
 });
 
+const groupCallCreate = z.object({
+  type: z.literal('group_call_create'),
+  roomId: z.string().min(1),
+});
+
+const groupCallCreateStandalone = z.object({
+  type: z.literal('group_call_create_standalone'),
+  access: z.enum(['anyone', 'community', 'inner-circle', 'allowlist']).optional(),
+  allowedDids: z.array(did).max(150).optional(),
+});
+
+const groupCallJoin = z.object({
+  type: z.literal('group_call_join'),
+  callId: z.string().min(1),
+});
+
+const groupCallJoinByCode = z.object({
+  type: z.literal('group_call_join_by_code'),
+  meetCode: z.string().min(1).max(20),
+});
+
+const groupCallLeave = z.object({
+  type: z.literal('group_call_leave'),
+  callId: z.string().min(1),
+});
+
 const clientMessage = z.discriminatedUnion('type', [
   joinRoom,
   leaveRoom,
@@ -176,6 +202,11 @@ const clientMessage = z.discriminatedUnion('type', [
   botDmSend,
   botDmClose,
   botRoomCommand,
+  groupCallCreate,
+  groupCallCreateStandalone,
+  groupCallJoin,
+  groupCallJoinByCode,
+  groupCallLeave,
 ]);
 
 export type ValidatedClientMessage = z.infer<typeof clientMessage>;

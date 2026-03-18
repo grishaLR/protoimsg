@@ -34,7 +34,10 @@ export function useFeed(feedUri: string | undefined): UseFeedResult {
           const res = await agent.app.bsky.feed.getTimeline({ limit: 30, cursor: pageParam });
           return res.data;
         }
-        const res = await publicAgent.app.bsky.feed.getFeed({
+        // Try authenticated agent first (needed for personalized feeds),
+        // fall back to public agent
+        const feedAgent = agent ?? publicAgent;
+        const res = await feedAgent.app.bsky.feed.getFeed({
           feed: feedUri,
           limit: 30,
           cursor: pageParam,
@@ -43,7 +46,7 @@ export function useFeed(feedUri: string | undefined): UseFeedResult {
       },
       initialPageParam: undefined as string | undefined,
       getNextPageParam: (lastPage) => lastPage.cursor,
-      enabled: feedUri === undefined ? !!agent : true,
+      enabled: !!agent,
       staleTime: Infinity,
     });
 

@@ -1,0 +1,79 @@
+# LiveKit SFU server for group video calls.
+# Deploy: fly apps create protoimsg-livekit && fly deploy -c fly.livekit.toml
+# Generate keys: docker run --rm livekit/livekit-server generate-keys
+#
+# Single machine — LiveKit rooms are stateful (same constraint as coturn).
+# Dedicated IPv4 required for UDP media traffic.
+
+app = 'protoimsg-livekit'
+primary_region = 'iad'
+
+[build]
+  image = 'livekit/livekit-server:latest'
+
+[env]
+  LIVEKIT_LOG_LEVEL = 'info'
+
+[http_service]
+  internal_port = 7880
+  force_https = true
+  auto_stop_machines = 'off'
+  auto_start_machines = true
+  min_machines_running = 1
+  max_machines_running = 1
+
+# WebRTC UDP media ports (range must be > 1 to avoid LiveKit Intn(0) panic)
+[[services]]
+  protocol = 'udp'
+  internal_port = 7882
+
+  [[services.ports]]
+    port = 7882
+
+[[services]]
+  protocol = 'udp'
+  internal_port = 7883
+
+  [[services.ports]]
+    port = 7883
+
+[[services]]
+  protocol = 'udp'
+  internal_port = 7884
+
+  [[services.ports]]
+    port = 7884
+
+# WebRTC TCP fallback (for clients behind strict firewalls)
+[[services]]
+  protocol = 'tcp'
+  internal_port = 7881
+
+  [[services.ports]]
+    port = 7881
+
+[[vm]]
+  size = 'shared-cpu-2x'
+  memory = '1gb'
+
+# Secrets to set via `fly secrets set -c fly.livekit.toml`:
+#   LIVEKIT_KEYS="<api_key>: <api_secret>"
+#
+# LiveKit config is passed via LIVEKIT_CONFIG env or livekit.yaml.
+# For Fly.io, use env:
+#
+# fly secrets set LIVEKIT_CONFIG="$(cat <<'EOF'
+# port: 7880
+# rtc:
+#   port_range_start: 7882
+#   port_range_end: 7882
+#   use_external_ip: true
+#   tcp_port: 7881
+# turn:
+#   enabled: true
+#   udp_port: 3478
+#   tls_port: 5349
+# keys:
+#   <your-api-key>: <your-api-secret>
+# EOF
+# )"

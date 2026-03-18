@@ -41,6 +41,7 @@ interface BuddyListPanelProps {
   onRenameGroup: (oldName: string, newName: string) => Promise<void>;
   onDeleteGroup: (name: string) => Promise<void>;
   onMoveBuddy: (did: string, fromGroup: string, toGroup: string) => Promise<void>;
+  onOpenMeet?: () => void;
   onOpenChatRooms?: () => void;
   onOpenFeed?: () => void;
   /** When true, force footer visible even at narrow widths (Tauri main window). */
@@ -83,6 +84,7 @@ export function BuddyListPanel({
   onRenameGroup,
   onDeleteGroup,
   onMoveBuddy,
+  onOpenMeet,
   onOpenChatRooms,
   onOpenFeed,
   tauriMode,
@@ -580,8 +582,13 @@ export function BuddyListPanel({
 
       {/* Create group UI — hidden until feature is ready */}
 
-      {(onOpenChatRooms || onOpenFeed) && (
+      {(onOpenMeet || onOpenChatRooms || onOpenFeed) && (
         <div className={`${styles.footer}${tauriMode ? ` ${styles.tauriFooter}` : ''}`}>
+          {onOpenMeet && (
+            <button className={styles.footerBtn} onClick={onOpenMeet}>
+              {t('buddyList.footer.meet', 'Meet')}
+            </button>
+          )}
           {onOpenChatRooms && (
             <button className={styles.footerBtn} onClick={onOpenChatRooms}>
               {t('buddyList.footer.chatRooms')}

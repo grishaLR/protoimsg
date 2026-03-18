@@ -64,6 +64,9 @@ const VideoCallWindowPage = lazy(() =>
     import('./pages/VideoCallWindowPage').then((m) => ({ default: m.VideoCallWindowPage })),
   ),
 );
+const MeetPage = lazy(() =>
+  reloadOnChunkError(import('./pages/MeetPage').then((m) => ({ default: m.MeetPage }))),
+);
 const BetaSignupPage = lazy(() =>
   reloadOnChunkError(import('./pages/BetaSignupPage').then((m) => ({ default: m.BetaSignupPage }))),
 );
@@ -178,6 +181,22 @@ function AppRoutes() {
         element={
           <ProtectedRoute>
             <FeedWindowPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/meet"
+        element={
+          <ProtectedRoute>
+            <MeetPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/meet/:callId"
+        element={
+          <ProtectedRoute>
+            <MeetPage />
           </ProtectedRoute>
         }
       />

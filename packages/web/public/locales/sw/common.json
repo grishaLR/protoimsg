@@ -7,6 +7,7 @@
   },
   "visibility": {
     "everyone": "Kila mtu",
+    "meet": "Meet",
     "community": "Jamii",
     "innerCircle": "Watu wa karibu",
     "noOne": "Hakuna mtu"
@@ -26,6 +27,7 @@
     "wireframe": "Wireframe"
   },
   "nav": {
+    "meet": "Meet",
     "community": "Jamii",
     "rooms": "Vyumba",
     "feed": "Mlisho",

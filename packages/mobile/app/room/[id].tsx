@@ -28,7 +28,8 @@ import { useProfile } from '@/services/ProfileContext';
 import { useBlockSync } from '@/hooks/useBlockSync';
 import { addToBuddyList } from '@/services/atproto';
 import { lightTap } from '@/services/haptics';
-import { MoreHorizontal } from 'lucide-react-native';
+import { MoreHorizontal, Phone } from 'lucide-react-native';
+import { useGroupCall } from '@/services/GroupCallContext';
 import { Avatar } from '@/components/Avatar';
 import { RichText } from '@/components/RichText';
 import { EmbedRenderer, isGifEmbed } from '@/components/EmbedRenderer';
@@ -343,6 +344,7 @@ export default function RoomScreen() {
   const { did, agent } = useAuth();
   const { send } = useWebSocket();
   const { videoCall } = useVideoCall();
+  const { roomCalls, activeGroupCall, startGroupCall, joinGroupCall } = useGroupCall();
   const { blockedDids, resync: resyncBlocks } = useBlockSync();
   const webrtcReady = isWebRTCAvailable();
   const {
@@ -406,18 +408,47 @@ export default function RoomScreen() {
     requestBatchTranslation(newMessages.map((m) => m.text));
   }, [autoTranslate, messages.length, requestBatchTranslation]);
 
+  // Group call from room
+  const [groupCallPending, setGroupCallPending] = useState(false);
+
+  useEffect(() => {
+    if (groupCallPending && activeGroupCall) {
+      setGroupCallPending(false);
+      router.push('/group-call');
+    }
+  }, [groupCallPending, activeGroupCall, router]);
+
+  const handleGroupCall = useCallback(() => {
+    const roomCall = roomCalls.get(id);
+    if (roomCall) {
+      joinGroupCall(roomCall.callId);
+    } else {
+      startGroupCall(id);
+    }
+    setGroupCallPending(true);
+  }, [id, roomCalls, startGroupCall, joinGroupCall]);
+
   // Set header title
   useEffect(() => {
     if (room) {
+      const roomCall = roomCalls.get(id);
+      const isInCall = activeGroupCall?.roomId === id;
       navigation.setOptions({
         headerShown: !isAim,
         title: room.name,
         headerStyle: { backgroundColor: colors.base200 },
         headerTintColor: colors.baseContent,
         headerTitleStyle: { color: colors.baseContent, fontWeight: '600' as const },
+        headerRight: isInCall
+          ? undefined
+          : () => (
+              <Pressable onPress={handleGroupCall} style={{ paddingHorizontal: 12 }}>
+                <Phone size={18} color={roomCall ? '#22c55e' : colors.baseContent} />
+              </Pressable>
+            ),
       });
     }
-  }, [room, navigation, colors, isAim]);
+  }, [room, navigation, colors, isAim, roomCalls, id, activeGroupCall, handleGroupCall]);
 
   // Slow mode countdown
   useEffect(() => {

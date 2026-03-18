@@ -1,6 +1,9 @@
 import 'react-native-url-polyfill/auto';
 import '@/polyfills';
 import '@/i18n';
+import { registerGlobals } from '@livekit/react-native';
+
+registerGlobals();
 
 import { useEffect } from 'react';
 import { View } from 'react-native';
@@ -13,6 +16,7 @@ import { TranslationProvider } from '@/services/TranslationContext';
 import { WebSocketProvider } from '@/services/WebSocketContext';
 import { DmProvider } from '@/services/DmContext';
 import { VideoCallProvider } from '@/services/VideoCallContext';
+import { GroupCallProvider } from '@/services/GroupCallContext';
 import { BotDmProvider } from '@/services/BotDmContext';
 import { ThemeProvider, useTheme } from '@/theme';
 import { isDarkTheme } from '@/theme/themes';
@@ -78,6 +82,10 @@ function ThemedStack() {
           name="call/[did]"
           options={{ headerShown: false, presentation: 'fullScreenModal' }}
         />
+        <Stack.Screen
+          name="group-call"
+          options={{ headerShown: false, presentation: 'fullScreenModal' }}
+        />
       </Stack>
       <IncomingCallBanner />
     </View>
@@ -94,13 +102,15 @@ export default function RootLayout() {
               <WebSocketProvider>
                 <DmProvider>
                   <VideoCallProvider>
-                    <BotDmProvider>
-                      <ProfileProvider>
-                        <BlockSyncGate>
-                          <ThemedStack />
-                        </BlockSyncGate>
-                      </ProfileProvider>
-                    </BotDmProvider>
+                    <GroupCallProvider>
+                      <BotDmProvider>
+                        <ProfileProvider>
+                          <BlockSyncGate>
+                            <ThemedStack />
+                          </BlockSyncGate>
+                        </ProfileProvider>
+                      </BotDmProvider>
+                    </GroupCallProvider>
                   </VideoCallProvider>
                 </DmProvider>
               </WebSocketProvider>

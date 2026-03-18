@@ -16,6 +16,7 @@ import type { BlockService } from '../moderation/block-service.js';
 import type { LabelerService } from '../moderation/labeler-service.js';
 import type { BotService } from '../bot/service.js';
 import type { NotificationService } from '../notifications/service.js';
+import type { GroupCallService } from '../calls/service.js';
 import { createLogger } from '../logger.js';
 import { incDmsSent, incMessagesSent } from '../stats/queries.js';
 import {
@@ -90,6 +91,7 @@ export async function handleClientMessage(
   callSubs: DmSubscriptions,
   botService: BotService | null,
   notificationService?: NotificationService | null,
+  groupCallService?: GroupCallService | null,
 ): Promise<void> {
   // Rate limit: per-socket for tab fairness, per-DID to cap total throughput
   const socketId = (ws as WebSocket & { socketId?: string }).socketId ?? did;
@@ -1059,6 +1061,251 @@ export async function handleClientMessage(
       const roomMembers = roomSubs.getSubscribers(data.roomId);
       if (!roomMembers.has(ws)) break;
       await botService.handleRoomCommand(ws, did, handle, data.text, data.roomId, data.channelId);
+      break;
+    }
+
+    case 'group_call_create': {
+      if (!groupCallService) {
+        ws.send(
+          JSON.stringify({
+            type: 'error',
+            message: 'Group calls are not enabled',
+            errorCode: ERROR_CODES.SERVER_ERROR,
+          }),
+        );
+        break;
+      }
+
+      // Must be subscribed to the room
+      const gcRoomMembers = roomSubs.getSubscribers(data.roomId);
+      if (!gcRoomMembers.has(ws)) {
+        ws.send(
+          JSON.stringify({
+            type: 'error',
+            message: 'Must join the room first',
+            errorCode: ERROR_CODES.ACCESS_DENIED,
+          }),
+        );
+        break;
+      }
+
+      try {
+        const { call, token } = await groupCallService.createCall(data.roomId, did);
+
+        // Send token to the creator
+        ws.send(
+          JSON.stringify({
+            type: 'group_call_token',
+            data: {
+              callId: call.callId,
+              token,
+              url: groupCallService.livekitUrl,
+              meetCode: call.meetCode,
+            },
+          }),
+        );
+
+        // Broadcast to all room members that a call has started
+        roomSubs.broadcast(data.roomId, {
+          type: 'group_call_started',
+          data: {
+            callId: call.callId,
+            roomId: data.roomId,
+            participantCount: call.participants.size,
+          },
+        });
+      } catch (err) {
+        const msg = err instanceof Error ? err.message : 'Failed to create group call';
+        log.error({ err, roomId: data.roomId }, 'group_call_create failed');
+        ws.send(
+          JSON.stringify({ type: 'error', message: msg, errorCode: ERROR_CODES.SERVER_ERROR }),
+        );
+      }
+      break;
+    }
+
+    case 'group_call_join': {
+      if (!groupCallService) {
+        ws.send(
+          JSON.stringify({
+            type: 'error',
+            message: 'Group calls are not enabled',
+            errorCode: ERROR_CODES.SERVER_ERROR,
+          }),
+        );
+        break;
+      }
+
+      try {
+        const call = groupCallService.getCall(data.callId);
+        if (!call) {
+          ws.send(
+            JSON.stringify({
+              type: 'error',
+              message: 'Call not found or already ended',
+              errorCode: ERROR_CODES.INVALID_INPUT,
+            }),
+          );
+          break;
+        }
+
+        // Room-attached calls: must be subscribed to the room
+        if (call.roomId) {
+          const gjRoomMembers = roomSubs.getSubscribers(call.roomId);
+          if (!gjRoomMembers.has(ws)) {
+            ws.send(
+              JSON.stringify({
+                type: 'error',
+                message: 'Must join the room first',
+                errorCode: ERROR_CODES.ACCESS_DENIED,
+              }),
+            );
+            break;
+          }
+        }
+
+        const { call: joinedCall, token } = await groupCallService.joinCall(data.callId, did);
+
+        // Send token to the joiner
+        ws.send(
+          JSON.stringify({
+            type: 'group_call_token',
+            data: {
+              callId: data.callId,
+              token,
+              url: groupCallService.livekitUrl,
+              meetCode: joinedCall.meetCode,
+            },
+          }),
+        );
+
+        // Broadcast updated participant count to room (room-attached only)
+        if (call.roomId) {
+          roomSubs.broadcast(call.roomId, {
+            type: 'group_call_participant_joined',
+            data: {
+              callId: data.callId,
+              roomId: call.roomId,
+              participantCount: joinedCall.participants.size,
+            },
+          });
+        }
+      } catch (err) {
+        const msg = err instanceof Error ? err.message : 'Failed to join group call';
+        log.error({ err, callId: data.callId }, 'group_call_join failed');
+        ws.send(
+          JSON.stringify({ type: 'error', message: msg, errorCode: ERROR_CODES.SERVER_ERROR }),
+        );
+      }
+      break;
+    }
+
+    case 'group_call_leave': {
+      if (!groupCallService) break;
+
+      try {
+        const callBefore = groupCallService.getCall(data.callId);
+        if (!callBefore) break;
+
+        const roomId = callBefore.roomId;
+        const result = await groupCallService.leaveCall(data.callId, did);
+
+        if (roomId) {
+          if (result === null) {
+            roomSubs.broadcast(roomId, {
+              type: 'group_call_ended',
+              data: { callId: data.callId, roomId },
+            });
+          } else {
+            roomSubs.broadcast(roomId, {
+              type: 'group_call_participant_left',
+              data: {
+                callId: data.callId,
+                roomId,
+                participantCount: result.participants.size,
+              },
+            });
+          }
+        }
+        // Standalone meetings: no room to broadcast to — LiveKit handles participant events
+      } catch (err) {
+        log.error({ err, callId: data.callId }, 'group_call_leave failed');
+      }
+      break;
+    }
+
+    case 'group_call_create_standalone': {
+      if (!groupCallService) {
+        ws.send(
+          JSON.stringify({
+            type: 'error',
+            message: 'Group calls are not enabled',
+            errorCode: ERROR_CODES.SERVER_ERROR,
+          }),
+        );
+        break;
+      }
+
+      try {
+        const { call, token } = await groupCallService.createStandaloneCall(
+          did,
+          data.access ?? 'anyone',
+          data.allowedDids,
+        );
+
+        ws.send(
+          JSON.stringify({
+            type: 'group_call_token',
+            data: {
+              callId: call.callId,
+              token,
+              url: groupCallService.livekitUrl,
+              meetCode: call.meetCode,
+            },
+          }),
+        );
+      } catch (err) {
+        const msg = err instanceof Error ? err.message : 'Failed to create meeting';
+        log.error({ err }, 'group_call_create_standalone failed');
+        ws.send(
+          JSON.stringify({ type: 'error', message: msg, errorCode: ERROR_CODES.SERVER_ERROR }),
+        );
+      }
+      break;
+    }
+
+    case 'group_call_join_by_code': {
+      if (!groupCallService) {
+        ws.send(
+          JSON.stringify({
+            type: 'error',
+            message: 'Group calls are not enabled',
+            errorCode: ERROR_CODES.SERVER_ERROR,
+          }),
+        );
+        break;
+      }
+
+      try {
+        const { call, token } = await groupCallService.joinByCode(data.meetCode, did);
+
+        ws.send(
+          JSON.stringify({
+            type: 'group_call_token',
+            data: {
+              callId: call.callId,
+              token,
+              url: groupCallService.livekitUrl,
+              meetCode: call.meetCode,
+            },
+          }),
+        );
+      } catch (err) {
+        const msg = err instanceof Error ? err.message : 'Meeting not found';
+        ws.send(
+          JSON.stringify({ type: 'error', message: msg, errorCode: ERROR_CODES.INVALID_INPUT }),
+        );
+      }
       break;
     }
   }

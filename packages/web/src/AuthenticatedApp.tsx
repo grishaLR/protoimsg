@@ -5,11 +5,13 @@ import { WebSocketProvider } from './contexts/WebSocketContext';
 import { DmProvider } from './contexts/DmContext';
 import { BotDmProvider } from './contexts/BotDmContext';
 import { VideoCallProvider } from './contexts/VideoCallContext';
+import { GroupCallProvider } from './contexts/GroupCallContext';
 import { MentionNotificationProvider } from './contexts/MentionNotificationContext';
 import { TranslationProvider } from './contexts/TranslationContext';
 import { DmPopoverContainer } from './components/dm/DmPopoverContainer';
 import { BotDmPopover } from './components/bot/BotDmPopover';
 import { VideoCallOverlay } from './components/videocall/VideoCallOverlay';
+import { GroupCallOverlay } from './components/videocall/GroupCallOverlay';
 import { MentionToastContainer } from './components/mentions/MentionToastContainer';
 import { BlockProvider } from './contexts/BlockContext';
 import { ConnectionBanner } from './components/ConnectionBanner';
@@ -35,13 +37,16 @@ export function AuthenticatedApp({ children }: { children: ReactNode }) {
                   <DmProvider>
                     <MaybeBot>
                       <VideoCallProvider>
-                        <MentionNotificationProvider>
-                          {children}
-                          <DmPopoverContainer />
-                          {BOT_ENABLED && <BotDmPopover />}
-                          <VideoCallOverlay />
-                          <MentionToastContainer />
-                        </MentionNotificationProvider>
+                        <GroupCallProvider>
+                          <MentionNotificationProvider>
+                            {children}
+                            <DmPopoverContainer />
+                            {BOT_ENABLED && <BotDmPopover />}
+                            <VideoCallOverlay />
+                            <GroupCallOverlay />
+                            <MentionToastContainer />
+                          </MentionNotificationProvider>
+                        </GroupCallProvider>
                       </VideoCallProvider>
                     </MaybeBot>
                   </DmProvider>

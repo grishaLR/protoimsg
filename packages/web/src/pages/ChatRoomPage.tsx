@@ -23,7 +23,8 @@ import { ChannelSwitcher } from '../components/chat/ChannelSwitcher';
 import { CreateChannelModal } from '../components/chat/CreateChannelModal';
 import { RoomSettingsModal } from '../components/rooms/RoomSettingsModal';
 import { ReportContentModal } from '../components/feedback/ReportContentModal';
-import { ArrowLeft, Flag, PanelLeftOpen, Settings } from 'lucide-react';
+import { ArrowLeft, Flag, PanelLeftOpen, Phone, Settings } from 'lucide-react';
+import { useGroupCall } from '../contexts/GroupCallContext';
 import { WindowControls } from '../components/layout/WindowControls';
 import { LoadingBars } from '../components/LoadingBars';
 import type { ChatThreadState } from '../hooks/useChatThread';
@@ -43,6 +44,7 @@ function ChatRoomContent({ roomId }: { roomId: string }) {
   const navigate = useNavigate();
   const { did, agent } = useAuth();
   const { send, subscribe } = useWebSocket();
+  const { roomCalls, activeGroupCall, startGroupCall, joinGroupCall } = useGroupCall();
   const {
     room,
     members,
@@ -318,6 +320,41 @@ function ChatRoomContent({ roomId }: { roomId: string }) {
                 <Flag size={14} />
               </button>
             )}
+            {(() => {
+              const roomCall = roomCalls.get(roomId);
+              const isInThisCall = activeGroupCall?.roomId === roomId;
+              if (isInThisCall) return null;
+              if (roomCall) {
+                return (
+                  <button
+                    className={styles.settingsBtn}
+                    type="button"
+                    onClick={() => {
+                      joinGroupCall(roomCall.callId);
+                    }}
+                    title={t('chatRoom.joinCall', 'Join call ({{count}})', {
+                      count: roomCall.participantCount,
+                    })}
+                    aria-label={t('chatRoom.joinCall', 'Join call')}
+                  >
+                    <Phone size={14} className="text-success animate-pulse" />
+                  </button>
+                );
+              }
+              return (
+                <button
+                  className={styles.settingsBtn}
+                  type="button"
+                  onClick={() => {
+                    startGroupCall(roomId);
+                  }}
+                  title={t('chatRoom.startCall', 'Start group call')}
+                  aria-label={t('chatRoom.startCall', 'Start group call')}
+                >
+                  <Phone size={14} />
+                </button>
+              );
+            })()}
             <WindowControls />
           </header>
           <div className={styles.content}>

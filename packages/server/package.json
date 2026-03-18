@@ -28,6 +28,7 @@
     "franc-min": "^6.2.0",
     "helmet": "^8.0.0",
     "ioredis": "^5.9.3",
+    "livekit-server-sdk": "^2.15.0",
     "pino": "^10.3.1",
     "pino-http": "^11.0.0",
     "postgres": "^3.4.5",

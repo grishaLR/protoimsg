@@ -1,6 +1,6 @@
 import { Tabs, Redirect } from 'expo-router';
 import { useTranslation } from 'react-i18next';
-import { Users, Newspaper, MessageSquare, Settings } from 'lucide-react-native';
+import { Users, Newspaper, Search, MessageSquare, Settings, Video } from 'lucide-react-native';
 import { useAuth } from '@/services/auth';
 import { useDm } from '@/services/DmContext';
 import { useTheme, useAimStyle } from '@/theme';
@@ -56,6 +56,13 @@ export default function TabLayout() {
       }}
     >
       <Tabs.Screen
+        name="meet"
+        options={{
+          title: t('nav.meet', { defaultValue: 'Meet' }),
+          tabBarIcon: ({ color, size }) => <Video size={size} color={color} />,
+        }}
+      />
+      <Tabs.Screen
         name="buddy-list"
         options={{
           title: t('nav.buddies'),
@@ -69,6 +76,13 @@ export default function TabLayout() {
         options={{
           title: t('nav.feed', { defaultValue: 'Feed' }),
           tabBarIcon: ({ color, size }) => <Newspaper size={size} color={color} />,
+        }}
+      />
+      <Tabs.Screen
+        name="search"
+        options={{
+          title: 'Search',
+          tabBarIcon: ({ color, size }) => <Search size={size} color={color} />,
         }}
       />
       <Tabs.Screen

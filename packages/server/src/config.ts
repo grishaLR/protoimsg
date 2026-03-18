@@ -64,6 +64,12 @@ const envSchema = z.object({
   PDS_URL: z.string().url().optional(),
   /** Minutes of commit silence before Sentry warning. 0 disables the check. */
   COMMIT_SILENCE_MINUTES: z.coerce.number().min(0).default(30),
+  /** LiveKit server URL (e.g. wss://livekit.protoimsg.app) */
+  LIVEKIT_URL: z.string().optional(),
+  /** LiveKit API key (generated via livekit-server --keys) */
+  LIVEKIT_API_KEY: z.string().optional(),
+  /** LiveKit API secret (generated via livekit-server --keys) */
+  LIVEKIT_API_SECRET: z.string().optional(),
 });
 
 export type Config = z.infer<typeof envSchema>;

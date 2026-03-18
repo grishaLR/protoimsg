@@ -9,6 +9,7 @@
   },
   "visibility": {
     "everyone": "所有人",
+    "meet": "Meet",
     "community": "社区",
     "innerCircle": "密友圈",
     "noOne": "无人"
@@ -28,6 +29,7 @@
     "wireframe": "Wireframe"
   },
   "nav": {
+    "meet": "Meet",
     "community": "社区",
     "rooms": "聊天室",
     "feed": "动态",

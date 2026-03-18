@@ -28,6 +28,7 @@ import { pruneSlowModeTracker } from './firehose/handlers.js';
 import { EmailService } from './email/service.js';
 import { createBotService } from './bot/service.js';
 import { createNotificationService } from './notifications/service.js';
+import { createGroupCallService, type GroupCallService } from './calls/service.js';
 
 async function main() {
   const config = loadConfig();
@@ -151,6 +152,17 @@ async function main() {
   const botService = config.BOT_ENABLED ? createBotService(emailService, db) : null;
   if (botService) log.info('Bot service (ProtoBuddy) enabled');
 
+  // Group call service (optional — requires all three LiveKit env vars)
+  let groupCallService: GroupCallService | null = null;
+  if (config.LIVEKIT_URL && config.LIVEKIT_API_KEY && config.LIVEKIT_API_SECRET) {
+    groupCallService = createGroupCallService(
+      config.LIVEKIT_URL,
+      config.LIVEKIT_API_KEY,
+      config.LIVEKIT_API_SECRET,
+    );
+    log.info({ url: config.LIVEKIT_URL }, 'Group call service enabled (LiveKit)');
+  }
+
   const app = createApp(
     config,
     db,
@@ -176,6 +188,7 @@ async function main() {
     },
     emailService,
     notificationService,
+    groupCallService,
   );
   const httpServer = createServer(app);
 
@@ -194,6 +207,7 @@ async function main() {
     labelerService,
     botService,
     notificationService,
+    groupCallService,
   );
   log.info('WebSocket server attached');
 
@@ -219,6 +233,7 @@ async function main() {
     pruneCallAttempts();
     pruneSlowModeTracker();
     botService?.cleanup();
+    groupCallService?.pruneStale();
     // Room messages are ATProto records owned by users — never prune server-side.
     // DM pruning is handled by dmService.pruneExpired() above.
   }, 60_000);

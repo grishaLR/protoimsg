@@ -9,6 +9,7 @@
   },
   "visibility": {
     "everyone": "모두",
+    "meet": "Meet",
     "community": "커뮤니티",
     "innerCircle": "친한 친구",
     "noOne": "아무도 안 봄"
@@ -28,6 +29,7 @@
     "wireframe": "Wireframe"
   },
   "nav": {
+    "meet": "Meet",
     "community": "커뮤니티",
     "rooms": "채팅방",
     "feed": "피드",

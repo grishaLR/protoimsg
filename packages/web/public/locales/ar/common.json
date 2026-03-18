@@ -9,6 +9,7 @@
   },
   "visibility": {
     "everyone": "الجميع",
+    "meet": "Meet",
     "community": "المجتمع",
     "innerCircle": "الدائرة الداخلية",
     "noOne": "لا أحد"
@@ -28,6 +29,7 @@
     "wireframe": "إطار سلكي"
   },
   "nav": {
+    "meet": "Meet",
     "community": "المجتمع",
     "rooms": "الغرف",
     "feed": "الخلاصة",

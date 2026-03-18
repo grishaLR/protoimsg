@@ -33,6 +33,8 @@ import type { GlobalAllowlistService } from './moderation/global-allowlist-servi
 import type { TranslateService } from './translate/service.js';
 import type { EmailService } from './email/service.js';
 import type { Redis } from './redis/client.js';
+import type { GroupCallService } from './calls/service.js';
+import { groupCallRouter } from './calls/router.js';
 import { getMetricsText, getMetricsContentType, observeHttpRequestDuration } from './metrics.js';
 import { checkHealth } from './health.js';
 
@@ -59,6 +61,7 @@ export function createApp(
   firehoseFailover?: () => void,
   emailService?: EmailService | null,
   notificationService?: NotificationService | null,
+  groupCallService?: GroupCallService | null,
 ): Express {
   const app = express();
   // Trust one proxy hop (Fly.io) so req.ip reflects the real client IP
@@ -174,6 +177,16 @@ export function createApp(
       ttlSeconds: config.ICE_CREDENTIAL_TTL_SECS,
     }),
   );
+
+  // Group call routes (optional — only mounted when LiveKit is configured)
+  if (groupCallService) {
+    app.use(
+      '/api/calls',
+      requireAuth,
+      createRateLimitMiddleware(rateLimiter),
+      groupCallRouter(groupCallService),
+    );
+  }
 
   // Device token registration for push notifications
   if (notificationService) {

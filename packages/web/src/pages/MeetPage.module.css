@@ -1,0 +1,80 @@
+.page {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.center {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--cm-space-8, 16px);
+  padding: var(--cm-space-12, 24px);
+  text-align: center;
+}
+
+.title {
+  font-size: 2rem;
+  font-weight: 400;
+  color: var(--color-base-content, #a6adba);
+  line-height: 1.2;
+}
+
+.subtitle {
+  font-size: 1rem;
+  color: var(--color-base-content, #a6adba);
+  opacity: 0.7;
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: var(--cm-space-6, 12px);
+  margin-top: var(--cm-space-8, 16px);
+}
+
+.joinGroup {
+  display: flex;
+  align-items: center;
+  gap: var(--cm-space-4, 8px);
+}
+
+.codeInput {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.codeIcon {
+  position: absolute;
+  left: 12px;
+  color: var(--color-base-content, #a6adba);
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+.codeInput input {
+  padding-left: 40px;
+  width: 260px;
+}
+
+@media (max-width: 640px) {
+  .actions {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .joinGroup {
+    width: 100%;
+  }
+
+  .codeInput {
+    flex: 1;
+  }
+
+  .codeInput input {
+    width: 100%;
+  }
+}

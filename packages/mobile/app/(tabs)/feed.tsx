@@ -19,11 +19,9 @@ import { useFeed } from '@/hooks/useFeed';
 import { useSavedFeeds } from '@/hooks/useSavedFeeds';
 import { FeedPost } from '@/components/FeedPost';
 import { Avatar } from '@/components/Avatar';
-import { ActorSearchInput } from '@/components/ActorSearchInput';
 import { useAuth } from '@/services/auth';
 import { useProfile } from '@/services/ProfileContext';
 import { ActiveVideoProvider, useActiveVideo } from '@/services/ActiveVideoContext';
-import type { ActorSearchResult } from '@/lib/search-actors';
 import { useTheme } from '@/theme';
 import { spacing, fontSize } from '@/theme/tokens';
 
@@ -46,13 +44,6 @@ function FeedScreenInner() {
   const [activeFeedUri, setActiveFeedUri] = useState<string | undefined>(undefined);
   const { posts, loading, loadingMore, error, loadMore, refresh, refreshing } =
     useFeed(activeFeedUri);
-
-  const handleSearchSelect = useCallback(
-    (actor: ActorSearchResult) => {
-      router.push(`/profile/${encodeURIComponent(actor.did)}` as never);
-    },
-    [router],
-  );
 
   const handleFeedSelect = useCallback((uri: string | undefined) => {
     setActiveFeedUri(uri);
@@ -97,38 +88,12 @@ function FeedScreenInner() {
     [],
   );
 
-  if (loading && posts.length === 0) {
-    return (
-      <SafeAreaView style={[styles.container, { backgroundColor: colors.surface }]}>
-        <View style={styles.center}>
-          <ActivityIndicator size="large" color={colors.primary} />
-        </View>
-      </SafeAreaView>
-    );
-  }
-
-  if (error && posts.length === 0) {
-    return (
-      <SafeAreaView style={[styles.container, { backgroundColor: colors.surface }]}>
-        <View style={styles.center}>
-          <Text style={[styles.errorText, { color: colors.error }]}>{error}</Text>
-        </View>
-      </SafeAreaView>
-    );
-  }
+  const showInlineLoading = loading && posts.length === 0;
+  const showInlineError = !loading && !!error && posts.length === 0;
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.surface }]}>
-      {/* Search bar */}
-      <View style={[styles.searchBar, { borderBottomColor: colors.base200 }]}>
-        <ActorSearchInput
-          onSelect={handleSearchSelect}
-          placeholder={t('feedView.searchPlaceholder', { defaultValue: 'Search people...' })}
-          style={styles.searchInput}
-        />
-      </View>
-
-      {/* Feed tabs */}
+      {/* Feed tabs — top position for visibility */}
       {feeds.length > 1 ? (
         <ScrollView
           horizontal
@@ -178,38 +143,49 @@ function FeedScreenInner() {
       </Pressable>
 
       {/* Feed list */}
-      <FlatList
-        data={posts}
-        renderItem={renderItem}
-        keyExtractor={keyExtractor}
-        onEndReached={loadMore}
-        onEndReachedThreshold={0.5}
-        viewabilityConfigCallbackPairs={viewabilityConfigRef.current}
-        refreshControl={
-          <RefreshControl
-            refreshing={refreshing}
-            onRefresh={() => void refresh()}
-            tintColor={colors.primary}
-            colors={[colors.primary]}
-          />
-        }
-        ListFooterComponent={
-          loadingMore ? (
-            <View style={styles.footer}>
-              <ActivityIndicator size="small" color={colors.primary} />
+      {showInlineLoading ? (
+        <View style={styles.center}>
+          <ActivityIndicator size="large" color={colors.primary} />
+        </View>
+      ) : showInlineError ? (
+        <View style={styles.center}>
+          <Text style={[styles.errorText, { color: colors.error }]}>{error}</Text>
+        </View>
+      ) : null}
+      {!showInlineLoading && !showInlineError ? (
+        <FlatList
+          data={posts}
+          renderItem={renderItem}
+          keyExtractor={keyExtractor}
+          onEndReached={loadMore}
+          onEndReachedThreshold={0.5}
+          viewabilityConfigCallbackPairs={viewabilityConfigRef.current}
+          refreshControl={
+            <RefreshControl
+              refreshing={refreshing}
+              onRefresh={() => void refresh()}
+              tintColor={colors.primary}
+              colors={[colors.primary]}
+            />
+          }
+          ListFooterComponent={
+            loadingMore ? (
+              <View style={styles.footer}>
+                <ActivityIndicator size="small" color={colors.primary} />
+              </View>
+            ) : null
+          }
+          ListEmptyComponent={
+            <View style={styles.center}>
+              <Text style={[styles.emptyText, { color: colors.chromeTextMuted }]}>
+                {t('feedView.empty', {
+                  defaultValue: 'No posts yet. Follow people to see their posts here.',
+                })}
+              </Text>
             </View>
-          ) : null
-        }
-        ListEmptyComponent={
-          <View style={styles.center}>
-            <Text style={[styles.emptyText, { color: colors.chromeTextMuted }]}>
-              {t('feedView.empty', {
-                defaultValue: 'No posts yet. Follow people to see their posts here.',
-              })}
-            </Text>
-          </View>
-        }
-      />
+          }
+        />
+      ) : null}
     </SafeAreaView>
   );
 }
@@ -232,33 +208,25 @@ const styles = StyleSheet.create({
     fontSize: fontSize.base,
     textAlign: 'center',
   },
-  searchBar: {
-    paddingHorizontal: spacing[4],
-    paddingVertical: spacing[3],
-    borderBottomWidth: 1,
-    zIndex: 10,
-  },
-  searchInput: {
-    zIndex: 10,
-  },
   feedTabBar: {
     borderBottomWidth: 1,
     flexGrow: 0,
   },
   feedTabBarContent: {
     paddingHorizontal: spacing[4],
+    gap: spacing[2],
   },
   feedTab: {
-    paddingHorizontal: spacing[4],
-    paddingVertical: spacing[3],
-    borderBottomWidth: 2,
+    paddingHorizontal: spacing[5],
+    paddingVertical: spacing[4],
+    borderBottomWidth: 3,
     borderBottomColor: 'transparent',
   },
   feedTabActive: {
-    borderBottomWidth: 2,
+    borderBottomWidth: 3,
   },
   feedTabText: {
-    fontSize: fontSize.sm,
+    fontSize: fontSize.base,
     fontWeight: '500',
   },
   feedTabTextActive: {

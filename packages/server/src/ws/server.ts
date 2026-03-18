@@ -20,6 +20,7 @@ import type { GlobalAllowlistService } from '../moderation/global-allowlist-serv
 import type { LabelerService } from '../moderation/labeler-service.js';
 import type { BotService } from '../bot/service.js';
 import type { NotificationService } from '../notifications/service.js';
+import type { GroupCallService } from '../calls/service.js';
 import { ERROR_CODES } from '@protoimsg/shared';
 
 import { createLogger } from '../logger.js';
@@ -119,6 +120,7 @@ export function createWsServer(
   labelerService: LabelerService,
   botService: BotService | null,
   notificationService?: NotificationService | null,
+  groupCallService?: GroupCallService | null,
 ): WsServer {
   const connectionTracker = new WsConnectionTracker();
 
@@ -324,6 +326,7 @@ export function createWsServer(
             callSubs,
             botService,
             notificationService,
+            groupCallService,
           );
           observeWsHandlerDuration(data.type, (performance.now() - start) / 1000);
         })
@@ -359,8 +362,27 @@ export function createWsServer(
         }
         callSubs.unsubscribeAll(ws);
 
-        // Only tear down presence if this was the user's last connection
+        // Remove from group calls when this is the user's last connection
         const remaining = userSockets.get(did);
+        if (remaining.size === 0 && groupCallService) {
+          const leftCalls = groupCallService.removeFromAllCalls(did);
+          for (const { call, callId, roomId } of leftCalls) {
+            if (!roomId) continue; // Standalone meeting — no room to broadcast to
+            if (call === null) {
+              roomSubs.broadcast(roomId, {
+                type: 'group_call_ended',
+                data: { callId, roomId },
+              });
+            } else {
+              roomSubs.broadcast(roomId, {
+                type: 'group_call_participant_left',
+                data: { callId, roomId, participantCount: call.participants.size },
+              });
+            }
+          }
+        }
+
+        // Only tear down presence if this was the user's last connection
         if (remaining.size === 0) {
           const closeDid = did;
           const cleanup = (async () => {
