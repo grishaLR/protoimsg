@@ -423,14 +423,17 @@ function GroupCallInner({ onLeave, meetCode }: { onLeave: () => void; meetCode: 
 
   const [showShareMenu, setShowShareMenu] = useState(false);
 
-  // Close share menu when clicking anywhere else
+  // Close share menu when clicking anywhere else (setTimeout avoids catching the opening click)
   useEffect(() => {
     if (!showShareMenu) return;
     const close = () => {
       setShowShareMenu(false);
     };
-    document.addEventListener('click', close);
+    const timer = setTimeout(() => {
+      document.addEventListener('click', close);
+    }, 0);
     return () => {
+      clearTimeout(timer);
       document.removeEventListener('click', close);
     };
   }, [showShareMenu]);
@@ -738,7 +741,7 @@ function GroupCallInner({ onLeave, meetCode }: { onLeave: () => void; meetCode: 
       </div>
 
       {/* Video + Chat row */}
-      <div style={{ display: 'flex', flex: 1, minHeight: 0, overflow: 'hidden' }}>
+      <div style={{ display: 'flex', flex: 1, minHeight: 200, overflow: 'hidden' }}>
         {/* Video area */}
         <div
           className={styles.videosContainer}

@@ -86,9 +86,6 @@ export function GroupCallProvider({ children }: { children: ReactNode }) {
             }
           }
 
-          if (meetCode) {
-            console.info(`[protoimsg] Meeting created — code: ${meetCode}`);
-          }
           setActiveGroupCall({
             callId,
             roomId,
