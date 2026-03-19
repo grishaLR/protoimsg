@@ -207,8 +207,7 @@ function GroupCallInner() {
   const handleLeave = useCallback(() => {
     void room.disconnect();
     leaveGroupCall();
-    if (router.canDismiss()) router.dismiss();
-    else router.replace('/(tabs)/buddy-list');
+    // Navigation handled by auto-dismiss useEffect in GroupCallScreen
   }, [room, leaveGroupCall]);
 
   const copyMeetCode = useCallback(() => {

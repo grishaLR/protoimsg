@@ -16,6 +16,9 @@ import {
   MessageSquare,
   Send,
   Smile,
+  Share2,
+  Mail,
+  ExternalLink,
 } from 'lucide-react';
 import '@livekit/components-styles';
 import {
@@ -418,14 +421,46 @@ function GroupCallInner({ onLeave, meetCode }: { onLeave: () => void; meetCode: 
     onLeave();
   }, [room, onLeave]);
 
+  const [showShareMenu, setShowShareMenu] = useState(false);
+
+  // Close share menu when clicking anywhere else
+  useEffect(() => {
+    if (!showShareMenu) return;
+    const close = () => {
+      setShowShareMenu(false);
+    };
+    document.addEventListener('click', close);
+    return () => {
+      document.removeEventListener('click', close);
+    };
+  }, [showShareMenu]);
+
+  const meetUrl = meetCode ? `${window.location.origin}/meet/${meetCode}` : '';
+  const shareText = meetCode ? `Join my protoimsg video call: ${meetUrl}` : '';
+
   const copyMeetCode = useCallback(() => {
-    if (!meetCode) return;
-    void navigator.clipboard.writeText(meetCode);
+    if (!meetUrl) return;
+    void navigator.clipboard.writeText(meetUrl);
     setCodeCopied(true);
+    setShowShareMenu(false);
     setTimeout(() => {
       setCodeCopied(false);
     }, 2000);
-  }, [meetCode]);
+  }, [meetUrl]);
+
+  const shareViaEmail = useCallback(() => {
+    if (!shareText) return;
+    window.open(
+      `mailto:?subject=${encodeURIComponent('Join my video call')}&body=${encodeURIComponent(shareText)}`,
+    );
+    setShowShareMenu(false);
+  }, [shareText]);
+
+  const shareViaBluesky = useCallback(() => {
+    if (!shareText) return;
+    window.open(`https://bsky.app/intent/compose?text=${encodeURIComponent(shareText)}`, '_blank');
+    setShowShareMenu(false);
+  }, [shareText]);
 
   const sendChat = useCallback(() => {
     const text = chatInput.trim();
@@ -585,28 +620,109 @@ function GroupCallInner({ onLeave, meetCode }: { onLeave: () => void; meetCode: 
           {t('videoCall.groupCall', { defaultValue: 'Group Call' })} ({participants.length})
         </span>
         {meetCode && (
-          <button
-            onClick={copyMeetCode}
+          <div
+            style={{ position: 'relative' }}
             onPointerDown={(e) => {
               e.stopPropagation();
             }}
-            title={codeCopied ? 'Copied!' : 'Click to copy'}
-            style={{
-              background: 'none',
-              border: 'none',
-              color: 'inherit',
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              gap: 4,
-              fontSize: 'var(--cm-text-sm)',
-              opacity: 0.8,
-              padding: '0 4px',
-            }}
           >
-            <span style={{ fontFamily: 'monospace' }}>{meetCode}</span>
-            {codeCopied ? <Check size={12} /> : <Copy size={12} />}
-          </button>
+            <button
+              onClick={() => {
+                setShowShareMenu((v) => !v);
+              }}
+              title={codeCopied ? 'Copied!' : 'Share meeting'}
+              style={{
+                background: 'none',
+                border: 'none',
+                color: 'inherit',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: 4,
+                fontSize: 'var(--cm-text-sm)',
+                opacity: 0.8,
+                padding: '0 4px',
+              }}
+            >
+              <span style={{ fontFamily: 'monospace' }}>{meetCode}</span>
+              {codeCopied ? <Check size={12} /> : <Share2 size={12} />}
+            </button>
+            {showShareMenu && (
+              <div
+                style={{
+                  position: 'absolute',
+                  top: '100%',
+                  right: 0,
+                  marginTop: 4,
+                  background: 'var(--cm-titlebar)',
+                  border: '1px solid var(--cm-chrome-hover)',
+                  borderRadius: 8,
+                  padding: 4,
+                  minWidth: 180,
+                  zIndex: 20,
+                  boxShadow: '0 4px 12px rgba(0,0,0,0.3)',
+                }}
+              >
+                <button
+                  onClick={copyMeetCode}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 8,
+                    width: '100%',
+                    padding: '6px 10px',
+                    background: 'none',
+                    border: 'none',
+                    color: 'var(--cm-chrome-text)',
+                    cursor: 'pointer',
+                    borderRadius: 4,
+                    fontSize: 'var(--cm-text-sm)',
+                    textAlign: 'left',
+                  }}
+                >
+                  <Copy size={14} /> Copy link
+                </button>
+                <button
+                  onClick={shareViaEmail}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 8,
+                    width: '100%',
+                    padding: '6px 10px',
+                    background: 'none',
+                    border: 'none',
+                    color: 'var(--cm-chrome-text)',
+                    cursor: 'pointer',
+                    borderRadius: 4,
+                    fontSize: 'var(--cm-text-sm)',
+                    textAlign: 'left',
+                  }}
+                >
+                  <Mail size={14} /> Share via email
+                </button>
+                <button
+                  onClick={shareViaBluesky}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 8,
+                    width: '100%',
+                    padding: '6px 10px',
+                    background: 'none',
+                    border: 'none',
+                    color: 'var(--cm-chrome-text)',
+                    cursor: 'pointer',
+                    borderRadius: 4,
+                    fontSize: 'var(--cm-text-sm)',
+                    textAlign: 'left',
+                  }}
+                >
+                  <ExternalLink size={14} /> Share via Bluesky
+                </button>
+              </div>
+            )}
+          </div>
         )}
         <button
           className={styles.headerHangUp}
