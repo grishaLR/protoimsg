@@ -123,7 +123,7 @@ export function LoginForm() {
           autoFocus
         />
         <ScopePickerPanel selectedGroups={optionalGroups} onToggle={toggleScopeGroup} />
-        {turnstile.enabled && <div ref={turnstile.containerRef} />}
+        {turnstile.enabled && <div ref={turnstile.containerRef} className={styles.captcha} />}
         {error && <p className={styles.error}>{error}</p>}
         <button
           className={styles.button}
