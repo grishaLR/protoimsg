@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { OptionalScopeGroup } from '@protoimsg/shared';
+import { FEED_ENABLED } from '../../lib/config';
 import styles from './ScopePickerPanel.module.css';
 
 interface ScopePickerPanelProps {
@@ -40,7 +41,7 @@ export function ScopePickerPanel({ selectedGroups, onToggle }: ScopePickerPanelP
       </button>
       {open && (
         <div className={styles.options}>
-          {OPTIONAL_GROUPS.map((group) => {
+          {OPTIONAL_GROUPS.filter((g) => g.key !== 'feed' || FEED_ENABLED).map((group) => {
             const isChecked = selectedGroups.includes(group.key);
             return (
               <label key={group.key} className={styles.optionLabel}>
