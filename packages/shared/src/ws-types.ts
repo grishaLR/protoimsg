@@ -165,6 +165,36 @@ export interface BotRoomCommandMessage extends WsMessageBase {
   channelId: string;
 }
 
+// Group call Client → Server messages
+
+export interface GroupCallCreateMessage extends WsMessageBase {
+  type: 'group_call_create';
+  roomId: string;
+}
+
+export interface GroupCallCreateStandaloneMessage extends WsMessageBase {
+  type: 'group_call_create_standalone';
+  /** Who can join: 'anyone' (default), 'community' (buddy list), 'inner-circle', or 'allowlist'. */
+  access?: 'anyone' | 'community' | 'inner-circle' | 'allowlist';
+  /** Specific DIDs allowed to join (only used when access='allowlist'). */
+  allowedDids?: string[];
+}
+
+export interface GroupCallJoinByCodeMessage extends WsMessageBase {
+  type: 'group_call_join_by_code';
+  meetCode: string;
+}
+
+export interface GroupCallJoinMessage extends WsMessageBase {
+  type: 'group_call_join';
+  callId: string;
+}
+
+export interface GroupCallLeaveMessage extends WsMessageBase {
+  type: 'group_call_leave';
+  callId: string;
+}
+
 export type ClientMessage =
   | AuthMessage
   | JoinRoomMessage
@@ -190,7 +220,12 @@ export type ClientMessage =
   | BotDmOpenMessage
   | BotDmSendMessage
   | BotDmCloseMessage
-  | BotRoomCommandMessage;
+  | BotRoomCommandMessage
+  | GroupCallCreateMessage
+  | GroupCallCreateStandaloneMessage
+  | GroupCallJoinMessage
+  | GroupCallJoinByCodeMessage
+  | GroupCallLeaveMessage;
 
 // Server → Client messages
 
@@ -468,6 +503,62 @@ export interface SystemMessageEvent extends WsMessageBase {
   };
 }
 
+// Group call Server → Client events
+
+export interface GroupCallStartedEvent extends WsMessageBase {
+  type: 'group_call_started';
+  data: {
+    callId: string;
+    roomId: string;
+    participantCount: number;
+  };
+}
+
+export interface GroupCallEndedEvent extends WsMessageBase {
+  type: 'group_call_ended';
+  data: {
+    callId: string;
+    roomId: string;
+  };
+}
+
+export interface GroupCallTokenEvent extends WsMessageBase {
+  type: 'group_call_token';
+  data: {
+    callId: string;
+    token: string;
+    url: string;
+    /** Short shareable code for standalone meetings, null for room-attached calls. */
+    meetCode: string | null;
+  };
+}
+
+export interface GroupCallParticipantJoinedEvent extends WsMessageBase {
+  type: 'group_call_participant_joined';
+  data: {
+    callId: string;
+    roomId: string;
+    participantCount: number;
+  };
+}
+
+export interface GroupCallParticipantLeftEvent extends WsMessageBase {
+  type: 'group_call_participant_left';
+  data: {
+    callId: string;
+    roomId: string;
+    participantCount: number;
+  };
+}
+
+export interface GroupCallErrorEvent extends WsMessageBase {
+  type: 'group_call_error';
+  data: {
+    message: string;
+    errorCode?: string;
+  };
+}
+
 export type ServerMessage =
   | AuthSuccessEvent
   | NewMessageEvent
@@ -496,4 +587,10 @@ export type ServerMessage =
   | RoomBanEvent
   | RoomRoleUpdateEvent
   | BotDmResponseEvent
-  | SystemMessageEvent;
+  | SystemMessageEvent
+  | GroupCallStartedEvent
+  | GroupCallEndedEvent
+  | GroupCallTokenEvent
+  | GroupCallParticipantJoinedEvent
+  | GroupCallParticipantLeftEvent
+  | GroupCallErrorEvent;

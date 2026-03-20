@@ -9,6 +9,7 @@
   },
   "visibility": {
     "everyone": "Все",
+    "meet": "Meet",
     "community": "Сообщество",
     "innerCircle": "Ближний круг",
     "noOne": "Никто"
@@ -28,6 +29,7 @@
     "wireframe": "Каркас"
   },
   "nav": {
+    "meet": "Meet",
     "community": "Сообщество",
     "rooms": "Комнаты",
     "feed": "Лента",

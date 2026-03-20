@@ -34,7 +34,12 @@
     "buddyOfflineCount_one": "{{count}} buddy offline",
     "buddyOfflineCount_other": "{{count}} buddies offline",
     "onlineCount": "{{online}} of {{total}} online",
-    "removeBuddyConfirm": "Are you sure you want to remove this buddy?"
+    "removeBuddyConfirm": "Are you sure you want to remove this buddy?",
+    "germ": {
+      "checkFailed": "Ba a iya duba matsayin Germ na wannan mai amfani ba.",
+      "notEnabled": "Wannan mai amfani bai kunna Germ ba (aikace-aikacen saƙo mai ɓoyayyiyar bayani na ɓangare na uku).",
+      "openFailed": "Ba a iya buɗe Germ ba."
+    }
   },
   "buddyMenu": {
     "button": {
@@ -48,7 +53,7 @@
     "block": "Toshe",
     "unblock": "Cire toshe",
     "remove": "Cire",
-    "messageOnGerm": "Aika saƙo a Germ",
+    "messageOnGerm": "Buɗe a Germ ↗",
     "addToCommunity": "Ƙara zuwa al'umma",
     "sendImDisabled": "Mai amfani ba a kan layi ba",
     "videoCall": "Kiran bidiyo",
@@ -315,5 +320,12 @@
     "saved": "Settings saved",
     "cancel": "Cancel",
     "error": "Failed to save settings"
+  },
+  "userPopoverCard": {
+    "viewProfile": "Duba bayanan martaba",
+    "addToBuddyList": "Ƙara zuwa jerin abokai",
+    "added": "An ƙara!",
+    "alreadyInList": "Yana cikin jerin abokai",
+    "error": "Kuskure"
   }
 }

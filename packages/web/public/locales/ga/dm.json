@@ -24,7 +24,7 @@
     "unreadOverflow": "99+",
     "connecting": "Ag ceangal…",
     "connectionFailed": "Theip ar an gceangal",
-    "peerClosed": "Dúnadh an comhrá. Úsáid Germ le haghaidh teachtaireachtaí as líne.",
+    "peerClosed": "Dúnadh an comhrá. Bain triail as Germ (tríú páirtí) le haghaidh teachtaireachtaí criptithe as líne.",
     "minimize": {
       "titleExpand": "Leathnaigh",
       "titleMinimize": "Íoslaghdaígh",

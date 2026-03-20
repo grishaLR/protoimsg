@@ -1,5 +1,6 @@
 import { Tabs, Redirect } from 'expo-router';
 import { useTranslation } from 'react-i18next';
+import { Users, Newspaper, Search, MessageSquare, Settings, Video } from 'lucide-react-native';
 import { useAuth } from '@/services/auth';
 import { useDm } from '@/services/DmContext';
 import { useTheme, useAimStyle } from '@/theme';
@@ -55,26 +56,47 @@ export default function TabLayout() {
       }}
     >
       <Tabs.Screen
+        name="meet"
+        options={{
+          title: t('nav.meet', { defaultValue: 'Meet' }),
+          tabBarIcon: ({ color, size }) => <Video size={size} color={color} />,
+        }}
+      />
+      <Tabs.Screen
         name="buddy-list"
         options={{
           title: t('nav.buddies'),
-          tabBarIcon: (_props) => null, // TODO: icon
+          tabBarIcon: ({ color, size }) => <Users size={size} color={color} />,
           tabBarBadge: badgeCount > 0 ? badgeCount : undefined,
           tabBarBadgeStyle: badgeCount > 0 ? { backgroundColor: colors.error } : undefined,
+        }}
+      />
+      <Tabs.Screen
+        name="feed"
+        options={{
+          title: t('nav.feed', { defaultValue: 'Feed' }),
+          tabBarIcon: ({ color, size }) => <Newspaper size={size} color={color} />,
+        }}
+      />
+      <Tabs.Screen
+        name="search"
+        options={{
+          title: 'Search',
+          tabBarIcon: ({ color, size }) => <Search size={size} color={color} />,
         }}
       />
       <Tabs.Screen
         name="chat"
         options={{
           title: t('nav.chat'),
-          tabBarIcon: (_props) => null, // TODO: icon
+          tabBarIcon: ({ color, size }) => <MessageSquare size={size} color={color} />,
         }}
       />
       <Tabs.Screen
         name="profile"
         options={{
-          title: t('nav.profile'),
-          tabBarIcon: (_props) => null, // TODO: icon
+          title: t('nav.settings', { defaultValue: 'Settings' }),
+          tabBarIcon: ({ color, size }) => <Settings size={size} color={color} />,
         }}
       />
     </Tabs>

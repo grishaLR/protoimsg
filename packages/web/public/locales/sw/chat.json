@@ -34,7 +34,12 @@
     "buddyOfflineCount_one": "{{count}} buddy offline",
     "buddyOfflineCount_other": "{{count}} buddies offline",
     "onlineCount": "{{online}} of {{total}} online",
-    "removeBuddyConfirm": "Are you sure you want to remove this buddy?"
+    "removeBuddyConfirm": "Are you sure you want to remove this buddy?",
+    "germ": {
+      "checkFailed": "Haikuwezekana kuangalia hali ya Germ ya mtumiaji huyu.",
+      "notEnabled": "Mtumiaji huyu hajawasha Germ (programu ya ujumbe iliyosimbwa kwa tatu).",
+      "openFailed": "Imeshindwa kufungua Germ."
+    }
   },
   "buddyMenu": {
     "button": {
@@ -48,7 +53,7 @@
     "block": "Zuia",
     "unblock": "Ondoa kuzuia",
     "remove": "Ondoa",
-    "messageOnGerm": "Tuma ujumbe kwenye Germ",
+    "messageOnGerm": "Fungua katika Germ ↗",
     "addToCommunity": "Ongeza kwenye jumuiya",
     "sendImDisabled": "Mtumiaji hayuko mtandaoni",
     "videoCall": "Simu ya video",
@@ -315,5 +320,12 @@
     "saved": "Settings saved",
     "cancel": "Cancel",
     "error": "Failed to save settings"
+  },
+  "userPopoverCard": {
+    "viewProfile": "Tazama wasifu",
+    "addToBuddyList": "Ongeza kwenye orodha ya marafiki",
+    "added": "Imeongezwa!",
+    "alreadyInList": "Tayari iko kwenye orodha",
+    "error": "Hitilafu"
   }
 }

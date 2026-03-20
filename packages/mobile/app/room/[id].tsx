@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
+  ActionSheetIOS,
   Alert,
   View,
   Text,
@@ -21,9 +22,14 @@ import { useMessages } from '@/hooks/useMessages';
 import { usePolls } from '@/hooks/usePolls';
 import { useAuth } from '@/services/auth';
 import { useWebSocket } from '@/services/WebSocketContext';
+import { useVideoCall } from '@/services/VideoCallContext';
+import { isWebRTCAvailable } from '@/services/datachannel';
 import { useProfile } from '@/services/ProfileContext';
+import { useBlockSync } from '@/hooks/useBlockSync';
 import { addToBuddyList } from '@/services/atproto';
 import { lightTap } from '@/services/haptics';
+import { MoreHorizontal, Phone } from 'lucide-react-native';
+import { useGroupCall } from '@/services/GroupCallContext';
 import { Avatar } from '@/components/Avatar';
 import { RichText } from '@/components/RichText';
 import { EmbedRenderer, isGifEmbed } from '@/components/EmbedRenderer';
@@ -49,6 +55,7 @@ const MessageRow = React.memo(function MessageRow({
   replyCount,
   onLongPress,
   onReplyCountPress,
+  onHandlePress,
 }: {
   message: MessageView;
   isSelf: boolean;
@@ -59,6 +66,7 @@ const MessageRow = React.memo(function MessageRow({
   replyCount: number;
   onLongPress: (message: MessageView) => void;
   onReplyCountPress: (message: MessageView) => void;
+  onHandlePress: (message: MessageView) => void;
 }) {
   const profile = useProfile(message.did);
   const handle =
@@ -104,9 +112,15 @@ const MessageRow = React.memo(function MessageRow({
           ]}
         >
           {!isSelf ? (
-            <Text style={[styles.messageHandle, { color: colors.secondary }]} numberOfLines={1}>
-              {profile?.handle ? `@${profile.handle}` : handle}
-            </Text>
+            <Pressable
+              onPress={() => {
+                onHandlePress(message);
+              }}
+            >
+              <Text style={[styles.messageHandle, { color: colors.secondary }]} numberOfLines={1}>
+                {profile?.handle ? `@${profile.handle}` : handle}
+              </Text>
+            </Pressable>
           ) : null}
           {/* Text — hidden for GIF embeds (text is fallback URL) */}
           {!isGif ? (
@@ -263,7 +277,15 @@ function TypingIndicator({ users, colors }: { users: string[]; colors: ThemeColo
 
 // -- Member list bottom sheet --
 
-function MemberRow({ member, colors }: { member: MemberPresence; colors: ThemeColors }) {
+function MemberRow({
+  member,
+  colors,
+  onMenu,
+}: {
+  member: MemberPresence;
+  colors: ThemeColors;
+  onMenu?: (member: MemberPresence) => void;
+}) {
   const profile = useProfile(member.did);
   const handle =
     profile?.displayName ??
@@ -292,6 +314,19 @@ function MemberRow({ member, colors }: { member: MemberPresence; colors: ThemeCo
         ) : null}
       </View>
       <View style={[styles.memberStatusDot, { backgroundColor: statusColor }]} />
+      {onMenu ? (
+        <Pressable
+          style={styles.memberMenuButton}
+          onPress={() => {
+            onMenu(member);
+          }}
+          accessibilityRole="button"
+          accessibilityLabel="Actions"
+          hitSlop={8}
+        >
+          <MoreHorizontal size={18} color={colors.chromeTextMuted} />
+        </Pressable>
+      ) : null}
     </View>
   );
 }
@@ -308,6 +343,10 @@ export default function RoomScreen() {
   const { isAim } = useAimStyle();
   const { did, agent } = useAuth();
   const { send } = useWebSocket();
+  const { videoCall } = useVideoCall();
+  const { roomCalls, activeGroupCall, startGroupCall, joinGroupCall } = useGroupCall();
+  const { blockedDids, resync: resyncBlocks } = useBlockSync();
+  const webrtcReady = isWebRTCAvailable();
   const {
     autoTranslate,
     available: translateAvailable,
@@ -369,18 +408,47 @@ export default function RoomScreen() {
     requestBatchTranslation(newMessages.map((m) => m.text));
   }, [autoTranslate, messages.length, requestBatchTranslation]);
 
+  // Group call from room
+  const [groupCallPending, setGroupCallPending] = useState(false);
+
+  useEffect(() => {
+    if (groupCallPending && activeGroupCall) {
+      setGroupCallPending(false);
+      router.push('/group-call');
+    }
+  }, [groupCallPending, activeGroupCall, router]);
+
+  const handleGroupCall = useCallback(() => {
+    const roomCall = roomCalls.get(id);
+    if (roomCall) {
+      joinGroupCall(roomCall.callId);
+    } else {
+      startGroupCall(id);
+    }
+    setGroupCallPending(true);
+  }, [id, roomCalls, startGroupCall, joinGroupCall]);
+
   // Set header title
   useEffect(() => {
     if (room) {
+      const roomCall = roomCalls.get(id);
+      const isInCall = activeGroupCall?.roomId === id;
       navigation.setOptions({
         headerShown: !isAim,
         title: room.name,
         headerStyle: { backgroundColor: colors.base200 },
         headerTintColor: colors.baseContent,
         headerTitleStyle: { color: colors.baseContent, fontWeight: '600' as const },
+        headerRight: isInCall
+          ? undefined
+          : () => (
+              <Pressable onPress={handleGroupCall} style={{ paddingHorizontal: 12 }}>
+                <Phone size={18} color={roomCall ? '#22c55e' : colors.baseContent} />
+              </Pressable>
+            ),
       });
     }
-  }, [room, navigation, colors, isAim]);
+  }, [room, navigation, colors, isAim, roomCalls, id, activeGroupCall, handleGroupCall]);
 
   // Slow mode countdown
   useEffect(() => {
@@ -443,6 +511,202 @@ export default function RoomScreen() {
     setSelectedMessage(message);
     setShowReport(true);
   }, []);
+
+  const handleMemberMenu = useCallback(
+    (member: MemberPresence) => {
+      if (member.did === did) return;
+
+      const isOffline = member.status === 'offline';
+      const isBlocked = blockedDids.has(member.did);
+
+      const dmLabel = t('chat:buddyMenu.openDm');
+      const callLabel = t('chat:buddyMenu.call');
+      const addBuddyLabel = t('chat:messageItem.addBuddy');
+      const blockLabel = isBlocked
+        ? t('chat:buddyMenu.unblock', { defaultValue: 'Unblock' })
+        : t('chat:buddyMenu.block', { defaultValue: 'Block' });
+      const reportLabel = t('chat:messageItem.reportButton');
+      const cancelLabel = t('common:button.cancel');
+
+      const options = [
+        !isOffline ? dmLabel : null,
+        !isOffline && webrtcReady ? callLabel : null,
+        addBuddyLabel,
+        blockLabel,
+        reportLabel,
+        cancelLabel,
+      ].filter((o): o is string => o !== null);
+
+      const cancelIndex = options.indexOf(cancelLabel);
+      const destructiveIndex = options.indexOf(blockLabel);
+
+      if (Platform.OS === 'ios') {
+        ActionSheetIOS.showActionSheetWithOptions(
+          { options, cancelButtonIndex: cancelIndex, destructiveButtonIndex: destructiveIndex },
+          (index) => {
+            const selected = options[index];
+            if (selected === dmLabel) {
+              router.push(`/dm/${encodeURIComponent(member.did)}`);
+            } else if (selected === callLabel) {
+              videoCall(member.did);
+              router.push(`/call/${encodeURIComponent(member.did)}`);
+            } else if (selected === addBuddyLabel && agent) {
+              void addToBuddyList(agent, send, member.did).then((result) => {
+                Alert.alert(
+                  result === 'added'
+                    ? t('chat:messageItem.addBuddyFeedback.added')
+                    : t('chat:messageItem.addBuddyFeedback.alreadyInList'),
+                );
+              });
+            } else if (selected === blockLabel && agent) {
+              void (async () => {
+                try {
+                  if (isBlocked) {
+                    // Find and delete the block record
+                    const res = await agent.com.atproto.repo.listRecords({
+                      repo: agent.assertDid,
+                      collection: 'app.bsky.graph.block',
+                      limit: 100,
+                    });
+                    const blockRecord = res.data.records.find(
+                      (r) => (r.value as { subject?: string }).subject === member.did,
+                    );
+                    if (blockRecord) {
+                      const rkey = blockRecord.uri.split('/').pop() ?? '';
+                      await agent.com.atproto.repo.deleteRecord({
+                        repo: agent.assertDid,
+                        collection: 'app.bsky.graph.block',
+                        rkey,
+                      });
+                    }
+                  } else {
+                    await agent.com.atproto.repo.createRecord({
+                      repo: agent.assertDid,
+                      collection: 'app.bsky.graph.block',
+                      record: {
+                        $type: 'app.bsky.graph.block',
+                        subject: member.did,
+                        createdAt: new Date().toISOString(),
+                      },
+                    });
+                  }
+                  void resyncBlocks();
+                } catch (err) {
+                  console.error('Failed to toggle block:', err);
+                }
+              })();
+            } else if (selected === reportLabel) {
+              setShowReport(true);
+              // Use member DID as subject URI for report
+              setSelectedMessage({ uri: `at://${member.did}`, did: member.did } as MessageView);
+            }
+          },
+        );
+      } else {
+        Alert.alert('', undefined, [
+          ...(isOffline
+            ? []
+            : [
+                {
+                  text: dmLabel,
+                  onPress: () => {
+                    router.push(`/dm/${encodeURIComponent(member.did)}`);
+                  },
+                },
+              ]),
+          ...(webrtcReady && !isOffline
+            ? [
+                {
+                  text: callLabel,
+                  onPress: () => {
+                    videoCall(member.did);
+                    router.push(`/call/${encodeURIComponent(member.did)}`);
+                  },
+                },
+              ]
+            : []),
+          {
+            text: addBuddyLabel,
+            onPress: () => {
+              if (!agent) return;
+              void addToBuddyList(agent, send, member.did).then((result) => {
+                Alert.alert(
+                  result === 'added'
+                    ? t('chat:messageItem.addBuddyFeedback.added')
+                    : t('chat:messageItem.addBuddyFeedback.alreadyInList'),
+                );
+              });
+            },
+          },
+          {
+            text: blockLabel,
+            style: 'destructive' as const,
+            onPress: () => {
+              // same block toggle logic
+              if (!agent) return;
+              void (async () => {
+                try {
+                  if (isBlocked) {
+                    const res = await agent.com.atproto.repo.listRecords({
+                      repo: agent.assertDid,
+                      collection: 'app.bsky.graph.block',
+                      limit: 100,
+                    });
+                    const blockRecord = res.data.records.find(
+                      (r) => (r.value as { subject?: string }).subject === member.did,
+                    );
+                    if (blockRecord) {
+                      const rkey = blockRecord.uri.split('/').pop() ?? '';
+                      await agent.com.atproto.repo.deleteRecord({
+                        repo: agent.assertDid,
+                        collection: 'app.bsky.graph.block',
+                        rkey,
+                      });
+                    }
+                  } else {
+                    await agent.com.atproto.repo.createRecord({
+                      repo: agent.assertDid,
+                      collection: 'app.bsky.graph.block',
+                      record: {
+                        $type: 'app.bsky.graph.block',
+                        subject: member.did,
+                        createdAt: new Date().toISOString(),
+                      },
+                    });
+                  }
+                  void resyncBlocks();
+                } catch (err) {
+                  console.error('Failed to toggle block:', err);
+                }
+              })();
+            },
+          },
+          {
+            text: reportLabel,
+            onPress: () => {
+              setShowReport(true);
+              setSelectedMessage({ uri: `at://${member.did}`, did: member.did } as MessageView);
+            },
+          },
+          { text: cancelLabel, style: 'cancel' as const },
+        ]);
+      }
+    },
+    [did, agent, send, videoCall, blockedDids, resyncBlocks, webrtcReady, router, t],
+  );
+
+  /** Open member menu when tapping a username in a message */
+  const handleHandlePress = useCallback(
+    (message: MessageView) => {
+      // Find the member presence for this DID, or create a minimal one
+      const member = members.find((m) => m.did === message.did) ?? {
+        did: message.did,
+        status: 'offline' as const,
+      };
+      handleMemberMenu(member);
+    },
+    [members, handleMemberMenu],
+  );
 
   const handleReplyCountPress = useCallback(
     (message: MessageView) => {
@@ -512,6 +776,7 @@ export default function RoomScreen() {
           replyCount={replyCounts[item.uri] ?? 0}
           onLongPress={handleMessageLongPress}
           onReplyCountPress={handleReplyCountPress}
+          onHandlePress={handleHandlePress}
         />
       );
     },
@@ -525,6 +790,7 @@ export default function RoomScreen() {
       castVote,
       handleMessageLongPress,
       handleReplyCountPress,
+      handleHandlePress,
     ],
   );
 
@@ -773,7 +1039,13 @@ export default function RoomScreen() {
         <FlatList
           data={members.filter((m) => m.status !== 'offline')}
           keyExtractor={(m) => m.did}
-          renderItem={({ item }) => <MemberRow member={item} colors={colors} />}
+          renderItem={({ item }) => (
+            <MemberRow
+              member={item}
+              colors={colors}
+              onMenu={item.did !== did ? handleMemberMenu : undefined}
+            />
+          )}
           contentContainerStyle={styles.memberList}
           ListEmptyComponent={
             <View style={styles.center}>
@@ -1032,6 +1304,16 @@ const styles = StyleSheet.create({
     width: 8,
     height: 8,
     borderRadius: 4,
+  },
+  memberMenuButton: {
+    width: 32,
+    height: 32,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  memberMenuText: {
+    fontSize: 20,
+    fontWeight: '700',
   },
   // AIM-specific styles
   aimWindowFrame: {

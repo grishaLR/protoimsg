@@ -18,9 +18,9 @@
     "onlineCount": "{{online}} of {{total}} online",
     "removeBuddyConfirm": "Are you sure you want to remove this buddy?",
     "germ": {
-      "checkFailed": "Could not check GERM status for this user.",
-      "notEnabled": "This user does not have GERM messaging enabled.",
-      "openFailed": "Failed to open GERM messaging."
+      "checkFailed": "Could not check Germ status for this user.",
+      "notEnabled": "This user hasn't enabled Germ (a third-party encrypted messenger).",
+      "openFailed": "Failed to open Germ."
     },
     "accessibility": {
       "messageBuddy": "Message {{name}}, {{status}}",
@@ -61,7 +61,7 @@
     "block": "Block",
     "unblock": "Unblock",
     "remove": "Remove",
-    "messageOnGerm": "Message on Germ",
+    "messageOnGerm": "Open in Germ ↗",
     "addToCommunity": "Add to Community",
     "sendImDisabled": "User is offline",
     "videoCall": "Video Call",
@@ -130,6 +130,14 @@
       "alreadyInList": "Already in buddy list",
       "error": "Error"
     }
+  },
+
+  "userPopoverCard": {
+    "viewProfile": "View Profile",
+    "addToBuddyList": "Add to Buddy List",
+    "added": "Added!",
+    "alreadyInList": "Already in buddy list",
+    "error": "Error"
   },
 
   "messageList": {

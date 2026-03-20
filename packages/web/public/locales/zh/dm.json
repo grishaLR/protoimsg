@@ -25,7 +25,7 @@
     "connecting": "连接中…",
     "connectionFailed": "连接失败",
     "retry": "重试",
-    "peerClosed": "聊天已关闭。使用 Germ 发送离线消息。",
+    "peerClosed": "聊天已关闭。试试 Germ（第三方）进行离线加密消息传送。",
     "closingCountdown": "聊天已结束，{{seconds}}秒后关闭…",
     "minimize": {
       "titleExpand": "展开",

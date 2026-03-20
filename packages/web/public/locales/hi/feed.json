@@ -74,8 +74,8 @@
     "translating": "अनुवाद हो रहा है...",
     "translatedTo": "{{lang}} में अनुवादित",
     "showOriginal": "मूल दिखाएँ",
-    "messageOnGerm": "Germ पर संदेश भेजें",
-    "germDm": "Germ DM"
+    "messageOnGerm": "Germ में खोलें ↗",
+    "germDm": "Germ ↗"
   },
 
   "threadView": {

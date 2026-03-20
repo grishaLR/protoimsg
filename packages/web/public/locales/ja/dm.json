@@ -25,7 +25,7 @@
     "connecting": "接続中…",
     "connectionFailed": "接続に失敗しました",
     "retry": "再試行",
-    "peerClosed": "チャットが閉じられました。オフラインメッセージは Germ をお使いください。",
+    "peerClosed": "チャットが閉じられました。オフラインの暗号化メッセージには Germ（サードパーティ）をお試しください。",
     "closingCountdown": "チャットが終了しました。{{seconds}}秒後に閉じます…",
     "minimize": {
       "titleExpand": "展開",

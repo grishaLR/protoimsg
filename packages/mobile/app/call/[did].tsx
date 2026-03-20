@@ -7,8 +7,10 @@ import { useVideoCall } from '@/services/VideoCallContext';
 import { getWebRTC } from '@/services/datachannel';
 import { useProfile } from '@/services/ProfileContext';
 import { Avatar } from '@/components/Avatar';
+import { MicOff, Mic, VideoOff, Video, SwitchCamera, PhoneOff } from 'lucide-react-native';
 import { useTheme } from '@/theme';
 import { spacing, fontSize, radius } from '@/theme/tokens';
+import { openAppSettings } from '@/services/permissions';
 
 /** Format seconds as MM:SS */
 function formatDuration(secs: number): string {
@@ -133,6 +135,14 @@ export default function CallScreen() {
                   {t('videoCall.retry')}
                 </Text>
               </Pressable>
+              <Pressable
+                style={[styles.settingsButton, { borderColor: colors.primary }]}
+                onPress={openAppSettings}
+              >
+                <Text style={[styles.settingsText, { color: colors.primary }]}>
+                  {t('videoCall.openSettings', { defaultValue: 'Open Settings' })}
+                </Text>
+              </Pressable>
             </View>
           )}
         </View>
@@ -191,20 +201,27 @@ export default function CallScreen() {
         <View style={styles.controlBar}>
           <ControlButton
             label={isMuted ? t('videoCall.unmute') : t('videoCall.mute')}
-            icon={isMuted ? 'M' : 'U'}
+            icon={isMuted ? <MicOff size={22} color="#fff" /> : <Mic size={22} color="#fff" />}
             onPress={toggleMute}
             active={isMuted}
           />
           <ControlButton
             label={isCameraOff ? t('videoCall.cameraOn') : t('videoCall.cameraOff')}
-            icon={isCameraOff ? 'C' : 'V'}
+            icon={
+              isCameraOff ? <VideoOff size={22} color="#fff" /> : <Video size={22} color="#fff" />
+            }
             onPress={toggleCamera}
             active={isCameraOff}
           />
-          <ControlButton label={t('videoCall.flip')} icon="F" onPress={flipCamera} active={false} />
+          <ControlButton
+            label={t('videoCall.flip')}
+            icon={<SwitchCamera size={22} color="#fff" />}
+            onPress={flipCamera}
+            active={false}
+          />
           <ControlButton
             label={t('videoCall.hangUp')}
-            icon="X"
+            icon={<PhoneOff size={22} color="#fff" />}
             onPress={handleHangUp}
             active={false}
             destructive
@@ -223,7 +240,7 @@ function ControlButton({
   destructive,
 }: {
   label: string;
-  icon: string;
+  icon: React.ReactNode;
   onPress: () => void;
   active: boolean;
   destructive?: boolean;
@@ -236,7 +253,7 @@ function ControlButton({
       accessibilityRole="button"
       accessibilityLabel={label}
     >
-      <Text style={styles.controlIcon}>{icon}</Text>
+      {icon}
       <Text style={styles.controlLabel}>{label}</Text>
     </Pressable>
   );
@@ -280,6 +297,17 @@ const styles = StyleSheet.create({
     marginTop: spacing[2],
   },
   retryText: {
+    fontSize: fontSize.md,
+    fontWeight: '600',
+  },
+  settingsButton: {
+    paddingHorizontal: spacing[6],
+    paddingVertical: spacing[2],
+    borderRadius: radius.md,
+    borderWidth: 1,
+    marginTop: spacing[1],
+  },
+  settingsText: {
     fontSize: fontSize.md,
     fontWeight: '600',
   },

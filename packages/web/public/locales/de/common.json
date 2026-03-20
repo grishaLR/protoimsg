@@ -9,6 +9,7 @@
   },
   "visibility": {
     "everyone": "Alle",
+    "meet": "Meet",
     "community": "Community",
     "innerCircle": "Engster Kreis",
     "noOne": "Niemand"
@@ -28,6 +29,7 @@
     "wireframe": "Wireframe"
   },
   "nav": {
+    "meet": "Meet",
     "community": "Community",
     "rooms": "Räume",
     "feed": "Feed",

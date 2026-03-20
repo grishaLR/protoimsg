@@ -70,8 +70,8 @@
     "translating": "Перевод...",
     "translatedTo": "Переведено на {{lang}}",
     "showOriginal": "Показать оригинал",
-    "messageOnGerm": "Написать в Germ",
-    "germDm": "Germ DM"
+    "messageOnGerm": "Открыть в Germ ↗",
+    "germDm": "Germ ↗"
   },
   "threadView": {
     "back": "Назад",

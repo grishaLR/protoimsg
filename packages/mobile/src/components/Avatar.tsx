@@ -43,7 +43,7 @@ export const Avatar = React.memo(function Avatar({ url, name, size = 'md' }: Ava
     );
   }
 
-  const initial = (name ?? '?')[0].toUpperCase();
+  const initial = (name && name.length > 0 ? name[0] : '?').toUpperCase();
 
   return (
     <View

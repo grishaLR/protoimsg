@@ -7,6 +7,7 @@
   },
   "visibility": {
     "everyone": "Kowa",
+    "meet": "Meet",
     "community": "Al'umma",
     "innerCircle": "Na kusa",
     "noOne": "Ba kowa"
@@ -26,6 +27,7 @@
     "wireframe": "Wireframe"
   },
   "nav": {
+    "meet": "Meet",
     "community": "Al'umma",
     "rooms": "Đakuna",
     "feed": "Labarai",

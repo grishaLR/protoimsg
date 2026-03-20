@@ -74,8 +74,8 @@
     "translating": "翻译中...",
     "translatedTo": "已翻译为{{lang}}",
     "showOriginal": "显示原文",
-    "messageOnGerm": "在 Germ 上发消息",
-    "germDm": "Germ 私信"
+    "messageOnGerm": "在 Germ 中打开 ↗",
+    "germDm": "Germ ↗"
   },
 
   "threadView": {

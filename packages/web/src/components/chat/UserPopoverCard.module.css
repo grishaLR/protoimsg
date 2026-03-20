@@ -1,0 +1,115 @@
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: var(--cm-z-modal);
+}
+
+.card {
+  position: fixed;
+  background: var(--color-base-100);
+  border-radius: var(--cm-radius-md);
+  box-shadow: var(--cm-raised), var(--cm-window-shadow);
+  z-index: var(--cm-z-modal);
+  padding: var(--cm-space-3);
+  min-width: 220px;
+  max-width: 280px;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: var(--cm-space-3);
+  margin-bottom: var(--cm-space-3);
+}
+
+.avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--cm-radius-avatar);
+  flex-shrink: 0;
+  object-fit: cover;
+}
+
+.initialAvatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: var(--cm-radius-avatar);
+  flex-shrink: 0;
+  background: var(--cm-border-dark);
+  color: var(--color-base-100);
+  font-weight: 700;
+  font-size: var(--cm-text-lg);
+  text-transform: uppercase;
+  line-height: 1;
+}
+
+.names {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.displayName {
+  font-weight: 600;
+  font-size: var(--cm-text-base);
+  color: var(--color-base-content);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.handle {
+  font-size: var(--cm-text-sm);
+  color: var(--cm-border-dark);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.actions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--cm-space-1);
+}
+
+.actionBtn {
+  display: flex;
+  align-items: center;
+  gap: var(--cm-space-2);
+  width: 100%;
+  padding: var(--cm-space-2) var(--cm-space-3);
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: var(--cm-text-base);
+  color: var(--color-base-content);
+  text-align: start;
+  white-space: nowrap;
+  border-radius: var(--cm-radius-sm);
+}
+
+.actionBtn:hover {
+  background: var(--cm-selection);
+  color: var(--cm-chrome-text);
+}
+
+.actionBtn:focus-visible {
+  outline: var(--cm-focus-thin) solid var(--cm-focus);
+  outline-offset: var(--cm-focus-offset);
+}
+
+.actionBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.feedback {
+  display: block;
+  padding: var(--cm-space-2) var(--cm-space-3);
+  font-size: var(--cm-text-base);
+  color: var(--cm-border-dark);
+  white-space: nowrap;
+}

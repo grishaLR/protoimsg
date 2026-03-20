@@ -26,7 +26,7 @@ function getWebRTC() {
   if (!_webrtcAvailable) return null;
   if (!_loaded) {
     _loaded = true;
-    const mod = require('react-native-webrtc');
+    const mod = require('@livekit/react-native-webrtc');
     _RTCPeerConnection = mod.RTCPeerConnection;
     _RTCIceCandidate = mod.RTCIceCandidate;
     _RTCSessionDescription = mod.RTCSessionDescription;

@@ -9,6 +9,7 @@
   },
   "visibility": {
     "everyone": "ทุกคน",
+    "meet": "Meet",
     "community": "ชุมชน",
     "innerCircle": "เพื่อนสนิท",
     "noOne": "ไม่มีใคร"
@@ -28,6 +29,7 @@
     "wireframe": "Wireframe"
   },
   "nav": {
+    "meet": "Meet",
     "community": "ชุมชน",
     "rooms": "ห้อง",
     "feed": "ฟีด",

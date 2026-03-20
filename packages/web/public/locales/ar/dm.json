@@ -24,7 +24,7 @@
     "unreadOverflow": "+99",
     "connecting": "جارٍ الاتصال…",
     "connectionFailed": "فشل الاتصال",
-    "peerClosed": "تم إغلاق المحادثة. استخدم Germ للرسائل بدون اتصال.",
+    "peerClosed": "تم إغلاق المحادثة. جرب Germ (طرف ثالث) للرسائل المشفرة بدون اتصال.",
     "minimize": {
       "titleExpand": "توسيع",
       "titleMinimize": "تصغير",

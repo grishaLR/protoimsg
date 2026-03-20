@@ -51,11 +51,18 @@ function throwForbiddenError(data: { error: string; errorCode?: string }): never
   throw new AccountBannedError(data.error);
 }
 
-/** Pre-OAuth ban check — throws AccountBannedError or NotOnAllowlistError. */
-export async function preflightCheck(handle: string): Promise<void> {
-  const res = await fetch(`${API_URL}/api/auth/preflight?handle=${encodeURIComponent(handle)}`);
+/** Pre-OAuth ban + captcha check — throws AccountBannedError, NotOnAllowlistError, or CaptchaFailedError. */
+export async function preflightCheck(handle: string, turnstileToken?: string): Promise<void> {
+  const res = await fetch(`${API_URL}/api/auth/preflight`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ handle, turnstileToken }),
+  });
   if (res.status === 403) {
     const data = (await res.json()) as { error: string; errorCode?: string };
+    if (data.errorCode === 'CAPTCHA_FAILED') {
+      throw new CaptchaFailedError(data.error || 'Verification failed');
+    }
     throwForbiddenError(data);
   }
 }
@@ -174,7 +181,7 @@ export async function createAccount(params: {
       message?: string;
     };
     if (data.errorCode === 'CAPTCHA_FAILED') {
-      throw new CaptchaFailedError(data.error ?? 'Verification failed');
+      throw new CaptchaFailedError(data.error || 'Verification failed');
     }
     const message = data.message ?? data.error ?? 'Account creation failed';
     throw new Error(message);

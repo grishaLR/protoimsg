@@ -14,10 +14,13 @@ async function ensureLoaded(): Promise<void> {
     await setAudioModeAsync({ playsInSilentMode: true });
     // eslint-disable-next-line @typescript-eslint/no-require-imports, @typescript-eslint/no-unsafe-argument
     doorOpen = createAudioPlayer(require('../../assets/sounds/door_open.mp3'));
+    doorOpen.volume = 1.0;
     // eslint-disable-next-line @typescript-eslint/no-require-imports, @typescript-eslint/no-unsafe-argument
     doorClosed = createAudioPlayer(require('../../assets/sounds/door_closed.mp3'));
+    doorClosed.volume = 1.0;
     // eslint-disable-next-line @typescript-eslint/no-require-imports, @typescript-eslint/no-unsafe-argument
     imNotify = createAudioPlayer(require('../../assets/sounds/im_notify.wav'));
+    imNotify.volume = 1.0;
     loaded = true;
   } catch (err) {
     console.warn('[Sounds] Failed to load sounds:', err);

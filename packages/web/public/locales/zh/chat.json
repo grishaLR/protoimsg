@@ -36,9 +36,9 @@
     "onlineCount": "{{online}} of {{total}} online",
     "removeBuddyConfirm": "Are you sure you want to remove this buddy?",
     "germ": {
-      "checkFailed": "Could not check GERM status for this user.",
-      "notEnabled": "This user does not have GERM messaging enabled.",
-      "openFailed": "Failed to open GERM messaging."
+      "checkFailed": "无法检查此用户的 Germ 状态。",
+      "notEnabled": "该用户未启用 Germ（第三方加密通讯工具）。",
+      "openFailed": "打开 Germ 失败。"
     },
     "accessibility": {
       "messageBuddy": "Message {{name}}, {{status}}",
@@ -58,7 +58,7 @@
     "block": "屏蔽",
     "unblock": "取消屏蔽",
     "remove": "移除",
-    "messageOnGerm": "在 Germ 上发消息",
+    "messageOnGerm": "在 Germ 中打开 ↗",
     "addToCommunity": "添加到社区",
     "sendImDisabled": "用户不在线",
     "videoCall": "视频通话",
@@ -325,5 +325,12 @@
     "saved": "Settings saved",
     "cancel": "Cancel",
     "error": "Failed to save settings"
+  },
+  "userPopoverCard": {
+    "viewProfile": "查看个人资料",
+    "addToBuddyList": "添加到好友列表",
+    "added": "已添加！",
+    "alreadyInList": "已在好友列表中",
+    "error": "错误"
   }
 }

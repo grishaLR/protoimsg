@@ -1,9 +1,11 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useRef } from 'react';
 import { useProfile } from '../../contexts/ProfileContext';
 import { useModeration } from '../../hooks/useModeration';
 import { useAuth } from '../../hooks/useAuth';
 import { isSafeUrl } from '../../lib/sanitize';
+import { useViewProfile } from '../../contexts/ViewProfileContext';
 import { UserContextMenu } from './UserContextMenu';
+import { UserPopoverCard } from './UserPopoverCard';
 import styles from './UserIdentity.module.css';
 
 interface UserIdentityProps {
@@ -25,11 +27,14 @@ export function UserIdentity({
   size = 'sm',
   enableContextMenu = false,
 }: UserIdentityProps) {
+  const onViewProfile = useViewProfile();
   const profile = useProfile(did);
   const moderation = useModeration(did);
   const { did: currentUserDid } = useAuth();
   const [avatarRevealed, setAvatarRevealed] = useState(false);
   const [contextMenu, setContextMenu] = useState<{ x: number; y: number } | null>(null);
+  const [popover, setPopover] = useState<DOMRect | null>(null);
+  const identityRef = useRef<HTMLSpanElement>(null);
 
   const handleContextMenu = useCallback(
     (e: React.MouseEvent) => {
@@ -38,6 +43,17 @@ export function UserIdentity({
       setContextMenu({ x: e.clientX, y: e.clientY });
     },
     [enableContextMenu, did, currentUserDid],
+  );
+
+  const handleClick = useCallback(
+    (e: React.MouseEvent) => {
+      if (did === currentUserDid) return;
+      // Don't open popover if clicking a blurred avatar to reveal it
+      if (styles.blurred && (e.target as HTMLElement).classList.contains(styles.blurred)) return;
+      const rect = identityRef.current?.getBoundingClientRect();
+      if (rect) setPopover(rect);
+    },
+    [did, currentUserDid],
   );
 
   if (moderation.shouldFilter) {
@@ -53,7 +69,25 @@ export function UserIdentity({
   const initial = (profile?.handle[0] ?? did.at(-1) ?? '?').toUpperCase();
 
   return (
-    <span className={styles.identity} onContextMenu={handleContextMenu}>
+    <span
+      className={`${styles.identity} ${did !== currentUserDid ? styles.clickable : ''}`}
+      onContextMenu={handleContextMenu}
+      onClick={handleClick}
+      ref={identityRef}
+      role={did !== currentUserDid ? 'button' : undefined}
+      tabIndex={did !== currentUserDid ? 0 : undefined}
+      onKeyDown={
+        did !== currentUserDid
+          ? (e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                const rect = identityRef.current?.getBoundingClientRect();
+                if (rect) setPopover(rect);
+              }
+            }
+          : undefined
+      }
+    >
       {showAvatar &&
         (hasRealAvatar ? (
           <img
@@ -65,7 +99,8 @@ export function UserIdentity({
             alt=""
             onClick={
               avatarBlurred
-                ? () => {
+                ? (e) => {
+                    e.stopPropagation();
                     setAvatarRevealed(true);
                   }
                 : undefined
@@ -98,6 +133,16 @@ export function UserIdentity({
           onClose={() => {
             setContextMenu(null);
           }}
+        />
+      )}
+      {popover && (
+        <UserPopoverCard
+          did={did}
+          anchorRect={popover}
+          onClose={() => {
+            setPopover(null);
+          }}
+          onViewProfile={onViewProfile}
         />
       )}
     </span>

@@ -36,9 +36,9 @@
     "onlineCount": "{{online}} of {{total}} online",
     "removeBuddyConfirm": "Are you sure you want to remove this buddy?",
     "germ": {
-      "checkFailed": "Could not check GERM status for this user.",
-      "notEnabled": "This user does not have GERM messaging enabled.",
-      "openFailed": "Failed to open GERM messaging."
+      "checkFailed": "इस उपयोगकर्ता के लिए Germ की स्थिति जाँची नहीं जा सकी।",
+      "notEnabled": "इस उपयोगकर्ता ने Germ (एक तृतीय-पक्ष एन्क्रिप्टेड मेसेंजर) सक्षम नहीं किया है।",
+      "openFailed": "Germ खोलने में विफलता।"
     },
     "accessibility": {
       "messageBuddy": "Message {{name}}, {{status}}",
@@ -58,7 +58,7 @@
     "block": "ब्लॉक करें",
     "unblock": "अनब्लॉक करें",
     "remove": "हटाएँ",
-    "messageOnGerm": "Germ पर संदेश भेजें",
+    "messageOnGerm": "Germ में खोलें ↗",
     "addToCommunity": "समुदाय में जोड़ें",
     "sendImDisabled": "उपयोगकर्ता ऑफ़लाइन है",
     "videoCall": "वीडियो कॉल",
@@ -325,5 +325,12 @@
     "saved": "Settings saved",
     "cancel": "Cancel",
     "error": "Failed to save settings"
+  },
+  "userPopoverCard": {
+    "viewProfile": "प्रोफ़ाइल देखें",
+    "addToBuddyList": "मित्र सूची में जोड़ें",
+    "added": "जोड़ा गया!",
+    "alreadyInList": "पहले से मित्र सूची में है",
+    "error": "त्रुटि"
   }
 }

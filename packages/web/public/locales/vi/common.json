@@ -9,6 +9,7 @@
   },
   "visibility": {
     "everyone": "Tất cả",
+    "meet": "Meet",
     "community": "Cộng đồng",
     "innerCircle": "Bạn thân",
     "noOne": "Không ai"
@@ -28,6 +29,7 @@
     "wireframe": "Wireframe"
   },
   "nav": {
+    "meet": "Meet",
     "community": "Cộng đồng",
     "rooms": "Phòng chat",
     "feed": "Bảng tin",

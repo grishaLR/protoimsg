@@ -24,7 +24,7 @@
     "unreadOverflow": "99+",
     "connecting": "Conectando…",
     "connectionFailed": "Conexión fallida",
-    "peerClosed": "Chat cerrado. Usa Germ para mensajes sin conexión.",
+    "peerClosed": "Chat cerrado. Prueba Germ (terceros) para mensajes cifrados sin conexión.",
     "minimize": {
       "titleExpand": "Expandir",
       "titleMinimize": "Minimizar",

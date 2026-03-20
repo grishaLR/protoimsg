@@ -74,8 +74,8 @@
     "translating": "翻訳中...",
     "translatedTo": "{{lang}}に翻訳済み",
     "showOriginal": "原文を表示",
-    "messageOnGerm": "Germ でメッセージ",
-    "germDm": "Germ DM"
+    "messageOnGerm": "Germで開く ↗",
+    "germDm": "Germ ↗"
   },
 
   "threadView": {

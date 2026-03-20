@@ -36,9 +36,9 @@
     "onlineCount": "{{online}} of {{total}} online",
     "removeBuddyConfirm": "Are you sure you want to remove this buddy?",
     "germ": {
-      "checkFailed": "Could not check GERM status for this user.",
-      "notEnabled": "This user does not have GERM messaging enabled.",
-      "openFailed": "Failed to open GERM messaging."
+      "checkFailed": "Không thể kiểm tra trạng thái Germ của người dùng này.",
+      "notEnabled": "Người dùng này chưa bật Germ (ứng dụng nhắn tin mã hóa của bên thứ ba).",
+      "openFailed": "Không thể mở Germ."
     },
     "accessibility": {
       "messageBuddy": "Message {{name}}, {{status}}",
@@ -58,7 +58,7 @@
     "block": "Chặn",
     "unblock": "Bỏ chặn",
     "remove": "Xóa",
-    "messageOnGerm": "Nhắn tin qua Germ",
+    "messageOnGerm": "Mở trong Germ ↗",
     "addToCommunity": "Thêm vào Cộng đồng",
     "sendImDisabled": "Người dùng đang ngoại tuyến",
     "videoCall": "Gọi video",
@@ -325,5 +325,12 @@
     "saved": "Settings saved",
     "cancel": "Cancel",
     "error": "Failed to save settings"
+  },
+  "userPopoverCard": {
+    "viewProfile": "Xem hồ sơ",
+    "addToBuddyList": "Thêm vào danh sách bạn bè",
+    "added": "Đã thêm!",
+    "alreadyInList": "Đã có trong danh sách",
+    "error": "Lỗi"
   }
 }

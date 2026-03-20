@@ -74,8 +74,8 @@
     "translating": "Wird übersetzt...",
     "translatedTo": "Übersetzt nach {{lang}}",
     "showOriginal": "Original anzeigen",
-    "messageOnGerm": "Nachricht über Germ",
-    "germDm": "Germ DM"
+    "messageOnGerm": "In Germ öffnen ↗",
+    "germDm": "Germ ↗"
   },
 
   "threadView": {

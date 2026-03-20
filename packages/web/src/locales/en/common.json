@@ -32,6 +32,7 @@
   },
 
   "nav": {
+    "meet": "Meet",
     "community": "Community",
     "rooms": "Rooms",
     "feed": "Feed",

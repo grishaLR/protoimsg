@@ -133,6 +133,10 @@
   font-weight: 600;
 }
 
+.captcha {
+  align-self: center;
+}
+
 .error {
   color: var(--color-error);
   font-size: var(--cm-text-md);

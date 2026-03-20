@@ -25,7 +25,7 @@
     "connecting": "Connexion…",
     "connectionFailed": "Échec de la connexion",
     "retry": "Réessayer",
-    "peerClosed": "Discussion fermée. Utilisez Germ pour les messages hors ligne.",
+    "peerClosed": "Discussion fermée. Essayez Germ (tiers) pour la messagerie chiffrée hors ligne.",
     "closingCountdown": "Discussion terminée. Fermeture dans {{seconds}}s…",
     "minimize": {
       "titleExpand": "Agrandir",

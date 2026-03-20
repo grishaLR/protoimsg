@@ -9,6 +9,7 @@
   },
   "visibility": {
     "everyone": "全員",
+    "meet": "Meet",
     "community": "コミュニティ",
     "innerCircle": "親しい友達",
     "noOne": "誰にも見せない"
@@ -28,6 +29,7 @@
     "wireframe": "Wireframe"
   },
   "nav": {
+    "meet": "Meet",
     "community": "コミュニティ",
     "rooms": "ルーム",
     "feed": "フィード",

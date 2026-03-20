@@ -9,6 +9,7 @@
   },
   "visibility": {
     "everyone": "Todos",
+    "meet": "Meet",
     "community": "Comunidad",
     "innerCircle": "Círculo íntimo",
     "noOne": "Nadie"
@@ -28,6 +29,7 @@
     "wireframe": "Wireframe"
   },
   "nav": {
+    "meet": "Meet",
     "community": "Comunidad",
     "rooms": "Salas",
     "feed": "Feed",

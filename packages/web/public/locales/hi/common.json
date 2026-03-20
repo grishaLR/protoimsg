@@ -9,6 +9,7 @@
   },
   "visibility": {
     "everyone": "सभी",
+    "meet": "Meet",
     "community": "समुदाय",
     "innerCircle": "करीबी दोस्त",
     "noOne": "कोई नहीं"
@@ -28,6 +29,7 @@
     "wireframe": "Wireframe"
   },
   "nav": {
+    "meet": "Meet",
     "community": "समुदाय",
     "rooms": "रूम",
     "feed": "फ़ीड",

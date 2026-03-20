@@ -24,7 +24,7 @@
     "unreadOverflow": "99+",
     "connecting": "Подключение…",
     "connectionFailed": "Ошибка подключения",
-    "peerClosed": "Чат закрыт. Используйте Germ для офлайн-сообщений.",
+    "peerClosed": "Чат закрыт. Попробуйте Germ (сторонний сервис) для офлайн-переписки с шифрованием.",
     "minimize": {
       "titleExpand": "Развернуть",
       "titleMinimize": "Свернуть",

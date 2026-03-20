@@ -3,14 +3,18 @@ import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../hooks/useAuth';
 import styles from './MobileTabBar.module.css';
 
-export type MobileTab = 'buddies' | 'rooms' | 'feed';
+export type MobileTab = 'meet' | 'buddies' | 'rooms' | 'feed';
 
 interface MobileTabBarProps {
   activeTab: MobileTab;
   onTabChange: (tab: MobileTab) => void;
 }
 
-const ALL_TABS: { id: MobileTab; labelKey: 'nav.community' | 'nav.rooms' | 'nav.feed' }[] = [
+const ALL_TABS: {
+  id: MobileTab;
+  labelKey: 'nav.meet' | 'nav.community' | 'nav.rooms' | 'nav.feed';
+}[] = [
+  { id: 'meet', labelKey: 'nav.meet' },
   { id: 'buddies', labelKey: 'nav.community' },
   { id: 'rooms', labelKey: 'nav.rooms' },
   { id: 'feed', labelKey: 'nav.feed' },

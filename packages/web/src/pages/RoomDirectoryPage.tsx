@@ -25,10 +25,11 @@ import { useMentionNotifications } from '../contexts/MentionNotificationContext'
 import { useBlocks } from '../contexts/BlockContext';
 import { InfoTip } from '@protoimsg/ui/InfoTip';
 import { useAuth } from '../hooks/useAuth';
+import { MeetLanding } from './MeetPage';
 import { IS_TAURI } from '../lib/config';
 import styles from './RoomDirectoryPage.module.css';
 
-type View = 'rooms' | 'feed' | 'buddies' | 'profile' | 'thread' | 'settings';
+type View = 'meet' | 'rooms' | 'feed' | 'buddies' | 'profile' | 'thread' | 'settings';
 
 export function RoomDirectoryPage() {
   const { t } = useTranslation('rooms');
@@ -103,16 +104,22 @@ export function RoomDirectoryPage() {
   const [categories, setCategories] = useState<string[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [showCreate, setShowCreate] = useState(false);
-  const locState = location.state as { tab?: View } | null;
+  const locState = location.state as { tab?: View; profile?: string } | null;
   const [view, setView] = useState<View>(() => {
+    if (locState?.profile) return 'profile';
     if (locState?.tab) return locState.tab;
-    return window.matchMedia('(max-width: 767px)').matches ? 'buddies' : 'rooms';
+    return window.matchMedia('(max-width: 767px)').matches ? 'buddies' : 'meet';
   });
 
   // When navigating back with state (e.g., from a chat room), switch to the requested tab
   useEffect(() => {
-    if (locState?.tab) setView(locState.tab);
-  }, [locState?.tab]);
+    if (locState?.profile) {
+      setNavHistory([{ type: 'buddies' }, { type: 'profile', did: locState.profile }]);
+      setView('profile');
+    } else if (locState?.tab) {
+      setView(locState.tab);
+    }
+  }, [locState?.tab, locState?.profile]);
 
   useEffect(() => {
     const ac = new AbortController();
@@ -130,6 +137,7 @@ export function RoomDirectoryPage() {
 
   // Unified navigation history — each entry is the view + its payload
   type NavEntry =
+    | { type: 'meet' }
     | { type: 'rooms' }
     | { type: 'feed' }
     | { type: 'buddies' }
@@ -270,6 +278,11 @@ export function RoomDirectoryPage() {
     onRenameGroup: renameGroup,
     onDeleteGroup: deleteGroup,
     onMoveBuddy: moveBuddy,
+    onOpenMeet: IS_TAURI
+      ? undefined
+      : () => {
+          setView('meet');
+        },
     onOpenChatRooms: IS_TAURI
       ? openTauriRoomDirectory
       : () => {
@@ -291,7 +304,8 @@ export function RoomDirectoryPage() {
     hasMoreFollowing,
   };
 
-  const mobileTab: MobileTab = view === 'buddies' ? 'buddies' : view === 'rooms' ? 'rooms' : 'feed';
+  const mobileTab: MobileTab =
+    view === 'meet' ? 'meet' : view === 'buddies' ? 'buddies' : view === 'rooms' ? 'rooms' : 'feed';
 
   const handleMobileTabChange = (tab: MobileTab) => {
     setView(tab);
@@ -328,6 +342,8 @@ export function RoomDirectoryPage() {
       <BetaBanner />
       <div className={styles.body}>
         <main className={styles.main}>
+          {view === 'meet' && <MeetLanding />}
+
           {view === 'buddies' && isMobile && <BuddyListPanel {...buddyListProps} />}
 
           {view === 'rooms' && (

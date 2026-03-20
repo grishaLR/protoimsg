@@ -25,7 +25,7 @@
     "connecting": "Đang kết nối…",
     "connectionFailed": "Kết nối thất bại",
     "retry": "Thử lại",
-    "peerClosed": "Cuộc trò chuyện đã đóng. Dùng Germ để nhắn tin ngoại tuyến.",
+    "peerClosed": "Chat đã đóng. Thử Germ (bên thứ ba) để nhắn tin mã hóa ngoại tuyến.",
     "closingCountdown": "Cuộc trò chuyện đã kết thúc. Đóng sau {{seconds}} giây…",
     "minimize": {
       "titleExpand": "Mở rộng",

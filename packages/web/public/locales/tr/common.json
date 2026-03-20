@@ -9,6 +9,7 @@
   },
   "visibility": {
     "everyone": "Herkes",
+    "meet": "Meet",
     "community": "Topluluk",
     "innerCircle": "Yakın Çevre",
     "noOne": "Kimse"
@@ -28,6 +29,7 @@
     "wireframe": "Wireframe"
   },
   "nav": {
+    "meet": "Meet",
     "community": "Topluluk",
     "rooms": "Odalar",
     "feed": "Akış",

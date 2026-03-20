@@ -57,6 +57,14 @@ void i18n.use(initReactI18next).init({
   react: { useSuspense: false },
 });
 
+// Ensure RTL state matches current language on startup
+const detectedLang = detectLanguage();
+const shouldBeRTL = RTL_LANGUAGES.has(detectedLang.split('-')[0] ?? detectedLang);
+if (I18nManager.isRTL !== shouldBeRTL) {
+  I18nManager.forceRTL(shouldBeRTL);
+  I18nManager.allowRTL(shouldBeRTL);
+}
+
 // Persist language + handle RTL on change
 i18n.on('languageChanged', (lng) => {
   storage.set(STORAGE_KEY, lng);

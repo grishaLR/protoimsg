@@ -54,8 +54,8 @@ jest.mock('expo-notifications', () => ({
   getLastNotificationResponseAsync: jest.fn().mockResolvedValue(null),
 }));
 
-// Mock react-native-webrtc
-jest.mock('react-native-webrtc', () => ({
+// Mock @livekit/react-native-webrtc (replaced react-native-webrtc)
+jest.mock('@livekit/react-native-webrtc', () => ({
   RTCPeerConnection: jest.fn(),
   RTCSessionDescription: jest.fn(),
   RTCIceCandidate: jest.fn(),
@@ -63,6 +63,18 @@ jest.mock('react-native-webrtc', () => ({
     getUserMedia: jest.fn(),
   },
   MediaStream: jest.fn(),
+  RTCView: jest.fn(),
+}));
+
+// Mock @livekit/react-native
+jest.mock('@livekit/react-native', () => ({
+  registerGlobals: jest.fn(),
+  AudioSession: {
+    startAudioSession: jest.fn(),
+    stopAudioSession: jest.fn(),
+  },
+  LiveKitRoom: jest.fn(({ children }: { children: React.ReactNode }) => children),
+  VideoTrack: jest.fn(),
 }));
 
 // Mock expo-router

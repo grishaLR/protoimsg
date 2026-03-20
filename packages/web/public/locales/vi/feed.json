@@ -74,8 +74,8 @@
     "translating": "Đang dịch...",
     "translatedTo": "Đã dịch sang {{lang}}",
     "showOriginal": "Xem bản gốc",
-    "messageOnGerm": "Nhắn tin qua Germ",
-    "germDm": "Germ DM"
+    "messageOnGerm": "Mở trong Germ ↗",
+    "germDm": "Germ ↗"
   },
 
   "threadView": {

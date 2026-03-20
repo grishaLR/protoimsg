@@ -182,15 +182,45 @@ export function authRouter(
     }
   });
 
-  // GET /api/auth/preflight?handle=<handle> — pre-OAuth ban check
-  router.get('/preflight', async (req, res, next) => {
+  // POST /api/auth/preflight — pre-OAuth ban + captcha check
+  router.post('/preflight', async (req, res, next) => {
     try {
-      const handle = req.query.handle;
+      const { handle, turnstileToken } = req.body as { handle?: string; turnstileToken?: string };
       if (typeof handle !== 'string' || !handle) {
-        res
-          .status(400)
-          .json({ error: 'Missing handle query parameter', errorCode: ERROR_CODES.INVALID_INPUT });
+        res.status(400).json({ error: 'Missing handle', errorCode: ERROR_CODES.INVALID_INPUT });
         return;
+      }
+
+      // Verify Turnstile token if configured
+      if (config.TURNSTILE_SECRET_KEY) {
+        if (!turnstileToken) {
+          res.status(403).json({
+            error: 'CAPTCHA verification required',
+            errorCode: ERROR_CODES.CAPTCHA_FAILED,
+          });
+          return;
+        }
+
+        const verifyRes = await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          signal: AbortSignal.timeout(5000),
+          body: new URLSearchParams({
+            secret: config.TURNSTILE_SECRET_KEY,
+            response: turnstileToken,
+            remoteip: req.ip ?? '',
+          }),
+        });
+
+        const verifyData = (await verifyRes.json()) as { success: boolean };
+        if (!verifyData.success) {
+          log.warn({ handle }, 'auth/preflight rejected: Turnstile verification failed');
+          res.status(403).json({
+            error: 'CAPTCHA verification failed',
+            errorCode: ERROR_CODES.CAPTCHA_FAILED,
+          });
+          return;
+        }
       }
 
       // Resolve handle → DID via public ATProto API

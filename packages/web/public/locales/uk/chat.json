@@ -36,9 +36,9 @@
     "onlineCount": "{{online}} of {{total}} online",
     "removeBuddyConfirm": "Are you sure you want to remove this buddy?",
     "germ": {
-      "checkFailed": "Could not check GERM status for this user.",
-      "notEnabled": "This user does not have GERM messaging enabled.",
-      "openFailed": "Failed to open GERM messaging."
+      "checkFailed": "Не вдалося перевірити статус Germ для цього користувача.",
+      "notEnabled": "Цей користувач не ввімкнув Germ (сторонній зашифрований месенджер).",
+      "openFailed": "Не вдалося відкрити Germ."
     },
     "accessibility": {
       "messageBuddy": "Message {{name}}, {{status}}",
@@ -58,7 +58,7 @@
     "block": "Заблокувати",
     "unblock": "Розблокувати",
     "remove": "Видалити",
-    "messageOnGerm": "Написати в Germ",
+    "messageOnGerm": "Відкрити в Germ ↗",
     "addToCommunity": "Додати до спільноти",
     "sendImDisabled": "Користувач не в мережі",
     "videoCall": "Відеодзвінок",
@@ -331,5 +331,12 @@
     "saved": "Settings saved",
     "cancel": "Cancel",
     "error": "Failed to save settings"
+  },
+  "userPopoverCard": {
+    "viewProfile": "Переглянути профіль",
+    "addToBuddyList": "Додати до списку друзів",
+    "added": "Додано!",
+    "alreadyInList": "Вже у списку друзів",
+    "error": "Помилка"
   }
 }

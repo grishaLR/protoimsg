@@ -5,8 +5,14 @@ import { OPTIONAL_SCOPE_GROUPS, type OptionalScopeGroup } from '@protoimsg/share
 import { useAuth } from '../../hooks/useAuth';
 import { useTheme } from '../../hooks/useTheme';
 import { useRotatingPlaceholder } from '../../hooks/useRotatingPlaceholder';
+import { useTurnstile } from '../../hooks/useTurnstile';
 import { THEME_OPTIONS, type Theme } from '../../contexts/ThemeContext';
-import { AccountBannedError, NotOnAllowlistError, joinWaitlist } from '../../lib/api';
+import {
+  AccountBannedError,
+  NotOnAllowlistError,
+  CaptchaFailedError,
+  joinWaitlist,
+} from '../../lib/api';
 import { SIGNUP_ENABLED } from '../../lib/config';
 import { ActorSearch, type ActorSearchResult } from '../shared/ActorSearch';
 import { AtprotoInfoModal } from './AtprotoInfoModal';
@@ -29,6 +35,7 @@ export function LoginForm() {
     ...OPTIONAL_SCOPE_GROUPS,
   ]);
   const placeholder = useRotatingPlaceholder('login');
+  const turnstile = useTurnstile();
 
   const toggleScopeGroup = useCallback((group: OptionalScopeGroup) => {
     setOptionalGroups((prev) =>
@@ -45,11 +52,14 @@ export function LoginForm() {
     setBanned(false);
     setNotOnAllowlist(false);
     setLoading(true);
-    login(trimmed, optionalGroups).catch((err: unknown) => {
+    login(trimmed, optionalGroups, turnstile.getToken() ?? undefined).catch((err: unknown) => {
       if (err instanceof NotOnAllowlistError) {
         setNotOnAllowlist(true);
       } else if (err instanceof AccountBannedError) {
         setBanned(true);
+      } else if (err instanceof CaptchaFailedError) {
+        setError(t('login.error.captchaFailed'));
+        turnstile.reset();
       } else {
         setError(err instanceof Error ? err.message : t('login.error.default'));
       }
@@ -113,8 +123,13 @@ export function LoginForm() {
           autoFocus
         />
         <ScopePickerPanel selectedGroups={optionalGroups} onToggle={toggleScopeGroup} />
+        {turnstile.enabled && <div ref={turnstile.containerRef} className={styles.captcha} />}
         {error && <p className={styles.error}>{error}</p>}
-        <button className={styles.button} type="submit" disabled={loading || !handle.trim()}>
+        <button
+          className={styles.button}
+          type="submit"
+          disabled={loading || !handle.trim() || (turnstile.enabled && !turnstile.ready)}
+        >
           {loading ? t('login.submitLoading') : t('login.submit')}
         </button>
         <button

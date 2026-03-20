@@ -9,6 +9,7 @@
   },
   "visibility": {
     "everyone": "Gach Duine",
+    "meet": "Meet",
     "community": "Pobal",
     "innerCircle": "Ciorcal Inmheánach",
     "noOne": "Duine ar Bith"
@@ -28,6 +29,7 @@
     "wireframe": "Wireframe"
   },
   "nav": {
+    "meet": "Meet",
     "community": "Pobal",
     "rooms": "Seomraí",
     "feed": "Fotha",

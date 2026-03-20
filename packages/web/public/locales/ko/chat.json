@@ -36,9 +36,9 @@
     "onlineCount": "{{online}} of {{total}} online",
     "removeBuddyConfirm": "Are you sure you want to remove this buddy?",
     "germ": {
-      "checkFailed": "Could not check GERM status for this user.",
-      "notEnabled": "This user does not have GERM messaging enabled.",
-      "openFailed": "Failed to open GERM messaging."
+      "checkFailed": "이 사용자의 Germ 상태를 확인할 수 없습니다.",
+      "notEnabled": "이 사용자는 Germ(서드파티 암호화 메신저)을 활성화하지 않았습니다.",
+      "openFailed": "Germ을 열지 못했습니다."
     },
     "accessibility": {
       "messageBuddy": "Message {{name}}, {{status}}",
@@ -58,7 +58,7 @@
     "block": "차단",
     "unblock": "차단 해제",
     "remove": "삭제",
-    "messageOnGerm": "Germ에서 메시지 보내기",
+    "messageOnGerm": "Germ에서 열기 ↗",
     "addToCommunity": "커뮤니티에 추가",
     "sendImDisabled": "사용자가 오프라인입니다",
     "videoCall": "영상 통화",
@@ -325,5 +325,12 @@
     "saved": "Settings saved",
     "cancel": "Cancel",
     "error": "Failed to save settings"
+  },
+  "userPopoverCard": {
+    "viewProfile": "프로필 보기",
+    "addToBuddyList": "친구 목록에 추가",
+    "added": "추가됨!",
+    "alreadyInList": "이미 친구 목록에 있습니다",
+    "error": "오류"
   }
 }
