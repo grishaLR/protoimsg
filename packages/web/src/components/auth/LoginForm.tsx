@@ -13,7 +13,7 @@ import {
   CaptchaFailedError,
   joinWaitlist,
 } from '../../lib/api';
-import { SIGNUP_ENABLED } from '../../lib/config';
+import { SIGNUP_ENABLED, FEED_ENABLED } from '../../lib/config';
 import { ActorSearch, type ActorSearchResult } from '../shared/ActorSearch';
 import { AtprotoInfoModal } from './AtprotoInfoModal';
 import { ScopePickerPanel } from './ScopePickerPanel';
@@ -31,9 +31,9 @@ export function LoginForm() {
   const [notOnAllowlist, setNotOnAllowlist] = useState(false);
   const [loading, setLoading] = useState(false);
   const [showInfo, setShowInfo] = useState(false);
-  const [optionalGroups, setOptionalGroups] = useState<OptionalScopeGroup[]>([
-    ...OPTIONAL_SCOPE_GROUPS,
-  ]);
+  const [optionalGroups, setOptionalGroups] = useState<OptionalScopeGroup[]>(() =>
+    OPTIONAL_SCOPE_GROUPS.filter((g) => g !== 'feed' || FEED_ENABLED),
+  );
   const placeholder = useRotatingPlaceholder('login');
   const turnstile = useTurnstile();
 

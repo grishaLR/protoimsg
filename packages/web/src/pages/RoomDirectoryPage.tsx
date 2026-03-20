@@ -26,7 +26,7 @@ import { useBlocks } from '../contexts/BlockContext';
 import { InfoTip } from '@protoimsg/ui/InfoTip';
 import { useAuth } from '../hooks/useAuth';
 import { MeetLanding } from './MeetPage';
-import { IS_TAURI } from '../lib/config';
+import { IS_TAURI, FEED_ENABLED, CHAT_ROOMS_ENABLED } from '../lib/config';
 import styles from './RoomDirectoryPage.module.css';
 
 type View = 'meet' | 'rooms' | 'feed' | 'buddies' | 'profile' | 'thread' | 'settings';
@@ -278,23 +278,27 @@ export function RoomDirectoryPage() {
     onRenameGroup: renameGroup,
     onDeleteGroup: deleteGroup,
     onMoveBuddy: moveBuddy,
-    onOpenMeet: IS_TAURI
-      ? undefined
-      : () => {
-          setView('meet');
-        },
-    onOpenChatRooms: IS_TAURI
-      ? openTauriRoomDirectory
-      : () => {
-          setView('rooms');
-        },
-    onOpenFeed: hasFeed
-      ? IS_TAURI
-        ? openTauriFeed
+    onOpenMeet:
+      IS_TAURI || (!CHAT_ROOMS_ENABLED && !FEED_ENABLED)
+        ? undefined
         : () => {
-            setView('feed');
+            setView('meet');
+          },
+    onOpenChatRooms: CHAT_ROOMS_ENABLED
+      ? IS_TAURI
+        ? openTauriRoomDirectory
+        : () => {
+            setView('rooms');
           }
       : undefined,
+    onOpenFeed:
+      FEED_ENABLED && hasFeed
+        ? IS_TAURI
+          ? openTauriFeed
+          : () => {
+              setView('feed');
+            }
+        : undefined,
     tauriMode: IS_TAURI,
     followers,
     following,

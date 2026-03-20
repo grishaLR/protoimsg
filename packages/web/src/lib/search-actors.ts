@@ -1,6 +1,6 @@
 import { publicAgent } from './public-agent';
 
-const TYPEAHEAD_URL = 'https://public.api.bsky.app/xrpc/app.bsky.actor.searchActorsTypeahead';
+const TYPEAHEAD_URL = 'https://typeahead.waow.tech/xrpc/app.bsky.actor.searchActorsTypeahead';
 
 export interface ActorSearchResult {
   did: string;
@@ -42,7 +42,7 @@ async function resolveHandleDirect(handle: string): Promise<ActorSearchResult[]>
 
 export async function searchActorsTypeahead(query: string): Promise<ActorSearchResult[]> {
   const url = `${TYPEAHEAD_URL}?q=${encodeURIComponent(query)}&limit=8`;
-  const res = await fetch(url);
+  const res = await fetch(url, { headers: { 'X-Client': 'protoimsg.app' } });
   if (!res.ok) return [];
   const data = (await res.json()) as TypeaheadResponse;
   const actors = data.actors;

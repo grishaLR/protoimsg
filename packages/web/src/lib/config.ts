@@ -11,6 +11,12 @@ export const SIGNUP_ENABLED: boolean = import.meta.env.VITE_SIGNUP_ENABLED !== '
 /** Feature flag: set VITE_BOT_ENABLED=true to enable ProtoBuddy bot. */
 export const BOT_ENABLED: boolean = import.meta.env.VITE_BOT_ENABLED === 'true';
 
+/** Feature flag: set VITE_FEED_ENABLED=true to show the Feed tab. Hidden by default. */
+export const FEED_ENABLED: boolean = import.meta.env.VITE_FEED_ENABLED === 'true';
+
+/** Feature flag: set VITE_CHAT_ROOMS_ENABLED=true to show Chat Rooms. Hidden by default. */
+export const CHAT_ROOMS_ENABLED: boolean = import.meta.env.VITE_CHAT_ROOMS_ENABLED === 'true';
+
 /** Cloudflare Turnstile site key for signup CAPTCHA (optional — skipped when absent). */
 export const TURNSTILE_SITE_KEY: string | undefined =
   (import.meta.env.VITE_TURNSTILE_SITE_KEY as string | undefined) || undefined;
