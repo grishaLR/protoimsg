@@ -73,6 +73,11 @@ const CONVERSATION_MATCHES: ConversationMatch[] = [
     i18nKey: 'bot:responses.topic.groupcalls',
   },
   {
+    patterns: [/buddy list/, /what is (the |my )?community/, /my (buddy|friend) list/],
+    response: () => TOPICS['community'] ?? '',
+    i18nKey: 'bot:responses.topic.community',
+  },
+  {
     patterns: [
       /add (a |my )?(friend|buddy|person|someone|people)/,
       /how (do i|to) find (people|someone|friends)/,
