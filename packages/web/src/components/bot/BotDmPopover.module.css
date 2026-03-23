@@ -214,3 +214,73 @@
   opacity: 0.4;
   cursor: not-allowed;
 }
+
+/* Resize handles — invisible hit areas around all edges and corners */
+.resizeHandle {
+  position: absolute;
+  z-index: var(--cm-z-local-top);
+}
+
+.resizeN {
+  top: calc(var(--cm-call-resize-edge) / -2);
+  left: var(--cm-call-resize-corner);
+  right: var(--cm-call-resize-corner);
+  height: var(--cm-call-resize-edge);
+  cursor: n-resize;
+}
+
+.resizeS {
+  bottom: calc(var(--cm-call-resize-edge) / -2);
+  left: var(--cm-call-resize-corner);
+  right: var(--cm-call-resize-corner);
+  height: var(--cm-call-resize-edge);
+  cursor: s-resize;
+}
+
+.resizeE {
+  top: var(--cm-call-resize-corner);
+  bottom: var(--cm-call-resize-corner);
+  right: calc(var(--cm-call-resize-edge) / -2);
+  width: var(--cm-call-resize-edge);
+  cursor: e-resize;
+}
+
+.resizeW {
+  top: var(--cm-call-resize-corner);
+  bottom: var(--cm-call-resize-corner);
+  left: calc(var(--cm-call-resize-edge) / -2);
+  width: var(--cm-call-resize-edge);
+  cursor: w-resize;
+}
+
+.resizeNE {
+  top: calc(var(--cm-call-resize-edge) / -2);
+  right: calc(var(--cm-call-resize-edge) / -2);
+  width: var(--cm-call-resize-corner);
+  height: var(--cm-call-resize-corner);
+  cursor: ne-resize;
+}
+
+.resizeNW {
+  top: calc(var(--cm-call-resize-edge) / -2);
+  left: calc(var(--cm-call-resize-edge) / -2);
+  width: var(--cm-call-resize-corner);
+  height: var(--cm-call-resize-corner);
+  cursor: nw-resize;
+}
+
+.resizeSE {
+  bottom: calc(var(--cm-call-resize-edge) / -2);
+  right: calc(var(--cm-call-resize-edge) / -2);
+  width: var(--cm-call-resize-corner);
+  height: var(--cm-call-resize-corner);
+  cursor: se-resize;
+}
+
+.resizeSW {
+  bottom: calc(var(--cm-call-resize-edge) / -2);
+  left: calc(var(--cm-call-resize-edge) / -2);
+  width: var(--cm-call-resize-corner);
+  height: var(--cm-call-resize-corner);
+  cursor: sw-resize;
+}

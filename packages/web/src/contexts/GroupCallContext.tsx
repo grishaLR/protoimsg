@@ -58,7 +58,7 @@ export function useGroupCall(): GroupCallContextValue {
 }
 
 export function GroupCallProvider({ children }: { children: ReactNode }) {
-  const { send, subscribe } = useWebSocket();
+  const { send, subscribe, connected } = useWebSocket();
 
   const [activeGroupCall, setActiveGroupCall] = useState<GroupCallState | null>(null);
   const [roomCalls, setRoomCalls] = useState<Map<string, ActiveRoomCall>>(new Map());
@@ -160,6 +160,16 @@ export function GroupCallProvider({ children }: { children: ReactNode }) {
 
     return unsubscribe;
   }, [subscribe, roomCalls, isSupported]);
+
+  // Auto-join a meeting if a pending meet code was saved (e.g. from /meet/:callId before OAuth)
+  useEffect(() => {
+    if (!connected) return;
+    const pending = sessionStorage.getItem('protoimsg:pending_meet_code');
+    if (pending) {
+      sessionStorage.removeItem('protoimsg:pending_meet_code');
+      send({ type: 'group_call_join_by_code', meetCode: pending });
+    }
+  }, [connected, send]);
 
   const startGroupCall = useCallback(
     (roomId: string) => {

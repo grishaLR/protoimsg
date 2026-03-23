@@ -2,6 +2,8 @@ import { randomUUID, randomBytes } from 'crypto';
 import { RoomServiceClient } from 'livekit-server-sdk';
 import { generateAnonymousToken } from './token.js';
 import { createLogger } from '../logger.js';
+import type { Sql } from '../db/client.js';
+import { batchIsCommunityMember, batchIsInnerCircleMember } from '../community/queries.js';
 
 const log = createLogger('group-calls');
 
@@ -69,6 +71,7 @@ export function createGroupCallService(
   livekitUrl: string,
   livekitApiKey: string,
   livekitApiSecret: string,
+  sql: Sql,
 ): GroupCallService {
   /** All active calls. Key: callId. */
   const calls = new Map<string, GroupCall>();
@@ -203,12 +206,41 @@ export function createGroupCallService(
     return joinCall(callId, did);
   }
 
+  async function checkAccess(call: GroupCall, did: string): Promise<void> {
+    // Creator always has access
+    if (did === call.creatorDid) return;
+    // Already in the call (rejoin/token refresh)
+    if (call.participants.has(did)) return;
+
+    switch (call.access) {
+      case 'anyone':
+        return;
+      case 'community': {
+        const members = await batchIsCommunityMember(sql, call.creatorDid, [did]);
+        if (!members.has(did)) throw new Error('This meeting is restricted to community members');
+        return;
+      }
+      case 'inner-circle': {
+        const inner = await batchIsInnerCircleMember(sql, call.creatorDid, [did]);
+        if (!inner.has(did)) throw new Error('This meeting is restricted to inner circle');
+        return;
+      }
+      case 'allowlist': {
+        if (!call.allowedDids.has(did))
+          throw new Error('You are not on the invite list for this meeting');
+        return;
+      }
+    }
+  }
+
   async function joinCall(
     callId: string,
     did: string,
   ): Promise<{ call: GroupCall; token: string }> {
     const call = calls.get(callId);
     if (!call) throw new Error('Call not found');
+
+    await checkAccess(call, did);
 
     // Already in the call? Generate a fresh token
     let participant = call.participants.get(did);

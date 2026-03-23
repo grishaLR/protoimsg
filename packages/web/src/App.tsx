@@ -1,6 +1,6 @@
 import { lazy, Suspense } from 'react';
 import { useTranslation } from 'react-i18next';
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate, useParams } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Analytics } from '@vercel/analytics/react';
 import { AuthProvider } from './contexts/AuthContext';
@@ -64,9 +64,14 @@ const VideoCallWindowPage = lazy(() =>
     import('./pages/VideoCallWindowPage').then((m) => ({ default: m.VideoCallWindowPage })),
   ),
 );
-const MeetPage = lazy(() =>
-  reloadOnChunkError(import('./pages/MeetPage').then((m) => ({ default: m.MeetPage }))),
-);
+/** /meet/:callId — saves the meet code so it survives OAuth, then redirects to /. */
+function MeetRedirect() {
+  const { callId } = useParams<{ callId: string }>();
+  if (callId) {
+    sessionStorage.setItem('protoimsg:pending_meet_code', callId);
+  }
+  return <Navigate to="/" replace />;
+}
 const BetaSignupPage = lazy(() =>
   reloadOnChunkError(import('./pages/BetaSignupPage').then((m) => ({ default: m.BetaSignupPage }))),
 );
@@ -184,22 +189,7 @@ function AppRoutes() {
           </ProtectedRoute>
         }
       />
-      <Route
-        path="/meet"
-        element={
-          <ProtectedRoute>
-            <MeetPage />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/meet/:callId"
-        element={
-          <ProtectedRoute>
-            <MeetPage />
-          </ProtectedRoute>
-        }
-      />
+      <Route path="/meet/:callId" element={<MeetRedirect />} />
       <Route
         path="/videocall/:conversationId"
         element={

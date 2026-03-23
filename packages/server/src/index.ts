@@ -159,6 +159,7 @@ async function main() {
       config.LIVEKIT_URL,
       config.LIVEKIT_API_KEY,
       config.LIVEKIT_API_SECRET,
+      db,
     );
     log.info({ url: config.LIVEKIT_URL }, 'Group call service enabled (LiveKit)');
   }

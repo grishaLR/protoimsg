@@ -38,13 +38,14 @@ export function createBotService(emailService: EmailService | null, sql: Sql): B
   const reportRateLimiter = new InMemoryRateLimiter({ windowMs: 3_600_000, maxRequests: 3 });
   const feedbackRateLimiter = new InMemoryRateLimiter({ windowMs: 3_600_000, maxRequests: 5 });
 
-  function sendBotResponse(ws: WebSocket, text: string): void {
+  function sendBotResponse(ws: WebSocket, text: string, i18nKey?: string): void {
     if (ws.readyState !== ws.OPEN) return;
     ws.send(
       JSON.stringify({
         type: 'bot_dm_response',
         data: {
           text,
+          ...(i18nKey ? { i18nKey } : {}),
           createdAt: new Date().toISOString(),
         },
       }),
@@ -82,7 +83,7 @@ export function createBotService(emailService: EmailService | null, sql: Sql): B
     handleOpen(ws, did, handle) {
       sessions.set(ws, { did, handle, lastActivity: Date.now() });
       const greeting = getGreeting();
-      sendBotResponse(ws, greeting.text);
+      sendBotResponse(ws, greeting.text, greeting.i18nKey);
       log.info({ did }, 'Bot DM opened');
     },
 
@@ -94,7 +95,7 @@ export function createBotService(emailService: EmailService | null, sql: Sql): B
 
       const ctx = makeContext(did, handle);
       const result = await handleCommand(text, ctx);
-      sendBotResponse(ws, result.text);
+      sendBotResponse(ws, result.text, result.i18nKey);
     },
 
     handleClose(ws) {

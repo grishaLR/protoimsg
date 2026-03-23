@@ -1,10 +1,10 @@
 /** Scripted response text for ProtoBuddy bot — SmarterChild energy. */
 
 export const GREETING =
-  "Hey! I'm ProtoBuddy. Think of me as the friend who knows where everything is. Type /help to see what I've got.";
+  'Hey! I\'m ProtoBuddy — your guide to protoimsg.\n\nThis is AIM-inspired video chat on the AT Protocol. Free, cross-platform video calls. No FaceTime lock-in, no platform walls.\n\nHere\'s the quick tour:\n\n\u2022 **Meet tab** — start or join a video call. Share the code with anyone.\n\u2022 **Buddy list** — add people, see who\'s online, IM or video call them.\n\u2022 **Visibility** — control who sees you (eye icon in the header).\n\u2022 **Away messages** — set one in the menu. Classic AIM energy.\n\nJust ask me anything — "how do I add a friend?", "what\'s inner circle?", "is this private?" — or type /help for the full list.';
 
 export const UNKNOWN_COMMAND =
-  'Hmm, not sure about that one. Try /help to see what I can help with — themes, privacy, video calls, all that good stuff.';
+  'Hmm, not sure about that one. Try asking me something like "how do I start a video call?" or "who can see me online?" — or type /help for the full list.';
 
 export const RATE_LIMITED = 'Easy there! Give me a sec and try again.';
 
@@ -36,12 +36,13 @@ export const HELP_INDEX = `Here's what I know about:
 
 /help ims — How IMs work
 /help privacy — What's public vs private
-/help rooms — Chat rooms
+/help rooms — Chat rooms (paused)
 /help community — Your buddy list
 /help innercircle — Your trusted people
 /help presence — Status & away messages
 /help visibility — Who sees you online
-/help calls — Video calls
+/help calls — Video calls (1:1 & group)
+/help groupcalls — Group meetings & access control
 /help moderation — Blocking & reporting
 /help themes — Theme picker
 /help translations — Language support
@@ -51,7 +52,7 @@ export const HELP_INDEX = `Here's what I know about:
 /help richtext — Text formatting
 /help portability — Account portability
 /help feed — Feed view
-/help createroom — Making a room
+/help createroom — Making a room (paused)
 /help addbuddy — Adding people
 
 Also: /rules, /report @user reason, /feedback message, /info`;
@@ -90,6 +91,11 @@ export const TOPIC_ALIASES: Record<string, string> = {
   call: 'calls',
   video: 'calls',
   videocall: 'calls',
+  groupcalls: 'groupcalls',
+  groupcall: 'groupcalls',
+  meeting: 'groupcalls',
+  meetings: 'groupcalls',
+  meet: 'groupcalls',
   moderation: 'moderation',
   mod: 'moderation',
   block: 'moderation',
@@ -161,11 +167,7 @@ Set it in the status dropdown by your name. Saved locally, restored on reconnect
 
 Rooms are different \u2014 if you're in a room, people there can see you regardless.`,
 
-  rooms: `Rooms are public ATProto chat spaces. Your messages are records you own \u2014 portable and federated.
-
-They can have multiple channels, slow mode, allowlists, and mod teams. Room owners run the show.
-
-Browse the room list to join, or check /help createroom to make your own.`,
+  rooms: `Chat rooms are paused while we re-assess how we want to approach them. Stay tuned.`,
 
   community: `Your buddy list is an ATProto record you own. It travels with your account if you ever switch PDS providers.
 
@@ -188,12 +190,24 @@ Set an away message by clicking your status \u2192 Away \u2192 type something. S
 
 All in-memory, nothing saved.`,
 
-  calls: `Video calls are peer-to-peer via WebRTC.
+  calls: `Two kinds of calls:
 
-Inner circle \u2192 direct P2P connection. Fastest, most private.
-Everyone else \u2192 routed through a TURN relay. Still encrypted, just relayed.
+1:1 — peer-to-peer via WebRTC. Inner circle gets direct P2P (fastest, most private). Everyone else goes through a TURN relay (still encrypted, just relayed). Click the video icon in a DM or right-click a buddy.
 
-Click the video icon in a DM or right-click a buddy to call. You can mute, toggle camera, flip camera, and share your screen.`,
+Group — powered by LiveKit. Hit "New meeting" on the Meet tab, share the code. Up to 150 people. You can lock it down: "Anyone with the link", "My community only", or "Inner circle only."
+
+Both support mute, camera toggle, screen share.`,
+
+  groupcalls: `Group video calls live on the Meet tab.
+
+Hit "New meeting" to start one. You'll get a shareable code (like abc-defg-hij). Send it to people.
+
+Access control: before creating, pick who can join —
+• Anyone with the link (default)
+• My community only (people in your buddy list)
+• Inner circle only (your trusted people)
+
+People who don't meet the requirement get a clear error when they try to join. You can't sneak in.`,
 
   moderation: `Block \u2014 ATProto-level. They can't see you, can't IM you, can't interact. Immediate.
 
@@ -234,11 +248,7 @@ Rooms, messages, buddy list \u2014 all ATProto records in your repo. No vendor l
 
 Auto-translate toggle in Settings. Click any message to jump to that room. Switch between Feed and Buddy List with the buttons at the bottom.`,
 
-  createroom: `Chat Rooms \u2192 Create Room.
-
-Name it, add a topic and description, pick a category. Optional: slow mode, min account age, allowlist-only.
-
-You'll be the owner. You can add mods, manage bans, tweak settings anytime.`,
+  createroom: `Room creation is paused while we re-assess how we want to approach chat rooms. Stay tuned.`,
 
   addbuddy: `Search bar at the top of the buddy list. Type a handle or name, click to add.
 
@@ -247,9 +257,9 @@ They'll land in your Community group. Right-click to move them to a custom group
 Your buddy list syncs across sessions and moves with your account.`,
 };
 
-export const INFO_DM = `protoimsg \u2014 AIM-inspired chat on the AT Protocol.
+export const INFO_DM = `protoimsg \u2014 AIM-inspired video chat on the AT Protocol.
 
-Rooms, buddy lists, presence, away messages, IMs, video calls, translations. Built for community.
+Free, cross-platform video calls for anyone with a connected device. No FaceTime lock-in, no platform walls. Plus buddy lists, presence, away messages, IMs, and translations. Built for community.
 
 Type /help to see everything I know about.`;
 

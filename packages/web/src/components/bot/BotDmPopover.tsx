@@ -2,8 +2,11 @@ import { useEffect, useRef, useState, type KeyboardEvent } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Minus, ChevronUp, X } from 'lucide-react';
 import { BOT } from '@protoimsg/shared';
-import { useBotDm } from '../../contexts/BotDmContext';
+import { useBotDm, type BotDmMessage } from '../../contexts/BotDmContext';
+import { useDragResize } from '../../hooks/useDragResize';
 import styles from './BotDmPopover.module.css';
+
+const DRAG_THRESHOLD = 4;
 
 export function BotDmPopover() {
   const { t } = useTranslation('bot');
@@ -11,6 +14,29 @@ export function BotDmPopover() {
   const [text, setText] = useState('');
   const listRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
+
+  const expanded = !minimized;
+  const {
+    containerRef,
+    posStyle,
+    sizeStyle,
+    onDragStart,
+    onPointerMove,
+    onPointerUp,
+    onResizeStart,
+    reset,
+  } = useDragResize({
+    minWidth: 240,
+    minHeight: 180,
+    enabled: expanded,
+  });
+
+  // Reset position/size when minimized
+  useEffect(() => {
+    if (minimized) {
+      reset();
+    }
+  }, [minimized, reset]);
 
   // Auto-scroll to bottom on new messages
   useEffect(() => {
@@ -31,6 +57,39 @@ export function BotDmPopover() {
     }
   }, [minimized, isOpen]);
 
+  // Drag/click disambiguation
+  const dragStartPos = useRef<{ x: number; y: number } | null>(null);
+
+  const handleHeaderPointerDown = (e: React.PointerEvent) => {
+    if ((e.target as HTMLElement).closest('button')) return;
+    if (expanded) {
+      dragStartPos.current = { x: e.clientX, y: e.clientY };
+      onDragStart(e);
+    }
+  };
+
+  const handleHeaderPointerUp = (e: React.PointerEvent) => {
+    if ((e.target as HTMLElement).closest('button')) return;
+    if (dragStartPos.current) {
+      const dx = e.clientX - dragStartPos.current.x;
+      const dy = e.clientY - dragStartPos.current.y;
+      const moved = Math.sqrt(dx * dx + dy * dy) > DRAG_THRESHOLD;
+      dragStartPos.current = null;
+      if (!moved) {
+        toggleMinimize();
+      }
+    } else if (minimized) {
+      toggleMinimize();
+    }
+  };
+
+  const handleHeaderKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      toggleMinimize();
+    }
+  };
+
   if (!isOpen) return null;
 
   function handleKeyDown(e: KeyboardEvent<HTMLTextAreaElement>) {
@@ -47,25 +106,78 @@ export function BotDmPopover() {
     setText('');
   }
 
-  const expanded = !minimized;
-
   return (
     <div
+      ref={containerRef}
       className={`${styles.popover} ${minimized ? styles.minimized : ''}`}
+      style={{ ...posStyle, ...sizeStyle }}
       aria-label={t('ariaLabel')}
+      onPointerMove={onPointerMove}
+      onPointerUp={onPointerUp}
     >
+      {/* Resize handles — only when expanded */}
+      {expanded && (
+        <>
+          <div
+            className={`${styles.resizeHandle} ${styles.resizeN}`}
+            onPointerDown={(e) => {
+              onResizeStart('n', e);
+            }}
+          />
+          <div
+            className={`${styles.resizeHandle} ${styles.resizeS}`}
+            onPointerDown={(e) => {
+              onResizeStart('s', e);
+            }}
+          />
+          <div
+            className={`${styles.resizeHandle} ${styles.resizeE}`}
+            onPointerDown={(e) => {
+              onResizeStart('e', e);
+            }}
+          />
+          <div
+            className={`${styles.resizeHandle} ${styles.resizeW}`}
+            onPointerDown={(e) => {
+              onResizeStart('w', e);
+            }}
+          />
+          <div
+            className={`${styles.resizeHandle} ${styles.resizeNE}`}
+            onPointerDown={(e) => {
+              onResizeStart('ne', e);
+            }}
+          />
+          <div
+            className={`${styles.resizeHandle} ${styles.resizeNW}`}
+            onPointerDown={(e) => {
+              onResizeStart('nw', e);
+            }}
+          />
+          <div
+            className={`${styles.resizeHandle} ${styles.resizeSE}`}
+            onPointerDown={(e) => {
+              onResizeStart('se', e);
+            }}
+          />
+          <div
+            className={`${styles.resizeHandle} ${styles.resizeSW}`}
+            onPointerDown={(e) => {
+              onResizeStart('sw', e);
+            }}
+          />
+        </>
+      )}
+
       <div
         className={styles.header}
-        onClick={toggleMinimize}
+        onPointerDown={handleHeaderPointerDown}
+        onPointerUp={handleHeaderPointerUp}
+        onKeyDown={handleHeaderKeyDown}
         role="button"
         tabIndex={0}
         aria-expanded={expanded}
-        onKeyDown={(e) => {
-          if (e.key === 'Enter' || e.key === ' ') {
-            e.preventDefault();
-            toggleMinimize();
-          }
-        }}
+        style={{ cursor: expanded ? 'grab' : 'pointer', touchAction: 'none' }}
       >
         <span className={styles.botIcon} aria-hidden="true">
           {'\u{1F916}'}
@@ -102,12 +214,7 @@ export function BotDmPopover() {
       <div className={minimized ? `${styles.body} ${styles.bodyHidden}` : styles.body}>
         <div className={styles.messageList} ref={listRef} role="log" aria-live="polite">
           {messages.map((msg) => (
-            <div
-              key={msg.id}
-              className={`${styles.message} ${msg.fromBot ? styles.botMessage : styles.userMessage}`}
-            >
-              {msg.text}
-            </div>
+            <BotMessageBubble key={msg.id} msg={msg} />
           ))}
         </div>
         <div className={styles.inputRow}>
@@ -128,6 +235,20 @@ export function BotDmPopover() {
           </button>
         </div>
       </div>
+    </div>
+  );
+}
+
+function BotMessageBubble({ msg }: { msg: BotDmMessage }) {
+  const { t, i18n } = useTranslation('bot');
+  let displayText = msg.text;
+  if (msg.fromBot && msg.i18nKey && i18n.language !== 'en') {
+    const translated = t(msg.i18nKey.replace('bot:', ''), { defaultValue: '' }) as string;
+    if (translated.length > 0) displayText = translated;
+  }
+  return (
+    <div className={`${styles.message} ${msg.fromBot ? styles.botMessage : styles.userMessage}`}>
+      {displayText}
     </div>
   );
 }

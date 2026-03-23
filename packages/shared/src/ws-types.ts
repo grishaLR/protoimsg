@@ -489,6 +489,8 @@ export interface BotDmResponseEvent extends WsMessageBase {
   type: 'bot_dm_response';
   data: {
     text: string;
+    /** Optional i18n key for client-side translation (falls back to `text` if missing or untranslated). */
+    i18nKey?: string;
     createdAt: string;
   };
 }
