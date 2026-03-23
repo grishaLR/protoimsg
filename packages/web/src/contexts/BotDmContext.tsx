@@ -16,6 +16,7 @@ const MAX_MESSAGES = 100;
 export interface BotDmMessage {
   id: string;
   text: string;
+  i18nKey?: string;
   fromBot: boolean;
   createdAt: string;
 }
@@ -82,6 +83,23 @@ export function BotDmProvider({ children }: { children: ReactNode }) {
     setMinimized((prev) => !prev);
   }, []);
 
+  // Auto-open on first login for onboarding
+  const hasOnboarded = useRef(false);
+  useEffect(() => {
+    if (!connected || hasOnboarded.current) return;
+    hasOnboarded.current = true;
+    const key = 'protoimsg:bot-onboarded';
+    if (!localStorage.getItem(key)) {
+      localStorage.setItem(key, '1');
+      const timer = setTimeout(() => {
+        openBotDm();
+      }, 1500);
+      return () => {
+        clearTimeout(timer);
+      };
+    }
+  }, [connected, openBotDm]);
+
   // Subscribe to bot_dm_response events
   useEffect(() => {
     const unsub = subscribe((msg: ServerMessage) => {
@@ -89,6 +107,7 @@ export function BotDmProvider({ children }: { children: ReactNode }) {
         const botMsg: BotDmMessage = {
           id: `bot-${crypto.randomUUID()}`,
           text: msg.data.text,
+          i18nKey: msg.data.i18nKey,
           fromBot: true,
           createdAt: msg.data.createdAt,
         };
