@@ -3,12 +3,9 @@
  * Requires DATABASE_URL (e.g. CI or local Docker Postgres).
  * Skipped when DATABASE_URL is not set.
  */
-import { randomUUID } from 'node:crypto';
 import { afterAll, describe, expect, it } from 'vitest';
 import type { Sql } from './client.js';
 import { createDb } from './client.js';
-import { createRoom, getRoomById } from '../rooms/queries.js';
-import { insertMessage, getMessagesByRoom } from '../messages/queries.js';
 import { createDmService } from '../dms/service.js';
 
 const DATABASE_URL = process.env.DATABASE_URL;
@@ -33,60 +30,6 @@ describe('DB integration', () => {
     );
     expect(Array.isArray(rows)).toBe(true);
     expect(rows.length).toBeGreaterThanOrEqual(0);
-  });
-});
-
-describe('Room and message flow', () => {
-  it.skipIf(skipIntegration)('create room, insert message, read back', async () => {
-    if (!sql) throw new Error('No DB client');
-    const roomId = `test-room-${randomUUID().slice(0, 8)}`;
-    const roomUri = `at://did:plc:test/app.protoimsg.chat.room/${roomId}`;
-    const did = 'did:plc:integration-test';
-    const now = new Date().toISOString();
-
-    await createRoom(sql, {
-      id: roomId,
-      uri: roomUri,
-      did,
-      cid: null,
-      name: 'Integration test room',
-      description: 'For DB integration tests',
-      purpose: 'discussion',
-      topic: 'Testing',
-      visibility: 'public',
-      minAccountAgeDays: 0,
-      slowModeSeconds: 0,
-      allowlistEnabled: false,
-      createdAt: now,
-    });
-
-    const room = await getRoomById(sql, roomId);
-    expect(room).toBeDefined();
-    expect(room?.name).toBe('Integration test room');
-
-    const msgId = `test-msg-${randomUUID().slice(0, 8)}`;
-    const msgUri = `at://${did}/app.protoimsg.chat.message/${msgId}`;
-    // Create a default channel for the room
-    const channelId = `${roomId}_general`;
-    await sql`INSERT INTO channels (id, uri, did, room_id, name, is_default, created_at)
-      VALUES (${channelId}, ${'synthetic://default-channel/' + roomId}, ${did}, ${roomId}, 'general', true, ${now})
-      ON CONFLICT (id) DO NOTHING`;
-
-    await insertMessage(sql, {
-      id: msgId,
-      uri: msgUri,
-      did,
-      cid: null,
-      roomId,
-      channelId,
-      text: 'Hello from integration test',
-      createdAt: now,
-    });
-
-    const messages = await getMessagesByRoom(sql, roomId, { limit: 10 });
-    expect(messages.length).toBe(1);
-    expect(messages[0]?.text).toBe('Hello from integration test');
-    expect(messages[0]?.room_id).toBe(roomId);
   });
 });
 

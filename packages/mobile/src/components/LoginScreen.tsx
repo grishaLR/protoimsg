@@ -36,7 +36,7 @@ export default function LoginScreen() {
     setError(null);
     setSubmitting(true);
     try {
-      await login(trimmed, []);
+      await login(trimmed);
     } catch (err: unknown) {
       console.error('[Login] sign-in error:', err);
       if (err instanceof AccountBannedError) {
