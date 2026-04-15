@@ -9,7 +9,7 @@ import {
 } from 'react';
 import { Agent } from '@atproto/api';
 import type { OAuthSession } from '@atproto/oauth-client-browser';
-import { buildOAuthScope, type OptionalScopeGroup } from '@protoimsg/shared';
+import { OAUTH_SCOPE } from '@protoimsg/shared';
 import { getOAuthClient, REQUIRED_SCOPES, AUTH_VERSION } from '../lib/oauth';
 import {
   AccountBannedError,
@@ -23,6 +23,7 @@ import {
   getServerToken,
 } from '../lib/api';
 import { IS_TAURI } from '../lib/config';
+import { publicAgent } from '../lib/public-agent';
 import { Sentry } from '../sentry';
 
 export type AuthPhase =
@@ -42,16 +43,8 @@ export interface AuthContextValue {
   isLoading: boolean;
   authPhase: AuthPhase;
   authError: string | null;
-  hasFeed: boolean;
-  hasProfileEdit: boolean;
-  hasBskyReads: boolean;
-  hasBskyAccess: boolean;
   grantedScopes: string[];
-  login: (
-    handle: string,
-    optionalGroups?: OptionalScopeGroup[],
-    turnstileToken?: string,
-  ) => Promise<void>;
+  login: (handle: string, turnstileToken?: string) => Promise<void>;
   logout: () => void;
 }
 
@@ -76,27 +69,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   });
 
   const isLoading = useMemo(() => authPhase !== 'ready' && authPhase !== 'idle', [authPhase]);
-
-  // Matches both old (`repo:app.bsky.feed.post`) and new parameterized
-  // (`repo?collection=app.bsky.feed.post&action=create`) scope formats.
-  const hasFeed = grantedScopes.some(
-    (s) =>
-      s.startsWith('repo:app.bsky.feed.') ||
-      s.startsWith('include:app.bsky.authCreatePosts') ||
-      (s.startsWith('repo?') && s.includes('app.bsky.feed.post')),
-  );
-  const hasProfileEdit = grantedScopes.some(
-    (s) =>
-      s === 'repo:app.bsky.actor.profile' ||
-      s.startsWith('include:app.bsky.authManageProfile') ||
-      (s.startsWith('repo?') && s.includes('app.bsky.actor.profile')),
-  );
-  // Matches both old (`rpc:app.bsky.*`) and new parameterized (`rpc?lxm=app.bsky.*`) scope formats.
-  const hasBskyReads = grantedScopes.some(
-    (s) => (s.startsWith('rpc:') || s.startsWith('rpc?')) && s.includes('app.bsky.'),
-  );
-  // Broader: any scope referencing app.bsky (rpc, repo, include — any format).
-  const hasBskyAccess = grantedScopes.some((s) => s.includes('app.bsky.'));
 
   const clearAuth = useCallback(() => {
     setSession(null);
@@ -249,7 +221,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             try {
               setAuthPhase('resolving');
               const [profile, { nonce }] = await Promise.all([
-                newAgent.getProfile({ actor: restoredSession.did }),
+                publicAgent.getProfile({ actor: restoredSession.did }),
                 fetchChallenge(restoredSession.did),
               ]);
               const resolvedHandle = profile.data.handle;
@@ -322,36 +294,33 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, [clearAuth]);
 
-  const login = useCallback(
-    async (inputHandle: string, optionalGroups?: OptionalScopeGroup[], turnstileToken?: string) => {
-      setAuthError(null);
+  const login = useCallback(async (inputHandle: string, turnstileToken?: string) => {
+    setAuthError(null);
 
-      // Pre-OAuth ban + captcha check — throws on ban, allowlist, or captcha failure.
-      // Let it propagate so the caller (LoginForm) can show the proper screen.
-      // Non-ban errors (network, etc.) are swallowed — let OAuth proceed normally.
-      try {
-        await preflightCheck(inputHandle, turnstileToken);
-      } catch (err: unknown) {
-        if (
-          err instanceof AccountBannedError ||
-          err instanceof NotOnAllowlistError ||
-          err instanceof CaptchaFailedError
-        )
-          throw err;
-      }
+    // Pre-OAuth ban + captcha check — throws on ban, allowlist, or captcha failure.
+    // Let it propagate so the caller (LoginForm) can show the proper screen.
+    // Non-ban errors (network, etc.) are swallowed — let OAuth proceed normally.
+    try {
+      await preflightCheck(inputHandle, turnstileToken);
+    } catch (err: unknown) {
+      if (
+        err instanceof AccountBannedError ||
+        err instanceof NotOnAllowlistError ||
+        err instanceof CaptchaFailedError
+      )
+        throw err;
+    }
 
-      // Flag that an OAuth redirect is in progress — checked on return to
-      // decide whether to show the full ConnectingScreen or a quick restore.
-      sessionStorage.setItem('protoimsg:oauth_pending', '1');
-      const oauthClient = getOAuthClient();
-      await oauthClient.signIn(inputHandle, {
-        scope: buildOAuthScope(optionalGroups),
-      });
-      // This redirects to PDS — execution won't continue here.
-      // On return, init() in the useEffect above catches the callback.
-    },
-    [],
-  );
+    // Flag that an OAuth redirect is in progress — checked on return to
+    // decide whether to show the full ConnectingScreen or a quick restore.
+    sessionStorage.setItem('protoimsg:oauth_pending', '1');
+    const oauthClient = getOAuthClient();
+    await oauthClient.signIn(inputHandle, {
+      scope: OAUTH_SCOPE,
+    });
+    // This redirects to PDS — execution won't continue here.
+    // On return, init() in the useEffect above catches the callback.
+  }, []);
 
   const logout = useCallback(() => {
     const sub = did;
@@ -377,10 +346,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       isLoading,
       authPhase,
       authError,
-      hasFeed,
-      hasProfileEdit,
-      hasBskyReads,
-      hasBskyAccess,
       grantedScopes,
       login,
       logout,
@@ -394,10 +359,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       isLoading,
       authPhase,
       authError,
-      hasFeed,
-      hasProfileEdit,
-      hasBskyReads,
-      hasBskyAccess,
       grantedScopes,
       login,
       logout,

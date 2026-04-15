@@ -1,4 +1,4 @@
-import { LIMITS } from '@protoimsg/shared';
+const MAX_TEXT_LENGTH = 3000;
 
 const BLOCKED_PATTERNS: Array<{ pattern: RegExp; reason: string }> = [
   { pattern: /(.)\1{15,}/, reason: 'Character spam detected' },
@@ -11,10 +11,10 @@ export interface FilterResult {
 }
 
 export function filterText(text: string): FilterResult {
-  if (text.length > LIMITS.maxMessageLength) {
+  if (text.length > MAX_TEXT_LENGTH) {
     return {
       passed: false,
-      reason: `Message exceeds ${String(LIMITS.maxMessageLength)} characters`,
+      reason: `Message exceeds ${String(MAX_TEXT_LENGTH)} characters`,
     };
   }
 

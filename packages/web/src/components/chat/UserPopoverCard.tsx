@@ -17,7 +17,7 @@ interface UserPopoverCardProps {
 }
 
 export function UserPopoverCard({ did, anchorRect, onClose, onViewProfile }: UserPopoverCardProps) {
-  const { t } = useTranslation('chat');
+  const { t } = useTranslation('common');
   const profile = useProfile(did);
   const { agent, did: currentUserDid } = useAuth();
   const { send } = useWebSocket();

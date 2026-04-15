@@ -5,7 +5,6 @@ import type { Sql } from '../db/client.js';
 import { USER_AGENT } from '@protoimsg/shared';
 import type { GlobalAllowlistService } from '../moderation/global-allowlist-service.js';
 import type { EmailService } from '../email/service.js';
-import { setRoomHidden } from '../rooms/queries.js';
 import { createLogger } from '../logger.js';
 
 const log = createLogger('admin');
@@ -102,36 +101,6 @@ export function adminRouter(
         waitlistUpdated: updated.length > 0,
         emailSent: !!entry?.email && !!emailService,
       });
-    } catch (err) {
-      next(err);
-    }
-  });
-
-  // POST /rooms/:id/hide — hide a room from the directory
-  router.post('/rooms/:id/hide', async (req, res, next) => {
-    try {
-      const updated = await setRoomHidden(sql, req.params.id, true);
-      if (!updated) {
-        res.status(404).json({ error: 'Room not found' });
-        return;
-      }
-      log.info({ roomId: req.params.id }, 'Room hidden by admin');
-      res.json({ success: true });
-    } catch (err) {
-      next(err);
-    }
-  });
-
-  // POST /rooms/:id/unhide — unhide a room
-  router.post('/rooms/:id/unhide', async (req, res, next) => {
-    try {
-      const updated = await setRoomHidden(sql, req.params.id, false);
-      if (!updated) {
-        res.status(404).json({ error: 'Room not found' });
-        return;
-      }
-      log.info({ roomId: req.params.id }, 'Room unhidden by admin');
-      res.json({ success: true });
     } catch (err) {
       next(err);
     }

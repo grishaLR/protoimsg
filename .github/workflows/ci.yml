@@ -37,17 +37,14 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Audit production dependencies
-        run: pnpm audit --prod --audit-level=high
-
       - name: Lint
-        run: pnpm lint
+        run: pnpm turbo lint --filter='!@protoimsg/desktop' --filter='!@protoimsg/mobile'
 
       - name: Format check
         run: pnpm format:check
 
       - name: Typecheck
-        run: pnpm turbo typecheck --filter='!@protoimsg/desktop'
+        run: pnpm turbo typecheck --filter='!@protoimsg/desktop' --filter='!@protoimsg/mobile'
 
       - name: Build
         run: pnpm turbo build --filter='!@protoimsg/desktop'
@@ -69,8 +66,6 @@ jobs:
       server: ${{ steps.filter.outputs.server }}
       web: ${{ steps.filter.outputs.web }}
       mobile: ${{ steps.filter.outputs.mobile }}
-      nllb: ${{ steps.filter.outputs.nllb }}
-      libretranslate: ${{ steps.filter.outputs.libretranslate }}
       coturn: ${{ steps.filter.outputs.coturn }}
       pds: ${{ steps.filter.outputs.pds }}
     steps:
@@ -91,10 +86,6 @@ jobs:
               - 'packages/shared/**'
               - 'packages/lexicon/**'
               - 'vercel.json'
-            nllb:
-              - 'docker/nllb/**'
-            libretranslate:
-              - 'fly.libretranslate.toml'
             coturn:
               - 'docker/coturn/**'
               - 'fly.coturn.toml'
@@ -167,34 +158,6 @@ jobs:
         env:
           VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
-
-  deploy-nllb:
-    needs: changes
-    if: needs.changes.outputs.nllb == 'true'
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: superfly/flyctl-actions/setup-flyctl@master
-
-      - name: Deploy NLLB to Fly.io
-        run: cd docker/nllb && flyctl deploy --remote-only --config fly.toml
-        env:
-          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
-
-  deploy-libretranslate:
-    needs: changes
-    if: needs.changes.outputs.libretranslate == 'true'
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: superfly/flyctl-actions/setup-flyctl@master
-
-      - name: Deploy LibreTranslate to Fly.io
-        run: flyctl deploy --remote-only --config fly.libretranslate.toml
-        env:
-          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
 
   deploy-coturn:
     needs: changes

@@ -1,4 +1,4 @@
-import { useState, useMemo, useCallback, useEffect, useRef } from 'react';
+import { useState, useMemo, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useVirtualList } from 'virtualized-ui';
 import type { CommunityGroup } from '@protoimsg/lexicon';
@@ -7,14 +7,10 @@ import { BOT_ENABLED } from '../../lib/config';
 import { StatusIndicator } from './StatusIndicator';
 import { UserIdentity } from './UserIdentity';
 import { BuddyMenu } from './BuddyMenu';
-import { GroupHeaderRow } from './GroupHeaderRow';
 import { ActorSearch, type ActorSearchResult } from '../shared/ActorSearch';
 import { useRotatingPlaceholder } from '../../hooks/useRotatingPlaceholder';
 import { useBlocks } from '../../contexts/BlockContext';
-import { useCollapsedGroups } from '../../hooks/useCollapsedGroups';
-import { useContentTranslation } from '../../hooks/useContentTranslation';
 import { useBotDm } from '../../contexts/BotDmContext';
-import { ScrollableGroup } from './ScrollableGroup';
 import { ReportUserModal } from '../feedback/ReportUserModal';
 import type { FollowGraphEntry } from '../../hooks/useFollowGraph';
 import type { DoorEvent } from '../../hooks/useBuddyList';
@@ -42,8 +38,6 @@ interface BuddyListPanelProps {
   onDeleteGroup: (name: string) => Promise<void>;
   onMoveBuddy: (did: string, fromGroup: string, toGroup: string) => Promise<void>;
   onOpenMeet?: () => void;
-  onOpenChatRooms?: () => void;
-  onOpenFeed?: () => void;
   /** When true, force footer visible even at narrow widths (Tauri main window). */
   tauriMode?: boolean;
   followers?: FollowGraphEntry[];
@@ -85,8 +79,6 @@ export function BuddyListPanel({
   onDeleteGroup,
   onMoveBuddy,
   onOpenMeet,
-  onOpenChatRooms,
-  onOpenFeed,
   tauriMode,
   error,
   followers = [],
@@ -96,17 +88,18 @@ export function BuddyListPanel({
   hasMoreFollowers,
   hasMoreFollowing,
 }: BuddyListPanelProps) {
-  const { t } = useTranslation('chat');
+  const { t } = useTranslation('common');
   const { blockedDids } = useBlocks();
-  const { collapsed, toggle: toggleCollapse } = useCollapsedGroups();
+  const [collapsed, setCollapsed] = useState<Set<string>>(new Set());
+  const toggleCollapse = useCallback((name: string) => {
+    setCollapsed((prev) => {
+      const next = new Set(prev);
+      if (next.has(name)) next.delete(name);
+      else next.add(name);
+      return next;
+    });
+  }, []);
   const { openBotDm } = useBotDm();
-  const {
-    autoTranslate,
-    available: translateAvailable,
-    getTranslation,
-    requestBatchTranslation,
-  } = useContentTranslation();
-  const lastAwayMsgHash = useRef('');
   const [reportDid, setReportDid] = useState<string | null>(null);
   const [renamingGroup, setRenamingGroup] = useState<string | null>(null);
   const [renameValue, setRenameValue] = useState('');
@@ -128,18 +121,6 @@ export function BuddyListPanel({
     }
     return map;
   }, [buddies]);
-
-  // Auto-translate away messages
-  useEffect(() => {
-    if (!autoTranslate || !translateAvailable) return;
-    const awayTexts = buddies
-      .filter((b) => b.awayMessage && b.status !== 'offline')
-      .map((b) => b.awayMessage as string);
-    const hash = awayTexts.join('\0');
-    if (hash === lastAwayMsgHash.current) return;
-    lastAwayMsgHash.current = hash;
-    if (awayTexts.length > 0) requestBatchTranslation(awayTexts);
-  }, [buddies, autoTranslate, translateAvailable, requestBatchTranslation]);
 
   // Build flat rows for virtualization
   const rows: CommunityListRow[] = useMemo(() => {
@@ -363,7 +344,7 @@ export function BuddyListPanel({
                         />
                       </div>
                     ) : (
-                      <GroupHeaderRow
+                      <InlineGroupHeader
                         groupName={row.groupName}
                         onlineCount={row.onlineCount}
                         totalCount={row.totalCount}
@@ -396,10 +377,7 @@ export function BuddyListPanel({
               const imUnreadCount = imUnreadMap?.get(buddy.did) ?? 0;
               const door = doorEvents[buddy.did];
               const hasAwayMessage = buddy.awayMessage && buddy.status !== 'offline';
-              const awayTooltip = hasAwayMessage
-                ? (autoTranslate && getTranslation(buddy.awayMessage as string)) ||
-                  buddy.awayMessage
-                : undefined;
+              const awayTooltip = hasAwayMessage ? buddy.awayMessage : undefined;
 
               return (
                 <div
@@ -519,7 +497,7 @@ export function BuddyListPanel({
       {/* Following group */}
       {followingFiltered.length > 0 && (
         <>
-          <GroupHeaderRow
+          <InlineGroupHeader
             groupName={FOLLOWING_GROUP}
             onlineCount={0}
             totalCount={followingFiltered.length + (hasMoreFollowing ? 1 : 0)}
@@ -527,23 +505,44 @@ export function BuddyListPanel({
             onToggleCollapse={() => {
               toggleCollapse(FOLLOWING_GROUP);
             }}
-            isProtected
           />
           {!isFollowingCollapsed && (
-            <ScrollableGroup
-              items={followingFiltered}
-              groupName={FOLLOWING_GROUP}
-              allGroups={groups}
-              onLoadMore={fetchMoreFollowing}
-              hasMore={hasMoreFollowing}
-              onBuddyClick={onBuddyClick}
-              onAddToCommunity={(did) => void onAddBuddy(did)}
-              onBlock={onBlockBuddy}
-              onReport={(did) => {
-                setReportDid(did);
-              }}
-              blockedDids={blockedDids}
-            />
+            <div className={styles.list}>
+              {followingFiltered.map((buddy) => (
+                <div key={buddy.did} className={`${styles.buddy} ${styles.buddyIndented}`}>
+                  <StatusIndicator status={buddy.status} />
+                  <div className={styles.buddyInfo}>
+                    <span
+                      className={styles.buddyDid}
+                      role={onBuddyClick ? 'button' : undefined}
+                      tabIndex={onBuddyClick ? 0 : undefined}
+                      style={onBuddyClick ? { cursor: 'pointer' } : undefined}
+                      onClick={
+                        onBuddyClick
+                          ? () => {
+                              onBuddyClick(buddy.did);
+                            }
+                          : undefined
+                      }
+                      onKeyDown={
+                        onBuddyClick
+                          ? (e) => {
+                              if (e.key === 'Enter') onBuddyClick(buddy.did);
+                            }
+                          : undefined
+                      }
+                    >
+                      <UserIdentity did={buddy.did} showAvatar />
+                    </span>
+                  </div>
+                </div>
+              ))}
+              {hasMoreFollowing && fetchMoreFollowing && (
+                <button className={styles.footerBtn} onClick={fetchMoreFollowing}>
+                  {t('buddyList.loadMore', 'Load more')}
+                </button>
+              )}
+            </div>
           )}
         </>
       )}
@@ -551,7 +550,7 @@ export function BuddyListPanel({
       {/* Followers group */}
       {followersFiltered.length > 0 && (
         <>
-          <GroupHeaderRow
+          <InlineGroupHeader
             groupName={FOLLOWERS_GROUP}
             onlineCount={0}
             totalCount={followersFiltered.length + (hasMoreFollowers ? 1 : 0)}
@@ -559,46 +558,55 @@ export function BuddyListPanel({
             onToggleCollapse={() => {
               toggleCollapse(FOLLOWERS_GROUP);
             }}
-            isProtected
           />
           {!isFollowersCollapsed && (
-            <ScrollableGroup
-              items={followersFiltered}
-              groupName={FOLLOWERS_GROUP}
-              allGroups={groups}
-              onLoadMore={fetchMoreFollowers}
-              hasMore={hasMoreFollowers}
-              onBuddyClick={onBuddyClick}
-              onAddToCommunity={(did) => void onAddBuddy(did)}
-              onBlock={onBlockBuddy}
-              onReport={(did) => {
-                setReportDid(did);
-              }}
-              blockedDids={blockedDids}
-            />
+            <div className={styles.list}>
+              {followersFiltered.map((buddy) => (
+                <div key={buddy.did} className={`${styles.buddy} ${styles.buddyIndented}`}>
+                  <StatusIndicator status={buddy.status} />
+                  <div className={styles.buddyInfo}>
+                    <span
+                      className={styles.buddyDid}
+                      role={onBuddyClick ? 'button' : undefined}
+                      tabIndex={onBuddyClick ? 0 : undefined}
+                      style={onBuddyClick ? { cursor: 'pointer' } : undefined}
+                      onClick={
+                        onBuddyClick
+                          ? () => {
+                              onBuddyClick(buddy.did);
+                            }
+                          : undefined
+                      }
+                      onKeyDown={
+                        onBuddyClick
+                          ? (e) => {
+                              if (e.key === 'Enter') onBuddyClick(buddy.did);
+                            }
+                          : undefined
+                      }
+                    >
+                      <UserIdentity did={buddy.did} showAvatar />
+                    </span>
+                  </div>
+                </div>
+              ))}
+              {hasMoreFollowers && fetchMoreFollowers && (
+                <button className={styles.footerBtn} onClick={fetchMoreFollowers}>
+                  {t('buddyList.loadMore', 'Load more')}
+                </button>
+              )}
+            </div>
           )}
         </>
       )}
 
       {/* Create group UI — hidden until feature is ready */}
 
-      {(onOpenMeet || onOpenChatRooms || onOpenFeed) && (
+      {onOpenMeet && (
         <div className={`${styles.footer}${tauriMode ? ` ${styles.tauriFooter}` : ''}`}>
-          {onOpenMeet && (
-            <button className={styles.footerBtn} onClick={onOpenMeet}>
-              {t('buddyList.footer.meet', 'Meet')}
-            </button>
-          )}
-          {onOpenChatRooms && (
-            <button className={styles.footerBtn} onClick={onOpenChatRooms}>
-              {t('buddyList.footer.chatRooms')}
-            </button>
-          )}
-          {onOpenFeed && (
-            <button className={styles.footerBtn} onClick={onOpenFeed}>
-              {t('buddyList.footer.feed')}
-            </button>
-          )}
+          <button className={styles.footerBtn} onClick={onOpenMeet}>
+            {t('buddyList.footer.meet', 'Meet')}
+          </button>
         </div>
       )}
       {reportDid && (
@@ -608,6 +616,69 @@ export function BuddyListPanel({
             setReportDid(null);
           }}
         />
+      )}
+    </div>
+  );
+}
+
+/** Inline replacement for the deleted GroupHeaderRow component. */
+function InlineGroupHeader({
+  groupName,
+  onlineCount,
+  totalCount,
+  isCollapsed,
+  onToggleCollapse,
+  isProtected,
+  onRename,
+  onDelete,
+}: {
+  groupName: string;
+  onlineCount: number;
+  totalCount: number;
+  isCollapsed: boolean;
+  onToggleCollapse: () => void;
+  isProtected?: boolean;
+  onRename?: () => void;
+  onDelete?: () => void;
+}) {
+  return (
+    <div
+      className={styles.groupHeader}
+      onClick={onToggleCollapse}
+      role="button"
+      tabIndex={0}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter') onToggleCollapse();
+      }}
+    >
+      <span className={styles.groupName}>
+        {isCollapsed ? '\u25B6' : '\u25BC'} {groupName} ({onlineCount}/{totalCount})
+      </span>
+      {!isProtected && (
+        <span className={styles.groupHeaderActions}>
+          {onRename && (
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                onRename();
+              }}
+              aria-label="Rename group"
+            >
+              &#9998;
+            </button>
+          )}
+          {onDelete && (
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                onDelete();
+              }}
+              aria-label="Delete group"
+            >
+              &times;
+            </button>
+          )}
+        </span>
       )}
     </div>
   );

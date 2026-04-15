@@ -7,7 +7,7 @@ import { useWebSocket } from '../contexts/WebSocketContext';
  * Also exposes the set of blocked DIDs for client-side filtering.
  */
 export function useBlockSync() {
-  const { agent, did, hasFeed } = useAuth();
+  const { agent, did } = useAuth();
   const { send, connected } = useWebSocket();
   const [blockedDids, setBlockedDids] = useState<Set<string>>(new Set());
   const hasSynced = useRef(false);
@@ -37,32 +37,12 @@ export function useBlockSync() {
         cursor = res.data.cursor;
       } while (cursor);
 
-      // Mutes are appview-managed (no repo records). Only attempt if the
-      // user granted feed/moderation scopes — otherwise the proxied call
-      // will always 403.
-      if (hasFeed) {
-        try {
-          let muteCursor: string | undefined;
-          do {
-            const res = await agent.app.bsky.graph.getMutes({ limit: 100, cursor: muteCursor });
-            for (const mute of res.data.mutes) {
-              if (!blocked.includes(mute.did)) {
-                blocked.push(mute.did);
-              }
-            }
-            muteCursor = res.data.cursor;
-          } while (muteCursor);
-        } catch {
-          // Proxied appview call failed — blocks still synced above
-        }
-      }
-
       setBlockedDids(new Set(blocked));
       sendRef.current({ type: 'sync_blocks', blockedDids: blocked });
     } catch (err) {
       console.error('Failed to sync block list:', err);
     }
-  }, [agent, did, hasFeed]);
+  }, [agent, did]);
 
   // Sync on initial connect
   useEffect(() => {

@@ -6,16 +6,6 @@ const MAX_BLOCK_LIST_SIZE = 10_000;
 
 const did = z.string().startsWith('did:');
 
-const joinRoom = z.object({
-  type: z.literal('join_room'),
-  roomId: z.string().min(1),
-});
-
-const leaveRoom = z.object({
-  type: z.literal('leave_room'),
-  roomId: z.string().min(1),
-});
-
 const statusChange = z.object({
   type: z.literal('status_change'),
   status: z.enum(['online', 'away', 'idle']),
@@ -28,12 +18,6 @@ const ping = z.object({ type: z.literal('ping') });
 const requestCommunityPresence = z.object({
   type: z.literal('request_community_presence'),
   dids: z.array(did).max(100),
-});
-
-const channelTyping = z.object({
-  type: z.literal('channel_typing'),
-  roomId: z.string().min(1),
-  channelId: z.string().min(1),
 });
 
 const syncBlocks = z.object({
@@ -129,12 +113,6 @@ const imIceCandidate = z.object({
   candidate: candidateSchema,
 });
 
-const notifyRecord = z.object({
-  type: z.literal('notify_record'),
-  uri: z.string().min(1),
-  cid: z.string().min(1),
-});
-
 const botDmOpen = z.object({ type: z.literal('bot_dm_open') });
 
 const botDmSend = z.object({
@@ -143,18 +121,6 @@ const botDmSend = z.object({
 });
 
 const botDmClose = z.object({ type: z.literal('bot_dm_close') });
-
-const botRoomCommand = z.object({
-  type: z.literal('bot_room_command'),
-  text: z.string().min(1).max(BOT.maxCommandLength),
-  roomId: z.string().min(1),
-  channelId: z.string().min(1),
-});
-
-const groupCallCreate = z.object({
-  type: z.literal('group_call_create'),
-  roomId: z.string().min(1),
-});
 
 const groupCallCreateStandalone = z.object({
   type: z.literal('group_call_create_standalone'),
@@ -178,12 +144,9 @@ const groupCallLeave = z.object({
 });
 
 const clientMessage = z.discriminatedUnion('type', [
-  joinRoom,
-  leaveRoom,
   statusChange,
   ping,
   requestCommunityPresence,
-  channelTyping,
   syncBlocks,
   syncCommunity,
   dmOpen,
@@ -197,12 +160,9 @@ const clientMessage = z.discriminatedUnion('type', [
   rejectCall,
   acceptCall,
   newIceCandidate,
-  notifyRecord,
   botDmOpen,
   botDmSend,
   botDmClose,
-  botRoomCommand,
-  groupCallCreate,
   groupCallCreateStandalone,
   groupCallJoin,
   groupCallJoinByCode,

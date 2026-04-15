@@ -1,23 +1,8 @@
-/** Room visibility determines discoverability */
-export type RoomVisibility = 'public' | 'unlisted' | 'private';
-
-/** Room purpose categorization */
-export type RoomPurpose = 'discussion' | 'event' | 'community' | 'support';
-
-/** Who can post in a channel */
-export type ChannelPostPolicy = 'everyone' | 'owner' | 'moderators';
-
 /** Real-time presence status */
 export type PresenceStatus = 'online' | 'away' | 'idle' | 'offline' | 'invisible';
 
 /** Who can see your presence */
 export type PresenceVisibility = 'everyone' | 'community' | 'inner-circle' | 'no-one';
-
-/** Moderator role assignment */
-export type ModeratorRole = 'moderator' | 'owner';
-
-/** Moderation action types */
-export type ModAction = 'ban' | 'report' | 'mute';
 
 /** WebSocket message direction */
 export type WsDirection = 'client-to-server' | 'server-to-client';

@@ -1,8 +1,0 @@
-.container {
-  max-height: 250px;
-  overflow-y: auto;
-  background: var(--cm-surface-content);
-  box-shadow: var(--cm-sunken);
-  margin: 0 var(--cm-space-2);
-  padding: var(--cm-space-1);
-}

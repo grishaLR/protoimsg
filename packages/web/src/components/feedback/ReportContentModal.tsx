@@ -18,7 +18,7 @@ export function ReportContentModal({
   roomId,
   onClose,
 }: ReportContentModalProps) {
-  const { t } = useTranslation('chat');
+  const { t } = useTranslation('common');
   const dialogRef = useRef<HTMLDialogElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const previousActiveRef = useRef<HTMLElement | null>(null);

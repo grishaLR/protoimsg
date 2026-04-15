@@ -1,7 +1,6 @@
 import type { WebSocket } from 'ws';
-import { ERROR_CODES, NSID, USER_AGENT } from '@protoimsg/shared';
+import { ERROR_CODES } from '@protoimsg/shared';
 import type { ValidatedClientMessage } from './validation.js';
-import type { RoomSubscriptions } from './rooms.js';
 import type { DmSubscriptions } from '../dms/subscriptions.js';
 import type { UserSockets } from './server.js';
 import type { CommunityWatchers } from './buddy-watchers.js';
@@ -9,25 +8,15 @@ import type { PresenceService } from '../presence/service.js';
 import type { DmService } from '../dms/service.js';
 import type { ImRegistry } from '../dms/registry.js';
 import type { PresenceVisibility } from '@protoimsg/shared';
-import type { Sql, JsonValue } from '../db/client.js';
+import type { Sql } from '../db/client.js';
 import type { RateLimiterStore } from '../moderation/rate-limiter-store.js';
-import { checkUserAccess, checkMessageContent } from '../moderation/service.js';
 import type { BlockService } from '../moderation/block-service.js';
 import type { LabelerService } from '../moderation/labeler-service.js';
 import type { BotService } from '../bot/service.js';
 import type { NotificationService } from '../notifications/service.js';
 import type { GroupCallService } from '../calls/service.js';
 import { createLogger } from '../logger.js';
-import { incDmsSent, incMessagesSent } from '../stats/queries.js';
-import {
-  getChannelsByRoom,
-  ensureDefaultChannel,
-  getChannelByUri,
-  getChannelById,
-} from '../channels/queries.js';
-import { getRoomById } from '../rooms/queries.js';
-import { insertMessage } from '../messages/queries.js';
-import { isUserModerator, getRoomRoles } from '../moderation/queries.js';
+import { incDmsSent } from '../stats/queries.js';
 import {
   syncCommunityMembers,
   upsertCommunityList,
@@ -36,33 +25,15 @@ import {
 } from '../community/queries.js';
 import { computeConversationId, sortDids } from '../dms/queries.js';
 import { resolveVisibleStatus } from '../presence/visibility.js';
-import { resolvePdsEndpoint } from '../auth/verify.js';
-import { messageRecordSchema } from '../firehose/record-schemas.js';
-import { extractMentionedDids, extractRkey, isSlowModeViolation } from '../firehose/handlers.js';
-
-/**
- * Per-user-per-room typing throttle. Prevents a single client from flooding
- * a room with typing indicators. Key: "roomId:did", value: last broadcast timestamp.
- */
-const log = createLogger('ws');
-const TYPING_THROTTLE_MS = 3000;
-const typingThrottle = new Map<string, number>();
 
 /**
  * Per-DID pending call tracker. Prevents a user from spamming make_call
  * before the previous call is accepted/rejected. Key: caller DID,
  * value: timestamp of the last make_call. Cleared on accept/reject.
  */
+const log = createLogger('ws');
 const CALL_COOLDOWN_MS = 30_000;
 const pendingCallAttempts = new Map<string, number>();
-
-/** Remove stale entries from the typing throttle map (older than 60s). */
-export function pruneTypingThrottle(): void {
-  const cutoff = Date.now() - 60_000;
-  for (const [key, ts] of typingThrottle) {
-    if (ts < cutoff) typingThrottle.delete(key);
-  }
-}
 
 /** Remove stale entries from the pending call attempts map (older than CALL_COOLDOWN_MS). */
 export function pruneCallAttempts(): void {
@@ -77,7 +48,6 @@ export async function handleClientMessage(
   did: string,
   handle: string,
   data: ValidatedClientMessage,
-  roomSubs: RoomSubscriptions,
   communityWatchers: CommunityWatchers,
   service: PresenceService,
   sql: Sql,
@@ -110,98 +80,9 @@ export async function handleClientMessage(
   }
 
   switch (data.type) {
-    case 'join_room': {
-      const access = await checkUserAccess(sql, data.roomId, did, labelerService);
-      if (!access.allowed) {
-        ws.send(
-          JSON.stringify({
-            type: 'error',
-            message: access.reason ?? 'Access denied',
-            errorCode: ERROR_CODES.ACCESS_DENIED,
-          }),
-        );
-        break;
-      }
-
-      roomSubs.subscribe(data.roomId, ws);
-      await service.handleJoinRoom(did, data.roomId);
-      const [members, initialChannelRows, roleRows] = await Promise.all([
-        service.getRoomPresence(data.roomId),
-        getChannelsByRoom(sql, data.roomId),
-        getRoomRoles(sql, data.roomId),
-      ]);
-
-      // Self-healing: create default channel for rooms that predate the channels feature
-      let channelRows = initialChannelRows;
-      if (channelRows.length === 0) {
-        const roomRow = await getRoomById(sql, data.roomId);
-        if (roomRow) {
-          const created = await ensureDefaultChannel(
-            sql,
-            data.roomId,
-            roomRow.uri,
-            roomRow.did,
-            roomRow.created_at.toISOString(),
-          );
-          channelRows = [created];
-        }
-      }
-
-      const channels = channelRows.map((ch) => ({
-        id: ch.id,
-        uri: ch.uri,
-        did: ch.did,
-        roomId: ch.room_id,
-        name: ch.name,
-        description: ch.description,
-        position: ch.position,
-        postPolicy: ch.post_policy,
-        isDefault: ch.is_default,
-        createdAt: ch.created_at.toISOString(),
-      }));
-      const roles = roleRows.map((r) => ({ did: r.subject_did, role: r.role }));
-      ws.send(
-        JSON.stringify({
-          type: 'room_joined',
-          roomId: data.roomId,
-          members,
-          channels,
-          roles,
-        }),
-      );
-      // Notify room of new member (include awayMessage if present).
-      // Visibility is NOT applied here — rooms are public spaces. If you join,
-      // you're visible. The visibleTo setting only governs buddy-list presence.
-      const presence = await service.getPresence(did);
-      roomSubs.broadcast(data.roomId, {
-        type: 'presence',
-        data: { did, status: presence.status, awayMessage: presence.awayMessage },
-      });
-      break;
-    }
-
-    case 'leave_room': {
-      roomSubs.unsubscribe(data.roomId, ws);
-      await service.handleLeaveRoom(did, data.roomId);
-      roomSubs.broadcast(data.roomId, {
-        type: 'presence',
-        data: { did, status: 'offline' },
-      });
-      break;
-    }
-
     case 'status_change': {
       const visibleTo = data.visibleTo as PresenceVisibility | undefined;
       await service.handleStatusChange(did, data.status, data.awayMessage, visibleTo);
-      // Broadcast real status to all rooms — rooms are public spaces (like going
-      // outside). Visibility only controls buddy-list presence, not room presence.
-      const rooms = await service.getUserRooms(did);
-      for (const roomId of rooms) {
-        roomSubs.broadcast(roomId, {
-          type: 'presence',
-          data: { did, status: data.status, awayMessage: data.awayMessage },
-        });
-      }
       // Notify community watchers (visibility-aware)
       await communityWatchers.notify(did, data.status, data.awayMessage, visibleTo);
       break;
@@ -263,29 +144,6 @@ export async function handleClientMessage(
       );
       // Register this socket as watching these DIDs for live updates
       communityWatchers.watch(ws, did, data.dids);
-      break;
-    }
-
-    case 'channel_typing': {
-      // Only broadcast if the user is actually in the room
-      const roomMembers = roomSubs.getSubscribers(data.roomId);
-      if (roomMembers.has(ws)) {
-        // Per-user-per-channel throttle: one typing broadcast per TYPING_THROTTLE_MS
-        const throttleKey = `${data.channelId}:${did}`;
-        const now = Date.now();
-        const lastTyping = typingThrottle.get(throttleKey);
-        if (lastTyping && now - lastTyping < TYPING_THROTTLE_MS) break;
-        typingThrottle.set(throttleKey, now);
-
-        roomSubs.broadcast(
-          data.roomId,
-          {
-            type: 'channel_typing',
-            data: { roomId: data.roomId, channelId: data.channelId, did },
-          },
-          ws,
-        );
-      }
       break;
     }
 
@@ -557,9 +415,6 @@ export async function handleClientMessage(
     }
 
     case 'call_init': {
-      // Same as dm_open but responds with call_ready instead of dm_opened.
-      // VideoCallContext uses this to get a conversationId for signaling
-      // without triggering a DM popover on the client.
       if (data.recipientDid === did) {
         ws.send(
           JSON.stringify({
@@ -661,8 +516,6 @@ export async function handleClientMessage(
 
           for (const recipientWs of recipientSockets) {
             if (!convoSubscribers.has(recipientWs) && recipientWs.readyState === recipientWs.OPEN) {
-              // Subscribe so subsequent signaling (ICE candidates, accept/reject)
-              // reaches this socket without waiting for the client's call_init round-trip
               callSubs.subscribe(data.conversationId, recipientWs);
               recipientWs.send(
                 JSON.stringify({
@@ -779,268 +632,6 @@ export async function handleClientMessage(
       break;
     }
 
-    case 'notify_record': {
-      // Client notifies us after writing a record to their PDS.
-      // We fetch + verify the record, then index and broadcast it.
-      // This bypasses Jetstream for real-time delivery while Jetstream
-      // stays as a backup for federation/catch-up.
-      const { uri, cid } = data;
-
-      // Parse AT-URI: at://did/collection/rkey
-      const uriParts = uri.match(/^at:\/\/(did:[^/]+)\/([^/]+)\/([^/]+)$/);
-      if (!uriParts) {
-        ws.send(
-          JSON.stringify({
-            type: 'error',
-            message: 'Invalid AT-URI',
-            errorCode: ERROR_CODES.INVALID_MESSAGE_FORMAT,
-          }),
-        );
-        break;
-      }
-      // Guaranteed by regex match above — 3 capture groups always present
-      const uriDid = uriParts[1] as string;
-      const collection = uriParts[2] as string;
-      const rkey = uriParts[3] as string;
-
-      // Security: URI DID must match authenticated DID
-      if (uriDid !== did) {
-        ws.send(
-          JSON.stringify({
-            type: 'error',
-            message: 'DID mismatch',
-            errorCode: ERROR_CODES.ACCESS_DENIED,
-          }),
-        );
-        break;
-      }
-
-      // Only handle messages for now
-      if (collection !== NSID.Message) {
-        log.debug({ collection }, 'notify_record: unsupported collection — ignoring');
-        break;
-      }
-
-      try {
-        // Resolve PDS endpoint (SSRF-safe)
-        const pdsUrl = await resolvePdsEndpoint(did);
-        if (!pdsUrl) {
-          log.warn({ did }, 'notify_record: could not resolve PDS');
-          ws.send(
-            JSON.stringify({
-              type: 'error',
-              message: 'Could not resolve PDS',
-              errorCode: ERROR_CODES.SERVER_ERROR,
-            }),
-          );
-          break;
-        }
-
-        // Fetch record from PDS
-        const getRecordUrl = `${pdsUrl}/xrpc/com.atproto.repo.getRecord?repo=${encodeURIComponent(did)}&collection=${encodeURIComponent(collection)}&rkey=${encodeURIComponent(rkey)}`;
-        const pdsRes = await fetch(getRecordUrl, {
-          headers: { 'User-Agent': USER_AGENT },
-        });
-        if (!pdsRes.ok) {
-          log.warn({ did, rkey, status: pdsRes.status }, 'notify_record: PDS fetch failed');
-          ws.send(
-            JSON.stringify({
-              type: 'error',
-              message: 'Record not found on PDS',
-              errorCode: ERROR_CODES.SERVER_ERROR,
-            }),
-          );
-          break;
-        }
-
-        const pdsData = (await pdsRes.json()) as { uri: string; cid: string; value: unknown };
-
-        // Verify CID matches (tamper protection)
-        if (pdsData.cid !== cid) {
-          log.warn(
-            { did, rkey, expected: cid, actual: pdsData.cid },
-            'notify_record: CID mismatch',
-          );
-          ws.send(
-            JSON.stringify({
-              type: 'error',
-              message: 'CID mismatch',
-              errorCode: ERROR_CODES.ACCESS_DENIED,
-            }),
-          );
-          break;
-        }
-
-        // Validate record shape
-        const parsed = messageRecordSchema.safeParse(pdsData.value);
-        if (!parsed.success) {
-          log.warn({ did, rkey, error: parsed.error.message }, 'notify_record: invalid record');
-          break;
-        }
-        const record = parsed.data;
-
-        // Content filter
-        const filterResult = checkMessageContent(record.text);
-        if (!filterResult.passed) {
-          log.info({ did, reason: filterResult.reason ?? 'blocked' }, 'notify_record: filtered');
-          break;
-        }
-
-        // Channel lookup (handles both AT-URIs and synthetic URIs)
-        const channelUri = record.channel;
-        const channel =
-          (await getChannelByUri(sql, channelUri)) ??
-          (await getChannelById(sql, extractRkey(channelUri)));
-        if (!channel) {
-          log.warn({ channelUri, did, rkey }, 'notify_record: unknown channel');
-          break;
-        }
-
-        const roomId = channel.room_id;
-        const channelId = channel.id;
-
-        // Room must exist
-        const room = await getRoomById(sql, roomId);
-        if (!room) {
-          log.warn({ roomId, did, rkey }, 'notify_record: unknown room');
-          break;
-        }
-
-        // Access check — must pass the same gate as join_room
-        const access = await checkUserAccess(sql, roomId, did, labelerService);
-        if (!access.allowed) {
-          log.info({ did, roomId, reason: access.reason }, 'notify_record: access denied');
-          break;
-        }
-
-        // Post policy enforcement
-        if (channel.post_policy !== 'everyone') {
-          const isOwner = room.did === did;
-          const isMod = !isOwner && (await isUserModerator(sql, roomId, did));
-          if (channel.post_policy === 'owner' && !isOwner) {
-            log.info({ did, channelId }, 'notify_record: blocked by post_policy=owner');
-            break;
-          }
-          if (channel.post_policy === 'moderators' && !isOwner && !isMod) {
-            log.info({ did, channelId }, 'notify_record: blocked by post_policy=moderators');
-            break;
-          }
-        }
-
-        // Slow mode enforcement (shared tracker with firehose handler)
-        const slowModeViolation = isSlowModeViolation(roomId, did, room.slow_mode_seconds);
-
-        // Index message (ON CONFLICT = idempotent)
-        await insertMessage(sql, {
-          id: rkey,
-          uri,
-          did,
-          cid,
-          roomId,
-          channelId,
-          text: record.text,
-          replyRoot: record.reply?.root,
-          replyParent: record.reply?.parent,
-          facets: record.facets,
-          embed: record.embed,
-          createdAt: record.createdAt,
-        });
-        void incMessagesSent(sql);
-
-        // Upsert into generic records table (ON CONFLICT = idempotent)
-        await sql`
-          INSERT INTO records (uri, cid, did, collection, json, indexed_at)
-          VALUES (${uri}, ${cid}, ${did}, ${collection}, ${sql.json(pdsData.value as JsonValue)}, NOW())
-          ON CONFLICT (uri) DO UPDATE SET
-            cid = EXCLUDED.cid,
-            json = EXCLUDED.json,
-            indexed_at = NOW()
-        `;
-
-        if (slowModeViolation) {
-          log.info({ did, roomId }, 'notify_record: slow mode violation — skipping broadcast');
-          break;
-        }
-
-        // Broadcast to room subscribers
-        roomSubs.broadcast(roomId, {
-          type: 'message',
-          data: {
-            id: rkey,
-            uri,
-            did,
-            roomId,
-            channelId,
-            text: record.text,
-            reply: record.reply,
-            facets: record.facets,
-            embed: record.embed,
-            createdAt: record.createdAt,
-          },
-        });
-
-        // Mention notifications for users NOT in this room
-        if (record.facets) {
-          const mentionedDids = extractMentionedDids(record.facets);
-          const preview = record.text.slice(0, 100);
-          for (const mentionedDid of mentionedDids) {
-            if (mentionedDid === did) continue;
-            // Check if user is subscribed to this room
-            const mentionedSockets = userSockets.get(mentionedDid);
-            const roomSubscribers = roomSubs.getSubscribers(roomId);
-            let inRoom = false;
-            for (const mws of mentionedSockets) {
-              if (roomSubscribers.has(mws)) {
-                inRoom = true;
-                break;
-              }
-            }
-            if (inRoom) continue;
-
-            const payload = JSON.stringify({
-              type: 'mention_notification',
-              data: {
-                roomId,
-                roomName: room.name,
-                channelId,
-                channelName: channel.name,
-                senderDid: did,
-                messageText: preview,
-                messageUri: uri,
-                createdAt: record.createdAt,
-              },
-            });
-            const mentionedSocs = userSockets.get(mentionedDid);
-            for (const mws of mentionedSocs) {
-              if (mws.readyState === mws.OPEN) mws.send(payload);
-            }
-
-            // Push notification when mentioned user has no active WS connections
-            if (notificationService) {
-              const hasActiveWs = [...mentionedSocs].some((s) => s.readyState === s.OPEN);
-              if (!hasActiveWs) {
-                void notificationService.sendNotification(
-                  mentionedDid,
-                  `Mentioned in #${room.name}`,
-                  `@${handle} mentioned you: ${preview}`,
-                  { type: 'mention', roomId, channelId },
-                );
-              }
-            }
-          }
-        }
-
-        log.info({ did, rkey, roomId }, 'notify_record: message indexed and broadcast');
-      } catch (err) {
-        const msg = err instanceof Error ? err.message : 'Failed to process record notification';
-        log.error({ err, did, uri }, 'notify_record: error');
-        ws.send(
-          JSON.stringify({ type: 'error', message: msg, errorCode: ERROR_CODES.SERVER_ERROR }),
-        );
-      }
-      break;
-    }
-
     case 'bot_dm_open': {
       botService?.handleOpen(ws, did, handle);
       break;
@@ -1053,184 +644,6 @@ export async function handleClientMessage(
 
     case 'bot_dm_close': {
       botService?.handleClose(ws);
-      break;
-    }
-
-    case 'bot_room_command': {
-      if (!botService) break;
-      const roomMembers = roomSubs.getSubscribers(data.roomId);
-      if (!roomMembers.has(ws)) break;
-      await botService.handleRoomCommand(ws, did, handle, data.text, data.roomId, data.channelId);
-      break;
-    }
-
-    case 'group_call_create': {
-      if (!groupCallService) {
-        ws.send(
-          JSON.stringify({
-            type: 'error',
-            message: 'Group calls are not enabled',
-            errorCode: ERROR_CODES.SERVER_ERROR,
-          }),
-        );
-        break;
-      }
-
-      // Must be subscribed to the room
-      const gcRoomMembers = roomSubs.getSubscribers(data.roomId);
-      if (!gcRoomMembers.has(ws)) {
-        ws.send(
-          JSON.stringify({
-            type: 'error',
-            message: 'Must join the room first',
-            errorCode: ERROR_CODES.ACCESS_DENIED,
-          }),
-        );
-        break;
-      }
-
-      try {
-        const { call, token } = await groupCallService.createCall(data.roomId, did);
-
-        // Send token to the creator
-        ws.send(
-          JSON.stringify({
-            type: 'group_call_token',
-            data: {
-              callId: call.callId,
-              token,
-              url: groupCallService.livekitUrl,
-              meetCode: call.meetCode,
-            },
-          }),
-        );
-
-        // Broadcast to all room members that a call has started
-        roomSubs.broadcast(data.roomId, {
-          type: 'group_call_started',
-          data: {
-            callId: call.callId,
-            roomId: data.roomId,
-            participantCount: call.participants.size,
-          },
-        });
-      } catch (err) {
-        const msg = err instanceof Error ? err.message : 'Failed to create group call';
-        log.error({ err, roomId: data.roomId }, 'group_call_create failed');
-        ws.send(
-          JSON.stringify({ type: 'error', message: msg, errorCode: ERROR_CODES.SERVER_ERROR }),
-        );
-      }
-      break;
-    }
-
-    case 'group_call_join': {
-      if (!groupCallService) {
-        ws.send(
-          JSON.stringify({
-            type: 'error',
-            message: 'Group calls are not enabled',
-            errorCode: ERROR_CODES.SERVER_ERROR,
-          }),
-        );
-        break;
-      }
-
-      try {
-        const call = groupCallService.getCall(data.callId);
-        if (!call) {
-          ws.send(
-            JSON.stringify({
-              type: 'error',
-              message: 'Call not found or already ended',
-              errorCode: ERROR_CODES.INVALID_INPUT,
-            }),
-          );
-          break;
-        }
-
-        // Room-attached calls: must be subscribed to the room
-        if (call.roomId) {
-          const gjRoomMembers = roomSubs.getSubscribers(call.roomId);
-          if (!gjRoomMembers.has(ws)) {
-            ws.send(
-              JSON.stringify({
-                type: 'error',
-                message: 'Must join the room first',
-                errorCode: ERROR_CODES.ACCESS_DENIED,
-              }),
-            );
-            break;
-          }
-        }
-
-        const { call: joinedCall, token } = await groupCallService.joinCall(data.callId, did);
-
-        // Send token to the joiner
-        ws.send(
-          JSON.stringify({
-            type: 'group_call_token',
-            data: {
-              callId: data.callId,
-              token,
-              url: groupCallService.livekitUrl,
-              meetCode: joinedCall.meetCode,
-            },
-          }),
-        );
-
-        // Broadcast updated participant count to room (room-attached only)
-        if (call.roomId) {
-          roomSubs.broadcast(call.roomId, {
-            type: 'group_call_participant_joined',
-            data: {
-              callId: data.callId,
-              roomId: call.roomId,
-              participantCount: joinedCall.participants.size,
-            },
-          });
-        }
-      } catch (err) {
-        const msg = err instanceof Error ? err.message : 'Failed to join group call';
-        log.error({ err, callId: data.callId }, 'group_call_join failed');
-        ws.send(
-          JSON.stringify({ type: 'error', message: msg, errorCode: ERROR_CODES.SERVER_ERROR }),
-        );
-      }
-      break;
-    }
-
-    case 'group_call_leave': {
-      if (!groupCallService) break;
-
-      try {
-        const callBefore = groupCallService.getCall(data.callId);
-        if (!callBefore) break;
-
-        const roomId = callBefore.roomId;
-        const result = await groupCallService.leaveCall(data.callId, did);
-
-        if (roomId) {
-          if (result === null) {
-            roomSubs.broadcast(roomId, {
-              type: 'group_call_ended',
-              data: { callId: data.callId, roomId },
-            });
-          } else {
-            roomSubs.broadcast(roomId, {
-              type: 'group_call_participant_left',
-              data: {
-                callId: data.callId,
-                roomId,
-                participantCount: result.participants.size,
-              },
-            });
-          }
-        }
-        // Standalone meetings: no room to broadcast to — LiveKit handles participant events
-      } catch (err) {
-        log.error({ err, callId: data.callId }, 'group_call_leave failed');
-      }
       break;
     }
 
@@ -1274,6 +687,55 @@ export async function handleClientMessage(
       break;
     }
 
+    case 'group_call_join': {
+      if (!groupCallService) {
+        ws.send(
+          JSON.stringify({
+            type: 'error',
+            message: 'Group calls are not enabled',
+            errorCode: ERROR_CODES.SERVER_ERROR,
+          }),
+        );
+        break;
+      }
+
+      try {
+        const call = groupCallService.getCall(data.callId);
+        if (!call) {
+          ws.send(
+            JSON.stringify({
+              type: 'error',
+              message: 'Call not found or already ended',
+              errorCode: ERROR_CODES.INVALID_INPUT,
+            }),
+          );
+          break;
+        }
+
+        const { call: joinedCall, token } = await groupCallService.joinCall(data.callId, did);
+
+        // Send token to the joiner
+        ws.send(
+          JSON.stringify({
+            type: 'group_call_token',
+            data: {
+              callId: data.callId,
+              token,
+              url: groupCallService.livekitUrl,
+              meetCode: joinedCall.meetCode,
+            },
+          }),
+        );
+      } catch (err) {
+        const msg = err instanceof Error ? err.message : 'Failed to join group call';
+        log.error({ err, callId: data.callId }, 'group_call_join failed');
+        ws.send(
+          JSON.stringify({ type: 'error', message: msg, errorCode: ERROR_CODES.SERVER_ERROR }),
+        );
+      }
+      break;
+    }
+
     case 'group_call_join_by_code': {
       if (!groupCallService) {
         ws.send(
@@ -1305,6 +767,19 @@ export async function handleClientMessage(
         ws.send(
           JSON.stringify({ type: 'error', message: msg, errorCode: ERROR_CODES.INVALID_INPUT }),
         );
+      }
+      break;
+    }
+
+    case 'group_call_leave': {
+      if (!groupCallService) break;
+
+      try {
+        const callBefore = groupCallService.getCall(data.callId);
+        if (!callBefore) break;
+        await groupCallService.leaveCall(data.callId, did);
+      } catch (err) {
+        log.error({ err, callId: data.callId }, 'group_call_leave failed');
       }
       break;
     }

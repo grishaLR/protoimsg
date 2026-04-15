@@ -2,8 +2,6 @@ import { useEffect, useRef, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useVirtualList } from 'virtualized-ui';
 import type { DmMessageView } from '../../types';
-import { RichText, type GenericFacet } from '../chat/RichText';
-import { EmbedRenderer } from '../chat/EmbedRenderer';
 import styles from './DmMessageList.module.css';
 
 interface DmMessageListProps {
@@ -77,10 +75,14 @@ export function DmMessageList({ messages, currentDid, typing }: DmMessageListPro
               >
                 {msg.text && (
                   <div className={styles.bubble} dir="auto">
-                    <RichText text={msg.text} facets={msg.facets as GenericFacet[] | undefined} />
+                    {msg.text}
                   </div>
                 )}
-                {msg.embed != null && <EmbedRenderer embed={msg.embed} />}
+                {msg.embed != null && (
+                  <div className={styles.bubble} dir="auto">
+                    [Embed]
+                  </div>
+                )}
                 <span className={styles.time}>{formatTime(msg.createdAt)}</span>
               </div>
             </div>

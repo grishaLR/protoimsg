@@ -1,7 +1,6 @@
 import { randomUUID } from 'crypto';
 import { WebSocketServer, type WebSocket } from 'ws';
 import type { Server, IncomingMessage } from 'http';
-import { RoomSubscriptions } from './rooms.js';
 import { DmSubscriptions } from '../dms/subscriptions.js';
 import { CommunityWatchers } from './buddy-watchers.js';
 import { handleClientMessage } from './handlers.js';
@@ -100,9 +99,7 @@ export class UserSockets {
 }
 
 export interface WsServer {
-  broadcastToRoom: (roomId: string, message: ServerMessage) => void;
   sendToUser: (did: string, message: ServerMessage) => void;
-  isSubscribedToRoom: (did: string, roomId: string) => boolean;
   close: () => Promise<void>;
 }
 
@@ -142,7 +139,6 @@ export function createWsServer(
       callback(true);
     },
   });
-  const roomSubs = new RoomSubscriptions();
   const dmSubs = new DmSubscriptions();
   const callSubs = new DmSubscriptions();
   const userSockets = new UserSockets();
@@ -312,7 +308,6 @@ export function createWsServer(
             authedDid,
             authedHandle,
             data,
-            roomSubs,
             communityWatchers,
             service,
             sql,
@@ -348,7 +343,6 @@ export function createWsServer(
         decWsConnections();
         // Remove this socket first so we can check remaining connections
         userSockets.remove(did, ws);
-        roomSubs.unsubscribeAll(ws);
         communityWatchers.unwatchAll(ws);
         botService?.handleClose(ws);
 
@@ -365,35 +359,13 @@ export function createWsServer(
         // Remove from group calls when this is the user's last connection
         const remaining = userSockets.get(did);
         if (remaining.size === 0 && groupCallService) {
-          const leftCalls = groupCallService.removeFromAllCalls(did);
-          for (const { call, callId, roomId } of leftCalls) {
-            if (!roomId) continue; // Standalone meeting — no room to broadcast to
-            if (call === null) {
-              roomSubs.broadcast(roomId, {
-                type: 'group_call_ended',
-                data: { callId, roomId },
-              });
-            } else {
-              roomSubs.broadcast(roomId, {
-                type: 'group_call_participant_left',
-                data: { callId, roomId, participantCount: call.participants.size },
-              });
-            }
-          }
+          groupCallService.removeFromAllCalls(did);
         }
 
         // Only tear down presence if this was the user's last connection
         if (remaining.size === 0) {
           const closeDid = did;
           const cleanup = (async () => {
-            const rooms = await service.getUserRooms(closeDid);
-            for (const roomId of rooms) {
-              await service.handleLeaveRoom(closeDid, roomId);
-              roomSubs.broadcast(roomId, {
-                type: 'presence',
-                data: { did: closeDid, status: 'offline' },
-              });
-            }
             await communityWatchers.notify(closeDid, 'offline', undefined, 'everyone');
             await service.handleUserDisconnect(closeDid);
           })();
@@ -419,23 +391,12 @@ export function createWsServer(
   });
 
   return {
-    broadcastToRoom: (roomId: string, message: ServerMessage) => {
-      roomSubs.broadcast(roomId, message);
-    },
     sendToUser: (did: string, message: ServerMessage) => {
       const sockets = userSockets.get(did);
       const payload = JSON.stringify(message);
       for (const ws of sockets) {
         if (ws.readyState === ws.OPEN) ws.send(payload);
       }
-    },
-    isSubscribedToRoom: (did: string, roomId: string) => {
-      const sockets = userSockets.get(did);
-      const subscribers = roomSubs.getSubscribers(roomId);
-      for (const ws of sockets) {
-        if (subscribers.has(ws)) return true;
-      }
-      return false;
     },
     close: async () => {
       blockService.stopSweep();

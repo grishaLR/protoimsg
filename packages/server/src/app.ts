@@ -4,17 +4,11 @@ import { corsMiddleware } from './middleware/cors.js';
 import { createErrorHandler } from './middleware/error.js';
 import { createRequestLogger } from './middleware/logger.js';
 import { createRateLimitMiddleware } from './middleware/rate-limit.js';
-import { roomsRouter } from './rooms/router.js';
-import { messagesRouter } from './messages/router.js';
 import { authRouter } from './auth/router.js';
 import { createRequireAuth } from './auth/middleware.js';
 import type { ChallengeStoreInterface } from './auth/challenge.js';
 import { presenceRouter } from './presence/router.js';
 import { communityRouter } from './community/router.js';
-import { moderationRouter } from './moderation/router.js';
-import { pollsRouter } from './polls/router.js';
-import { channelsRouter } from './channels/router.js';
-import { translateRouter } from './translate/router.js';
 import { gifRouter } from './giphy/router.js';
 import { iceRouter } from './ice/router.js';
 import { waitlistRouter } from './waitlist/router.js';
@@ -30,7 +24,6 @@ import type { RateLimiterStore } from './moderation/rate-limiter-store.js';
 import type { BlockService } from './moderation/block-service.js';
 import type { GlobalBanService } from './moderation/global-ban-service.js';
 import type { GlobalAllowlistService } from './moderation/global-allowlist-service.js';
-import type { TranslateService } from './translate/service.js';
 import type { EmailService } from './email/service.js';
 import type { Redis } from './redis/client.js';
 import type { GroupCallService } from './calls/service.js';
@@ -49,9 +42,6 @@ export function createApp(
   globalBans: GlobalBanService,
   globalAllowlist: GlobalAllowlistService,
   challenges: ChallengeStoreInterface,
-  translateService?: TranslateService | null,
-  translateRateLimiter?: RateLimiterStore | null,
-  supportedLanguages?: string[],
   giphyApiKey?: string | null,
   klipyApiKey?: string | null,
   gifRateLimiter?: RateLimiterStore | null,
@@ -149,11 +139,6 @@ export function createApp(
   }
 
   // Protected API routes
-  app.use('/api/rooms', requireAuth, createRateLimitMiddleware(rateLimiter), roomsRouter(sql));
-  app.use('/api/rooms', requireAuth, createRateLimitMiddleware(rateLimiter), messagesRouter(sql));
-  app.use('/api/rooms', requireAuth, createRateLimitMiddleware(rateLimiter), moderationRouter(sql));
-  app.use('/api/rooms', requireAuth, createRateLimitMiddleware(rateLimiter), pollsRouter(sql));
-  app.use('/api/rooms', requireAuth, createRateLimitMiddleware(rateLimiter), channelsRouter(sql));
   app.use(
     '/api/presence',
     requireAuth,
@@ -195,15 +180,6 @@ export function createApp(
       requireAuth,
       createRateLimitMiddleware(rateLimiter),
       notificationsRouter(notificationService),
-    );
-  }
-
-  // Translation routes (optional — only mounted when TRANSLATE_ENABLED=true)
-  if (translateService && translateRateLimiter) {
-    app.use(
-      '/api/translate',
-      requireAuth,
-      translateRouter(translateService, translateRateLimiter, supportedLanguages ?? []),
     );
   }
 

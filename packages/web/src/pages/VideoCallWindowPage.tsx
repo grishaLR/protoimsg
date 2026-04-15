@@ -29,7 +29,7 @@ export function VideoCallWindowPage() {
   const recipientDid = searchParams.get('recipientDid');
   const { connected } = useWebSocket();
   const { activeCall, startOutgoingCall, bootstrapIncomingCall, hangUp } = useVideoCall();
-  const { t } = useTranslation('chat');
+  const { t } = useTranslation('common');
   const bootstrappedRef = useRef(false);
 
   // Bootstrap the call once WS IPC relay is connected

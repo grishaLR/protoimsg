@@ -38,26 +38,11 @@ function reloadOnChunkError<T>(p: Promise<T>): Promise<T> {
 const AuthenticatedApp = lazy(() =>
   reloadOnChunkError(import('./AuthenticatedApp').then((m) => ({ default: m.AuthenticatedApp }))),
 );
-const RoomDirectoryPage = lazy(() =>
-  reloadOnChunkError(
-    import('./pages/RoomDirectoryPage').then((m) => ({ default: m.RoomDirectoryPage })),
-  ),
-);
-const ChatRoomPage = lazy(() =>
-  reloadOnChunkError(import('./pages/ChatRoomPage').then((m) => ({ default: m.ChatRoomPage }))),
+const HomePage = lazy(() =>
+  reloadOnChunkError(import('./pages/HomePage').then((m) => ({ default: m.HomePage }))),
 );
 const DmWindowPage = lazy(() =>
   reloadOnChunkError(import('./pages/DmWindowPage').then((m) => ({ default: m.DmWindowPage }))),
-);
-const RoomDirectoryWindowPage = lazy(() =>
-  reloadOnChunkError(
-    import('./pages/RoomDirectoryWindowPage').then((m) => ({
-      default: m.RoomDirectoryWindowPage,
-    })),
-  ),
-);
-const FeedWindowPage = lazy(() =>
-  reloadOnChunkError(import('./pages/FeedWindowPage').then((m) => ({ default: m.FeedWindowPage }))),
 );
 const VideoCallWindowPage = lazy(() =>
   reloadOnChunkError(
@@ -153,15 +138,7 @@ function AppRoutes() {
         path="/"
         element={
           <ProtectedRoute>
-            <RoomDirectoryPage />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/rooms/:id"
-        element={
-          <ProtectedRoute>
-            <ChatRoomPage />
+            <HomePage />
           </ProtectedRoute>
         }
       />
@@ -170,22 +147,6 @@ function AppRoutes() {
         element={
           <ProtectedRoute>
             <DmWindowPage />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/rooms-directory"
-        element={
-          <ProtectedRoute>
-            <RoomDirectoryWindowPage />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/feed"
-        element={
-          <ProtectedRoute>
-            <FeedWindowPage />
           </ProtectedRoute>
         }
       />

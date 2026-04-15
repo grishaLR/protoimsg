@@ -133,7 +133,7 @@ function FloatingEmojiOverlay({ emojis }: { emojis: FloatingEmoji[] }) {
 // ── Main inner component ──
 
 function GroupCallInner({ onLeave, meetCode }: { onLeave: () => void; meetCode: string }) {
-  const { t } = useTranslation('chat');
+  const { t } = useTranslation('common');
   const room = useRoomContext();
   const { localParticipant } = useLocalParticipant();
   const participants = useParticipants();

@@ -1,7 +1,6 @@
-import { useState, useCallback } from 'react';
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
-import { OPTIONAL_SCOPE_GROUPS, type OptionalScopeGroup } from '@protoimsg/shared';
 import { useAuth } from '../../hooks/useAuth';
 import { useTheme } from '../../hooks/useTheme';
 import { useRotatingPlaceholder } from '../../hooks/useRotatingPlaceholder';
@@ -16,7 +15,6 @@ import {
 import { SIGNUP_ENABLED } from '../../lib/config';
 import { ActorSearch, type ActorSearchResult } from '../shared/ActorSearch';
 import { AtprotoInfoModal } from './AtprotoInfoModal';
-import { ScopePickerPanel } from './ScopePickerPanel';
 import { LanguageSelector } from '../settings/LanguageSelector';
 import styles from './LoginForm.module.css';
 
@@ -31,17 +29,8 @@ export function LoginForm() {
   const [notOnAllowlist, setNotOnAllowlist] = useState(false);
   const [loading, setLoading] = useState(false);
   const [showInfo, setShowInfo] = useState(false);
-  const [optionalGroups, setOptionalGroups] = useState<OptionalScopeGroup[]>(() =>
-    OPTIONAL_SCOPE_GROUPS.filter((g) => g !== 'feed'),
-  );
   const placeholder = useRotatingPlaceholder('login');
   const turnstile = useTurnstile();
-
-  const toggleScopeGroup = useCallback((group: OptionalScopeGroup) => {
-    setOptionalGroups((prev) =>
-      prev.includes(group) ? prev.filter((g) => g !== group) : [...prev, group],
-    );
-  }, []);
 
   function handleSubmit(e: React.SyntheticEvent) {
     e.preventDefault();
@@ -52,7 +41,7 @@ export function LoginForm() {
     setBanned(false);
     setNotOnAllowlist(false);
     setLoading(true);
-    login(trimmed, optionalGroups, turnstile.getToken() ?? undefined).catch((err: unknown) => {
+    login(trimmed, turnstile.getToken() ?? undefined).catch((err: unknown) => {
       if (err instanceof NotOnAllowlistError) {
         setNotOnAllowlist(true);
       } else if (err instanceof AccountBannedError) {
@@ -122,7 +111,6 @@ export function LoginForm() {
           disabled={loading}
           autoFocus
         />
-        <ScopePickerPanel selectedGroups={optionalGroups} onToggle={toggleScopeGroup} />
         {turnstile.enabled && <div ref={turnstile.containerRef} className={styles.captcha} />}
         {error && <p className={styles.error}>{error}</p>}
         <button
