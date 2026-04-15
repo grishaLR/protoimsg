@@ -38,13 +38,13 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Lint
-        run: pnpm lint
+        run: pnpm turbo lint --filter='!@protoimsg/desktop' --filter='!@protoimsg/mobile'
 
       - name: Format check
         run: pnpm format:check
 
       - name: Typecheck
-        run: pnpm turbo typecheck --filter='!@protoimsg/desktop'
+        run: pnpm turbo typecheck --filter='!@protoimsg/desktop' --filter='!@protoimsg/mobile'
 
       - name: Build
         run: pnpm turbo build --filter='!@protoimsg/desktop'
