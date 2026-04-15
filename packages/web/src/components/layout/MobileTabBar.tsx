@@ -1,6 +1,5 @@
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useAuth } from '../../hooks/useAuth';
 import { FEED_ENABLED, CHAT_ROOMS_ENABLED } from '../../lib/config';
 import styles from './MobileTabBar.module.css';
 
@@ -23,16 +22,14 @@ const ALL_TABS: {
 
 export function MobileTabBar({ activeTab, onTabChange }: MobileTabBarProps) {
   const { t } = useTranslation('common');
-  const { hasFeed } = useAuth();
-
   const tabs = useMemo(
     () =>
       ALL_TABS.filter((tab) => {
-        if (tab.id === 'feed' && (!FEED_ENABLED || !hasFeed)) return false;
+        if (tab.id === 'feed' && !FEED_ENABLED) return false;
         if (tab.id === 'rooms' && !CHAT_ROOMS_ENABLED) return false;
         return true;
       }),
-    [hasFeed],
+    [],
   );
 
   return (

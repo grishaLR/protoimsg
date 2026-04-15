@@ -21,7 +21,7 @@ import { UserIdentity } from '../chat/UserIdentity';
 import styles from './VideoCallOverlay.module.css';
 
 export function VideoCallOverlay() {
-  const { t } = useTranslation('chat');
+  const { t } = useTranslation('common');
   const {
     activeCall,
     callError,

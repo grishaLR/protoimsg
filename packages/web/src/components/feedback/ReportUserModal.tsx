@@ -12,7 +12,7 @@ interface ReportUserModalProps {
 }
 
 export function ReportUserModal({ subjectDid, onClose }: ReportUserModalProps) {
-  const { t } = useTranslation('chat');
+  const { t } = useTranslation('common');
   const dialogRef = useRef<HTMLDialogElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const previousActiveRef = useRef<HTMLElement | null>(null);

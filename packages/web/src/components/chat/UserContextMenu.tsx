@@ -4,8 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../hooks/useAuth';
 import { useWebSocket } from '../../contexts/WebSocketContext';
 import { useBlocks } from '../../contexts/BlockContext';
-import { useRoomMod } from '../../contexts/RoomModContext';
-import { addToBuddyList, createBanRecord, createRoleRecord } from '../../lib/atproto';
+import { addToBuddyList } from '../../lib/atproto';
 import { ReportUserModal } from '../feedback/ReportUserModal';
 import styles from './UserContextMenu.module.css';
 
@@ -17,20 +16,17 @@ interface UserContextMenuProps {
 }
 
 export function UserContextMenu({ did, x, y, onClose }: UserContextMenuProps) {
-  const { t } = useTranslation('chat');
+  const { t } = useTranslation('common');
   const { agent } = useAuth();
   const { send } = useWebSocket();
   const { blockedDids, canWriteBlocks, toggleBlock } = useBlocks();
-  const { roomUri, roomOwnerDid, isCurrentUserOwner, isCurrentUserOwnerOrMod } = useRoomMod();
   const [feedback, setFeedback] = useState<string | null>(null);
   const [showReport, setShowReport] = useState(false);
-  const [confirmBan, setConfirmBan] = useState(false);
   const [pending, setPending] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
   const timerRef = useRef<ReturnType<typeof setTimeout>>(undefined);
 
   const isBlocked = blockedDids.has(did);
-  const isTargetOwner = did === roomOwnerDid;
 
   // Clamp position so menu doesn't overflow viewport
   const style: React.CSSProperties = {
@@ -91,73 +87,12 @@ export function UserContextMenu({ did, x, y, onClose }: UserContextMenuProps) {
     onClose();
   }
 
-  async function handleBan() {
-    if (!agent || !roomUri || pending) return;
-    setPending(true);
-    try {
-      await createBanRecord(agent, { roomUri, subjectDid: did });
-      setFeedback(t('moderation.banned'));
-      setConfirmBan(false);
-      timerRef.current = setTimeout(() => {
-        onClose();
-      }, 2000);
-    } catch {
-      setFeedback(t('moderation.error'));
-      timerRef.current = setTimeout(() => {
-        setFeedback(null);
-        setConfirmBan(false);
-      }, 2000);
-    } finally {
-      setPending(false);
-    }
-  }
-
-  async function handleMakeMod() {
-    if (!agent || !roomUri || pending) return;
-    setPending(true);
-    try {
-      await createRoleRecord(agent, { roomUri, subjectDid: did, role: 'moderator' });
-      setFeedback(t('moderation.modAdded'));
-      timerRef.current = setTimeout(() => {
-        onClose();
-      }, 2000);
-    } catch {
-      setFeedback(t('moderation.error'));
-      timerRef.current = setTimeout(() => {
-        setFeedback(null);
-      }, 2000);
-    } finally {
-      setPending(false);
-    }
-  }
-
   return createPortal(
     <>
       <div className={styles.overlay} />
       <div className={styles.menu} ref={menuRef} style={style} role="menu">
         {feedback ? (
           <span className={styles.menuFeedback}>{feedback}</span>
-        ) : confirmBan ? (
-          <>
-            <span className={styles.menuFeedback}>{t('moderation.banConfirm')}</span>
-            <button
-              className={`${styles.menuItem} ${styles.menuItemDanger}`}
-              onClick={() => void handleBan()}
-              disabled={pending}
-              role="menuitem"
-            >
-              {t('moderation.ban')}
-            </button>
-            <button
-              className={styles.menuItem}
-              onClick={() => {
-                setConfirmBan(false);
-              }}
-              role="menuitem"
-            >
-              {t('roomSettings.cancel')}
-            </button>
-          </>
         ) : (
           <>
             <button
@@ -186,27 +121,6 @@ export function UserContextMenu({ did, x, y, onClose }: UserContextMenuProps) {
             >
               {t('userContextMenu.report')}
             </button>
-            {isCurrentUserOwnerOrMod && !isTargetOwner && (
-              <button
-                className={`${styles.menuItem} ${styles.menuItemDanger}`}
-                onClick={() => {
-                  setConfirmBan(true);
-                }}
-                role="menuitem"
-              >
-                {t('moderation.ban')}
-              </button>
-            )}
-            {isCurrentUserOwner && !isTargetOwner && (
-              <button
-                className={styles.menuItem}
-                onClick={() => void handleMakeMod()}
-                disabled={pending}
-                role="menuitem"
-              >
-                {t('moderation.makeMod')}
-              </button>
-            )}
           </>
         )}
       </div>

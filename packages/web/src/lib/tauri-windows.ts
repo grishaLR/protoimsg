@@ -25,20 +25,6 @@ export async function minimizeCurrentWindow(): Promise<void> {
   await getCurrentWebviewWindow().minimize();
 }
 
-/** Open or focus a room window */
-export async function openRoomWindow(roomId: string, roomName: string): Promise<void> {
-  const label = `room-${roomId}`;
-  await openOrFocusWindow({
-    label,
-    url: `/rooms/${roomId}`,
-    title: `#${roomName} — protoimsg`,
-    width: 520,
-    height: 620,
-    minWidth: 360,
-    minHeight: 400,
-  });
-}
-
 /** Open or focus a DM window */
 export async function openDmWindow(conversationId: string, recipientDid: string): Promise<void> {
   const label = `dm-${conversationId}`;
@@ -50,32 +36,6 @@ export async function openDmWindow(conversationId: string, recipientDid: string)
     height: 480,
     minWidth: 280,
     minHeight: 320,
-  });
-}
-
-/** Open or focus the room directory window */
-export async function openRoomDirectoryWindow(): Promise<void> {
-  await openOrFocusWindow({
-    label: 'rooms-directory',
-    url: '/rooms-directory',
-    title: 'Chat Rooms — protoimsg',
-    width: 520,
-    height: 620,
-    minWidth: 360,
-    minHeight: 400,
-  });
-}
-
-/** Open or focus the feed window */
-export async function openFeedWindow(): Promise<void> {
-  await openOrFocusWindow({
-    label: 'feed',
-    url: '/feed',
-    title: 'Feed — protoimsg',
-    width: 560,
-    height: 700,
-    minWidth: 400,
-    minHeight: 500,
   });
 }
 
@@ -124,6 +84,21 @@ export async function closeVideoCallWindow(conversationId: string): Promise<void
   } catch {
     // Window may already be closed
   }
+}
+
+/** Open or focus a group meet window */
+export async function openMeetWindow(meetCode?: string): Promise<void> {
+  const label = 'meet';
+  const url = meetCode ? `/meet/${meetCode}` : '/meet';
+  await openOrFocusWindow({
+    label,
+    url,
+    title: 'Meet — protoimsg',
+    width: 800,
+    height: 600,
+    minWidth: 640,
+    minHeight: 480,
+  });
 }
 
 interface WindowConfig {

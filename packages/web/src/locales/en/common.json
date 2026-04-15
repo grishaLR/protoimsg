@@ -1,6 +1,5 @@
 {
   "appName": "proto IM",
-
   "status": {
     "online": "Online",
     "away": "Away",
@@ -8,14 +7,12 @@
     "offline": "Offline",
     "disconnected": "Disconnected"
   },
-
   "visibility": {
     "everyone": "Everyone",
     "community": "Community",
     "innerCircle": "Inner Circle",
     "noOne": "No One"
   },
-
   "theme": {
     "aim": "'98 Classic",
     "nytLight": "Minimal Light",
@@ -30,7 +27,6 @@
     "black": "Black",
     "wireframe": "Wireframe"
   },
-
   "nav": {
     "meet": "Meet",
     "community": "Community",
@@ -40,7 +36,6 @@
     "chat": "Chat",
     "profile": "Profile"
   },
-
   "header": {
     "menu": "Menu",
     "awayMessage": {
@@ -54,7 +49,6 @@
     "minimize": "Minimize",
     "signOut": "Sign Out"
   },
-
   "statusSelector": {
     "awayMessage": {
       "label": "Away message",
@@ -64,22 +58,18 @@
       "label": "Who can see me"
     }
   },
-
   "connectionBanner": {
-    "message": "Connection lost \u2014 reconnecting..."
+    "message": "Connection lost — reconnecting..."
   },
-
   "betaBanner": {
     "message": "We're in early stages and things might break! Reach out to us at",
     "dismiss": "Dismiss"
   },
-
   "errorBoundary": {
     "title": "Something went wrong",
     "fallbackMessage": "An unexpected error occurred",
     "tryAgain": "Try again"
   },
-
   "button": {
     "back": "Back",
     "cancel": "Cancel",
@@ -92,12 +82,10 @@
     "signIn": "Sign In",
     "signOut": "Sign Out"
   },
-
   "aria": {
     "expand": "Expand",
     "collapse": "Collapse"
   },
-
   "feedback": {
     "menuItem": "Send Feedback",
     "title": "Send Feedback",
@@ -108,12 +96,10 @@
     "success": "Thanks! Feedback sent.",
     "error": "Something went wrong. Try again."
   },
-
   "rtlRestart": {
     "title": "Restart Required",
     "message": "Please restart the app for the layout direction to update."
   },
-
   "serverError": {
     "unknown": "An unknown error occurred",
     "unauthorized": "You must be signed in",
@@ -137,5 +123,183 @@
     "messageTooLong": "Message is too long",
     "contentFiltered": "Message was blocked by content filter",
     "alreadyExists": "Already exists"
+  },
+  "videoCall": {
+    "incoming": {
+      "ariaLabel": "Incoming video call",
+      "label": "Incoming call...",
+      "accept": "Accept call",
+      "acceptAriaLabel": "Accept incoming call",
+      "reject": "Reject call",
+      "rejectAriaLabel": "Reject incoming call",
+      "banner": "Incoming video call",
+      "declineLabel": "Decline",
+      "acceptLabel": "Accept"
+    },
+    "calling": "Calling...",
+    "ringing": "Ringing...",
+    "reconnecting": "Reconnecting...",
+    "mute": "Mute",
+    "unmute": "Unmute",
+    "cameraOff": "Turn camera off",
+    "cameraOn": "Turn camera on",
+    "flipCamera": "Flip camera",
+    "flip": "Flip",
+    "connectionFailed": "Connection failed",
+    "callFailed": "Call Failed",
+    "retry": "Retry",
+    "endCall": "End call",
+    "hangUp": "Hang Up",
+    "micOff": "Mic off",
+    "camOff": "Cam off",
+    "shareScreen": "Share screen",
+    "stopSharing": "Stop sharing",
+    "error": {
+      "mediaPermission": "Camera/mic permission required for video calls"
+    }
+  },
+  "buddyList": {
+    "searchPlaceholder": "Search buddies...",
+    "addBuddyLabel": "Add Buddy",
+    "loading": "Loading...",
+    "empty": "No buddies yet",
+    "title": "Buddy List",
+    "filterPlaceholder": "Filter buddies...",
+    "addBuddyPlaceholder": "Add buddy by handle...",
+    "loadingBuddyList": "Loading buddy list...",
+    "noMatches": "No matches",
+    "noMatchesDetail": "No buddies matching \"{{query}}\"",
+    "addFirstBuddy": "Add your first buddy",
+    "addFirstBuddyHint": "Find people in chat rooms or search by handle",
+    "noOneOnline": "No one online",
+    "buddyOfflineCount_one": "{{count}} buddy offline",
+    "buddyOfflineCount_other": "{{count}} buddies offline",
+    "onlineCount": "{{online}} of {{total}} online",
+    "removeBuddyConfirm": "Are you sure you want to remove this buddy?",
+    "germ": {
+      "checkFailed": "Could not check Germ status for this user.",
+      "notEnabled": "This user hasn't enabled Germ (a third-party encrypted messenger).",
+      "openFailed": "Failed to open Germ."
+    },
+    "accessibility": {
+      "messageBuddy": "Message {{name}}, {{status}}",
+      "callBuddy": "Call {{name}}",
+      "groupHeader": "{{group}} group, {{online}} of {{total}} online"
+    },
+    "createGroup": {
+      "placeholder": "Group name...",
+      "button": "+ Create Group"
+    },
+    "footer": {
+      "chatRooms": "Chat Rooms",
+      "feed": "Feed"
+    },
+    "unreadIm": "{{count}} unread",
+    "incomingIm": "Incoming IM",
+    "groups": {
+      "innerCircle": "Inner Circle",
+      "community": "Community",
+      "offline": "Offline",
+      "blocked": "Blocked",
+      "followers": "Followers",
+      "following": "Following"
+    }
+  },
+  "buddyMenu": {
+    "button": {
+      "title": "Options",
+      "ariaLabel": "Buddy options"
+    },
+    "openDm": "Open DM",
+    "call": "Call",
+    "sendIm": "Send IM",
+    "addToInnerCircle": "Add to Inner Circle",
+    "removeFromInnerCircle": "Remove from Inner Circle",
+    "moveTo": "Move to...",
+    "block": "Block",
+    "unblock": "Unblock",
+    "remove": "Remove",
+    "messageOnGerm": "Open in Germ ↗",
+    "addToCommunity": "Add to Community",
+    "sendImDisabled": "User is offline",
+    "videoCall": "Video Call",
+    "videoCallDisabled": "User is offline",
+    "report": "Report User"
+  },
+  "userContextMenu": {
+    "addToBuddyList": "Add to Buddy List",
+    "block": "Block",
+    "unblock": "Unblock",
+    "report": "Report User",
+    "feedback": {
+      "added": "Added!",
+      "alreadyInList": "Already in buddy list",
+      "error": "Error"
+    }
+  },
+  "userPopoverCard": {
+    "viewProfile": "View Profile",
+    "addToBuddyList": "Add to Buddy List",
+    "added": "Added!",
+    "alreadyInList": "Already in buddy list",
+    "error": "Error"
+  },
+  "report": {
+    "title": "Report User",
+    "subjectLabel": "User",
+    "categoryLabel": "Category",
+    "categories": {
+      "harassment": "Harassment",
+      "spam": "Spam",
+      "impersonation": "Impersonation",
+      "hateSpeech": "Hate Speech",
+      "other": "Other"
+    },
+    "descriptionLabel": "Description",
+    "descriptionPlaceholder": "What happened?",
+    "attachmentsLabel": "Screenshots (optional)",
+    "attachmentsHint": "Up to 2 images",
+    "addAttachment": "Add Screenshot",
+    "submit": "Submit Report",
+    "submitting": "Submitting...",
+    "cancel": "Cancel",
+    "success": "Report submitted. We'll look into it.",
+    "error": "Failed to submit report.",
+    "removeAttachment": "Remove attachment",
+    "fileSizeError": "File too large. Maximum size is 2 MB."
+  },
+  "reportContent": {
+    "title": "Report",
+    "subjectLabel": "Subject",
+    "categoryLabel": "Category",
+    "descriptionLabel": "Description",
+    "descriptionPlaceholder": "What happened?",
+    "attachmentsLabel": "Screenshots (optional)",
+    "attachmentsHint": "Up to 2 images",
+    "addAttachment": "Add Screenshot",
+    "removeAttachment": "Remove",
+    "submit": "Submit Report",
+    "submitting": "Submitting...",
+    "cancel": "Cancel",
+    "success": "Report submitted. We'll look into it.",
+    "error": "Failed to submit report.",
+    "fileSizeError": "File too large (max 2 MB)"
+  },
+  "moderation": {
+    "ban": "Ban from Room",
+    "banConfirm": "Ban this user from the room?",
+    "banned": "Banned",
+    "unban": "Unban",
+    "makeMod": "Make Moderator",
+    "removeMod": "Remove Moderator",
+    "modAdded": "Moderator added",
+    "modRemoved": "Moderator removed",
+    "error": "Action failed"
+  },
+  "groupHeader": {
+    "renameGroup": "Rename group",
+    "deleteGroup": "Delete group",
+    "expand": "Expand",
+    "collapse": "Collapse"
   }
 }

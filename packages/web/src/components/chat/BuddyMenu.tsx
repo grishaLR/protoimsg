@@ -8,7 +8,7 @@ import type { MemberWithPresence } from '../../types';
 import styles from './BuddyListPanel.module.css';
 
 function GermMenuItem({ did, onClose }: { did: string; onClose: () => void }) {
-  const { t } = useTranslation('chat');
+  const { t } = useTranslation('common');
   const { canMessage, germUrl } = useGermDeclaration(did);
 
   if (!canMessage || !germUrl) return null;
@@ -89,7 +89,7 @@ export function BuddyMenu({
   isFollowGraphEntry,
   onReport,
 }: BuddyMenuProps) {
-  const { t } = useTranslation('chat');
+  const { t } = useTranslation('common');
   const { canWriteBlocks } = useBlocks();
   const [open, setOpen] = useState(false);
   const [moveOpen, setMoveOpen] = useState(false);

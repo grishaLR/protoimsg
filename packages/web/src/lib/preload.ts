@@ -2,6 +2,4 @@
  *  Called from ConnectingScreen so they load while the user watches the progress bar. */
 export function preloadApp(): void {
   void import('../AuthenticatedApp');
-  void import('../pages/RoomDirectoryPage');
-  void import('../pages/ChatRoomPage');
 }

@@ -1,5 +1,5 @@
 import { BrowserOAuthClient, type OAuthClientMetadata } from '@atproto/oauth-client-browser';
-import { OAUTH_SCOPE_ALL } from '@protoimsg/shared';
+import { OAUTH_SCOPE } from '@protoimsg/shared';
 
 /** Scopes that protoimsg requires to function. Checked after OAuth callback. */
 export const REQUIRED_SCOPES = ['atproto'] as const;
@@ -8,7 +8,7 @@ export const REQUIRED_SCOPES = ['atproto'] as const;
  * Bump this whenever the OAuth scope set changes and all users must re-authenticate.
  * On load, AuthContext compares this against localStorage — mismatch → clear session.
  */
-export const AUTH_VERSION = 2;
+export const AUTH_VERSION = 3;
 
 let client: BrowserOAuthClient | null = null;
 
@@ -21,7 +21,7 @@ function buildMetadata(origin: string): OAuthClientMetadata {
     client_name: 'proto instant messenger',
     client_uri: origin,
     redirect_uris: [`${origin}/`],
-    scope: OAUTH_SCOPE_ALL,
+    scope: OAUTH_SCOPE,
     grant_types: ['authorization_code', 'refresh_token'],
     response_types: ['code'],
     token_endpoint_auth_method: 'none',
@@ -41,7 +41,7 @@ export function getOAuthClient(): BrowserOAuthClient {
     // This is the spec-compliant way to use OAuth in development — no hosted metadata needed.
     // redirect_uri uses 127.0.0.1 per RFC 8252 (not "localhost").
     const redirectUri = `http://127.0.0.1:5173/`;
-    const scope = OAUTH_SCOPE_ALL;
+    const scope = OAUTH_SCOPE;
     client = new BrowserOAuthClient({
       handleResolver: 'https://public.api.bsky.app',
       clientMetadata: {

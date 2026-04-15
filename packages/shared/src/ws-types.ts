@@ -21,16 +21,6 @@ export interface WsMessageBase {
 
 // Client → Server messages
 
-export interface JoinRoomMessage extends WsMessageBase {
-  type: 'join_room';
-  roomId: string;
-}
-
-export interface LeaveRoomMessage extends WsMessageBase {
-  type: 'leave_room';
-  roomId: string;
-}
-
 export interface StatusChangeMessage extends WsMessageBase {
   type: 'status_change';
   status: 'online' | 'away' | 'idle';
@@ -89,12 +79,6 @@ export interface ImIceCandidateMessage extends WsMessageBase {
   candidate: IceCandidateInit;
 }
 
-export interface ChannelTypingMessage extends WsMessageBase {
-  type: 'channel_typing';
-  roomId: string;
-  channelId: string;
-}
-
 export interface SyncBlocksMessage extends WsMessageBase {
   type: 'sync_blocks';
   blockedDids: string[];
@@ -137,12 +121,6 @@ export interface NewIceCandidateMessage extends WsMessageBase {
   candidate: IceCandidateInit;
 }
 
-export interface NotifyRecordMessage extends WsMessageBase {
-  type: 'notify_record';
-  uri: string;
-  cid: string;
-}
-
 // Bot Client → Server messages
 
 export interface BotDmOpenMessage extends WsMessageBase {
@@ -158,25 +136,11 @@ export interface BotDmCloseMessage extends WsMessageBase {
   type: 'bot_dm_close';
 }
 
-export interface BotRoomCommandMessage extends WsMessageBase {
-  type: 'bot_room_command';
-  text: string;
-  roomId: string;
-  channelId: string;
-}
-
 // Group call Client → Server messages
-
-export interface GroupCallCreateMessage extends WsMessageBase {
-  type: 'group_call_create';
-  roomId: string;
-}
 
 export interface GroupCallCreateStandaloneMessage extends WsMessageBase {
   type: 'group_call_create_standalone';
-  /** Who can join: 'anyone' (default), 'community' (buddy list), 'inner-circle', or 'allowlist'. */
   access?: 'anyone' | 'community' | 'inner-circle' | 'allowlist';
-  /** Specific DIDs allowed to join (only used when access='allowlist'). */
   allowedDids?: string[];
 }
 
@@ -197,12 +161,9 @@ export interface GroupCallLeaveMessage extends WsMessageBase {
 
 export type ClientMessage =
   | AuthMessage
-  | JoinRoomMessage
-  | LeaveRoomMessage
   | StatusChangeMessage
   | PingMessage
   | RequestCommunityPresenceMessage
-  | ChannelTypingMessage
   | SyncBlocksMessage
   | SyncCommunityMessage
   | DmOpenMessage
@@ -216,34 +177,15 @@ export type ClientMessage =
   | AcceptCallMessage
   | RejectCallMessage
   | NewIceCandidateMessage
-  | NotifyRecordMessage
   | BotDmOpenMessage
   | BotDmSendMessage
   | BotDmCloseMessage
-  | BotRoomCommandMessage
-  | GroupCallCreateMessage
   | GroupCallCreateStandaloneMessage
   | GroupCallJoinMessage
   | GroupCallJoinByCodeMessage
   | GroupCallLeaveMessage;
 
 // Server → Client messages
-
-export interface NewMessageEvent extends WsMessageBase {
-  type: 'message';
-  data: {
-    id: string;
-    uri: string;
-    did: string;
-    roomId: string;
-    channelId: string;
-    text: string;
-    reply?: { root: string; parent: string };
-    facets?: unknown[];
-    embed?: unknown;
-    createdAt: string;
-  };
-}
 
 export interface PresenceUpdateEvent extends WsMessageBase {
   type: 'presence';
@@ -261,32 +203,6 @@ export interface CommunityPresenceEvent extends WsMessageBase {
     status: string;
     awayMessage?: string;
   }>;
-}
-
-export interface ChannelInfo {
-  id: string;
-  uri: string;
-  did: string;
-  roomId: string;
-  name: string;
-  description: string | null;
-  position: number;
-  postPolicy: string;
-  isDefault: boolean;
-  createdAt: string;
-}
-
-export interface RoomRoleInfo {
-  did: string;
-  role: 'owner' | 'moderator';
-}
-
-export interface RoomJoinedEvent extends WsMessageBase {
-  type: 'room_joined';
-  roomId: string;
-  members: string[];
-  channels: ChannelInfo[];
-  roles: RoomRoleInfo[];
 }
 
 export interface PongEvent extends WsMessageBase {
@@ -350,53 +266,6 @@ export interface ImIceCandidateEvent extends WsMessageBase {
   };
 }
 
-export interface MentionNotificationEvent extends WsMessageBase {
-  type: 'mention_notification';
-  data: {
-    roomId: string;
-    roomName: string;
-    channelId: string;
-    channelName: string;
-    senderDid: string;
-    messageText: string;
-    messageUri: string;
-    createdAt: string;
-  };
-}
-
-export interface PollCreatedEvent extends WsMessageBase {
-  type: 'poll_created';
-  data: {
-    id: string;
-    uri: string;
-    did: string;
-    roomId: string;
-    channelId: string;
-    question: string;
-    options: string[];
-    allowMultiple: boolean;
-    expiresAt?: string;
-    createdAt: string;
-  };
-}
-
-export interface PollVoteEvent extends WsMessageBase {
-  type: 'poll_vote';
-  data: {
-    pollId: string;
-    roomId: string;
-    channelId: string;
-    /** Updated tallies: option index → count */
-    tallies: Record<number, number>;
-    /** Total unique voters */
-    totalVoters: number;
-    /** The voter's DID */
-    voterDid: string;
-    /** Which options they picked */
-    selectedOptions: number[];
-  };
-}
-
 export interface CallReadyEvent extends WsMessageBase {
   type: 'call_ready';
   data: {
@@ -441,88 +310,18 @@ export interface AuthSuccessEvent extends WsMessageBase {
   type: 'auth_success';
 }
 
-export interface ChannelTypingEvent extends WsMessageBase {
-  type: 'channel_typing';
-  data: {
-    roomId: string;
-    channelId: string;
-    did: string;
-  };
-}
-
-export interface ChannelCreatedEvent extends WsMessageBase {
-  type: 'channel_created';
-  data: ChannelInfo;
-}
-
-export interface ChannelDeletedEvent extends WsMessageBase {
-  type: 'channel_deleted';
-  data: {
-    channelId: string;
-    roomId: string;
-  };
-}
-
-export interface RoomBanEvent extends WsMessageBase {
-  type: 'room_ban';
-  data: {
-    roomId: string;
-    subjectDid: string;
-    actorDid: string;
-    action: 'ban' | 'unban';
-  };
-}
-
-export interface RoomRoleUpdateEvent extends WsMessageBase {
-  type: 'room_role_update';
-  data: {
-    roomId: string;
-    subjectDid: string;
-    role: 'owner' | 'moderator';
-    action: 'add' | 'remove';
-  };
-}
-
 // Bot Server → Client events
 
 export interface BotDmResponseEvent extends WsMessageBase {
   type: 'bot_dm_response';
   data: {
     text: string;
-    /** Optional i18n key for client-side translation (falls back to `text` if missing or untranslated). */
     i18nKey?: string;
     createdAt: string;
   };
 }
 
-export interface SystemMessageEvent extends WsMessageBase {
-  type: 'system_message';
-  data: {
-    text: string;
-    roomId: string;
-    channelId: string;
-    createdAt: string;
-  };
-}
-
 // Group call Server → Client events
-
-export interface GroupCallStartedEvent extends WsMessageBase {
-  type: 'group_call_started';
-  data: {
-    callId: string;
-    roomId: string;
-    participantCount: number;
-  };
-}
-
-export interface GroupCallEndedEvent extends WsMessageBase {
-  type: 'group_call_ended';
-  data: {
-    callId: string;
-    roomId: string;
-  };
-}
 
 export interface GroupCallTokenEvent extends WsMessageBase {
   type: 'group_call_token';
@@ -530,26 +329,7 @@ export interface GroupCallTokenEvent extends WsMessageBase {
     callId: string;
     token: string;
     url: string;
-    /** Short shareable code for standalone meetings, null for room-attached calls. */
     meetCode: string | null;
-  };
-}
-
-export interface GroupCallParticipantJoinedEvent extends WsMessageBase {
-  type: 'group_call_participant_joined';
-  data: {
-    callId: string;
-    roomId: string;
-    participantCount: number;
-  };
-}
-
-export interface GroupCallParticipantLeftEvent extends WsMessageBase {
-  type: 'group_call_participant_left';
-  data: {
-    callId: string;
-    roomId: string;
-    participantCount: number;
   };
 }
 
@@ -563,36 +343,21 @@ export interface GroupCallErrorEvent extends WsMessageBase {
 
 export type ServerMessage =
   | AuthSuccessEvent
-  | NewMessageEvent
   | PresenceUpdateEvent
   | CommunityPresenceEvent
-  | RoomJoinedEvent
   | PongEvent
   | ErrorEvent
-  | ChannelTypingEvent
-  | ChannelCreatedEvent
-  | ChannelDeletedEvent
   | DmOpenedEvent
   | DmPartnerLeftEvent
   | DmRejectedEvent
   | ImOfferEvent
   | ImAnswerEvent
   | ImIceCandidateEvent
-  | MentionNotificationEvent
-  | PollCreatedEvent
-  | PollVoteEvent
   | CallReadyEvent
   | IncomingCallEvent
   | RejectCallEvent
   | AcceptCallEvent
   | NewIceCandidateEvent
-  | RoomBanEvent
-  | RoomRoleUpdateEvent
   | BotDmResponseEvent
-  | SystemMessageEvent
-  | GroupCallStartedEvent
-  | GroupCallEndedEvent
   | GroupCallTokenEvent
-  | GroupCallParticipantJoinedEvent
-  | GroupCallParticipantLeftEvent
   | GroupCallErrorEvent;

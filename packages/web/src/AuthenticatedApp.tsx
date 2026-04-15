@@ -6,13 +6,10 @@ import { DmProvider } from './contexts/DmContext';
 import { BotDmProvider } from './contexts/BotDmContext';
 import { VideoCallProvider } from './contexts/VideoCallContext';
 import { GroupCallProvider } from './contexts/GroupCallContext';
-import { MentionNotificationProvider } from './contexts/MentionNotificationContext';
-import { TranslationProvider } from './contexts/TranslationContext';
 import { DmPopoverContainer } from './components/dm/DmPopoverContainer';
 import { BotDmPopover } from './components/bot/BotDmPopover';
 import { VideoCallOverlay } from './components/videocall/VideoCallOverlay';
 import { GroupCallOverlay } from './components/videocall/GroupCallOverlay';
-import { MentionToastContainer } from './components/mentions/MentionToastContainer';
 import { BlockProvider } from './contexts/BlockContext';
 import { ConnectionBanner } from './components/ConnectionBanner';
 import { ActiveVideoProvider } from './contexts/ActiveVideoContext';
@@ -30,29 +27,24 @@ export function AuthenticatedApp({ children }: { children: ReactNode }) {
       <ProfileProvider>
         <ActiveVideoProvider>
           <VideoVolumeProvider>
-            <TranslationProvider>
-              <WebSocketProvider>
-                <ConnectionBanner />
-                <BlockProvider>
-                  <DmProvider>
-                    <MaybeBot>
-                      <VideoCallProvider>
-                        <GroupCallProvider>
-                          <MentionNotificationProvider>
-                            {children}
-                            <DmPopoverContainer />
-                            {BOT_ENABLED && <BotDmPopover />}
-                            <VideoCallOverlay />
-                            <GroupCallOverlay />
-                            <MentionToastContainer />
-                          </MentionNotificationProvider>
-                        </GroupCallProvider>
-                      </VideoCallProvider>
-                    </MaybeBot>
-                  </DmProvider>
-                </BlockProvider>
-              </WebSocketProvider>
-            </TranslationProvider>
+            <WebSocketProvider>
+              <ConnectionBanner />
+              <BlockProvider>
+                <DmProvider>
+                  <MaybeBot>
+                    <VideoCallProvider>
+                      <GroupCallProvider>
+                        {children}
+                        <DmPopoverContainer />
+                        {BOT_ENABLED && <BotDmPopover />}
+                        <VideoCallOverlay />
+                        <GroupCallOverlay />
+                      </GroupCallProvider>
+                    </VideoCallProvider>
+                  </MaybeBot>
+                </DmProvider>
+              </BlockProvider>
+            </WebSocketProvider>
           </VideoVolumeProvider>
         </ActiveVideoProvider>
       </ProfileProvider>

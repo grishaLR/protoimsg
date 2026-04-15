@@ -9,12 +9,8 @@ import {
 import { useTranslation } from 'react-i18next';
 import { RichText as RichTextAPI } from '@atproto/api';
 import { DM_LIMITS } from '@protoimsg/shared';
-import type { GifSource } from '../../lib/api';
 import { parseMarkdownFacets } from '../../lib/markdown-facets';
 import { useAuth } from '../../hooks/useAuth';
-import { useGifCapabilities } from '../../hooks/useGifCapabilities';
-import { FormattingToolbar } from '../chat/FormattingToolbar';
-import { GifSearchModal } from '../chat/GifSearchModal';
 import styles from './DmInput.module.css';
 
 interface DmInputProps {
@@ -24,39 +20,19 @@ interface DmInputProps {
 }
 
 export const DmInput = forwardRef<HTMLTextAreaElement, DmInputProps>(function DmInput(
-  { onSend, onSendWithEmbed, onTyping },
+  { onSend, onSendWithEmbed: _onSendWithEmbed, onTyping },
   ref,
 ) {
   const { t } = useTranslation('dm');
   const { agent } = useAuth();
   const [text, setText] = useState('');
-  const [gifQuery, setGifQuery] = useState<string | null>(null);
-  const [gifSource, setGifSource] = useState<GifSource | undefined>(undefined);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
-  const { capabilities, hasAnyGifService } = useGifCapabilities();
 
   useImperativeHandle(ref, () => textareaRef.current as HTMLTextAreaElement);
 
   const handleSend = async () => {
     const trimmed = text.trim();
     if (!trimmed) return;
-
-    // GIF slash commands
-    const lower = trimmed.toLowerCase();
-    if (onSendWithEmbed && hasAnyGifService) {
-      if (lower.startsWith('/giphy') && capabilities.giphy) {
-        setText('');
-        setGifQuery(trimmed.slice('/giphy'.length).trim());
-        setGifSource('giphy');
-        return;
-      }
-      if (lower.startsWith('/klipy') && capabilities.klipy) {
-        setText('');
-        setGifQuery(trimmed.slice('/klipy'.length).trim());
-        setGifSource('klipy');
-        return;
-      }
-    }
 
     // Parse markdown formatting
     const { text: cleaned, facets: mdFacets } = parseMarkdownFacets(trimmed);
@@ -102,7 +78,6 @@ export const DmInput = forwardRef<HTMLTextAreaElement, DmInputProps>(function Dm
 
   return (
     <div className={styles.inputArea}>
-      <FormattingToolbar textareaRef={textareaRef} onTextChange={handleChange} />
       <div className={styles.inputRow}>
         <textarea
           ref={textareaRef}
@@ -125,29 +100,6 @@ export const DmInput = forwardRef<HTMLTextAreaElement, DmInputProps>(function Dm
           {t('input.send')}
         </button>
       </div>
-      {gifQuery !== null && onSendWithEmbed && (
-        <GifSearchModal
-          initialQuery={gifQuery}
-          initialSource={gifSource}
-          capabilities={capabilities}
-          onClose={() => {
-            setGifQuery(null);
-            setGifSource(undefined);
-          }}
-          onSelect={(gif, altText) => {
-            const description = altText || `via ${gif.source === 'klipy' ? 'Klipy' : 'GIPHY'}`;
-            const embed: Record<string, unknown> = {
-              $type: 'app.protoimsg.chat.message#externalEmbed',
-              uri: gif.fullUrl,
-              title: gif.title,
-              description,
-            };
-            onSendWithEmbed('', embed);
-            setGifQuery(null);
-            setGifSource(undefined);
-          }}
-        />
-      )}
     </div>
   );
 });

@@ -1,6 +1,5 @@
 import { useState, useCallback, useRef } from 'react';
 import { useProfile } from '../../contexts/ProfileContext';
-import { useModeration } from '../../hooks/useModeration';
 import { useAuth } from '../../hooks/useAuth';
 import { isSafeUrl } from '../../lib/sanitize';
 import { useViewProfile } from '../../contexts/ViewProfileContext';
@@ -29,7 +28,12 @@ export function UserIdentity({
 }: UserIdentityProps) {
   const onViewProfile = useViewProfile();
   const profile = useProfile(did);
-  const moderation = useModeration(did);
+  const moderation = {
+    shouldFilter: false,
+    shouldBlur: false,
+    shouldAlert: false,
+    shouldInform: false,
+  };
   const { did: currentUserDid } = useAuth();
   const [avatarRevealed, setAvatarRevealed] = useState(false);
   const [contextMenu, setContextMenu] = useState<{ x: number; y: number } | null>(null);

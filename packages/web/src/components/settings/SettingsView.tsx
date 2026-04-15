@@ -1,9 +1,7 @@
-import { useRef, useState, useCallback } from 'react';
+import { useState, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../hooks/useAuth';
-import { useProfileEditor } from '../../hooks/useProfileEditor';
 import { useTheme } from '../../hooks/useTheme';
-import { useContentTranslation } from '../../hooks/useContentTranslation';
 import { THEME_OPTIONS, type Theme } from '../../contexts/ThemeContext';
 import { ArrowLeft } from 'lucide-react';
 import { LanguageSelector } from './LanguageSelector';
@@ -21,14 +19,8 @@ interface SettingsViewProps {
 export function SettingsView({ onBack }: SettingsViewProps) {
   const { t } = useTranslation('settings');
   const { t: tc } = useTranslation('common');
-  const { did, handle, agent, logout, hasProfileEdit } = useAuth();
+  const { did, handle, agent, logout } = useAuth();
   const { theme, setTheme } = useTheme();
-  const {
-    autoTranslate,
-    setAutoTranslate,
-    available: translateAvailable,
-  } = useContentTranslation();
-  const fileInputRef = useRef<HTMLInputElement>(null);
   const [soundEnabled, setSoundEnabledState] = useState(isSoundEnabled);
   const [ipProtection, setIpProtection] = useState<IpProtectionLevel>(() => {
     const stored = localStorage.getItem('protoimsg:ipProtection');
@@ -94,29 +86,6 @@ export function SettingsView({ onBack }: SettingsViewProps) {
       setPwBusy(false);
     }
   }, [agent, pwNew, pwConfirm, pwToken, t, resetPasswordState]);
-
-  const {
-    displayName,
-    setDisplayName,
-    description,
-    setDescription,
-    setAvatarFile,
-    avatarPreview,
-    loading,
-    saving,
-    error,
-    save,
-  } = useProfileEditor();
-
-  const handleAvatarChange = useCallback(
-    (e: React.ChangeEvent<HTMLInputElement>) => {
-      const file = e.target.files?.[0];
-      if (file) {
-        setAvatarFile(file);
-      }
-    },
-    [setAvatarFile],
-  );
 
   return (
     <div className={styles.settingsView}>
@@ -237,95 +206,11 @@ export function SettingsView({ onBack }: SettingsViewProps) {
           </div>
         </div>
 
-        {/* Edit Profile — only shown when profile edit scope was granted */}
-        {hasProfileEdit && (
-          <div className={styles.section}>
-            <div className={styles.sectionTitle}>{t('editProfile.title')}</div>
-            <div className={styles.sectionBody}>
-              {loading ? (
-                <div className={styles.loadingText}>{t('editProfile.loading')}</div>
-              ) : (
-                <>
-                  <div className={styles.avatarRow}>
-                    {avatarPreview && (
-                      // eslint-disable-next-line no-restricted-syntax -- blob URL from local file upload
-                      <img className={styles.avatarPreview} src={avatarPreview} alt="" />
-                    )}
-                    <button
-                      className={styles.changeAvatarButton}
-                      onClick={() => {
-                        fileInputRef.current?.click();
-                      }}
-                      type="button"
-                    >
-                      {t('editProfile.changeAvatar')}
-                    </button>
-                    <input
-                      ref={fileInputRef}
-                      type="file"
-                      accept="image/*"
-                      style={{ display: 'none' }}
-                      onChange={handleAvatarChange}
-                    />
-                  </div>
-
-                  <label className={styles.label}>{t('editProfile.displayNameLabel')}</label>
-                  <input
-                    className={styles.input}
-                    value={displayName}
-                    onChange={(e) => {
-                      setDisplayName(e.target.value);
-                    }}
-                  />
-
-                  <label className={styles.label}>{t('editProfile.bioLabel')}</label>
-                  <textarea
-                    className={styles.textarea}
-                    value={description}
-                    onChange={(e) => {
-                      setDescription(e.target.value);
-                    }}
-                    rows={4}
-                  />
-
-                  {error && <div className={styles.error}>{error}</div>}
-
-                  <button
-                    className={styles.saveButton}
-                    onClick={() => {
-                      void save();
-                    }}
-                    disabled={saving}
-                    type="button"
-                  >
-                    {saving ? t('editProfile.saving') : t('editProfile.save')}
-                  </button>
-                </>
-              )}
-            </div>
-          </div>
-        )}
-
         {/* Language & Translation */}
         <div className={styles.section}>
           <div className={styles.sectionTitle}>{t('language.title')}</div>
           <div className={styles.sectionBody}>
             <LanguageSelector />
-            {translateAvailable && (
-              <>
-                <label className={styles.checkboxLabel} style={{ marginTop: 10 }}>
-                  <input
-                    type="checkbox"
-                    checked={autoTranslate}
-                    onChange={(e) => {
-                      setAutoTranslate(e.target.checked);
-                    }}
-                  />
-                  {t('translation.autoTranslate')}
-                </label>
-                <div className={styles.hint}>{t('translation.autoTranslateHint')}</div>
-              </>
-            )}
           </div>
         </div>
 

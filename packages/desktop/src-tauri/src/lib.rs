@@ -19,9 +19,11 @@ pub fn run() {
         .setup(|app| {
             // Build tray menu
             let show_item = MenuItemBuilder::with_id("show", "Show protoimsg").build(app)?;
+            let meet_item = MenuItemBuilder::with_id("meet", "Start Meet").build(app)?;
             let quit_item = MenuItemBuilder::with_id("quit", "Quit").build(app)?;
             let menu = MenuBuilder::new(app)
                 .item(&show_item)
+                .item(&meet_item)
                 .separator()
                 .item(&quit_item)
                 .build()?;
@@ -41,6 +43,14 @@ pub fn run() {
                         if let Some(window) = app.get_webview_window("main") {
                             let _ = window.show();
                             let _ = window.set_focus();
+                        }
+                    }
+                    "meet" => {
+                        // Emit to frontend — it handles window creation via tauri-windows.ts
+                        if let Some(window) = app.get_webview_window("main") {
+                            let _ = window.show();
+                            let _ = window.set_focus();
+                            let _ = window.emit("app://open-meet", ());
                         }
                     }
                     "quit" => {

@@ -8,7 +8,7 @@ import styles from './MeetPage.module.css';
 type AccessOption = 'anyone' | 'community' | 'inner-circle';
 
 export function MeetLanding() {
-  const { t } = useTranslation('rooms');
+  const { t } = useTranslation('common');
   const { startStandaloneMeeting, joinByCode } = useGroupCall();
   const [code, setCode] = useState('');
   const [access, setAccess] = useState<AccessOption>('anyone');

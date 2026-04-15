@@ -21,19 +21,9 @@ export interface GroupCallState {
   meetCode: string;
 }
 
-/** Active call indicator for rooms the user is subscribed to (not necessarily joined). */
-export interface ActiveRoomCall {
-  callId: string;
-  participantCount: number;
-}
-
 interface GroupCallContextValue {
   /** The group call this user is currently in (has a LiveKit token). */
   activeGroupCall: GroupCallState | null;
-  /** Map of roomId → active call info for rooms the user is subscribed to. */
-  roomCalls: Map<string, ActiveRoomCall>;
-  /** Start or join a group call in a room. */
-  startGroupCall: (roomId: string) => void;
   /** Create a standalone meeting (not attached to any room). */
   startStandaloneMeeting: (
     access?: 'anyone' | 'community' | 'inner-circle' | 'allowlist',
@@ -61,7 +51,6 @@ export function GroupCallProvider({ children }: { children: ReactNode }) {
   const { send, subscribe, connected } = useWebSocket();
 
   const [activeGroupCall, setActiveGroupCall] = useState<GroupCallState | null>(null);
-  const [roomCalls, setRoomCalls] = useState<Map<string, ActiveRoomCall>>(new Map());
   const [isSupported, setIsSupported] = useState(true);
 
   // Use ref to avoid stale closure in WS handler
@@ -74,17 +63,8 @@ export function GroupCallProvider({ children }: { children: ReactNode }) {
       switch (msg.type) {
         case 'group_call_token': {
           const { callId, token, url, meetCode } = msg.data;
-          // We need the roomId — get it from roomCalls or from the active call
           const existing = activeCallRef.current;
-          let roomId = existing?.roomId ?? '';
-
-          // Try to find roomId from roomCalls
-          for (const [rid, rc] of roomCalls) {
-            if (rc.callId === callId) {
-              roomId = rid;
-              break;
-            }
-          }
+          const roomId = existing?.roomId ?? '';
 
           setActiveGroupCall({
             callId,
@@ -97,60 +77,6 @@ export function GroupCallProvider({ children }: { children: ReactNode }) {
           break;
         }
 
-        case 'group_call_started': {
-          const { callId, roomId, participantCount } = msg.data;
-          setRoomCalls((prev) => {
-            const next = new Map(prev);
-            next.set(roomId, { callId, participantCount });
-            return next;
-          });
-          // If we just created this call, update roomId on our active call
-          setActiveGroupCall((prev) => {
-            if (prev && prev.callId === callId && !prev.roomId) {
-              return { ...prev, roomId };
-            }
-            return prev;
-          });
-          break;
-        }
-
-        case 'group_call_ended': {
-          const { callId, roomId } = msg.data;
-          setRoomCalls((prev) => {
-            const next = new Map(prev);
-            next.delete(roomId);
-            return next;
-          });
-          setActiveGroupCall((prev) => (prev?.callId === callId ? null : prev));
-          break;
-        }
-
-        case 'group_call_participant_joined': {
-          const { callId, roomId, participantCount } = msg.data;
-          setRoomCalls((prev) => {
-            const next = new Map(prev);
-            next.set(roomId, { callId, participantCount });
-            return next;
-          });
-          setActiveGroupCall((prev) =>
-            prev?.callId === callId ? { ...prev, participantCount } : prev,
-          );
-          break;
-        }
-
-        case 'group_call_participant_left': {
-          const { callId, roomId, participantCount } = msg.data;
-          setRoomCalls((prev) => {
-            const next = new Map(prev);
-            next.set(roomId, { callId, participantCount });
-            return next;
-          });
-          setActiveGroupCall((prev) =>
-            prev?.callId === callId ? { ...prev, participantCount } : prev,
-          );
-          break;
-        }
-
         case 'group_call_error': {
           setIsSupported(msg.data.errorCode !== 'SERVER_ERROR' || isSupported);
           break;
@@ -159,7 +85,7 @@ export function GroupCallProvider({ children }: { children: ReactNode }) {
     });
 
     return unsubscribe;
-  }, [subscribe, roomCalls, isSupported]);
+  }, [subscribe, isSupported]);
 
   // Auto-join a meeting if a pending meet code was saved (e.g. from /meet/:callId before OAuth)
   useEffect(() => {
@@ -170,18 +96,6 @@ export function GroupCallProvider({ children }: { children: ReactNode }) {
       send({ type: 'group_call_join_by_code', meetCode: pending });
     }
   }, [connected, send]);
-
-  const startGroupCall = useCallback(
-    (roomId: string) => {
-      const existing = roomCalls.get(roomId);
-      if (existing) {
-        send({ type: 'group_call_join', callId: existing.callId });
-        return;
-      }
-      send({ type: 'group_call_create', roomId });
-    },
-    [send, roomCalls],
-  );
 
   const startStandaloneMeeting = useCallback(
     (access?: 'anyone' | 'community' | 'inner-circle' | 'allowlist', allowedDids?: string[]) => {
@@ -219,8 +133,6 @@ export function GroupCallProvider({ children }: { children: ReactNode }) {
   const value = useMemo<GroupCallContextValue>(
     () => ({
       activeGroupCall,
-      roomCalls,
-      startGroupCall,
       startStandaloneMeeting,
       joinGroupCall,
       joinByCode,
@@ -229,8 +141,6 @@ export function GroupCallProvider({ children }: { children: ReactNode }) {
     }),
     [
       activeGroupCall,
-      roomCalls,
-      startGroupCall,
       startStandaloneMeeting,
       joinGroupCall,
       joinByCode,

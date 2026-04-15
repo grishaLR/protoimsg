@@ -20,11 +20,9 @@ import { GlobalAllowlistService } from './moderation/global-allowlist-service.js
 import { LabelerService } from './moderation/labeler-service.js';
 import { createDmService } from './dms/service.js';
 import { createImRegistry } from './dms/registry.js';
-import { createTranslateService, getSupportedLanguages } from './translate/service.js';
 import { ChallengeStore } from './auth/challenge.js';
 import { RedisChallengeStore } from './auth/challenge-redis.js';
-import { pruneTypingThrottle, pruneCallAttempts } from './ws/handlers.js';
-import { pruneSlowModeTracker } from './firehose/handlers.js';
+import { pruneCallAttempts } from './ws/handlers.js';
 import { EmailService } from './email/service.js';
 import { createBotService } from './bot/service.js';
 import { createNotificationService } from './notifications/service.js';
@@ -90,35 +88,6 @@ async function main() {
   // Auth challenge store (Redis when available, else in-memory)
   const challenges = redis ? new RedisChallengeStore(redis) : new ChallengeStore();
 
-  // Translation service (optional — requires at least one backend)
-  const translateService = config.TRANSLATE_ENABLED
-    ? createTranslateService({
-        sql: db,
-        libreTranslateUrl: config.LIBRETRANSLATE_URL,
-        nllbUrl: config.NLLB_URL,
-        nllbApiKey: config.NLLB_API_KEY,
-      })
-    : null;
-  const supportedLanguages = config.TRANSLATE_ENABLED
-    ? getSupportedLanguages(config.LIBRETRANSLATE_URL, config.NLLB_URL)
-    : [];
-  const translateRateLimiter = config.TRANSLATE_ENABLED
-    ? redis
-      ? new RedisRateLimiter(redis, { windowMs: 60_000, maxRequests: config.TRANSLATE_RATE_LIMIT })
-      : new InMemoryRateLimiter({ windowMs: 60_000, maxRequests: config.TRANSLATE_RATE_LIMIT })
-    : null;
-
-  if (translateService) {
-    log.info(
-      {
-        libreUrl: config.LIBRETRANSLATE_URL,
-        nllbUrl: config.NLLB_URL,
-        languages: supportedLanguages.length,
-      },
-      'Translation service enabled',
-    );
-  }
-
   // GIF proxy (optional — requires at least one of GIPHY_API_KEY or KLIPY_API_KEY)
   const hasGifService = !!(config.GIPHY_API_KEY || config.KLIPY_API_KEY);
   const gifRateLimiter = hasGifService
@@ -175,9 +144,6 @@ async function main() {
     globalBans,
     globalAllowlist,
     challenges,
-    translateService,
-    translateRateLimiter,
-    supportedLanguages,
     config.GIPHY_API_KEY,
     config.KLIPY_API_KEY,
     gifRateLimiter,
@@ -230,13 +196,9 @@ async function main() {
     void sessions.prune();
     void rateLimiter.prune();
     void dmService.pruneExpired();
-    pruneTypingThrottle();
     pruneCallAttempts();
-    pruneSlowModeTracker();
     botService?.cleanup();
     groupCallService?.pruneStale();
-    // Room messages are ATProto records owned by users — never prune server-side.
-    // DM pruning is handled by dmService.pruneExpired() above.
   }, 60_000);
 
   httpServer.listen(config.PORT, config.HOST, () => {

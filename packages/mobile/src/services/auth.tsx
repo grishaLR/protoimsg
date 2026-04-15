@@ -13,7 +13,7 @@ import {
 import { Agent } from '@atproto/api';
 import { ExpoOAuthClient } from '@atproto/oauth-client-expo';
 import type { OAuthSession } from '@atproto/oauth-client-expo';
-import { buildOAuthScope, type OptionalScopeGroup } from '@protoimsg/shared';
+import { OAUTH_SCOPE } from '@protoimsg/shared';
 import { OAUTH_CLIENT_ID, OAUTH_REDIRECT_URI } from './config';
 import {
   AccountBannedError,
@@ -51,7 +51,7 @@ export interface AuthContextValue {
   isLoading: boolean;
   authPhase: AuthPhase;
   authError: string | null;
-  login: (handle: string, optionalGroups?: OptionalScopeGroup[]) => Promise<void>;
+  login: (handle: string) => Promise<void>;
   logout: () => void;
 }
 
@@ -74,7 +74,7 @@ function getOAuthClient(): ExpoOAuthClient {
       redirect_uris: [OAUTH_REDIRECT_URI],
       application_type: 'native',
       dpop_bound_access_tokens: true,
-      scope: buildOAuthScope([]),
+      scope: OAUTH_SCOPE,
       token_endpoint_auth_method: 'none',
       response_types: ['code'],
       grant_types: ['authorization_code', 'refresh_token'],
@@ -276,7 +276,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [setters]);
 
   const login = useCallback(
-    async (inputHandle: string, optionalGroups?: OptionalScopeGroup[]) => {
+    async (inputHandle: string) => {
       setAuthError(null);
 
       try {
@@ -292,7 +292,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       // signIn redirects and init() catches the callback on return).
       console.info('[Auth] starting OAuth sign-in for', inputHandle);
       const oauthSession = await client.signIn(inputHandle, {
-        scope: buildOAuthScope(optionalGroups),
+        scope: OAUTH_SCOPE,
       });
       console.info('[Auth] OAuth sign-in complete, DID:', oauthSession.did);
 
