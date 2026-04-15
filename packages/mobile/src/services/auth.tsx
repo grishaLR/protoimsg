@@ -93,7 +93,9 @@ async function completeServerAuth(
   oauthSession: OAuthSession,
   newAgent: Agent,
 ): Promise<{ handle: string; token: string }> {
-  const profile = await newAgent.getProfile({ actor: oauthSession.did });
+  // Use public appview — no bsky scopes needed
+  const { publicAgent } = await import('../lib/public-agent');
+  const profile = await publicAgent.getProfile({ actor: oauthSession.did });
   const resolvedHandle = profile.data.handle;
 
   const { nonce } = await fetchChallenge(oauthSession.did);

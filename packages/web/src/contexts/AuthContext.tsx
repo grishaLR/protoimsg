@@ -23,6 +23,7 @@ import {
   getServerToken,
 } from '../lib/api';
 import { IS_TAURI } from '../lib/config';
+import { publicAgent } from '../lib/public-agent';
 import { Sentry } from '../sentry';
 
 export type AuthPhase =
@@ -220,7 +221,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             try {
               setAuthPhase('resolving');
               const [profile, { nonce }] = await Promise.all([
-                newAgent.getProfile({ actor: restoredSession.did }),
+                publicAgent.getProfile({ actor: restoredSession.did }),
                 fetchChallenge(restoredSession.did),
               ]);
               const resolvedHandle = profile.data.handle;
