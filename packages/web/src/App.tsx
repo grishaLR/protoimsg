@@ -38,6 +38,9 @@ function reloadOnChunkError<T>(p: Promise<T>): Promise<T> {
 const AuthenticatedApp = lazy(() =>
   reloadOnChunkError(import('./AuthenticatedApp').then((m) => ({ default: m.AuthenticatedApp }))),
 );
+const HomePage = lazy(() =>
+  reloadOnChunkError(import('./pages/HomePage').then((m) => ({ default: m.HomePage }))),
+);
 const DmWindowPage = lazy(() =>
   reloadOnChunkError(import('./pages/DmWindowPage').then((m) => ({ default: m.DmWindowPage }))),
 );
@@ -135,7 +138,7 @@ function AppRoutes() {
         path="/"
         element={
           <ProtectedRoute>
-            <DmWindowPage />
+            <HomePage />
           </ProtectedRoute>
         }
       />
