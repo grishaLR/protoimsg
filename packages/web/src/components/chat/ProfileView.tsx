@@ -1085,7 +1085,7 @@ function WinampPlayer({
 
   return (
     <article className={styles.winamp}>
-      <audio ref={audioRef} src={proxySrc} preload="none" />
+      <audio ref={audioRef} src={proxySrc} preload="none" crossOrigin="anonymous" />
       {coverSrc ? (
         <img className={styles.winampCover} src={coverSrc} alt="" />
       ) : (
