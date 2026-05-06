@@ -50,6 +50,7 @@ interface BuddyListPanelProps {
 
 const OFFLINE_GROUP = 'Offline';
 const BLOCKED_GROUP = 'Blocked';
+const MOOTS_GROUP = 'Moots';
 const FOLLOWING_GROUP = 'Following';
 const FOLLOWERS_GROUP = 'Followers';
 const PROTECTED_GROUPS = new Set(['Community', 'Inner Circle']);
@@ -241,23 +242,37 @@ export function BuddyListPanel({
     setRenameValue('');
   }, [renamingGroup, renameValue, onRenameGroup]);
 
-  // Filter follow-graph entries: exclude community members and blocked users
+  // Moots = mutual follows, excluding community + blocked
+  const followerSet = useMemo(() => new Set(followers.map((f) => f.did)), [followers]);
+
+  const mootsFiltered: MemberWithPresence[] = useMemo(
+    () =>
+      following
+        .filter((f) => followerSet.has(f.did) && !buddyDids.has(f.did) && !blockedDids.has(f.did))
+        .map((f) => ({ did: f.did, status: 'offline', addedAt: '' })),
+    [following, followerSet, buddyDids, blockedDids],
+  );
+
+  const mootDids = useMemo(() => new Set(mootsFiltered.map((m) => m.did)), [mootsFiltered]);
+
+  // Filter follow-graph entries: exclude community members, blocked users, and moots
   const followingFiltered: MemberWithPresence[] = useMemo(
     () =>
       following
-        .filter((f) => !buddyDids.has(f.did) && !blockedDids.has(f.did))
+        .filter((f) => !buddyDids.has(f.did) && !blockedDids.has(f.did) && !mootDids.has(f.did))
         .map((f) => ({ did: f.did, status: 'offline', addedAt: '' })),
-    [following, buddyDids, blockedDids],
+    [following, buddyDids, blockedDids, mootDids],
   );
 
   const followersFiltered: MemberWithPresence[] = useMemo(
     () =>
       followers
-        .filter((f) => !buddyDids.has(f.did) && !blockedDids.has(f.did))
+        .filter((f) => !buddyDids.has(f.did) && !blockedDids.has(f.did) && !mootDids.has(f.did))
         .map((f) => ({ did: f.did, status: 'offline', addedAt: '' })),
-    [followers, buddyDids, blockedDids],
+    [followers, buddyDids, blockedDids, mootDids],
   );
 
+  const isMootsCollapsed = collapsed.has(MOOTS_GROUP);
   const isFollowingCollapsed = collapsed.has(FOLLOWING_GROUP);
   const isFollowersCollapsed = collapsed.has(FOLLOWERS_GROUP);
 
@@ -492,6 +507,54 @@ export function BuddyListPanel({
             })}
           </div>
         </div>
+      )}
+
+      {/* Moots group */}
+      {mootsFiltered.length > 0 && (
+        <>
+          <InlineGroupHeader
+            groupName={MOOTS_GROUP}
+            onlineCount={0}
+            totalCount={mootsFiltered.length}
+            isCollapsed={isMootsCollapsed}
+            onToggleCollapse={() => {
+              toggleCollapse(MOOTS_GROUP);
+            }}
+          />
+          {!isMootsCollapsed && (
+            <div className={styles.list}>
+              {mootsFiltered.map((buddy) => (
+                <div key={buddy.did} className={`${styles.buddy} ${styles.buddyIndented}`}>
+                  <StatusIndicator status={buddy.status} />
+                  <div className={styles.buddyInfo}>
+                    <span
+                      className={styles.buddyDid}
+                      role={onBuddyClick ? 'button' : undefined}
+                      tabIndex={onBuddyClick ? 0 : undefined}
+                      style={onBuddyClick ? { cursor: 'pointer' } : undefined}
+                      onClick={
+                        onBuddyClick
+                          ? () => {
+                              onBuddyClick(buddy.did);
+                            }
+                          : undefined
+                      }
+                      onKeyDown={
+                        onBuddyClick
+                          ? (e) => {
+                              if (e.key === 'Enter') onBuddyClick(buddy.did);
+                            }
+                          : undefined
+                      }
+                    >
+                      <UserIdentity did={buddy.did} showAvatar />
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </>
       )}
 
       {/* Following group */}
