@@ -3,6 +3,7 @@ import { Header } from '../components/layout/Header';
 import { MobileTabBar } from '../components/layout/MobileTabBar';
 import type { MobileTab } from '../components/layout/MobileTabBar';
 import { BuddyListPanel } from '../components/chat/BuddyListPanel';
+import { ProfileView } from '../components/chat/ProfileView';
 import { SettingsView } from '../components/settings/SettingsView';
 import { useBuddyList } from '../hooks/useBuddyList';
 import { useFollowGraph } from '../hooks/useFollowGraph';
@@ -71,6 +72,13 @@ export function HomePage() {
   const [view, setView] = useState<View>(() =>
     window.matchMedia('(max-width: 767px)').matches ? 'buddies' : 'meet',
   );
+  const [profileDid, setProfileDid] = useState<string | null>(null);
+  const handleBuddyClick = useCallback((did: string) => {
+    setProfileDid(did);
+  }, []);
+  const handleCloseProfile = useCallback(() => {
+    setProfileDid(null);
+  }, []);
 
   // Tauri: update system tray tooltip
   useEffect(() => {
@@ -141,8 +149,13 @@ export function HomePage() {
       onRenameGroup={renameGroup}
       onDeleteGroup={deleteGroup}
       onMoveBuddy={moveBuddy}
+      onBuddyClick={handleBuddyClick}
     />
   );
+
+  const profilePanel = profileDid ? (
+    <ProfileView actor={profileDid} onBack={handleCloseProfile} />
+  ) : null;
 
   // Mobile: show one view at a time
   if (isMobile) {
@@ -151,7 +164,7 @@ export function HomePage() {
         <Header onOpenSettings={handleOpenSettings} />
         <div className={styles.body}>
           {view === 'buddies' ? (
-            <div className={styles.main}>{buddyPanel}</div>
+            <div className={styles.main}>{profilePanel ?? buddyPanel}</div>
           ) : (
             <div className={styles.main}>
               <MeetLanding />
@@ -171,9 +184,7 @@ export function HomePage() {
     <div className={styles.page}>
       <Header onOpenSettings={handleOpenSettings} />
       <div className={styles.body}>
-        <div className={styles.main}>
-          <MeetLanding />
-        </div>
+        <div className={styles.main}>{profilePanel ?? <MeetLanding />}</div>
         <aside className={styles.sidebar}>{buddyPanel}</aside>
       </div>
     </div>

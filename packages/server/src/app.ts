@@ -30,6 +30,7 @@ import type { GroupCallService } from './calls/service.js';
 import { groupCallRouter } from './calls/router.js';
 import { getMetricsText, getMetricsContentType, observeHttpRequestDuration } from './metrics.js';
 import { checkHealth } from './health.js';
+import { audioProxyRouter } from './audio-proxy.js';
 
 export function createApp(
   config: Config,
@@ -182,6 +183,9 @@ export function createApp(
       notificationsRouter(notificationService),
     );
   }
+
+  // Audio proxy — allows web client to use Web Audio API on cross-origin audio (CORS bypass)
+  app.use('/api/audio-proxy', createRateLimitMiddleware(rateLimiter), audioProxyRouter());
 
   // GIF proxy (optional — mounted when either GIPHY_API_KEY or KLIPY_API_KEY is set)
   if ((giphyApiKey || klipyApiKey) && gifRateLimiter) {

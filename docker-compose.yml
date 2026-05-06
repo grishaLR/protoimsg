@@ -30,6 +30,7 @@ services:
       start_period: 5s
 
   libretranslate:
+    profiles: [translation]
     image: libretranslate/libretranslate:latest
     ports:
       - '5100:5000'
@@ -64,6 +65,7 @@ services:
       --max-port=49200
 
   nllb:
+    profiles: [translation]
     build: ./docker/nllb
     ports:
       - '6060:6060'
