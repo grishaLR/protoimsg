@@ -44,7 +44,7 @@
     "livekit-client": "^2.17.3",
     "lucide-react-native": "^0.577.0",
     "react": "~19.2.0",
-    "react-i18next": "^15.0.0",
+    "react-i18next": "^17.0.3",
     "react-native": "~0.83.0",
     "react-native-gesture-handler": "^2.30.0",
     "react-native-image-viewing": "^0.2.2",
