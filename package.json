@@ -19,7 +19,7 @@
     "prepare": "husky"
   },
   "devDependencies": {
-    "@commitlint/cli": "^19.6.1",
+    "@commitlint/cli": "^20.5.3",
     "@commitlint/config-conventional": "^19.6.0",
     "@eslint/js": "^9.39.4",
     "eslint": "^9.18.0",
