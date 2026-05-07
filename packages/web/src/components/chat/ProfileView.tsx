@@ -79,6 +79,16 @@ function StatusBadge({ pds, did }: { pds: string; did: string }) {
           {status.text}
         </a>
       )}
+      {emojiName && (
+        <a
+          className={styles.statusCredit}
+          href="https://status.zzstoatzz.io"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          Powered by status.zzstoatzz.io
+        </a>
+      )}
     </div>
   );
 }
@@ -93,17 +103,7 @@ interface SpriteRecord {
 }
 
 function SpriteWalker({ pds, did }: { pds: string; did: string }) {
-  const { data: sprite } = useQuery({
-    queryKey: ['actorSprite', did],
-    staleTime: 5 * 60_000,
-    queryFn: async (): Promise<SpriteRecord | null> => {
-      const params = new URLSearchParams({ repo: did, collection: 'actor.rpg.sprite', limit: '1' });
-      const res = await fetch(`${pds}/xrpc/com.atproto.repo.listRecords?${params}`);
-      if (!res.ok) return null;
-      const json = (await res.json()) as { records: Array<{ value: unknown }> };
-      return (json.records[0]?.value ?? null) as SpriteRecord | null;
-    },
-  });
+  const { data: sprite } = useActorSprite(did, pds);
 
   if (!sprite?.spriteSheet.ref.$link) return null;
 
@@ -134,6 +134,49 @@ function SpriteWalker({ pds, did }: { pds: string; did: string }) {
   );
 }
 
+function useActorSprite(did: string | undefined, pds: string | undefined) {
+  return useQuery({
+    queryKey: ['actorSprite', did],
+    enabled: !!did && !!pds,
+    staleTime: 5 * 60_000,
+    queryFn: async (): Promise<SpriteRecord | null> => {
+      const params = new URLSearchParams({
+        repo: did as string,
+        collection: 'actor.rpg.sprite',
+        limit: '1',
+      });
+      const res = await fetch(`${pds}/xrpc/com.atproto.repo.listRecords?${params}`);
+      if (!res.ok) return null;
+      const json = (await res.json()) as { records: Array<{ value: unknown }> };
+      return (json.records[0]?.value ?? null) as SpriteRecord | null;
+    },
+  });
+}
+
+function SpriteHead({ pds, did, size = 56 }: { pds: string; did: string; size?: number }) {
+  const { data: sprite } = useActorSprite(did, pds);
+  if (!sprite?.spriteSheet.ref.$link) return null;
+
+  const { frameWidth: fw, frameHeight: fh, width, height } = sprite;
+  // Show the top 50% of frame 0 row 0 (front-facing idle = head area)
+  const headH = Math.ceil(fh * 0.5);
+  const scale = size / fw;
+  return (
+    <div
+      style={{
+        width: size,
+        height: Math.round(headH * scale),
+        backgroundImage: `url(${blobUrl(pds, did, sprite.spriteSheet.ref.$link)})`,
+        backgroundSize: `${width * scale}px ${height * scale}px`,
+        backgroundPosition: '0 0',
+        backgroundRepeat: 'no-repeat',
+        borderRadius: '50%',
+        flexShrink: 0,
+      }}
+    />
+  );
+}
+
 interface ProfileViewProps {
   actor: string;
   onBack: () => void;
@@ -161,7 +204,16 @@ function formatDate(iso: string): string {
 }
 
 const TITLE_FIELDS = ['title', 'name', 'displayName', 'subject'];
-const BODY_FIELDS = ['text', 'description', 'content', 'body', 'message', 'summary', 'caption'];
+const BODY_FIELDS = [
+  'text',
+  'description',
+  'notes',
+  'content',
+  'body',
+  'message',
+  'summary',
+  'caption',
+];
 
 function pickString(obj: Record<string, unknown>, keys: readonly string[]): string | null {
   for (const k of keys) {
@@ -1339,6 +1391,320 @@ function StatusList({ records, did }: { records: RecordItem[]; did: string }) {
   );
 }
 
+function blobCid(blob: unknown): string | null {
+  if (!blob || typeof blob !== 'object') return null;
+  const ref = (blob as Record<string, unknown>).ref;
+  if (!ref || typeof ref !== 'object') return null;
+  const link = (ref as Record<string, unknown>).$link;
+  return typeof link === 'string' ? link : null;
+}
+
+function RPGItemCard({ record, ctx }: { record: RecordItem; ctx: RenderContext }) {
+  const obj =
+    record.value && typeof record.value === 'object'
+      ? (record.value as Record<string, unknown>)
+      : null;
+  const title = typeof obj?.title === 'string' ? obj.title : null;
+  const description = typeof obj?.description === 'string' ? obj.description : null;
+  const context = typeof obj?.context === 'string' ? obj.context : null;
+  const category = typeof obj?.category === 'string' ? obj.category : null;
+  const acceptedAt = typeof obj?.acceptedAt === 'string' ? obj.acceptedAt : null;
+
+  const iconCid = blobCid(obj?.icon);
+  const iconSrc = iconCid ? blobUrl(ctx.pds, ctx.did, iconCid) : null;
+
+  return (
+    <article className={styles.rpgItemCard}>
+      <div className={styles.rpgItemImgWrap}>
+        {iconSrc && (
+          <img className={styles.rpgItemImg} src={iconSrc} alt={title ?? ''} loading="lazy" />
+        )}
+      </div>
+      <div className={styles.rpgItemBody}>
+        {title && <div className={styles.recordTitle}>{title}</div>}
+        {category && <span className={styles.rpgCategoryBadge}>{category}</span>}
+        {description && <div className={styles.postText}>{description}</div>}
+        {context && <div className={styles.postMeta}>{context}</div>}
+        <div className={styles.postMeta}>{acceptedAt ? formatDate(acceptedAt) : null}</div>
+      </div>
+    </article>
+  );
+}
+
+function RPGItemsTab({
+  ctx,
+  scrollRef,
+}: {
+  ctx: RenderContext;
+  scrollRef: React.RefObject<HTMLDivElement | null>;
+}) {
+  const { t } = useTranslation();
+
+  const { data, isLoading, fetchNextPage, hasNextPage, isFetchingNextPage, error } =
+    useActorRecords(ctx.did, 'equipment.rpg.item');
+
+  useScrollHandler(
+    scrollRef,
+    useCallback(() => {
+      const el = scrollRef.current;
+      if (!el) return;
+      if (
+        hasNextPage &&
+        !isFetchingNextPage &&
+        el.scrollHeight - el.scrollTop - el.clientHeight < SCROLL_BOTTOM_THRESHOLD
+      ) {
+        void fetchNextPage();
+      }
+    }, [hasNextPage, isFetchingNextPage, fetchNextPage, scrollRef]),
+  );
+
+  if (isLoading) return <div className={styles.loading}>{t('buddyList.loading')}</div>;
+  if (error) return <div className={styles.error}>{t('errorBoundary.fallbackMessage')}</div>;
+
+  const records = (data?.pages.flatMap((p) => p.records) ?? []) as RecordItem[];
+  if (records.length === 0) return <div className={styles.empty}>—</div>;
+
+  return (
+    <>
+      <a
+        className={styles.statusCredit}
+        href="https://rpg.actor"
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        Powered by rpg.actor
+      </a>
+      <div className={styles.rpgItemGrid}>
+        {records.map((r) => (
+          <RPGItemCard key={r.uri} record={r} ctx={ctx} />
+        ))}
+      </div>
+      {isFetchingNextPage && <div className={styles.loadingMore}>{t('buddyList.loading')}</div>}
+    </>
+  );
+}
+
+function useKeytraceVerified(did: string | undefined): boolean {
+  // Reuse the same query as the keytrace tab — no separate PDS resolution needed.
+  const { data } = useActorRecords(did, 'dev.keytrace.claim');
+  const records = data?.pages.flatMap((p) => p.records) ?? [];
+  return records.some((r) => {
+    const v = r.value && typeof r.value === 'object' ? (r.value as Record<string, unknown>) : null;
+    // absent status = legacy record, treated as verified per keytrace schema
+    return !v?.status || v.status === 'verified';
+  });
+}
+
+const PLATFORM_LABELS: Record<string, string> = {
+  github: 'GitHub',
+  twitter: 'Twitter / X',
+  discord: 'Discord',
+  domain: 'Domain',
+};
+
+function KeytraceCardAvatar({
+  avatarUrl,
+  ctx,
+  profileAvatar,
+}: {
+  avatarUrl: string | null;
+  ctx: RenderContext;
+  profileAvatar: string | undefined;
+}) {
+  const { data: sprite } = useActorSprite(ctx.did, ctx.pds);
+  const hasSpriteHead = !!sprite?.spriteSheet.ref.$link;
+  const [imgFailed, setImgFailed] = useState(false);
+
+  if (avatarUrl && !imgFailed) {
+    return (
+      <img
+        className={styles.keytraceAvatar}
+        src={avatarUrl}
+        alt=""
+        loading="lazy"
+        onError={() => {
+          setImgFailed(true);
+        }}
+      />
+    );
+  }
+  if (hasSpriteHead) {
+    return <SpriteHead pds={ctx.pds} did={ctx.did} size={56} />;
+  }
+  if (profileAvatar) {
+    return <img className={styles.keytraceAvatar} src={profileAvatar} alt="" loading="lazy" />;
+  }
+  return <div className={styles.keytraceAvatarPlaceholder} />;
+}
+
+function KeytraceCard({
+  record,
+  ctx,
+  profileAvatar,
+}: {
+  record: RecordItem;
+  ctx: RenderContext;
+  profileAvatar: string | undefined;
+}) {
+  const obj =
+    record.value && typeof record.value === 'object'
+      ? (record.value as Record<string, unknown>)
+      : null;
+  const type = typeof obj?.type === 'string' ? obj.type : null;
+  const status = typeof obj?.status === 'string' ? obj.status : null;
+  const claimUri =
+    typeof obj?.claimUri === 'string' && isSafeUrl(obj.claimUri) ? obj.claimUri : null;
+  const identity =
+    obj?.identity && typeof obj.identity === 'object'
+      ? (obj.identity as Record<string, unknown>)
+      : null;
+  const subject = typeof identity?.subject === 'string' ? identity.subject : null;
+  const profileUrl =
+    typeof identity?.profileUrl === 'string' && isSafeUrl(identity.profileUrl)
+      ? identity.profileUrl
+      : null;
+  const avatarUrl =
+    typeof identity?.avatarUrl === 'string' && isSafeUrl(identity.avatarUrl)
+      ? identity.avatarUrl
+      : null;
+  const lastVerifiedAt = typeof obj?.lastVerifiedAt === 'string' ? obj.lastVerifiedAt : null;
+  // absent status = legacy record, treated as verified per keytrace schema
+  const isVerified = !status || status === 'verified';
+
+  return (
+    <article className={styles.keytraceCard}>
+      <KeytraceCardAvatar avatarUrl={avatarUrl} ctx={ctx} profileAvatar={profileAvatar} />
+      <div className={styles.keytraceInfo}>
+        <div className={styles.keytraceHeader}>
+          <span className={styles.keytracePlatform}>
+            {type ? (PLATFORM_LABELS[type] ?? type) : '—'}
+          </span>
+          {isVerified && <span className={styles.keytraceCheck}>✓</span>}
+          {!isVerified && status && <span className={styles.keytraceStatus}>{status}</span>}
+        </div>
+        {subject && profileUrl ? (
+          // eslint-disable-next-line no-restricted-syntax -- validated by isSafeUrl() above
+          <a
+            className={styles.keytraceSubject}
+            href={profileUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            @{subject}
+          </a>
+        ) : subject ? (
+          <span className={styles.keytraceSubject}>@{subject}</span>
+        ) : null}
+        {claimUri && (
+          // eslint-disable-next-line no-restricted-syntax -- validated by isSafeUrl() above
+          <a
+            className={styles.recordLink}
+            href={claimUri}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Claim <ExternalLink size={12} aria-hidden="true" />
+          </a>
+        )}
+      </div>
+      {lastVerifiedAt && <span className={styles.keytraceDate}>{formatDate(lastVerifiedAt)}</span>}
+    </article>
+  );
+}
+
+function TangledRepoCard({ record, ctx }: { record: RecordItem; ctx: RenderContext }) {
+  const obj =
+    record.value && typeof record.value === 'object'
+      ? (record.value as Record<string, unknown>)
+      : null;
+  const name = typeof obj?.name === 'string' ? obj.name : null;
+  const description = typeof obj?.description === 'string' ? obj.description : null;
+  const knot = typeof obj?.knot === 'string' ? obj.knot : null;
+  const website = typeof obj?.website === 'string' && isSafeUrl(obj.website) ? obj.website : null;
+  const createdAt = typeof obj?.createdAt === 'string' ? obj.createdAt : null;
+  const href = name
+    ? `https://tangled.org/${ctx.handle}/${name}`
+    : linkForRecord(record.uri, ctx.handle);
+
+  return (
+    <article className={styles.post}>
+      <div className={styles.tangledRepoHeader}>
+        <a className={styles.tangledRepoName} href={href} target="_blank" rel="noopener noreferrer">
+          {name ?? record.uri.split('/').pop()}
+        </a>
+        {knot && <span className={styles.tangledKnot}>{knot}</span>}
+      </div>
+      {description && <div className={styles.postText}>{description}</div>}
+      <div className={styles.cardFooter}>
+        <span className={styles.postMeta}>{createdAt ? formatDate(createdAt) : null}</span>
+        <div className={styles.tangledLinks}>
+          {website && (
+            // eslint-disable-next-line no-restricted-syntax -- validated by isSafeUrl() above
+            <a
+              className={styles.recordLink}
+              href={website}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              {new URL(website).hostname} <ExternalLink size={12} aria-hidden="true" />
+            </a>
+          )}
+          <a className={styles.recordLink} href={href} target="_blank" rel="noopener noreferrer">
+            View <ExternalLink size={12} aria-hidden="true" />
+          </a>
+        </div>
+      </div>
+    </article>
+  );
+}
+
+function TealCard({ record, ctx }: { record: RecordItem; ctx: RenderContext }) {
+  const obj =
+    record.value && typeof record.value === 'object'
+      ? (record.value as Record<string, unknown>)
+      : null;
+  const trackName = typeof obj?.trackName === 'string' ? obj.trackName : null;
+  const releaseName = typeof obj?.releaseName === 'string' ? obj.releaseName : null;
+  const releaseMbId = typeof obj?.releaseMbId === 'string' ? obj.releaseMbId : null;
+  const playedTime = typeof obj?.playedTime === 'string' ? obj.playedTime : null;
+  const artists = Array.isArray(obj?.artists)
+    ? (obj.artists as unknown[])
+        .map((a) => {
+          const ao = a && typeof a === 'object' ? (a as Record<string, unknown>) : null;
+          return typeof ao?.artistName === 'string' ? ao.artistName : null;
+        })
+        .filter((a): a is string => a !== null)
+    : [];
+  const artistStr = artists.join(', ');
+  const artSrc = releaseMbId
+    ? `https://coverartarchive.org/release/${releaseMbId}/front-250`
+    : null;
+
+  return (
+    <article className={styles.tealCard}>
+      {artSrc && <img className={styles.tealArt} src={artSrc} alt="" loading="lazy" />}
+      <div className={styles.tealBody}>
+        {trackName && <div className={styles.recordTitle}>{trackName}</div>}
+        <div className={styles.postText}>
+          {artistStr}
+          {releaseName && <span className={styles.tealRelease}> — {releaseName}</span>}
+        </div>
+        <div className={styles.cardFooter}>
+          <span className={styles.postMeta}>{playedTime ? formatDate(playedTime) : null}</span>
+          <a
+            className={styles.recordLink}
+            href={linkForRecord(record.uri, ctx.handle)}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            View <ExternalLink size={12} aria-hidden="true" />
+          </a>
+        </div>
+      </div>
+    </article>
+  );
+}
+
 function FeedTab({
   actor,
   scrollRef,
@@ -1395,11 +1761,13 @@ function SingleCollectionTab({
   collection,
   render,
   scrollRef,
+  profileAvatar,
 }: {
   ctx: RenderContext;
   collection: string;
   render: RenderKind;
   scrollRef: React.RefObject<HTMLDivElement | null>;
+  profileAvatar?: string;
 }) {
   const { t } = useTranslation();
   const { data, isLoading, fetchNextPage, hasNextPage, isFetchingNextPage, error } =
@@ -1427,12 +1795,62 @@ function SingleCollectionTab({
 
   return (
     <>
+      {render === 'arabica' && (
+        <a
+          className={styles.statusCredit}
+          href="https://alpha.arabica.social"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          Powered by arabica.social
+        </a>
+      )}
+      {render === 'teal' && (
+        <a
+          className={styles.statusCredit}
+          href="https://teal.fm"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          Powered by teal.fm
+        </a>
+      )}
+      {render === 'tangled' && (
+        <a
+          className={styles.statusCredit}
+          href="https://tangled.org"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          Powered by tangled.sh
+        </a>
+      )}
+      {render === 'keytrace' && (
+        <a
+          className={styles.statusCredit}
+          href="https://keytrace.dev"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          Powered by keytrace.dev
+        </a>
+      )}
       {render === 'gallery' ? (
         <GalleryGrid records={records} ctx={ctx} />
       ) : render === 'audio' ? (
         <AudioList records={records} ctx={ctx} />
       ) : render === 'status' ? (
         <StatusList records={records} did={ctx.did} />
+      ) : render === 'teal' ? (
+        records.map((r) => <TealCard key={r.uri} record={r} ctx={ctx} />)
+      ) : render === 'tangled' ? (
+        records.map((r) => <TangledRepoCard key={r.uri} record={r} ctx={ctx} />)
+      ) : render === 'keytrace' ? (
+        <div className={styles.rpgItemGrid}>
+          {records.map((r) => (
+            <KeytraceCard key={r.uri} record={r} ctx={ctx} profileAvatar={profileAvatar} />
+          ))}
+        </div>
       ) : (
         records.map((r) =>
           render === 'publications' ? (
@@ -1452,10 +1870,12 @@ function MultiCollectionTab({
   ctx,
   collections,
   render,
+  profileAvatar,
 }: {
   ctx: RenderContext;
   collections: string[];
   render: RenderKind;
+  profileAvatar?: string;
 }) {
   const { t } = useTranslation();
   const queries = useQueries({
@@ -1536,22 +1956,63 @@ function MultiCollectionTab({
           Powered by standard.site
         </a>
       )}
-      {displayRecords.map((r) => {
-        if (render === 'publications') return <PublicationCard key={r.uri} record={r} ctx={ctx} />;
-        if (render === 'card') {
-          const type =
-            r.value && typeof r.value === 'object'
-              ? (r.value as Record<string, unknown>).$type
-              : null;
-          if (type === 'social.popfeed.feed.review')
-            return <PopfeedReviewCard key={r.uri} record={r} ctx={ctx} />;
-          if (type === 'social.popfeed.feed.list')
-            return <PopfeedListCard key={r.uri} record={r} ctx={ctx} />;
-          if (type === 'social.popfeed.feed.listItem')
-            return <PopfeedItemCard key={r.uri} record={r} ctx={ctx} />;
-        }
-        return <DefaultCard key={r.uri} record={r} ctx={ctx} />;
-      })}
+      {render === 'arabica' && (
+        <a
+          className={styles.statusCredit}
+          href="https://alpha.arabica.social"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          Powered by arabica.social
+        </a>
+      )}
+      {render === 'teal' && (
+        <a
+          className={styles.statusCredit}
+          href="https://teal.fm"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          Powered by teal.fm
+        </a>
+      )}
+      {render === 'tangled' && (
+        <a
+          className={styles.statusCredit}
+          href="https://tangled.org"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          Powered by tangled.sh
+        </a>
+      )}
+      {render === 'keytrace' ? (
+        <div className={styles.rpgItemGrid}>
+          {displayRecords.map((r) => (
+            <KeytraceCard key={r.uri} record={r} ctx={ctx} profileAvatar={profileAvatar} />
+          ))}
+        </div>
+      ) : null}
+      {render !== 'keytrace' &&
+        displayRecords.map((r) => {
+          if (render === 'teal') return <TealCard key={r.uri} record={r} ctx={ctx} />;
+          if (render === 'tangled') return <TangledRepoCard key={r.uri} record={r} ctx={ctx} />;
+          if (render === 'publications')
+            return <PublicationCard key={r.uri} record={r} ctx={ctx} />;
+          if (render === 'card') {
+            const type =
+              r.value && typeof r.value === 'object'
+                ? (r.value as Record<string, unknown>).$type
+                : null;
+            if (type === 'social.popfeed.feed.review')
+              return <PopfeedReviewCard key={r.uri} record={r} ctx={ctx} />;
+            if (type === 'social.popfeed.feed.list')
+              return <PopfeedListCard key={r.uri} record={r} ctx={ctx} />;
+            if (type === 'social.popfeed.feed.listItem')
+              return <PopfeedItemCard key={r.uri} record={r} ctx={ctx} />;
+          }
+          return <DefaultCard key={r.uri} record={r} ctx={ctx} />;
+        })}
     </>
   );
 }
@@ -1580,6 +2041,8 @@ function usePds(did: string | undefined) {
 export function ProfileView({ actor, onBack }: ProfileViewProps) {
   const { t } = useTranslation();
   const scrollRef = useRef<HTMLDivElement>(null);
+  const headerRef = useRef<HTMLDivElement>(null);
+  const [pinned, setPinned] = useState(false);
 
   const {
     data: profile,
@@ -1614,11 +2077,30 @@ export function ProfileView({ actor, onBack }: ProfileViewProps) {
     }));
   }, [collectionsData]);
 
+  useEffect(() => {
+    if (!profile) return;
+    const el = headerRef.current;
+    const container = scrollRef.current;
+    if (!el || !container) return;
+    const obs = new IntersectionObserver(
+      ([entry]) => {
+        setPinned(!(entry?.isIntersecting ?? true));
+      },
+      { root: container, threshold: 0 },
+    );
+    obs.observe(el);
+    return () => {
+      obs.disconnect();
+    };
+  }, [profile]);
+
   const [activeTabId, setActiveTabId] = useState<string | null>(null);
   const active = tabs.find((t) => t.id === activeTabId) ?? tabs[0] ?? null;
 
   const ctx: RenderContext | null =
     profile && pds ? { pds, did: profile.did, handle: profile.handle } : null;
+
+  const isKeytracVerified = useKeytraceVerified(profile?.did);
 
   return (
     <div className={styles.profileView}>
@@ -1631,7 +2113,7 @@ export function ProfileView({ actor, onBack }: ProfileViewProps) {
         {error && <div className={styles.error}>{t('errorBoundary.fallbackMessage')}</div>}
 
         {profile && (
-          <div className={styles.profileHeader}>
+          <div className={styles.profileHeader} ref={headerRef}>
             {profile.banner && isSafeUrl(profile.banner) ? (
               // eslint-disable-next-line no-restricted-syntax -- validated by isSafeUrl() above
               <img className={styles.banner} src={profile.banner} alt="" />
@@ -1650,7 +2132,14 @@ export function ProfileView({ actor, onBack }: ProfileViewProps) {
                   <div className={styles.profileDisplayName}>
                     {profile.displayName || profile.handle}
                   </div>
-                  <div className={styles.profileHandle}>@{profile.handle}</div>
+                  <div className={styles.profileHandle}>
+                    @{profile.handle}
+                    {isKeytracVerified && (
+                      <span className={styles.verifiedBadge} title="Verified by keytrace.dev">
+                        ✓
+                      </span>
+                    )}
+                  </div>
                 </div>
               </div>
 
@@ -1693,22 +2182,57 @@ export function ProfileView({ actor, onBack }: ProfileViewProps) {
           </div>
         )}
 
-        {profile && tabs.length > 1 && (
-          <div className={styles.tabs} role="tablist">
-            {tabs.map((tab) => (
-              <button
-                key={tab.id}
-                role="tab"
-                type="button"
-                aria-selected={(active?.id ?? null) === tab.id}
-                className={`${styles.tab} ${(active?.id ?? null) === tab.id ? styles.tabActive : ''}`}
-                onClick={() => {
-                  setActiveTabId(tab.id);
-                }}
-              >
-                {tab.label}
-              </button>
-            ))}
+        {profile && (
+          <div className={`${styles.stickyBar} ${pinned ? styles.stickyBarPinned : ''}`}>
+            <div className={styles.condensedHeader}>
+              <div className={styles.condensedHeaderInner}>
+                {profile.banner && isSafeUrl(profile.banner) ? (
+                  // eslint-disable-next-line no-restricted-syntax -- validated by isSafeUrl() above
+                  <img
+                    className={styles.condensedBannerBg}
+                    src={profile.banner}
+                    alt=""
+                    aria-hidden="true"
+                  />
+                ) : (
+                  <div className={styles.condensedBannerBg} />
+                )}
+                <div className={styles.condensedInfo}>
+                  {profile.avatar && isSafeUrl(profile.avatar) ? (
+                    // eslint-disable-next-line no-restricted-syntax -- validated by isSafeUrl() above
+                    <img className={styles.condensedAvatar} src={profile.avatar} alt="" />
+                  ) : (
+                    <div className={styles.condensedAvatar} />
+                  )}
+                  <span className={styles.condensedName}>
+                    {profile.displayName || profile.handle}
+                    {isKeytracVerified && (
+                      <span className={styles.verifiedBadge} title="Verified by keytrace.dev">
+                        ✓
+                      </span>
+                    )}
+                  </span>
+                </div>
+              </div>
+            </div>
+            {tabs.length > 1 && (
+              <div className={styles.tabs} role="tablist">
+                {tabs.map((tab) => (
+                  <button
+                    key={tab.id}
+                    role="tab"
+                    type="button"
+                    aria-selected={(active?.id ?? null) === tab.id}
+                    className={`${styles.tab} ${(active?.id ?? null) === tab.id ? styles.tabActive : ''}`}
+                    onClick={() => {
+                      setActiveTabId(tab.id);
+                    }}
+                  >
+                    {tab.label}
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
         )}
 
@@ -1716,6 +2240,8 @@ export function ProfileView({ actor, onBack }: ProfileViewProps) {
           <div className={styles.postsSection}>
             {active.render === 'feed' ? (
               <FeedTab actor={actor} scrollRef={scrollRef} />
+            ) : active.render === 'rpg' && ctx ? (
+              <RPGItemsTab ctx={ctx} scrollRef={scrollRef} />
             ) : ctx ? (
               active.collections.length === 1 ? (
                 <SingleCollectionTab
@@ -1723,12 +2249,14 @@ export function ProfileView({ actor, onBack }: ProfileViewProps) {
                   collection={active.collections[0] ?? ''}
                   render={active.render}
                   scrollRef={scrollRef}
+                  profileAvatar={profile.avatar}
                 />
               ) : (
                 <MultiCollectionTab
                   ctx={ctx}
                   collections={active.collections}
                   render={active.render}
+                  profileAvatar={profile.avatar}
                 />
               )
             ) : (

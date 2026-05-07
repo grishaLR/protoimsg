@@ -10,7 +10,18 @@
  * documents + Pckt documents → "Publications").
  */
 
-export type RenderKind = 'feed' | 'publications' | 'gallery' | 'card' | 'audio' | 'status';
+export type RenderKind =
+  | 'feed'
+  | 'publications'
+  | 'gallery'
+  | 'card'
+  | 'audio'
+  | 'status'
+  | 'arabica'
+  | 'teal'
+  | 'tangled'
+  | 'rpg'
+  | 'keytrace';
 
 export interface LexiconTab {
   /** Stable id used as the tab key. */
@@ -60,6 +71,42 @@ export const LEXICON_TABS: LexiconTab[] = [
     render: 'card',
   },
   {
+    id: 'keytrace',
+    label: 'Verified',
+    collections: ['dev.keytrace.claim'],
+    render: 'keytrace',
+  },
+  {
+    id: 'rpg',
+    label: 'Items',
+    collections: ['equipment.rpg.item'],
+    render: 'rpg',
+  },
+  {
+    id: 'tangled',
+    label: 'Repos',
+    collections: ['sh.tangled.repo'],
+    render: 'tangled',
+  },
+  {
+    id: 'teal',
+    label: 'Listens',
+    collections: ['fm.teal.alpha.feed.play'],
+    render: 'teal',
+  },
+  {
+    id: 'arabica',
+    label: 'Coffee',
+    collections: [
+      'social.arabica.alpha.recipe',
+      'social.arabica.alpha.bean',
+      'social.arabica.alpha.brewer',
+      'social.arabica.alpha.roaster',
+      'social.arabica.alpha.grinder',
+    ],
+    render: 'arabica',
+  },
+  {
     id: 'feed',
     label: 'Feed',
     collections: ['app.bsky.feed.post'],
@@ -96,6 +143,11 @@ const EXTERNAL_URLS: Record<string, (handle: string, rkey: string, uri: string) 
     `https://popfeed.social/review/at:/${uri.replace(/^at:\/\//, '')}`,
   'fm.plyr.dev.track': (_h, _r, uri) => `https://plyr.fm/at/${uri.replace(/^at:\/\//, '')}`,
   'fm.plyr.track': (_h, _r, uri) => `https://plyr.fm/at/${uri.replace(/^at:\/\//, '')}`,
+  'social.arabica.alpha.bean': (h, r) => `https://alpha.arabica.social/beans/${r}?owner=${h}`,
+  'social.arabica.alpha.recipe': (h, r) => `https://alpha.arabica.social/recipes/${r}?owner=${h}`,
+  'social.arabica.alpha.brewer': (h, r) => `https://alpha.arabica.social/brewers/${r}?owner=${h}`,
+  'social.arabica.alpha.roaster': (h, r) => `https://alpha.arabica.social/roasters/${r}?owner=${h}`,
+  'social.arabica.alpha.grinder': (h, r) => `https://alpha.arabica.social/grinders/${r}?owner=${h}`,
 };
 
 /** Build an "open in app" URL from an at:// record uri + handle, if known. */

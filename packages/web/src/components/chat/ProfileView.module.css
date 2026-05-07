@@ -15,6 +15,7 @@
   cursor: pointer;
   font-size: var(--cm-text-sm);
   box-shadow: var(--cm-raised);
+  margin-top: var(--cm-space-3);
   margin-bottom: var(--cm-space-4);
   align-self: flex-start;
   display: inline-flex;
@@ -34,7 +35,7 @@
   flex: 1;
   overflow-y: auto;
   min-height: 0;
-  padding: var(--cm-space-3);
+  padding: 0 var(--cm-space-3) var(--cm-space-3);
 }
 
 .profileHeader {
@@ -138,6 +139,7 @@
 .statusText:active {
   box-shadow: var(--cm-pressed);
 }
+
 
 .bio {
   font-size: var(--cm-text-md);
@@ -325,6 +327,78 @@
     spriteMarch 16s linear infinite,
     spriteDirection 16s linear infinite,
     spriteWalk 0.45s steps(3) infinite;
+}
+
+/* ── Sticky bar (condensed header + tabs) ────────────── */
+.stickyBar {
+  position: sticky;
+  top: 0;
+  z-index: var(--z-overlay, 20);
+  background: var(--cm-surface-content);
+  margin: 0 calc(-1 * var(--cm-space-3));
+  padding: 0 var(--cm-space-3);
+  transition: box-shadow 150ms ease;
+}
+
+.stickyBarPinned {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.condensedHeader {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 200ms ease;
+}
+
+.stickyBarPinned .condensedHeader {
+  grid-template-rows: 1fr;
+}
+
+.condensedHeaderInner {
+  min-height: 0;
+  overflow: hidden;
+  position: relative;
+}
+
+.condensedBannerBg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center top;
+  filter: brightness(0.45) saturate(0.7);
+  background: var(--color-base-300);
+}
+
+.condensedInfo {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: var(--cm-space-4);
+  padding: var(--cm-space-3) 0;
+  height: 72px;
+}
+
+.condensedAvatar {
+  width: 48px;
+  height: 48px;
+  border-radius: var(--cm-radius-avatar);
+  object-fit: cover;
+  border: 2px solid rgba(255, 255, 255, 0.45);
+  background: var(--color-base-300);
+  flex-shrink: 0;
+}
+
+.condensedName {
+  font-size: var(--cm-text-md);
+  font-weight: 700;
+  color: #fff;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.7);
 }
 
 .tabs {
@@ -845,5 +919,242 @@
 
 .postMeta {
   font-size: var(--cm-text-xs);
+  color: var(--cm-border-dark);
+}
+
+/* ── RPG item grid ───────────────────────────────────── */
+.rpgItemGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: var(--cm-space-3);
+}
+
+.rpgItemCard {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--cm-space-2);
+  background: var(--cm-surface-content);
+  box-shadow: var(--cm-raised);
+  border-radius: var(--cm-radius-md);
+  padding: var(--cm-space-5) var(--cm-space-4);
+  text-align: center;
+}
+
+.rpgItemImgWrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 64px;
+  min-height: 64px;
+}
+
+.rpgItemImg {
+  width: 80px;
+  height: 80px;
+  object-fit: contain;
+  image-rendering: pixelated;
+}
+
+.rpgItemBody {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--cm-space-1);
+  min-width: 0;
+  width: 100%;
+}
+
+.rpgCategoryBadge {
+  font-size: var(--cm-text-xs);
+  text-transform: capitalize;
+  background: var(--color-base-200);
+  color: var(--cm-border-dark);
+  border-radius: var(--cm-radius-sm);
+  padding: 1px var(--cm-space-2);
+  border: 1px solid var(--cm-border-dark);
+}
+
+/* ── Verified badge ─────────────────────────────────── */
+.verifiedBadge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  background: #1d9bf0;
+  color: #fff;
+  border-radius: 50%;
+  font-size: 9px;
+  font-weight: 700;
+  margin-left: var(--cm-space-1);
+  vertical-align: middle;
+  flex-shrink: 0;
+}
+
+/* ── Keytrace verification cards ─────────────────────── */
+.keytraceCard {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--cm-space-2);
+  background: var(--cm-surface-content);
+  box-shadow: var(--cm-raised);
+  border-radius: var(--cm-radius-md);
+  padding: var(--cm-space-5) var(--cm-space-4);
+  text-align: center;
+}
+
+.keytraceAvatar {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+  background: var(--color-base-200);
+}
+
+.keytraceAvatarPlaceholder {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: var(--color-base-200);
+  flex-shrink: 0;
+}
+
+.keytraceInfo {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--cm-space-1);
+  min-width: 0;
+  width: 100%;
+}
+
+.keytraceHeader {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--cm-space-2);
+}
+
+.keytracePlatform {
+  font-size: var(--cm-text-sm);
+  font-weight: 700;
+  color: var(--color-base-content);
+}
+
+.keytraceCheck {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  background: #1d9bf0;
+  color: #fff;
+  border-radius: 50%;
+  font-size: 9px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.keytraceStatus {
+  font-size: var(--cm-text-xs);
+  color: var(--cm-border-dark);
+  text-transform: capitalize;
+}
+
+.keytraceSubject {
+  font-size: var(--cm-text-sm);
+  color: var(--cm-border-dark);
+  text-decoration: none;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 100%;
+}
+
+.keytraceSubject:hover {
+  text-decoration: underline;
+  color: var(--color-base-content);
+}
+
+.keytraceDate {
+  font-size: var(--cm-text-xs);
+  color: var(--cm-border-dark);
+  margin-top: auto;
+}
+
+.keytraceFooter {
+  display: flex;
+  align-items: center;
+  gap: var(--cm-space-3);
+  margin-left: auto;
+  flex-shrink: 0;
+  flex-direction: column;
+  align-items: flex-end;
+}
+
+/* ── Tangled repo cards ──────────────────────────────── */
+.tangledRepoHeader {
+  display: flex;
+  align-items: baseline;
+  gap: var(--cm-space-2);
+  flex-wrap: wrap;
+}
+
+.tangledRepoName {
+  font-size: var(--cm-text-md);
+  font-weight: 700;
+  color: var(--color-base-content);
+  text-decoration: none;
+  font-family: var(--cm-font-mono, monospace);
+}
+
+.tangledRepoName:hover {
+  text-decoration: underline;
+}
+
+.tangledKnot {
+  font-size: var(--cm-text-xs);
+  color: var(--cm-border-dark);
+  font-family: var(--cm-font-mono, monospace);
+}
+
+.tangledLinks {
+  display: flex;
+  align-items: center;
+  gap: var(--cm-space-3);
+}
+
+/* ── Teal listen cards ───────────────────────────────── */
+.tealCard {
+  display: grid;
+  grid-template-columns: 56px 1fr;
+  gap: var(--cm-space-3);
+  background: var(--cm-surface-content);
+  box-shadow: var(--cm-raised);
+  border-radius: var(--cm-radius-md);
+  padding: var(--cm-space-3);
+  align-items: center;
+}
+
+.tealArt {
+  width: 56px;
+  height: 56px;
+  object-fit: cover;
+  border-radius: var(--cm-radius-sm);
+  background: var(--color-base-200);
+  flex-shrink: 0;
+}
+
+.tealBody {
+  display: flex;
+  flex-direction: column;
+  gap: var(--cm-space-1);
+  min-width: 0;
+}
+
+.tealRelease {
   color: var(--cm-border-dark);
 }
