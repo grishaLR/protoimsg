@@ -41,7 +41,7 @@
     "virtualized-ui": "^0.4.1"
   },
   "devDependencies": {
-    "@sentry/vite-plugin": "^4.9.1",
+    "@sentry/vite-plugin": "^5.2.0",
     "@tauri-apps/api": "^2.0.0",
     "@tauri-apps/plugin-notification": "^2.0.0",
     "@types/react": "^19.0.0",
