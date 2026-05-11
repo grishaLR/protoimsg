@@ -3,12 +3,7 @@ import { useTranslation, Trans } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import { useTheme } from '../../hooks/useTheme';
 import { THEME_OPTIONS, type Theme } from '../../contexts/ThemeContext';
-import {
-  createAccount,
-  CaptchaFailedError,
-  checkHandleAvailability,
-  joinWaitlist,
-} from '../../lib/api';
+import { createAccount, CaptchaFailedError, checkHandleAvailability } from '../../lib/api';
 import { TURNSTILE_SITE_KEY } from '../../lib/config';
 import { LanguageSelector } from '../settings/LanguageSelector';
 import styles from './SignupForm.module.css';
@@ -225,8 +220,6 @@ export function SignupForm() {
     })
       .then(() => {
         setSuccess(true);
-        // Fire-and-forget: add to waitlist so they get the confirmation email
-        void joinWaitlist(email.trim(), fullHandle);
       })
       .catch((err: unknown) => {
         if (err instanceof CaptchaFailedError) {

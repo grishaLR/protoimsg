@@ -13,7 +13,6 @@ import { OAUTH_SCOPE } from '@protoimsg/shared';
 import { getOAuthClient, REQUIRED_SCOPES, AUTH_VERSION } from '../lib/oauth';
 import {
   AccountBannedError,
-  NotOnAllowlistError,
   CaptchaFailedError,
   preflightCheck,
   fetchChallenge,
@@ -262,8 +261,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                 });
               }
             } catch (err: unknown) {
-              if (err instanceof AccountBannedError || err instanceof NotOnAllowlistError) {
-                // Account is banned or not on allowlist — revoke OAuth so it doesn't auto-restore
+              if (err instanceof AccountBannedError) {
+                // Account is banned — revoke OAuth so it doesn't auto-restore
                 const oauthClient = getOAuthClient();
                 void oauthClient.revoke(restoredSession.did);
                 setAuthError(err.message);
@@ -303,12 +302,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       await preflightCheck(inputHandle, turnstileToken);
     } catch (err: unknown) {
-      if (
-        err instanceof AccountBannedError ||
-        err instanceof NotOnAllowlistError ||
-        err instanceof CaptchaFailedError
-      )
-        throw err;
+      if (err instanceof AccountBannedError || err instanceof CaptchaFailedError) throw err;
     }
 
     // Flag that an OAuth redirect is in progress — checked on return to

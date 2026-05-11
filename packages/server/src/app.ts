@@ -11,7 +11,6 @@ import { presenceRouter } from './presence/router.js';
 import { communityRouter } from './community/router.js';
 import { gifRouter } from './giphy/router.js';
 import { iceRouter } from './ice/router.js';
-import { waitlistRouter } from './waitlist/router.js';
 import { feedbackRouter } from './feedback/router.js';
 import { adminRouter } from './admin/router.js';
 import { notificationsRouter } from './notifications/router.js';
@@ -115,13 +114,6 @@ export function createApp(
     '/api/auth',
     createRateLimitMiddleware(authRateLimiter),
     authRouter(sessions, config, challenges, globalBans, globalAllowlist, sql, notificationService),
-  );
-
-  // Waitlist (public, rate-limited)
-  app.use(
-    '/api/waitlist',
-    createRateLimitMiddleware(authRateLimiter),
-    waitlistRouter(sql, emailService ?? null),
   );
 
   // Admin routes (API key protected — only mounted when ADMIN_API_KEY is set)

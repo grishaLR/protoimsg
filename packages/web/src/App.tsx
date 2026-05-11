@@ -57,9 +57,6 @@ function MeetRedirect() {
   }
   return <Navigate to="/" replace />;
 }
-const BetaSignupPage = lazy(() =>
-  reloadOnChunkError(import('./pages/BetaSignupPage').then((m) => ({ default: m.BetaSignupPage }))),
-);
 const SignupPage = lazy(() =>
   reloadOnChunkError(import('./pages/SignupPage').then((m) => ({ default: m.SignupPage }))),
 );
@@ -114,14 +111,6 @@ function AppRoutes() {
   return (
     <Routes>
       <Route path="/login" element={<LoginPage />} />
-      <Route
-        path="/beta-signup"
-        element={
-          <Suspense fallback={null}>
-            <BetaSignupPage />
-          </Suspense>
-        }
-      />
       <Route
         path="/signup"
         element={
