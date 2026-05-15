@@ -5,6 +5,17 @@ const log = createLogger('games');
 
 const LEADERBOARD_SIZE = 5;
 const MASTER_COLLECTION = 'actor.rpg.master';
+const GIVE_COLLECTION = 'equipment.rpg.give';
+
+const JETPACK_GIFT = {
+  item: 'jet_pack',
+  title: 'Jet Pack',
+  description: 'Built for those who jump higher than the rest.',
+  context: 'Earned by reaching the leaderboard in proto IM jumper',
+  category: 'hind',
+  kind: 'layer',
+  assetCid: 'bafkreiausggyytkgnfy7mwbj2ztupcogr677svawqjkj4ra45ibmopq2ra',
+} as const;
 
 export interface LeaderboardEntry {
   did: string;
@@ -59,6 +70,41 @@ function buildPost(
     });
   }
   return { text, facets };
+}
+
+async function giftJetpack(agent: AtpAgent, playerDid: string): Promise<void> {
+  if (!agent.did) return;
+
+  // Dedup — skip if already gifted
+  let cursor: string | undefined;
+  do {
+    const res = await agent.com.atproto.repo.listRecords({
+      repo: agent.did,
+      collection: GIVE_COLLECTION,
+      limit: 100,
+      cursor,
+    });
+    for (const r of res.data.records) {
+      const v = r.value as Record<string, unknown>;
+      if (v.item === JETPACK_GIFT.item && v.recipient === playerDid) {
+        log.info({ playerDid }, 'Jetpack already gifted — skipping');
+        return;
+      }
+    }
+    cursor = res.data.cursor;
+  } while (cursor);
+
+  await agent.com.atproto.repo.createRecord({
+    repo: agent.did,
+    collection: GIVE_COLLECTION,
+    record: {
+      $type: GIVE_COLLECTION,
+      ...JETPACK_GIFT,
+      recipient: playerDid,
+      givenAt: new Date().toISOString(),
+    },
+  });
+  log.info({ playerDid }, 'Jetpack gifted');
 }
 
 async function postLeaderboardAnnouncement(
@@ -287,6 +333,11 @@ export function createGameService(
           ).catch((err: unknown) => {
             log.error({ err, playerDid, system }, 'Failed to post leaderboard announcement');
           });
+          if (base === 'jumper') {
+            void giftJetpack(a, playerDid).catch((err: unknown) => {
+              log.error({ err, playerDid }, 'Failed to gift jetpack');
+            });
+          }
         }
       }
     } catch (err) {
