@@ -14,7 +14,7 @@ const JETPACK_GIFT = {
   context: 'Earned by reaching the leaderboard in proto IM jumper',
   category: 'hind',
   kind: 'layer',
-  assetCid: 'bafkreiausggyytkgnfy7mwbj2ztupcogr677svawqjkj4ra45ibmopq2ra',
+  assetCid: 'bafkreihglyimgjcbe2sykhjismvtgrydarkk6ff2rv6wlgv4geu54ehnpm',
 } as const;
 
 export interface LeaderboardEntry {
