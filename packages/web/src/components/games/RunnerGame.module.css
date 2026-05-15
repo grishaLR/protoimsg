@@ -43,9 +43,13 @@
   background: var(--color-surface-hover);
 }
 
+.canvasContainer {
+  width: 100%;
+  overflow: hidden;
+}
+
 .canvas {
   display: block;
-  max-width: 100%;
   image-rendering: pixelated;
   border-radius: var(--radius-md);
 }
@@ -55,4 +59,10 @@
   font-size: 11px;
   color: var(--color-text-muted);
   opacity: 0.6;
+}
+
+@media (max-width: 767px) {
+  .hint {
+    display: none;
+  }
 }

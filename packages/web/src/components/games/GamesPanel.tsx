@@ -282,7 +282,10 @@ export function GamesPanel() {
 
   if (activeGame === 'runner' && did && pds) {
     return (
-      <div className={styles.panel}>
+      <div className={`${styles.panel} ${styles.gameActive}`}>
+        <button className={styles.mobileBack} onClick={reset} type="button">
+          ← back
+        </button>
         <div className={styles.gameCol}>
           <div className={styles.gameWrap}>
             <RunnerGame
@@ -319,7 +322,10 @@ export function GamesPanel() {
 
   if (activeGame === 'jumper' && did && pds) {
     return (
-      <div className={styles.panel}>
+      <div className={`${styles.panel} ${styles.gameActive}`}>
+        <button className={styles.mobileBack} onClick={reset} type="button">
+          ← back
+        </button>
         <div className={styles.gameRow}>
           <div className={styles.lbSide}>
             <AttributionsCol items={JUMPER_CREDITS} />

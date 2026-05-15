@@ -75,9 +75,29 @@ export function RunnerGame({ onClose, onScore, did, pds, difficulty }: RunnerGam
   const { data: sprite } = useActorSprite(did, pds);
   const { agent, did: viewerDid } = useAuth();
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const canvasContainerRef = useRef<HTMLDivElement>(null);
   const imgRef = useRef<HTMLImageElement | null>(null);
   const leaderboardRef = useRef<{ did: string; score: number }[]>([]);
   const scoreWrittenRef = useRef(false);
+
+  // Scale canvas to fit container on narrow screens
+  useEffect(() => {
+    const container = canvasContainerRef.current;
+    const canvas = canvasRef.current;
+    if (!container || !canvas) return;
+    const apply = () => {
+      const scale = Math.min(1, container.clientWidth / 680);
+      canvas.style.transform = `scale(${scale})`;
+      canvas.style.transformOrigin = 'top left';
+      container.style.height = `${240 * scale}px`;
+    };
+    apply();
+    const ro = new ResizeObserver(apply);
+    ro.observe(container);
+    return () => {
+      ro.disconnect();
+    };
+  }, []);
 
   useEffect(() => {
     if (!sprite?.spriteSheet.ref.$link) return;
@@ -464,7 +484,9 @@ export function RunnerGame({ onClose, onScore, did, pds, difficulty }: RunnerGam
           </button>
         </div>
       </div>
-      <canvas ref={canvasRef} width={680} height={240} className={styles.canvas} />
+      <div ref={canvasContainerRef} className={styles.canvasContainer}>
+        <canvas ref={canvasRef} width={680} height={240} className={styles.canvas} />
+      </div>
       <div className={styles.hint}>↑ / SPACE jump · double jump · ESC exit</div>
     </div>
   );

@@ -268,9 +268,56 @@
   color: #c8ff00;
 }
 
+.mobileBack {
+  display: none;
+}
+
 @media (max-width: 767px) {
   .gameLayout {
     padding: var(--cm-space-2);
+  }
+
+  .gameActive {
+    position: fixed;
+    inset: 0;
+    z-index: 999;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    padding: var(--cm-space-3) var(--cm-space-2) var(--cm-space-6);
+    justify-content: flex-start;
+  }
+
+  .mobileBack {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 14px;
+    background: rgba(0, 0, 0, 0.55);
+    color: #fff;
+    border: none;
+    border-radius: var(--cm-radius-sm);
+    font-size: var(--cm-text-sm);
+    font-weight: 700;
+    cursor: pointer;
+    align-self: flex-start;
+    margin-bottom: var(--cm-space-3);
+    flex-shrink: 0;
+  }
+
+  .gameActive .lbSide,
+  .gameActive .lbBelow {
+    display: none;
+  }
+
+  .gameActive .gameRow {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .gameActive .gameCol,
+  .gameActive .gameWrap {
+    display: flex;
+    width: 100%;
   }
 
   .gameRow {
