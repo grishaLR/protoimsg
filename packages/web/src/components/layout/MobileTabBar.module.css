@@ -21,6 +21,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
+    gap: 5px;
     background: var(--color-base-200);
     color: var(--color-base-content);
     border: none;
@@ -29,6 +30,13 @@
     font-size: var(--cm-text-md);
     font-weight: 700;
     box-shadow: var(--cm-raised);
+  }
+
+  .tabIcon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
   }
 
   .tab:hover {

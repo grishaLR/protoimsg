@@ -15,7 +15,12 @@ import { ReportUserModal } from '../feedback/ReportUserModal';
 import type { FollowGraphEntry } from '../../hooks/useFollowGraph';
 import type { DoorEvent } from '../../hooks/useBuddyList';
 import type { MemberWithPresence, CommunityListRow } from '../../types';
+import { Video } from 'lucide-react';
 import styles from './BuddyListPanel.module.css';
+
+// game-icons.net/1x1/skoll/chess-knight — CC BY 3.0, skoll
+const CHESS_KNIGHT_PATH =
+  'M60.81 476.91h300v-60h-300v60zm233.79-347.3 13.94 7.39c31.88-43.62 61.34-31.85 61.34-31.85l-21.62 53 35.64 19 2.87 33 64.42 108.75-43.55 29.37s-26.82-36.39-39.65-43.66c-10.66-6-41.22-10.25-56.17-12l-67.54-76.91-12 10.56 37.15 42.31c-.13.18-.25.37-.38.57-35.78 58.17 23 105.69 68.49 131.78H84.14C93 85 294.6 129.61 294.6 129.61z';
 
 interface BuddyListPanelProps {
   buddies: MemberWithPresence[];
@@ -38,6 +43,7 @@ interface BuddyListPanelProps {
   onDeleteGroup: (name: string) => Promise<void>;
   onMoveBuddy: (did: string, fromGroup: string, toGroup: string) => Promise<void>;
   onOpenMeet?: () => void;
+  onOpenGames?: () => void;
   /** When true, force footer visible even at narrow widths (Tauri main window). */
   tauriMode?: boolean;
   followers?: FollowGraphEntry[];
@@ -80,6 +86,7 @@ export function BuddyListPanel({
   onDeleteGroup,
   onMoveBuddy,
   onOpenMeet,
+  onOpenGames,
   tauriMode,
   error,
   followers = [],
@@ -91,7 +98,9 @@ export function BuddyListPanel({
 }: BuddyListPanelProps) {
   const { t } = useTranslation('common');
   const { blockedDids } = useBlocks();
-  const [collapsed, setCollapsed] = useState<Set<string>>(new Set());
+  const [collapsed, setCollapsed] = useState<Set<string>>(
+    new Set([MOOTS_GROUP, FOLLOWING_GROUP, FOLLOWERS_GROUP, OFFLINE_GROUP, BLOCKED_GROUP]),
+  );
   const toggleCollapse = useCallback((name: string) => {
     setCollapsed((prev) => {
       const next = new Set(prev);
@@ -199,28 +208,6 @@ export function BuddyListPanel({
       }
     }
 
-    // Synthetic "Blocked" group at the very bottom
-    if (blockedDids.size > 0) {
-      const blockedArray: MemberWithPresence[] = [...blockedDids].map(
-        (did) => presenceMap.get(did) ?? { did, status: 'offline', addedAt: '' },
-      );
-      const isBlockedCollapsed = collapsed.has(BLOCKED_GROUP);
-
-      result.push({
-        type: 'group-header',
-        groupName: BLOCKED_GROUP,
-        onlineCount: 0,
-        totalCount: blockedArray.length,
-        isCollapsed: isBlockedCollapsed,
-      });
-
-      if (!isBlockedCollapsed) {
-        for (const buddy of blockedArray) {
-          result.push({ type: 'buddy', buddy, groupName: BLOCKED_GROUP });
-        }
-      }
-    }
-
     return result;
   }, [groups, presenceMap, collapsed, blockedDids]);
 
@@ -275,6 +262,15 @@ export function BuddyListPanel({
   const isMootsCollapsed = collapsed.has(MOOTS_GROUP);
   const isFollowingCollapsed = collapsed.has(FOLLOWING_GROUP);
   const isFollowersCollapsed = collapsed.has(FOLLOWERS_GROUP);
+  const isBlockedCollapsed = collapsed.has(BLOCKED_GROUP);
+
+  const blockedFiltered: MemberWithPresence[] = useMemo(
+    () =>
+      [...blockedDids].map(
+        (did) => presenceMap.get(did) ?? { did, status: 'offline', addedAt: '' },
+      ),
+    [blockedDids, presenceMap],
+  );
 
   const hasAnyRows = rows.length > 0;
 
@@ -327,8 +323,7 @@ export function BuddyListPanel({
 
               if (row.type === 'group-header') {
                 const isProtected = PROTECTED_GROUPS.has(row.groupName);
-                const isSynthetic =
-                  row.groupName === OFFLINE_GROUP || row.groupName === BLOCKED_GROUP;
+                const isSynthetic = row.groupName === OFFLINE_GROUP;
                 const isEmpty = row.totalCount === 0;
 
                 return (
@@ -663,13 +658,86 @@ export function BuddyListPanel({
         </>
       )}
 
+      {/* Blocked group */}
+      {blockedFiltered.length > 0 && (
+        <>
+          <InlineGroupHeader
+            groupName={BLOCKED_GROUP}
+            onlineCount={0}
+            totalCount={blockedFiltered.length}
+            isCollapsed={isBlockedCollapsed}
+            onToggleCollapse={() => {
+              toggleCollapse(BLOCKED_GROUP);
+            }}
+          />
+          {!isBlockedCollapsed && (
+            <div className={styles.list}>
+              {blockedFiltered.map((buddy) => (
+                <div key={buddy.did} className={`${styles.buddy} ${styles.buddyIndented}`}>
+                  <StatusIndicator status={buddy.status} />
+                  <div className={styles.buddyInfo}>
+                    <span className={styles.buddyDid}>
+                      <UserIdentity did={buddy.did} showAvatar />
+                    </span>
+                  </div>
+                  <BuddyMenu
+                    buddy={buddy}
+                    groupName={BLOCKED_GROUP}
+                    allGroups={groups}
+                    isBlocked={true}
+                    onRemove={() => void onRemoveBuddy(buddy.did)}
+                    onToggleInnerCircle={() => void onToggleInnerCircle(buddy.did)}
+                    onBlock={() => {
+                      onBlockBuddy(buddy.did);
+                    }}
+                    onSendIm={
+                      onSendIm
+                        ? () => {
+                            onSendIm(buddy.did);
+                          }
+                        : undefined
+                    }
+                    onVideoCall={
+                      onVideoCall
+                        ? () => {
+                            onVideoCall(buddy.did);
+                          }
+                        : undefined
+                    }
+                    onMoveBuddy={(fromGroup, toGroup) => {
+                      void onMoveBuddy(buddy.did, fromGroup, toGroup);
+                    }}
+                    onReport={() => {
+                      setReportDid(buddy.did);
+                    }}
+                  />
+                </div>
+              ))}
+            </div>
+          )}
+        </>
+      )}
+
       {/* Create group UI — hidden until feature is ready */}
 
-      {onOpenMeet && (
+      {(onOpenMeet ?? onOpenGames) && (
         <div className={`${styles.footer}${tauriMode ? ` ${styles.tauriFooter}` : ''}`}>
-          <button className={styles.footerBtn} onClick={onOpenMeet}>
-            {t('buddyList.footer.meet', 'Meet')}
-          </button>
+          {onOpenMeet && (
+            <button className={styles.footerBtn} onClick={onOpenMeet}>
+              <Video size={13} />
+              {t('buddyList.footer.meet', 'Video Chat')}
+            </button>
+          )}
+          {onOpenGames && (
+            <button className={styles.footerBtn} onClick={onOpenGames}>
+              <span className={styles.footerBtnIcon}>
+                <svg width={13} height={13} viewBox="40 75 430 415" fill="currentColor">
+                  <path d={CHESS_KNIGHT_PATH} />
+                </svg>
+              </span>
+              <span>Fun</span>
+            </button>
+          )}
         </div>
       )}
       {reportDid && (

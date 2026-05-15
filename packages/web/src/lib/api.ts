@@ -185,7 +185,7 @@ export interface TranslateStatusResponse {
 
 // -- Auth fetch helper --
 
-async function authFetch(url: string, init?: RequestInit): Promise<Response> {
+export async function authFetch(url: string, init?: RequestInit): Promise<Response> {
   const headers = new Headers(init?.headers);
   if (serverToken) {
     headers.set('Authorization', `Bearer ${serverToken}`);

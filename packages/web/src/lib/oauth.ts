@@ -8,7 +8,7 @@ export const REQUIRED_SCOPES = ['atproto'] as const;
  * Bump this whenever the OAuth scope set changes and all users must re-authenticate.
  * On load, AuthContext compares this against localStorage — mismatch → clear session.
  */
-export const AUTH_VERSION = 3;
+export const AUTH_VERSION = 4;
 
 let client: BrowserOAuthClient | null = null;
 

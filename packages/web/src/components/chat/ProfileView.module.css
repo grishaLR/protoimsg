@@ -282,7 +282,7 @@
   left: 0;
   right: 0;
   height: var(--sprite-h, 96px);
-  overflow: hidden;
+  overflow: visible;
   pointer-events: none;
   z-index: 2;
 }
@@ -327,6 +327,165 @@
     spriteMarch 16s linear infinite,
     spriteDirection 16s linear infinite,
     spriteWalk 0.45s steps(3) infinite;
+}
+
+/* ── Cursor-look overrides (beat CSS animations with !important) ── */
+.spriteFaceDown  { background-position-y: var(--row-down)  !important; animation-play-state: paused !important; background-position-x: 0 !important; }
+.spriteFaceLeft  { background-position-y: var(--row-left)  !important; animation-play-state: paused !important; background-position-x: 0 !important; }
+.spriteFaceRight { background-position-y: var(--row-right) !important; animation-play-state: paused !important; background-position-x: 0 !important; }
+.spriteFaceUp    { background-position-y: var(--row-up)    !important; animation-play-state: paused !important; background-position-x: 0 !important; }
+
+/* ── Two-sprite duo mode ─────────────────────────────── */
+@keyframes spriteMarchOwner {
+  0%   { left: -96px; }
+  44%  { left: 43%; }
+  56%  { left: 43%; }
+  100% { left: -96px; }
+}
+@keyframes spriteDirectionOwner {
+  0%   { background-position-y: var(--row-right); animation-timing-function: step-end; }
+  56%  { background-position-y: var(--row-right); animation-timing-function: step-end; }
+  57%  { background-position-y: var(--row-left);  animation-timing-function: step-end; }
+  100% { background-position-y: var(--row-left); }
+}
+@keyframes spriteMarchVisitor {
+  0%   { left: calc(100% + 96px); }
+  44%  { left: 57%; }
+  56%  { left: 57%; }
+  100% { left: calc(100% + 96px); }
+}
+@keyframes spriteDirectionVisitor {
+  0%   { background-position-y: var(--row-left);  animation-timing-function: step-end; }
+  56%  { background-position-y: var(--row-left);  animation-timing-function: step-end; }
+  57%  { background-position-y: var(--row-right); animation-timing-function: step-end; }
+  100% { background-position-y: var(--row-right); }
+}
+.spriteOwner {
+  animation:
+    spriteMarchOwner 20s linear infinite,
+    spriteDirectionOwner 20s linear infinite,
+    spriteWalk 0.45s steps(3) infinite;
+}
+.spriteVisitor {
+  animation:
+    spriteMarchVisitor 20s linear infinite,
+    spriteDirectionVisitor 20s linear infinite,
+    spriteWalk 0.45s steps(3) infinite;
+}
+
+/* ── Speech bubble ────────────────────────────────────── */
+@keyframes bubbleFloat {
+  0%    { left: 28%; opacity: 0; }
+  26%   { left: 28%; opacity: 0; }
+  30%   { left: 28%; opacity: 1; }
+  36%   { left: 28%; opacity: 1; }
+  40%   { left: 28%; opacity: 0; }
+  62%   { left: 70%; opacity: 0; }
+  67%   { left: 70%; opacity: 1; }
+  73%   { left: 70%; opacity: 1; }
+  77%   { left: 70%; opacity: 0; }
+  100%  { left: 70%; opacity: 0; }
+}
+.spriteBubble {
+  position: absolute;
+  bottom: var(--bubble-bottom, 104px);
+  max-width: 160px;
+  background: var(--color-base-100, #fff);
+  color: var(--color-base-content);
+  border: 2px solid var(--color-base-300);
+  border-radius: 6px 6px 6px 2px;
+  padding: 4px 8px;
+  font-size: 11px;
+  line-height: 1.35;
+  pointer-events: none;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  box-shadow: 2px 2px 0 var(--color-base-300);
+  animation: bubbleFloat 16s linear infinite;
+  opacity: 0;
+  z-index: 3;
+}
+.spriteBubble::after {
+  content: '';
+  position: absolute;
+  bottom: -9px;
+  left: 8px;
+  border: 5px solid transparent;
+  border-top-color: var(--color-base-300);
+}
+.spriteBubble::before {
+  content: '';
+  position: absolute;
+  bottom: -6px;
+  left: 10px;
+  border: 3px solid transparent;
+  border-top-color: var(--color-base-100, #fff);
+  z-index: 1;
+}
+/* Hide bubble during cursor-look mode */
+.spriteTrackPaused ~ .spriteBubble {
+  animation-play-state: paused !important;
+  opacity: 0 !important;
+}
+
+/* ── Easter egg runner game ───────────────────────────── */
+.gameOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.8);
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.gameModal {
+  background: var(--color-base-100);
+  border-radius: var(--cm-radius-md);
+  overflow: hidden;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.6);
+  display: flex;
+  flex-direction: column;
+  max-width: 100vw;
+}
+.gameHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 14px;
+  background: var(--color-base-200);
+}
+.gameTitle {
+  font-family: monospace;
+  font-size: 13px;
+  font-weight: bold;
+  letter-spacing: 0.08em;
+  color: var(--color-base-content);
+}
+.gameClose {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--color-base-content);
+  font-size: 16px;
+  line-height: 1;
+  padding: 2px 8px;
+  border-radius: 4px;
+}
+.gameClose:hover { background: var(--cm-button-hover); }
+.gameCanvas {
+  display: block;
+  image-rendering: pixelated;
+  cursor: pointer;
+  max-width: 100%;
+}
+.gameHint {
+  padding: 6px 14px;
+  font-family: monospace;
+  font-size: 11px;
+  color: var(--cm-border-dark);
+  text-align: center;
+  background: var(--color-base-200);
 }
 
 /* ── Sticky bar (condensed header + tabs) ────────────── */

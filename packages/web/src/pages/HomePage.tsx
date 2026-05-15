@@ -12,10 +12,11 @@ import { useDm } from '../contexts/DmContext';
 import { useVideoCall, setInnerCircleDidsForCalls } from '../contexts/VideoCallContext';
 import { useBlocks } from '../contexts/BlockContext';
 import { MeetLanding } from './MeetPage';
+import { GamesPanel } from '../components/games/GamesPanel';
 import { IS_TAURI } from '../lib/config';
 import styles from './HomePage.module.css';
 
-type View = 'meet' | 'buddies' | 'settings';
+type View = 'meet' | 'buddies' | 'settings' | 'games';
 
 export function HomePage() {
   const {
@@ -90,13 +91,17 @@ export function HomePage() {
   }, [buddies, activeCall]);
 
   const handleTabChange = useCallback((tab: MobileTab) => {
-    if (tab === 'meet' || tab === 'buddies') {
-      setView(tab);
+    if (tab === 'meet' || tab === 'buddies' || tab === 'fun') {
+      setView(tab === 'fun' ? 'games' : tab);
     }
   }, []);
 
   const handleOpenSettings = useCallback(() => {
     setView('settings');
+  }, []);
+
+  const handleOpenGames = useCallback(() => {
+    setView('games');
   }, []);
 
   if (view === 'settings') {
@@ -150,6 +155,14 @@ export function HomePage() {
       onDeleteGroup={deleteGroup}
       onMoveBuddy={moveBuddy}
       onBuddyClick={handleBuddyClick}
+      onOpenMeet={
+        view === 'games'
+          ? () => {
+              setView('meet');
+            }
+          : undefined
+      }
+      onOpenGames={view !== 'games' ? handleOpenGames : undefined}
     />
   );
 
@@ -165,6 +178,10 @@ export function HomePage() {
         <div className={styles.body}>
           {view === 'buddies' ? (
             <div className={styles.main}>{profilePanel ?? buddyPanel}</div>
+          ) : view === 'games' ? (
+            <div className={styles.main}>
+              <GamesPanel />
+            </div>
           ) : (
             <div className={styles.main}>
               <MeetLanding />
@@ -172,7 +189,7 @@ export function HomePage() {
           )}
         </div>
         <MobileTabBar
-          activeTab={view === 'buddies' ? 'buddies' : 'meet'}
+          activeTab={view === 'buddies' ? 'buddies' : view === 'games' ? 'fun' : 'meet'}
           onTabChange={handleTabChange}
         />
       </div>
@@ -184,7 +201,9 @@ export function HomePage() {
     <div className={styles.page}>
       <Header onOpenSettings={handleOpenSettings} />
       <div className={styles.body}>
-        <div className={styles.main}>{profilePanel ?? <MeetLanding />}</div>
+        <div className={styles.main}>
+          {profilePanel ?? (view === 'games' ? <GamesPanel /> : <MeetLanding />)}
+        </div>
         <aside className={styles.sidebar}>{buddyPanel}</aside>
       </div>
     </div>

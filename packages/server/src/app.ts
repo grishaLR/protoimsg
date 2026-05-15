@@ -30,6 +30,8 @@ import { groupCallRouter } from './calls/router.js';
 import { getMetricsText, getMetricsContentType, observeHttpRequestDuration } from './metrics.js';
 import { checkHealth } from './health.js';
 import { audioProxyRouter } from './audio-proxy.js';
+import { gamesRouter } from './games/router.js';
+import type { GameService } from './games/service.js';
 
 export function createApp(
   config: Config,
@@ -52,6 +54,7 @@ export function createApp(
   emailService?: EmailService | null,
   notificationService?: NotificationService | null,
   groupCallService?: GroupCallService | null,
+  gameService?: GameService,
 ): Express {
   const app = express();
   // Trust one proxy hop (Fly.io) so req.ip reflects the real client IP
@@ -178,6 +181,9 @@ export function createApp(
 
   // Audio proxy — allows web client to use Web Audio API on cross-origin audio (CORS bypass)
   app.use('/api/audio-proxy', createRateLimitMiddleware(rateLimiter), audioProxyRouter());
+
+  // Games — leaderboard (public) + score submission (auth required)
+  if (gameService) app.use('/api/games', gamesRouter(gameService, requireAuth));
 
   // GIF proxy (optional — mounted when either GIPHY_API_KEY or KLIPY_API_KEY is set)
   if ((giphyApiKey || klipyApiKey) && gifRateLimiter) {

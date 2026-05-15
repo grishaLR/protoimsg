@@ -1,0 +1,285 @@
+.panel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  padding: var(--space-6);
+  gap: var(--space-6);
+}
+
+.heading {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--color-text);
+  margin: 0;
+}
+
+.grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--cm-space-6);
+  justify-content: center;
+  padding: var(--cm-space-4);
+}
+
+.gameCard {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--cm-space-4);
+  padding: var(--cm-space-8) var(--cm-space-10);
+  background: var(--cm-surface-content);
+  border: none;
+  border-radius: var(--cm-radius-md);
+  box-shadow: var(--cm-raised), var(--cm-window-shadow);
+  cursor: pointer;
+  min-width: 180px;
+  transition: box-shadow 0.08s;
+}
+
+.gameCard:hover {
+  background: #f8f8f8;
+}
+
+.gameCard:active {
+  box-shadow: var(--cm-pressed);
+}
+
+/* ── Difficulty buttons on game cards ───────────────────────────────────── */
+
+.diffBtns {
+  display: flex;
+  gap: var(--cm-space-3);
+  margin-top: var(--cm-space-2);
+}
+
+.diffBtn {
+  padding: var(--cm-space-2) var(--cm-space-5);
+  background: var(--color-base-200);
+  border: none;
+  border-radius: var(--cm-radius-sm);
+  box-shadow: var(--cm-raised);
+  font-size: var(--cm-text-sm);
+  font-weight: 700;
+  color: var(--color-base-content);
+  cursor: pointer;
+}
+
+.diffBtn:hover {
+  background: var(--cm-button-hover);
+}
+
+.diffBtn:active {
+  box-shadow: var(--cm-pressed);
+}
+
+.gameIcon {
+  line-height: 1;
+  color: var(--color-base-content);
+  padding: var(--cm-space-2);
+}
+
+.gameName {
+  font-size: var(--cm-text-lg);
+  font-weight: 700;
+  color: var(--color-base-content);
+}
+
+.gameDesc {
+  font-size: var(--cm-text-sm);
+  color: var(--color-base-content);
+  opacity: 0.55;
+  text-align: center;
+  max-width: 160px;
+}
+
+
+/* ── Game + leaderboard layout ──────────────────────────────────────────── */
+
+.gameLayout {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  padding: var(--cm-space-4);
+  overflow: auto;
+}
+
+.gameRow {
+  display: inline-flex;
+  flex-direction: row;
+  gap: var(--cm-space-6);
+  align-items: center;
+}
+
+.gameWrap {
+  display: inline-flex;
+  flex-direction: column;
+}
+
+/* ── Runner: game on top, leaderboards in a row below ───────────────────── */
+
+.gameCol {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--cm-space-4);
+}
+
+.lbBelow {
+  display: flex;
+  flex-direction: column;
+  gap: var(--cm-space-3);
+  width: 100%;
+}
+
+.lbRow {
+  display: flex;
+  flex-direction: row;
+  gap: var(--cm-space-4);
+}
+
+/* ── Jumper: leaderboards stacked to the side ───────────────────────────── */
+
+.lbSide {
+  display: flex;
+  flex-direction: column;
+  gap: var(--cm-space-4);
+  flex-shrink: 0;
+}
+
+.lbHeading {
+  font-family: monospace;
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: #4a7a00;
+  text-align: center;
+}
+
+.lbCol {
+  background: #0a1200;
+  border: 2px solid #1e3200;
+  border-radius: 4px;
+  padding: 10px 14px 12px;
+  min-width: 160px;
+  box-shadow: 0 0 18px rgba(80,200,0,0.08), inset 0 0 24px rgba(0,0,0,0.6);
+}
+
+.lbTitle {
+  font-family: monospace;
+  font-size: 13px;
+  font-weight: 900;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  text-align: center;
+  color: #c8ff00;
+  margin-bottom: 6px;
+}
+
+.lbDivider {
+  height: 1px;
+  background: #1e3200;
+  margin-bottom: 8px;
+}
+
+.lbDiffLabel {
+  font-family: monospace;
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: #5a8a00;
+  margin-top: 4px;
+}
+
+.lbDiffDivider {
+  height: 1px;
+  background: #1e3200;
+  margin: 6px 0;
+}
+
+.lbEmpty {
+  font-family: monospace;
+  font-size: 12px;
+  color: #2a4800;
+  text-align: center;
+  letter-spacing: 0.2em;
+  padding: 4px 0;
+}
+
+.lbEntry {
+  display: flex;
+  gap: 8px;
+  align-items: baseline;
+  font-family: monospace;
+  font-size: 12px;
+  padding: 3px 0;
+  color: #6eb800;
+  border-bottom: 1px solid #0f2000;
+}
+
+.lbEntry:last-child {
+  border-bottom: none;
+}
+
+.lbEntryMe {
+  color: #c8ff00;
+}
+
+.lbRank {
+  min-width: 14px;
+  text-align: right;
+  color: #2a4800;
+  font-size: 10px;
+}
+
+.lbHandle {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.lbScore {
+  font-weight: 900;
+  font-size: 14px;
+  color: #e8ff60;
+  letter-spacing: 0.05em;
+}
+
+.lbAttr {
+  font-size: 9px;
+  color: #5a8a00;
+  white-space: nowrap;
+  letter-spacing: 0.05em;
+}
+
+.lbEntry a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.lbEntry a:hover {
+  color: #c8ff00;
+}
+
+@media (max-width: 767px) {
+  .gameLayout {
+    padding: var(--cm-space-2);
+  }
+
+  .gameRow {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .lbSide {
+    width: 100%;
+    justify-content: center;
+  }
+}
