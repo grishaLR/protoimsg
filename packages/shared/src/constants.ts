@@ -63,4 +63,4 @@ export const DM_LIMITS = {
 /* -------------------------------------------------------------------------- */
 
 export const OAUTH_SCOPE =
-  'atproto include:app.protoimsg.chat.authFull repo:actor.rpg.stats repo:actor.rpg.master';
+  'atproto include:app.protoimsg.chat.authFull repo:actor.rpg.stats repo:equipment.rpg.item';

@@ -24,6 +24,8 @@ import {
 import { IS_TAURI } from '../lib/config';
 import { publicAgent } from '../lib/public-agent';
 import { Sentry } from '../sentry';
+import { useGiftAcceptance } from '../hooks/useGiftAcceptance';
+import { GiftUnlockedModal } from '../components/gifts/GiftUnlockedModal';
 
 export type AuthPhase =
   | 'initializing'
@@ -330,6 +332,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, [did, clearAuth]);
 
+  const { current: pendingGift, dismiss: dismissGift } = useGiftAcceptance(agent, did);
+
   const value = useMemo<AuthContextValue>(
     () => ({
       session,
@@ -359,5 +363,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     ],
   );
 
-  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+  return (
+    <AuthContext.Provider value={value}>
+      {children}
+      {pendingGift && <GiftUnlockedModal gift={pendingGift} onClose={dismissGift} />}
+    </AuthContext.Provider>
+  );
 }

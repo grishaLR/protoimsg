@@ -344,10 +344,12 @@ export function JumperGame({ onClose, onScore, did, pds, difficulty }: JumperGam
       .then((data: { records: Array<{ value: Record<string, unknown> }> }) => {
         const rec = data.records.find((r) => r.value.item === 'jet_pack');
         if (!rec) return;
-        const icon = rec.value.icon as { ref: { $link: string } };
+        const icon = rec.value.icon as { ref?: { $link: string } } | undefined;
+        const cid = icon?.ref?.$link ?? (rec.value.assetCid as string | undefined);
+        if (!cid) return;
         const img = new Image();
         img.crossOrigin = 'anonymous';
-        img.src = blobUrl(pds, did, icon.ref.$link);
+        img.src = blobUrl(pds, did, cid);
         img.onload = () => {
           jetpackImgRef.current = img;
         };

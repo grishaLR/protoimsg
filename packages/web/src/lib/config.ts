@@ -21,6 +21,11 @@ export const CHAT_ROOMS_ENABLED: boolean = import.meta.env.VITE_CHAT_ROOMS_ENABL
 export const TURNSTILE_SITE_KEY: string | undefined =
   (import.meta.env.VITE_TURNSTILE_SITE_KEY as string | undefined) || undefined;
 
+/** Game master DID — owner of equipment.rpg.give records we scan for pending gifts. */
+export const GAME_MASTER_DID: string =
+  (import.meta.env.VITE_GAME_MASTER_DID as string | undefined) ??
+  'did:plc:ew5e3up4h2jf4j263qhdjo4e';
+
 /** True when running inside a Tauri v2 desktop shell. */
 // __TAURI_INTERNALS__ is injected before page scripts run (unlike __TAURI__ which
 // may not be available during top-level execution — see tauri-apps/tauri#12990).
