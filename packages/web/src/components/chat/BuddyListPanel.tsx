@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { useVirtualList } from 'virtualized-ui';
 import type { CommunityGroup } from '@protoimsg/lexicon';
 import { BOT } from '@protoimsg/shared';
-import { BOT_ENABLED } from '../../lib/config';
+import { BOT_ENABLED, IS_TAURI } from '../../lib/config';
 import { StatusIndicator } from './StatusIndicator';
 import { UserIdentity } from './UserIdentity';
 import { BuddyMenu } from './BuddyMenu';
@@ -288,11 +288,25 @@ export function BuddyListPanel({
           className={styles.buddy}
           role="button"
           tabIndex={0}
-          onClick={openBotDm}
+          onClick={() => {
+            if (IS_TAURI) {
+              void import('../../lib/tauri-windows').then(({ openBotWindow }) => {
+                void openBotWindow();
+              });
+            } else {
+              openBotDm();
+            }
+          }}
           onKeyDown={(e) => {
             if (e.key === 'Enter' || e.key === ' ') {
               e.preventDefault();
-              openBotDm();
+              if (IS_TAURI) {
+                void import('../../lib/tauri-windows').then(({ openBotWindow }) => {
+                  void openBotWindow();
+                });
+              } else {
+                openBotDm();
+              }
             }
           }}
           style={{ paddingInlineStart: 'var(--cm-space-2)', cursor: 'pointer' }}

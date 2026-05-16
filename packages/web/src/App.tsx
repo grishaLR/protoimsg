@@ -49,6 +49,22 @@ const VideoCallWindowPage = lazy(() =>
     import('./pages/VideoCallWindowPage').then((m) => ({ default: m.VideoCallWindowPage })),
   ),
 );
+const ProfileWindowPage = lazy(() =>
+  reloadOnChunkError(
+    import('./pages/ProfileWindowPage').then((m) => ({ default: m.ProfileWindowPage })),
+  ),
+);
+const PublicArcadePage = lazy(() =>
+  reloadOnChunkError(
+    import('./pages/PublicArcadePage').then((m) => ({ default: m.PublicArcadePage })),
+  ),
+);
+const MeetWindowPage = lazy(() =>
+  reloadOnChunkError(import('./pages/MeetWindowPage').then((m) => ({ default: m.MeetWindowPage }))),
+);
+const BotWindowPage = lazy(() =>
+  reloadOnChunkError(import('./pages/BotWindowPage').then((m) => ({ default: m.BotWindowPage }))),
+);
 /** /meet/:callId — saves the meet code so it survives OAuth, then redirects to /. */
 function MeetRedirect() {
   const { callId } = useParams<{ callId: string }>();
@@ -145,6 +161,46 @@ function AppRoutes() {
         element={
           <ProtectedRoute>
             <VideoCallWindowPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/profile/:did"
+        element={
+          <ProtectedRoute>
+            <ProfileWindowPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/games"
+        element={
+          <Suspense fallback={null}>
+            <PublicArcadePage />
+          </Suspense>
+        }
+      />
+      <Route
+        path="/meet-window"
+        element={
+          <ProtectedRoute>
+            <MeetWindowPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/meet-window/:meetCode"
+        element={
+          <ProtectedRoute>
+            <MeetWindowPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/bot"
+        element={
+          <ProtectedRoute>
+            <BotWindowPage />
           </ProtectedRoute>
         }
       />

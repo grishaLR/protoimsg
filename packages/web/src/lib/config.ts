@@ -11,6 +11,9 @@ export const SIGNUP_ENABLED: boolean = import.meta.env.VITE_SIGNUP_ENABLED !== '
 /** Feature flag: set VITE_BOT_ENABLED=true to enable ProtoBuddy bot. */
 export const BOT_ENABLED: boolean = import.meta.env.VITE_BOT_ENABLED === 'true';
 
+/** Feature flag: set VITE_RUNNER_ENABLED=true to show the Runner game (WIP). */
+export const RUNNER_ENABLED: boolean = import.meta.env.VITE_RUNNER_ENABLED === 'true';
+
 /** Feature flag: set VITE_FEED_ENABLED=true to show the Feed tab. Hidden by default. */
 export const FEED_ENABLED: boolean = import.meta.env.VITE_FEED_ENABLED === 'true';
 
@@ -25,6 +28,10 @@ export const TURNSTILE_SITE_KEY: string | undefined =
 export const GAME_MASTER_DID: string =
   (import.meta.env.VITE_GAME_MASTER_DID as string | undefined) ??
   'did:plc:ew5e3up4h2jf4j263qhdjo4e';
+
+/** Base URL for the RPG actor registry API. */
+export const RPG_ACTOR_API_URL: string =
+  (import.meta.env.VITE_RPG_ACTOR_API_URL as string | undefined) ?? 'https://rpg.actor';
 
 /** True when running inside a Tauri v2 desktop shell. */
 // __TAURI_INTERNALS__ is injected before page scripts run (unlike __TAURI__ which

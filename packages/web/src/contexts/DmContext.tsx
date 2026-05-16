@@ -260,6 +260,14 @@ export function DmProvider({ children }: { children: ReactNode }) {
               : c,
           ),
         );
+        // In Tauri, re-open the DM window (it may have been closed by the user)
+        if (IS_TAURI) {
+          void import('../lib/tauri-windows').then(({ openDmWindow, isMainWindow }) => {
+            if (isMainWindow()) {
+              void openDmWindow(existing.conversationId, recipientDid);
+            }
+          });
+        }
         return;
       }
       send({ type: 'dm_open', recipientDid });

@@ -66,12 +66,20 @@ async function writeRunnerStats(agent: Agent, viewerDid: string, score: number, 
 interface RunnerGameProps {
   onClose: () => void;
   onScore?: (score: number, difficulty: Difficulty) => void;
-  did: string;
-  pds: string;
+  did?: string;
+  pds?: string;
   difficulty: Difficulty;
+  practiceMode?: boolean;
 }
 
-export function RunnerGame({ onClose, onScore, did, pds, difficulty }: RunnerGameProps) {
+export function RunnerGame({
+  onClose,
+  onScore,
+  did,
+  pds,
+  difficulty,
+  practiceMode,
+}: RunnerGameProps) {
   const { data: sprite } = useActorSprite(did, pds);
   const { agent, did: viewerDid } = useAuth();
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -100,7 +108,7 @@ export function RunnerGame({ onClose, onScore, did, pds, difficulty }: RunnerGam
   }, []);
 
   useEffect(() => {
-    if (!sprite?.spriteSheet.ref.$link) return;
+    if (!sprite?.spriteSheet.ref.$link || !pds || !did) return;
     const img = new Image();
     img.crossOrigin = 'anonymous';
     img.src = blobUrl(pds, did, sprite.spriteSheet.ref.$link);
@@ -184,8 +192,8 @@ export function RunnerGame({ onClose, onScore, did, pds, difficulty }: RunnerGam
       deathResult: 'lose' as 'leaderboard' | 'best' | 'lose',
     };
 
-    // Async-fetch existing best from protocol so in-game HI display is accurate
-    if (agent && viewerDid) {
+    // Async-fetch existing best — ATProto when authenticated, localStorage in practice mode
+    if (!practiceMode && agent && viewerDid) {
       agent.com.atproto.repo
         .getRecord({ repo: viewerDid, collection: 'actor.rpg.stats', rkey: 'self' })
         .then((res) => {
@@ -197,6 +205,10 @@ export function RunnerGame({ onClose, onScore, did, pds, difficulty }: RunnerGam
           st.prevHi = st.hi;
         })
         .catch(() => {});
+    } else {
+      const lsKey = `protoimsg:practice:runner_${difficulty}:best`;
+      st.hi = parseInt(localStorage.getItem(lsKey) ?? '0', 10);
+      st.prevHi = st.hi;
     }
 
     const tryJump = () => {
@@ -432,18 +444,24 @@ export function RunnerGame({ onClose, onScore, did, pds, difficulty }: RunnerGam
           const entries = leaderboardRef.current;
           const lowestScore = entries.at(-1)?.score ?? 0;
           const isNewBest = st.score > 0 && st.score > st.prevHi;
+          const canPost = !practiceMode && !!(agent && viewerDid);
           const wouldQualify = entries.length < 5 || st.score > lowestScore;
-          const onBoard = isNewBest && wouldQualify;
+          const onBoard = canPost && isNewBest && wouldQualify;
           st.deathResult = onBoard ? 'leaderboard' : isNewBest ? 'best' : 'lose';
-          if (!scoreWrittenRef.current && agent && viewerDid) {
+          if (!scoreWrittenRef.current) {
             scoreWrittenRef.current = true;
             onScore?.(st.score, difficulty);
-            void writeRunnerStats(agent, viewerDid, st.score, system);
-            void authFetch('/api/games/score', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ system, score: st.score }),
-            });
+            if (canPost) {
+              void writeRunnerStats(agent, viewerDid, st.score, system);
+              void authFetch('/api/games/score', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ system, score: st.score }),
+              });
+            } else {
+              const lsKey = `protoimsg:practice:runner_${difficulty}:best`;
+              if (isNewBest) localStorage.setItem(lsKey, String(st.score));
+            }
           }
           break;
         }

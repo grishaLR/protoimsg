@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <!-- App Sandbox (required for Mac App Store) -->
+    <key>com.apple.security.app-sandbox</key>
+    <true/>
+
+    <!-- Network access for WebSocket, WebRTC, LiveKit -->
+    <key>com.apple.security.network.client</key>
+    <true/>
+
+    <!-- Camera for video calls -->
+    <key>com.apple.security.device.camera</key>
+    <true/>
+
+    <!-- Microphone for voice/video calls -->
+    <key>com.apple.security.device.microphone</key>
+    <true/>
+
+    <!-- Screen capture for screen sharing during calls -->
+    <key>com.apple.security.temporary-exception.mach-lookup.global-name</key>
+    <array>
+        <string>com.apple.replayd</string>
+    </array>
+</dict>
+</plist>

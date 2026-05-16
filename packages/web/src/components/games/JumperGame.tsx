@@ -142,12 +142,20 @@ async function writeJumperStats(agent: Agent, viewerDid: string, score: number, 
 interface JumperGameProps {
   onClose: () => void;
   onScore?: (score: number, difficulty: Difficulty) => void;
-  did: string;
-  pds: string;
+  did?: string;
+  pds?: string;
   difficulty: Difficulty;
+  practiceMode?: boolean;
 }
 
-export function JumperGame({ onClose, onScore, did, pds, difficulty }: JumperGameProps) {
+export function JumperGame({
+  onClose,
+  onScore,
+  did,
+  pds,
+  difficulty,
+  practiceMode,
+}: JumperGameProps) {
   const { data: sprite } = useActorSprite(did, pds);
   const { agent, did: viewerDid } = useAuth();
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -174,7 +182,7 @@ export function JumperGame({ onClose, onScore, did, pds, difficulty }: JumperGam
   const scoreWrittenRef = useRef(false);
 
   useEffect(() => {
-    if (!sprite?.spriteSheet.ref.$link) return;
+    if (!sprite?.spriteSheet.ref.$link || !pds || !did) return;
     const img = new Image();
     img.crossOrigin = 'anonymous';
     img.src = blobUrl(pds, did, sprite.spriteSheet.ref.$link);
@@ -410,6 +418,7 @@ export function JumperGame({ onClose, onScore, did, pds, difficulty }: JumperGam
       scrolled: 0,
       score: 0,
       dead: false,
+      deadFrames: 0,
       deathCause: 'fall' as 'fall' | 'alien' | 'blackhole',
       deathResult: 'lose' as 'leaderboard' | 'best' | 'lose',
       suckedIn: false,
@@ -427,8 +436,8 @@ export function JumperGame({ onClose, onScore, did, pds, difficulty }: JumperGam
       prevHi: 0,
     };
 
-    // Async-fetch existing best from protocol so in-game BEST display is accurate
-    if (agent && viewerDid) {
+    // Async-fetch existing best — ATProto when authenticated, localStorage in practice mode
+    if (!practiceMode && agent && viewerDid) {
       agent.com.atproto.repo
         .getRecord({ repo: viewerDid, collection: 'actor.rpg.stats', rkey: 'self' })
         .then((res) => {
@@ -440,6 +449,10 @@ export function JumperGame({ onClose, onScore, did, pds, difficulty }: JumperGam
           st.prevHi = st.hi;
         })
         .catch(() => {});
+    } else {
+      const lsKey = `protoimsg:practice:jumper_${difficulty}:best`;
+      st.hi = parseInt(localStorage.getItem(lsKey) ?? '0', 10);
+      st.prevHi = st.hi;
     }
 
     const reset = () => {
@@ -479,6 +492,7 @@ export function JumperGame({ onClose, onScore, did, pds, difficulty }: JumperGam
       st.scrolled = 0;
       st.score = 0;
       st.dead = false;
+      st.deadFrames = 0;
       st.deathCause = 'fall';
       st.deathResult = 'lose';
       st.suckedIn = false;
@@ -495,8 +509,9 @@ export function JumperGame({ onClose, onScore, did, pds, difficulty }: JumperGam
       const entries = leaderboardRef.current;
       const lowestScore = entries.at(-1)?.score ?? 0;
       const isNewBest = st.score > 0 && st.score > st.prevHi;
+      const canPost = !practiceMode && !!(agent && viewerDid);
       const wouldQualify = entries.length < 5 || st.score > lowestScore;
-      const onBoard = isNewBest && wouldQualify;
+      const onBoard = canPost && isNewBest && wouldQualify;
       st.deathResult = onBoard ? 'leaderboard' : isNewBest ? 'best' : 'lose';
       if (onBoard && sfxWinRef.current) {
         sfxWinRef.current.currentTime = 0;
@@ -535,7 +550,7 @@ export function JumperGame({ onClose, onScore, did, pds, difficulty }: JumperGam
         e.preventDefault();
       }
       if (e.key === 'Escape') onClose();
-      if (down && st.dead) reset();
+      if (down && st.dead && st.deadFrames >= 30) reset();
       if (down && !st.started) {
         st.started = true;
         if (sfxStartRef.current) {
@@ -564,7 +579,7 @@ export function JumperGame({ onClose, onScore, did, pds, difficulty }: JumperGam
           void sfxStartRef.current.play();
         }
       }
-      if (st.dead && e.touches.length > 0) reset();
+      if (st.dead && st.deadFrames >= 30 && e.touches.length > 0) reset();
     };
     const onTouchEnd = () => {
       st.touchLeft = false;
@@ -910,6 +925,7 @@ export function JumperGame({ onClose, onScore, did, pds, difficulty }: JumperGam
       }
 
       if (st.dead) {
+        st.deadFrames++;
         for (const p of st.plats) drawPlat(p);
         ctx.fillStyle = 'rgba(6,0,15,0.78)';
         ctx.fillRect(0, 0, CW, CH);
@@ -1129,15 +1145,20 @@ export function JumperGame({ onClose, onScore, did, pds, difficulty }: JumperGam
             sfxBlackHoleRef.current.volume = 0;
             sfxBlackHoleRef.current.pause();
           }
-          if (!scoreWrittenRef.current && agent && viewerDid) {
+          if (!scoreWrittenRef.current) {
             scoreWrittenRef.current = true;
             onScore?.(st.score, difficulty);
-            void writeJumperStats(agent, viewerDid, st.score, system);
-            void authFetch('/api/games/score', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ system, score: st.score }),
-            });
+            if (!practiceMode && agent && viewerDid) {
+              void writeJumperStats(agent, viewerDid, st.score, system);
+              void authFetch('/api/games/score', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ system, score: st.score }),
+              });
+            } else {
+              const lsKey = `protoimsg:practice:jumper_${difficulty}:best`;
+              if (st.score > st.prevHi) localStorage.setItem(lsKey, String(st.score));
+            }
           }
         } else if (dist < BH_PULL_RADIUS) {
           const pull = 1.2 * Math.pow(1 - dist / BH_PULL_RADIUS, 2);
@@ -1190,10 +1211,10 @@ export function JumperGame({ onClose, onScore, did, pds, difficulty }: JumperGam
         if (!overlapX) continue;
         const overlapY = st.py + FH > a.y + 8 && st.py < a.y + 44;
         if (!overlapY) continue;
-        // Stomp: player falling AND player vertical center above alien vertical center
-        const playerCY = st.py + FH / 2;
-        const alienCY = a.y + 24;
-        if (st.pvy > 0 && playerCY < alienCY) {
+        // Stomp: player falling AND feet land within 20px of alien's top hitbox edge
+        const playerBottom = st.py + FH;
+        const alienHitTop = a.y + 8;
+        if (st.pvy > 0 && playerBottom - alienHitTop < 20) {
           a.dyingTimer = 22;
           st.pvy = BNCE;
           st.py = a.y + 8 - FH;
@@ -1207,15 +1228,20 @@ export function JumperGame({ onClose, onScore, did, pds, difficulty }: JumperGam
           st.suckBhX = a.x + 24;
           st.suckBhY = a.y + 24;
           st.deathCause = 'alien';
-          if (!scoreWrittenRef.current && agent && viewerDid) {
+          if (!scoreWrittenRef.current) {
             scoreWrittenRef.current = true;
             onScore?.(st.score, difficulty);
-            void writeJumperStats(agent, viewerDid, st.score, system);
-            void authFetch('/api/games/score', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ system, score: st.score }),
-            });
+            if (!practiceMode && agent && viewerDid) {
+              void writeJumperStats(agent, viewerDid, st.score, system);
+              void authFetch('/api/games/score', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ system, score: st.score }),
+              });
+            } else {
+              const lsKey = `protoimsg:practice:jumper_${difficulty}:best`;
+              if (st.score > st.prevHi) localStorage.setItem(lsKey, String(st.score));
+            }
           }
           // Silence everything except the robot talk
           [
@@ -1291,15 +1317,20 @@ export function JumperGame({ onClose, onScore, did, pds, difficulty }: JumperGam
         st.dead = true;
         st.deathCause = 'fall';
         playDeathJingle();
-        if (!scoreWrittenRef.current && agent && viewerDid) {
+        if (!scoreWrittenRef.current) {
           scoreWrittenRef.current = true;
           onScore?.(st.score, difficulty);
-          void writeJumperStats(agent, viewerDid, st.score, system);
-          void authFetch('/api/games/score', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ system, score: st.score }),
-          });
+          if (!practiceMode && agent && viewerDid) {
+            void writeJumperStats(agent, viewerDid, st.score, system);
+            void authFetch('/api/games/score', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ system, score: st.score }),
+            });
+          } else {
+            const lsKey = `protoimsg:practice:jumper_${difficulty}:best`;
+            if (st.score > st.prevHi) localStorage.setItem(lsKey, String(st.score));
+          }
         }
       }
 

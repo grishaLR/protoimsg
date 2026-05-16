@@ -1,7 +1,18 @@
 {
   "identifier": "default",
   "description": "Capability for the main and child windows",
-  "windows": ["main", "room-*", "dm-*", "videocall-*", "rooms-directory", "feed"],
+  "windows": [
+    "main",
+    "room-*",
+    "dm-*",
+    "videocall-*",
+    "profile-*",
+    "rooms-directory",
+    "feed",
+    "meet",
+    "games",
+    "bot"
+  ],
   "permissions": [
     "core:default",
     "core:window:allow-create",

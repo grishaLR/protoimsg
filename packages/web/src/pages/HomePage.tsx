@@ -10,6 +10,7 @@ import { useFollowGraph } from '../hooks/useFollowGraph';
 import { useIsMobile } from '../hooks/useIsMobile';
 import { useDm } from '../contexts/DmContext';
 import { useVideoCall, setInnerCircleDidsForCalls } from '../contexts/VideoCallContext';
+import { useGroupCall } from '../contexts/GroupCallContext';
 import { useBlocks } from '../contexts/BlockContext';
 import { MeetLanding } from './MeetPage';
 import { GamesPanel } from '../components/games/GamesPanel';
@@ -48,7 +49,7 @@ export function HomePage() {
     setInnerCircleDidsForCalls(innerCircleDids);
   }, [innerCircleDids]);
 
-  const { openDm, openDmMinimized, conversations, notifications } = useDm();
+  const { openDm, conversations, notifications } = useDm();
 
   const imUnreadMap = useMemo(() => {
     const map = new Map<string, number>();
@@ -67,30 +68,55 @@ export function HomePage() {
   }, [notifications]);
 
   const { videoCall, activeCall } = useVideoCall();
+  const { activeGroupCall } = useGroupCall();
   const { blockedDids, toggleBlock } = useBlocks();
   const isMobile = useIsMobile();
 
-  const [view, setView] = useState<View>(() =>
-    window.matchMedia('(max-width: 767px)').matches ? 'buddies' : 'meet',
-  );
+  const [view, setView] = useState<View>(() => {
+    if (sessionStorage.getItem('protoimsg:pending_games') === '1') {
+      sessionStorage.removeItem('protoimsg:pending_games');
+      return 'games';
+    }
+    return window.matchMedia('(max-width: 767px)').matches ? 'buddies' : 'meet';
+  });
   const [profileDid, setProfileDid] = useState<string | null>(null);
   const handleBuddyClick = useCallback((did: string) => {
+    if (IS_TAURI) {
+      void import('../lib/tauri-windows').then(({ openProfileWindow }) => {
+        void openProfileWindow(did);
+      });
+      return;
+    }
     setProfileDid(did);
   }, []);
   const handleCloseProfile = useCallback(() => {
     setProfileDid(null);
   }, []);
 
-  // Tauri: update system tray tooltip
+  // Tauri: update system tray tooltip and call-state menu
   useEffect(() => {
     if (!IS_TAURI) return;
     const onlineCount = buddies.filter((b) => b.status !== 'offline').length;
-    void import('../lib/tauri-tray').then(({ updateTrayTooltip }) => {
-      void updateTrayTooltip(onlineCount, 'online', 0, activeCall != null);
+    const inCall = activeCall != null || activeGroupCall != null;
+    void import('../lib/tauri-tray').then(({ updateTrayTooltip, setTrayCallState }) => {
+      void updateTrayTooltip(onlineCount, 'online', 0, inCall);
+      void setTrayCallState(inCall);
     });
-  }, [buddies, activeCall]);
+  }, [buddies, activeCall, activeGroupCall]);
 
   const handleTabChange = useCallback((tab: MobileTab) => {
+    if (IS_TAURI && tab === 'fun') {
+      void import('../lib/tauri-windows').then(({ openGamesWindow }) => {
+        void openGamesWindow();
+      });
+      return;
+    }
+    if (IS_TAURI && tab === 'meet') {
+      void import('../lib/tauri-windows').then(({ openMeetWindow }) => {
+        void openMeetWindow();
+      });
+      return;
+    }
     if (tab === 'meet' || tab === 'buddies' || tab === 'fun') {
       setView(tab === 'fun' ? 'games' : tab);
     }
@@ -101,6 +127,12 @@ export function HomePage() {
   }, []);
 
   const handleOpenGames = useCallback(() => {
+    if (IS_TAURI) {
+      void import('../lib/tauri-windows').then(({ openGamesWindow }) => {
+        void openGamesWindow();
+      });
+      return;
+    }
     setView('games');
   }, []);
 
@@ -134,7 +166,7 @@ export function HomePage() {
         toggleBlock(targetDid);
         void blockBuddy(targetDid, isCurrentlyBlocked);
       }}
-      onSendIm={IS_TAURI ? openDmMinimized : openDm}
+      onSendIm={openDm}
       onVideoCall={(targetDid) => {
         videoCall(targetDid);
       }}
