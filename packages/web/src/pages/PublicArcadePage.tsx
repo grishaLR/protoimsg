@@ -9,6 +9,7 @@ import { ArcadeSignIn } from '../components/games/ArcadeSignIn';
 import {
   LeaderboardCol,
   AttributionsCol,
+  GameIcon,
   RUNNER_CREDITS,
   JUMPER_CREDITS,
   type LbEntry,
@@ -37,7 +38,6 @@ export function PublicArcadePage() {
   const [mobilePage, setMobilePage] = useState(1); // 0=Character 1=Play 2=Scores
   const MOBILE_PAGES = ['Character', 'Play', 'Scores'] as const;
   const [previewGame, setPreviewGame] = useState<'runner' | 'jumper'>('jumper');
-  const [previewKey, setPreviewKey] = useState(0);
   const refreshTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const fetchLeaderboards = useCallback((game: NonNullable<ActiveGame>) => {
@@ -252,7 +252,6 @@ export function PublicArcadePage() {
                     className={`${styles.previewTab} ${previewGame === 'runner' ? styles.previewTabActive : ''}`}
                     onClick={() => {
                       setPreviewGame('runner');
-                      setPreviewKey((k) => k + 1);
                     }}
                     type="button"
                   >
@@ -262,7 +261,6 @@ export function PublicArcadePage() {
                     className={`${styles.previewTab} ${previewGame === 'jumper' ? styles.previewTabActive : ''}`}
                     onClick={() => {
                       setPreviewGame('jumper');
-                      setPreviewKey((k) => k + 1);
                     }}
                     type="button"
                   >
@@ -271,36 +269,15 @@ export function PublicArcadePage() {
                 </div>
               )}
               <div className={styles.previewCanvas}>
-                {previewGame === 'runner' ? (
-                  <RunnerGame
-                    key={`preview-runner-${previewKey}`}
-                    did={runDid}
-                    pds={runPds}
-                    difficulty="fast"
-                    practiceMode
-                    onClose={() => {
-                      setPreviewKey((k) => k + 1);
-                    }}
-                    onScore={() => {
-                      setPreviewKey((k) => k + 1);
-                    }}
-                  />
-                ) : (
-                  <JumperGame
-                    key={`preview-jumper-${previewKey}`}
-                    did={runDid}
-                    pds={runPds}
-                    difficulty="fast"
-                    practiceMode
-                    onClose={() => {
-                      setPreviewKey((k) => k + 1);
-                    }}
-                    onScore={() => {
-                      setPreviewKey((k) => k + 1);
-                    }}
-                  />
-                )}
+                <div
+                  className={
+                    previewGame === 'runner'
+                      ? styles.gamePlaceholderRunner
+                      : styles.gamePlaceholderJumper
+                  }
+                />
                 <div className={styles.diffOverlay}>
+                  <GameIcon icon={previewGame === 'runner' ? 'run' : 'ufo'} size={64} />
                   <span className={styles.diffOverlayGame}>{previewGame}</span>
                   <span className={styles.diffOverlayHint}>choose difficulty</span>
                   <div className={styles.diffBtns}>

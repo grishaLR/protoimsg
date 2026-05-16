@@ -213,6 +213,22 @@
   position: relative;
 }
 
+.gamePlaceholderJumper {
+  width: 352px;
+  height: 580px;
+  max-width: 100%;
+  background: #06000f;
+  border-radius: var(--cm-radius-md);
+}
+
+.gamePlaceholderRunner {
+  width: 680px;
+  height: 296px;
+  max-width: 100%;
+  background: #0f172a;
+  border-radius: var(--cm-radius-md);
+}
+
 .diffOverlay {
   position: absolute;
   inset: 0;
@@ -224,6 +240,7 @@
   background: oklch(0 0 0 / 0.58);
   backdrop-filter: blur(2px);
   z-index: 10;
+  color: #fff;
 }
 
 .diffOverlayGame {

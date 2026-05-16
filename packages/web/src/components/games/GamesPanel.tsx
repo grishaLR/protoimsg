@@ -9,6 +9,7 @@ import {
   LeaderboardCol,
   StatsCol,
   AttributionsCol,
+  GameIcon,
   RUNNER_CREDITS,
   JUMPER_CREDITS,
   type LbEntry,
@@ -26,7 +27,6 @@ export function GamesPanel() {
   const [difficulty, setDifficulty] = useState<Difficulty>('fast');
   const [mobilePage, setMobilePage] = useState(0); // 0=Game 1=Scores
   const [previewGame, setPreviewGame] = useState<'runner' | 'jumper'>('jumper');
-  const [previewKey, setPreviewKey] = useState(0);
   const [leaderboards, setLeaderboards] = useState<{ fast: LbEntry[]; faster: LbEntry[] }>({
     fast: [],
     faster: [],
@@ -275,7 +275,6 @@ export function GamesPanel() {
               className={`${styles.previewTab} ${previewGame === 'runner' ? styles.previewTabActive : ''}`}
               onClick={() => {
                 setPreviewGame('runner');
-                setPreviewKey((k) => k + 1);
               }}
               type="button"
             >
@@ -285,7 +284,6 @@ export function GamesPanel() {
               className={`${styles.previewTab} ${previewGame === 'jumper' ? styles.previewTabActive : ''}`}
               onClick={() => {
                 setPreviewGame('jumper');
-                setPreviewKey((k) => k + 1);
               }}
               type="button"
             >
@@ -294,34 +292,13 @@ export function GamesPanel() {
           </div>
         )}
         <div className={styles.previewCanvas}>
-          {previewGame === 'runner' ? (
-            <RunnerGame
-              key={`preview-runner-${previewKey}`}
-              did={did ?? undefined}
-              pds={pds ?? undefined}
-              difficulty="fast"
-              onClose={() => {
-                setPreviewKey((k) => k + 1);
-              }}
-              onScore={() => {
-                setPreviewKey((k) => k + 1);
-              }}
-            />
-          ) : (
-            <JumperGame
-              key={`preview-jumper-${previewKey}`}
-              did={did ?? undefined}
-              pds={pds ?? undefined}
-              difficulty="fast"
-              onClose={() => {
-                setPreviewKey((k) => k + 1);
-              }}
-              onScore={() => {
-                setPreviewKey((k) => k + 1);
-              }}
-            />
-          )}
+          <div
+            className={
+              previewGame === 'runner' ? styles.gamePlaceholderRunner : styles.gamePlaceholderJumper
+            }
+          />
           <div className={styles.diffOverlay}>
+            <GameIcon icon={previewGame === 'runner' ? 'run' : 'ufo'} size={64} />
             <span className={styles.diffOverlayGame}>{previewGame}</span>
             <span className={styles.diffOverlayHint}>choose difficulty</span>
             <div className={styles.diffBtns}>

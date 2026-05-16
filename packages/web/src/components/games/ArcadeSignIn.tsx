@@ -1,5 +1,7 @@
 import { useState } from 'react';
 import { useAuth } from '../../hooks/useAuth';
+import { useTurnstile } from '../../hooks/useTurnstile';
+import { CaptchaFailedError } from '../../lib/api';
 import { ActorSearch, type ActorSearchResult } from '../shared/ActorSearch';
 import styles from './ArcadeSignIn.module.css';
 
@@ -9,6 +11,7 @@ interface ArcadeSignInProps {
 
 export function ArcadeSignIn({ onClose: _onClose }: ArcadeSignInProps) {
   const { login } = useAuth();
+  const turnstile = useTurnstile();
   const [handle, setHandle] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -24,9 +27,14 @@ export function ArcadeSignIn({ onClose: _onClose }: ArcadeSignInProps) {
     setError(null);
     setLoading(true);
     sessionStorage.setItem('protoimsg:pending_games', '1');
-    login(trimmed).catch((err: unknown) => {
+    login(trimmed, turnstile.getToken() ?? undefined).catch((err: unknown) => {
       sessionStorage.removeItem('protoimsg:pending_games');
-      setError(err instanceof Error ? err.message : 'Sign in failed');
+      if (err instanceof CaptchaFailedError) {
+        setError('CAPTCHA verification failed — please try again');
+        turnstile.reset();
+      } else {
+        setError(err instanceof Error ? err.message : 'Sign in failed');
+      }
       setLoading(false);
     });
   }
@@ -42,7 +50,12 @@ export function ArcadeSignIn({ onClose: _onClose }: ArcadeSignInProps) {
           clearOnSelect={false}
           variant="compact"
         />
-        <button className={styles.btn} type="submit" disabled={loading || !handle.trim()}>
+        {turnstile.enabled && <div ref={turnstile.containerRef} />}
+        <button
+          className={styles.btn}
+          type="submit"
+          disabled={loading || !handle.trim() || (turnstile.enabled && !turnstile.ready)}
+        >
           {loading ? 'connecting...' : 'sign in →'}
         </button>
         {error && <div className={styles.error}>{error}</div>}
