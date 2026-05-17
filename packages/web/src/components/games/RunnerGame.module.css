@@ -44,6 +44,7 @@
 }
 
 .canvasContainer {
+  position: relative;
   width: 100%;
   overflow: hidden;
 }
@@ -59,6 +60,116 @@
   font-size: 11px;
   color: var(--color-text-muted);
   opacity: 0.6;
+}
+
+/* ── Canvas overlays ─────────────────────────────────────────────────────── */
+
+.overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  background: rgba(0, 0, 0, 0.92);
+  border-radius: var(--radius-md);
+  padding: 20px;
+  text-align: center;
+  font-family: monospace;
+  color: #e2e8f0;
+}
+
+.overlayGameName {
+  font-size: 17px;
+  font-weight: 900;
+  letter-spacing: 0.12em;
+  color: #e2e8f0;
+}
+
+.overlaySub {
+  font-size: 11px;
+  color: #64748b;
+  margin-bottom: 4px;
+}
+
+.overlayScore {
+  font-size: 14px;
+  color: #e2e8f0;
+}
+
+.overlayRank {
+  font-size: 11px;
+  color: #fbbf24;
+  letter-spacing: 0.06em;
+}
+
+.overlayBtn {
+  margin-top: 8px;
+  padding: 10px 36px;
+  background: var(--color-primary, #1a6400);
+  border: none;
+  border-radius: var(--cm-radius-sm, 4px);
+  box-shadow: var(--cm-raised);
+  font-family: monospace;
+  font-size: 15px;
+  font-weight: 900;
+  color: var(--color-primary-content, #fff);
+  cursor: pointer;
+  letter-spacing: 0.08em;
+}
+
+.overlayBtn:hover {
+  filter: brightness(1.15);
+}
+
+.overlayBtn:active {
+  box-shadow: var(--cm-pressed);
+}
+
+.overlayCtas {
+  display: flex;
+  align-items: stretch;
+  gap: 10px;
+  margin-top: 8px;
+}
+
+.overlayCtas .overlayBtn {
+  margin-top: 0;
+}
+
+.overlayBtnSecondary {
+  padding: 10px 20px;
+  background: var(--cm-surface-button);
+  border: none;
+  border-radius: var(--cm-radius-sm, 4px);
+  box-shadow: var(--cm-raised);
+  font-family: monospace;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--color-base-content);
+  cursor: pointer;
+  letter-spacing: 0.04em;
+  opacity: 0.75;
+}
+
+.overlayBtnSecondary:hover {
+  opacity: 1;
+}
+
+.overlayBtnSecondary:active {
+  box-shadow: var(--cm-pressed);
+}
+
+.deathTitle {
+  font-size: 22px;
+  font-weight: 900;
+  letter-spacing: 0.06em;
+}
+
+.deathSub {
+  font-size: 11px;
+  color: #94a3b8;
 }
 
 @media (max-width: 767px) {

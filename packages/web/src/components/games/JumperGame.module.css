@@ -56,3 +56,137 @@
   color: var(--color-text-muted);
   opacity: 0.6;
 }
+
+/* ── Canvas wrapper + overlays ───────────────────────────────────────────── */
+
+.canvasWrap {
+  position: relative;
+  display: inline-block;
+  line-height: 0;
+}
+
+.overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  background: rgba(6, 0, 15, 0.93);
+  border-radius: var(--radius-md);
+  padding: 24px 20px;
+  text-align: center;
+  font-family: monospace;
+  color: #e2e8f0;
+  line-height: normal;
+}
+
+.overlayGameName {
+  font-size: 17px;
+  font-weight: 900;
+  letter-spacing: 0.12em;
+  color: #e2e8f0;
+}
+
+.overlaySub {
+  font-size: 11px;
+  color: #64748b;
+}
+
+.overlayScore {
+  font-size: 13px;
+  color: #e2e8f0;
+}
+
+.overlayBest {
+  font-size: 13px;
+  color: #4ade80;
+}
+
+.overlayRank {
+  font-size: 11px;
+  color: #fbbf24;
+  letter-spacing: 0.06em;
+}
+
+.overlayBtn {
+  margin-top: 8px;
+  padding: 10px 36px;
+  background: var(--color-primary, #1a6400);
+  border: none;
+  border-radius: var(--cm-radius-sm, 4px);
+  box-shadow: var(--cm-raised);
+  font-family: monospace;
+  font-size: 15px;
+  font-weight: 900;
+  color: var(--color-primary-content, #fff);
+  cursor: pointer;
+  letter-spacing: 0.08em;
+}
+
+.overlayBtn:hover {
+  filter: brightness(1.15);
+}
+
+.overlayBtn:active {
+  box-shadow: var(--cm-pressed);
+}
+
+.overlayCtas {
+  display: flex;
+  align-items: stretch;
+  gap: 10px;
+  margin-top: 8px;
+}
+
+.overlayCtas .overlayBtn {
+  margin-top: 0;
+}
+
+.overlayBtnSecondary {
+  padding: 10px 20px;
+  background: var(--cm-surface-button);
+  border: none;
+  border-radius: var(--cm-radius-sm, 4px);
+  box-shadow: var(--cm-raised);
+  font-family: monospace;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--color-base-content);
+  cursor: pointer;
+  letter-spacing: 0.04em;
+  opacity: 0.75;
+}
+
+.overlayBtnSecondary:hover {
+  opacity: 1;
+}
+
+.overlayBtnSecondary:active {
+  box-shadow: var(--cm-pressed);
+}
+
+.deathTitle {
+  font-size: 22px;
+  font-weight: 900;
+  letter-spacing: 0.06em;
+}
+
+.deathCauseGroup {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.deathSub {
+  font-size: 11px;
+  color: #94a3b8;
+}
+
+.deathResult {
+  font-size: 15px;
+  font-weight: 900;
+  letter-spacing: 0.06em;
+}
