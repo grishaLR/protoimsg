@@ -4,6 +4,7 @@ WORKDIR /app
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 COPY packages/shared/package.json packages/shared/
 COPY packages/lexicon/package.json packages/lexicon/
+COPY packages/game-sim/package.json packages/game-sim/
 COPY packages/server/package.json packages/server/
 
 RUN corepack enable && pnpm install --frozen-lockfile
@@ -11,10 +12,12 @@ RUN corepack enable && pnpm install --frozen-lockfile
 COPY tsconfig.base.json ./
 COPY packages/shared/ packages/shared/
 COPY packages/lexicon/ packages/lexicon/
+COPY packages/game-sim/ packages/game-sim/
 COPY packages/server/ packages/server/
 
 RUN pnpm --filter @protoimsg/shared build && \
     pnpm --filter @protoimsg/lexicon build && \
+    pnpm --filter @protoimsg/game-sim build && \
     pnpm --filter @protoimsg/server build && \
     cp -r packages/server/src/db/migrations packages/server/dist/db/ && \
     pnpm --filter @protoimsg/server deploy --prod /app/deploy
