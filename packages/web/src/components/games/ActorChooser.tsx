@@ -58,7 +58,20 @@ function parseDids(data: unknown): string[] {
       .filter(Boolean);
   }
   if (typeof data === 'object' && data !== null && 'actors' in data) {
-    return parseDids((data as { actors: unknown }).actors);
+    const actors = (data as { actors: unknown }).actors;
+    if (Array.isArray(actors)) {
+      // Skip actors with no sprite record — they render as blank characters.
+      return actors
+        .filter(
+          (a): a is { did: unknown } =>
+            typeof a === 'object' &&
+            a !== null &&
+            (a as { hasSprite?: unknown }).hasSprite !== false,
+        )
+        .map((a) => (typeof a.did === 'string' ? a.did : ''))
+        .filter(Boolean);
+    }
+    return parseDids(actors);
   }
   return [];
 }

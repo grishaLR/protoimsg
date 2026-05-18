@@ -176,9 +176,20 @@ export function PublicArcadePage() {
       <div className={styles.practiceBanner}>
         <span className={styles.practiceBannerText}>PRACTICE MODE</span>
         {!did && (
-          <span className={styles.practiceBannerSub}>
-            log in to participate in leaderboard and win gifts!
-          </span>
+          <>
+            <span className={styles.practiceBannerSub}>
+              log in to participate in leaderboard and win gifts!
+            </span>
+            <button
+              className={styles.signInBtn}
+              type="button"
+              onClick={() => {
+                setShowSignIn(true);
+              }}
+            >
+              sign in →
+            </button>
+          </>
         )}
       </div>
 

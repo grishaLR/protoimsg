@@ -68,6 +68,15 @@ importers:
         specifier: ^5.7.3
         version: 5.9.3
 
+  packages/game-sim:
+    devDependencies:
+      typescript:
+        specifier: ^5.7.3
+        version: 5.9.3
+      vitest:
+        specifier: ^4.0.18
+        version: 4.0.18(@opentelemetry/api@1.9.0)(@types/node@25.2.1)(jiti@2.6.1)(jsdom@20.0.3)(lightningcss@1.30.2)(terser@5.46.0)(tsx@4.21.0)(yaml@2.8.2)
+
   packages/lexicon:
     dependencies:
       '@atproto/lexicon':
@@ -246,6 +255,9 @@ importers:
       '@atproto/oauth-client-node':
         specifier: ^0.2.0
         version: 0.2.24
+      '@protoimsg/game-sim':
+        specifier: workspace:*
+        version: link:../game-sim
       '@protoimsg/lexicon':
         specifier: workspace:*
         version: link:../lexicon
@@ -380,6 +392,9 @@ importers:
       '@livekit/components-styles':
         specifier: ^1.2.0
         version: 1.2.0
+      '@protoimsg/game-sim':
+        specifier: workspace:*
+        version: link:../game-sim
       '@protoimsg/lexicon':
         specifier: workspace:*
         version: link:../lexicon

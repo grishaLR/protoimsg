@@ -1,11 +1,14 @@
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { Volume2, VolumeX } from 'lucide-react';
+import { makeSeed, type JumperInputLog } from '@protoimsg/game-sim';
+import type { Agent } from '@atproto/api';
 import type { Difficulty } from './GamesPanel';
 import { useAuth } from '../../hooks/useAuth';
 import { useActorSprite } from '../../hooks/useActorSprite';
 import { blobUrl } from '../../lib/record-blobs';
+import { authFetch } from '../../lib/api';
 import { API_URL } from '../../lib/config';
-import { JumperEngine, type JumperDeathInfo } from './JumperEngine';
+import { JumperEngine, type JumperDeathInfo, type JumperRun } from './JumperEngine';
 import styles from './JumperGame.module.css';
 
 interface JumperGameProps {
@@ -15,6 +18,55 @@ interface JumperGameProps {
   pds?: string;
   difficulty: Difficulty;
   practiceMode?: boolean;
+}
+
+interface RunTicket {
+  seed: number;
+  runId?: string;
+}
+
+/** Writes the player's self-reported personal stats to their own repo. */
+async function writeJumperStats(
+  agent: Agent,
+  viewerDid: string,
+  score: number,
+  difficulty: string,
+) {
+  try {
+    const statsRes = await agent.com.atproto.repo
+      .getRecord({ repo: viewerDid, collection: 'actor.rpg.stats', rkey: 'self' })
+      .catch(() => null);
+    const existingStats: Record<string, unknown> = statsRes
+      ? (statsRes.data.value as Record<string, unknown>)
+      : {};
+    const existingGame = existingStats.jumper as Record<string, unknown> | undefined;
+    const prev = existingGame?.[difficulty] as
+      | { best?: number; tries?: number; worst?: number }
+      | undefined;
+    const now = new Date().toISOString();
+    await agent.com.atproto.repo.putRecord({
+      repo: viewerDid,
+      collection: 'actor.rpg.stats',
+      rkey: 'self',
+      record: {
+        ...existingStats,
+        $type: 'actor.rpg.stats',
+        jumper: {
+          ...(existingGame ?? {}),
+          _meta: { name: 'proto IM jumper' },
+          [difficulty]: {
+            best: Math.max(score, prev?.best ?? 0),
+            tries: (prev?.tries ?? 0) + 1,
+            worst: prev ? Math.min(score, prev.worst ?? score) : score,
+          },
+        },
+        updatedAt: now,
+        ...(existingStats.createdAt ? {} : { createdAt: now }),
+      },
+    });
+  } catch {
+    /* silently fail — personal stats are cosmetic */
+  }
 }
 
 export function JumperGame({
@@ -31,6 +83,8 @@ export function JumperGame({
   const engineRef = useRef<JumperEngine | null>(null);
   const imgRef = useRef<HTMLImageElement | null>(null);
   const leaderboardRef = useRef<{ did: string; score: number }[]>([]);
+  const ticketRef = useRef<RunTicket | null>(null);
+  const mountedRef = useRef(true);
   const onCloseRef = useRef(onClose);
   onCloseRef.current = onClose;
   const onScoreRef = useRef(onScore);
@@ -39,8 +93,82 @@ export function JumperGame({
   const [sfxMuted, setSfxMuted] = useState(
     () => localStorage.getItem('protoimsg:sfx-muted') === 'true',
   );
-  const [uiPhase, setUiPhase] = useState<'start' | 'playing' | 'dead'>('start');
+  const [uiPhase, setUiPhase] = useState<'loading' | 'start' | 'playing' | 'dead' | 'error'>(
+    'loading',
+  );
   const [deathInfo, setDeathInfo] = useState<JumperDeathInfo | null>(null);
+
+  // Acquire a run ticket. Practice runs pick a local seed (works offline);
+  // authed runs ask the server for a seed + single-use runId.
+  const acquireTicket = useCallback(async (): Promise<RunTicket> => {
+    if (practiceMode) return { seed: makeSeed() };
+    const res = await authFetch('/api/games/start', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ system: `jumper_${difficulty}` }),
+    });
+    if (!res.ok) throw new Error('failed to start run');
+    const data = (await res.json()) as { runId: string; seed: number };
+    return { seed: data.seed, runId: data.runId };
+  }, [practiceMode, difficulty]);
+
+  // Submit a finished authed run for server-side replay validation.
+  const submitRun = useCallback(
+    (run: JumperRun) => {
+      const runId = ticketRef.current?.runId;
+      if (!runId) return;
+      void authFetch('/api/games/score', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ runId, inputLog: run.inputLog satisfies JumperInputLog }),
+      }).catch(() => {});
+      if (agent && viewerDid) void writeJumperStats(agent, viewerDid, run.score, difficulty);
+    },
+    [agent, viewerDid, difficulty],
+  );
+
+  // Create the engine once per difficulty, after the first ticket is acquired.
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    let engine: JumperEngine | null = null;
+    let cancelled = false;
+    setUiPhase('loading');
+    setDeathInfo(null);
+    acquireTicket()
+      .then((ticket) => {
+        if (cancelled || !canvasRef.current) return;
+        ticketRef.current = ticket;
+        engine = new JumperEngine(canvasRef.current, {
+          difficulty,
+          practiceMode,
+          seed: ticket.seed,
+        });
+        engine.onDeath = (info) => {
+          setDeathInfo(info);
+          setUiPhase('dead');
+        };
+        engine.onScore = (score, diff) => onScoreRef.current?.(score, diff);
+        engine.onSubmitRun = submitRun;
+        engine.onClose = () => {
+          onCloseRef.current();
+        };
+        engine.updateAuth(agent ?? null, viewerDid ?? null);
+        engine.updateLeaderboard(leaderboardRef.current);
+        if (imgRef.current && sprite) engine.updateActor(sprite, imgRef.current);
+        engine.setSfxMuted(localStorage.getItem('protoimsg:sfx-muted') === 'true');
+        engineRef.current = engine;
+        setUiPhase('start');
+      })
+      .catch(() => {
+        if (!cancelled) setUiPhase('error');
+      });
+    return () => {
+      cancelled = true;
+      engine?.destroy();
+      engineRef.current = null;
+    };
+  }, [difficulty, practiceMode]); // sprite/auth pushed via refs + separate effects
 
   // Fetch leaderboard
   useEffect(() => {
@@ -106,35 +234,38 @@ export function JumperGame({
     engineRef.current?.updateAuth(agent ?? null, viewerDid ?? null);
   }, [agent, viewerDid]);
 
-  // Create / recreate engine when difficulty changes
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const engine = new JumperEngine(canvas, { difficulty, practiceMode });
-    engine.onDeath = (info) => {
-      setDeathInfo(info);
-      setUiPhase('dead');
-    };
-    engine.onScore = (score, diff) => onScoreRef.current?.(score, diff);
-    engine.onClose = () => {
-      onCloseRef.current();
-    };
-    engine.updateAuth(agent ?? null, viewerDid ?? null);
-    engine.updateLeaderboard(leaderboardRef.current);
-    if (imgRef.current && sprite) engine.updateActor(sprite, imgRef.current);
-    engineRef.current = engine;
-    setUiPhase('start');
-    setDeathInfo(null);
-    return () => {
-      engine.destroy();
-      engineRef.current = null;
-    };
-  }, [difficulty]); // practiceMode/agent/viewerDid/sprite accessed via refs or separate effects
-
   // Sync sfxMuted into engine
   useEffect(() => {
     engineRef.current?.setSfxMuted(sfxMuted);
   }, [sfxMuted]);
+
+  // Track mount state so async run-ticket callbacks don't touch a dead component.
+  useEffect(() => {
+    mountedRef.current = true;
+    return () => {
+      mountedRef.current = false;
+    };
+  }, []);
+
+  const handlePlay = () => {
+    engineRef.current?.startGame();
+    setUiPhase('playing');
+  };
+
+  const handleRetry = () => {
+    setUiPhase('loading');
+    setDeathInfo(null);
+    acquireTicket()
+      .then((ticket) => {
+        if (!mountedRef.current || !engineRef.current) return;
+        ticketRef.current = ticket;
+        engineRef.current.restart(ticket.seed);
+        setUiPhase('playing');
+      })
+      .catch(() => {
+        if (mountedRef.current) setUiPhase('error');
+      });
+  };
 
   return (
     <div className={styles.wrapper}>
@@ -164,18 +295,30 @@ export function JumperGame({
           className={styles.canvas}
           style={{ width: 352, height: 520 }}
         />
+        {uiPhase === 'loading' && (
+          <div className={styles.overlay}>
+            <span className={styles.overlaySub}>loading…</span>
+          </div>
+        )}
+        {uiPhase === 'error' && (
+          <div className={styles.overlay}>
+            <span className={styles.overlayGameName}>CONNECTION LOST</span>
+            <span className={styles.overlaySub}>couldn't reach the arcade</span>
+            <div className={styles.overlayCtas}>
+              <button className={styles.overlayBtnSecondary} type="button" onClick={onClose}>
+                Leave
+              </button>
+              <button className={styles.overlayBtn} type="button" onClick={handleRetry}>
+                Retry
+              </button>
+            </div>
+          </div>
+        )}
         {uiPhase === 'start' && (
           <div className={styles.overlay}>
             <span className={styles.overlayGameName}>{difficulty.toUpperCase()} JUMPER</span>
             <span className={styles.overlaySub}>← → / A D · tap left or right on mobile</span>
-            <button
-              className={styles.overlayBtn}
-              type="button"
-              onClick={() => {
-                engineRef.current?.startGame();
-                setUiPhase('playing');
-              }}
-            >
+            <button className={styles.overlayBtn} type="button" onClick={handlePlay}>
               PLAY
             </button>
           </div>
@@ -225,14 +368,7 @@ export function JumperGame({
               <button className={styles.overlayBtnSecondary} type="button" onClick={onClose}>
                 Leave
               </button>
-              <button
-                className={styles.overlayBtn}
-                type="button"
-                onClick={() => {
-                  engineRef.current?.restart();
-                  setUiPhase('playing');
-                }}
-              >
+              <button className={styles.overlayBtn} type="button" onClick={handleRetry}>
                 Try Again
               </button>
             </div>

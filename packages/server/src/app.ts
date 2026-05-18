@@ -32,6 +32,7 @@ import { checkHealth } from './health.js';
 import { audioProxyRouter } from './audio-proxy.js';
 import { gamesRouter } from './games/router.js';
 import type { GameService } from './games/service.js';
+import type { RunStore } from './games/run-store.js';
 
 export function createApp(
   config: Config,
@@ -55,6 +56,7 @@ export function createApp(
   notificationService?: NotificationService | null,
   groupCallService?: GroupCallService | null,
   gameService?: GameService,
+  runStore?: RunStore | null,
 ): Express {
   const app = express();
   // Trust one proxy hop (Fly.io) so req.ip reflects the real client IP
@@ -183,7 +185,12 @@ export function createApp(
   app.use('/api/audio-proxy', createRateLimitMiddleware(rateLimiter), audioProxyRouter());
 
   // Games — leaderboard (public) + score submission (auth required)
-  if (gameService) app.use('/api/games', gamesRouter(gameService, requireAuth));
+  if (gameService && runStore) {
+    app.use(
+      '/api/games',
+      gamesRouter(gameService, runStore, requireAuth, createRateLimitMiddleware(rateLimiter)),
+    );
+  }
 
   // GIF proxy (optional — mounted when either GIPHY_API_KEY or KLIPY_API_KEY is set)
   if ((giphyApiKey || klipyApiKey) && gifRateLimiter) {

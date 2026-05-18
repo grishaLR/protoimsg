@@ -28,6 +28,7 @@ import { createBotService } from './bot/service.js';
 import { createNotificationService } from './notifications/service.js';
 import { createGroupCallService, type GroupCallService } from './calls/service.js';
 import { createGameService } from './games/service.js';
+import { RunStore } from './games/run-store.js';
 
 async function main() {
   const config = loadConfig();
@@ -135,6 +136,9 @@ async function main() {
   if (gameService) log.info('Game service enabled');
   else log.warn('GAME_MASTER_IDENTIFIER/PASSWORD not set — leaderboards disabled');
 
+  // Game run store — issues seeds + single-use run tickets for score replay.
+  const runStore = new RunStore(redis);
+
   // Group call service (optional — requires all three LiveKit env vars)
   let groupCallService: GroupCallService | null = null;
   if (config.LIVEKIT_URL && config.LIVEKIT_API_KEY && config.LIVEKIT_API_SECRET) {
@@ -171,6 +175,7 @@ async function main() {
     notificationService,
     groupCallService,
     gameService,
+    runStore,
   );
   const httpServer = createServer(app);
 

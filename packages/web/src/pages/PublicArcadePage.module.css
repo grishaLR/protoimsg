@@ -87,8 +87,9 @@
 }
 
 .practiceBannerSub {
-  font-size: var(--cm-text-sm);
-  opacity: 0.8;
+  font-size: var(--cm-text-md);
+  font-weight: 600;
+  opacity: 0.95;
 }
 
 /* ── Sign-in modal ───────────────────────────────────────────────────────── */

@@ -29,7 +29,7 @@
 }
 
 .footnote {
-  font-size: var(--cm-text-sm);
+  font-size: var(--cm-text-md);
   color: var(--color-base-content);
   opacity: 0.8;
   text-align: center;

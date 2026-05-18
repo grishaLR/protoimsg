@@ -18,6 +18,7 @@
     "@atproto/oauth-client-browser": "^0.3.0",
     "@livekit/components-react": "^2.9.20",
     "@livekit/components-styles": "^1.2.0",
+    "@protoimsg/game-sim": "workspace:*",
     "@protoimsg/lexicon": "workspace:*",
     "@protoimsg/shared": "workspace:*",
     "@protoimsg/ui": "workspace:^",
