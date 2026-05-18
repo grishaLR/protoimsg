@@ -1,108 +1,114 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
-import { RPG_ACTOR_API_URL, GAME_MASTER_DID } from '../../lib/config';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { GAME_MASTER_DID, RPG_ACTOR_API_URL } from '../../lib/config';
+import { resolveDisplayNameForDid, resolvePdsForDid } from '../../lib/resolve-pds';
 import styles from './ActorChooser.module.css';
 
 const LS_KEY = 'protoimsg:practice:selectedActorDid';
+const FW = 48;
+const FH = 48;
+const COLS = 3;
+const MAX_RETRIES = 10;
 
-// Sprite sheet row → direction (this sheet: south=0, north=1, west=2, east=3)
-const DIR_FORWARD = 0; // south — facing viewer
-const DIR_BACK = 3; // north — facing away
-const DIR_LEFT = 1; // west
-const DIR_RIGHT = 2; // east
+const DIR_FORWARD = 0;
+const DIR_BACK = 3;
+const DIR_LEFT = 1;
+const DIR_RIGHT = 2;
 
-interface FullActor {
+interface Slot {
   did: string;
-  pds: string;
-  handle: string;
-  displayName?: string;
-  sprite?: {
-    frameWidth: number;
-    frameHeight: number;
-    columns: number;
-    url: string;
-  };
+  img: HTMLImageElement | null;
+  status: 'loading' | 'ready' | 'failed';
 }
+
+const FALLBACK_SLOT: Slot = { did: GAME_MASTER_DID, img: null, status: 'loading' };
 
 interface ActorChooserProps {
   locked: boolean;
   onSelect: (did: string, pds: string) => void;
 }
 
+function spriteNormalizedUrl(did: string): string {
+  return `${RPG_ACTOR_API_URL}/api/sprite/normalized?did=${encodeURIComponent(did)}`;
+}
+
+function fetchNormalizedSprite(did: string): Promise<HTMLImageElement> {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.crossOrigin = 'anonymous';
+    img.src = spriteNormalizedUrl(did);
+    img.onload = () => {
+      resolve(img);
+    };
+    img.onerror = () => {
+      reject(new Error(`failed to load sprite for ${did}`));
+    };
+  });
+}
+
+function parseDids(data: unknown): string[] {
+  if (Array.isArray(data)) {
+    return (data as unknown[])
+      .map((d) =>
+        typeof d === 'string'
+          ? d
+          : typeof d === 'object' && d !== null && 'did' in d
+            ? String((d as { did: unknown }).did)
+            : '',
+      )
+      .filter(Boolean);
+  }
+  if (typeof data === 'object' && data !== null && 'actors' in data) {
+    return parseDids((data as { actors: unknown }).actors);
+  }
+  return [];
+}
+
 // ── Animated preview ──────────────────────────────────────────────────────
 
-function SpritePreview({ actor }: { actor: FullActor | undefined }) {
+function SpritePreview({ img, name }: { img: HTMLImageElement | null; name: string | null }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const imgRef = useRef<HTMLImageElement | null>(null);
-  const [imgReady, setImgReady] = useState(false);
   const [direction, setDirection] = useState(DIR_FORWARD);
   const [walking, setWalking] = useState(true);
 
   useEffect(() => {
-    if (!actor?.sprite) return;
-    setImgReady(false);
-    const img = new Image();
-    img.crossOrigin = 'anonymous';
-    img.src = actor.sprite.url;
-    img.onload = () => {
-      imgRef.current = img;
-      setImgReady(true);
-    };
-  }, [actor?.sprite?.url]);
-
-  useEffect(() => {
     const canvas = canvasRef.current;
-    if (!canvas || !actor?.sprite) return;
-    const { frameWidth, frameHeight, columns } = actor.sprite;
-    const ctxOrNull = canvas.getContext('2d');
-    if (!ctxOrNull) return;
-    const ctx = ctxOrNull;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
 
-    function draw(frame: number) {
-      const img = imgRef.current;
-      if (!img || !canvas) return;
+    const draw = (frame: number) => {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
+      if (!img) return;
       ctx.imageSmoothingEnabled = false;
-      ctx.drawImage(
-        img,
-        frame * frameWidth,
-        direction * frameHeight,
-        frameWidth,
-        frameHeight,
-        0,
-        0,
-        canvas.width,
-        canvas.height,
-      );
-    }
+      ctx.drawImage(img, frame * FW, direction * FH, FW, FH, 0, 0, canvas.width, canvas.height);
+    };
 
-    if (!walking || !imgReady) {
-      if (imgReady) draw(0);
+    if (!walking || !img) {
+      draw(0);
       return;
     }
 
     let frame = 0;
     draw(frame);
     const id = setInterval(() => {
-      frame = (frame + 1) % columns;
+      frame = (frame + 1) % COLS;
       draw(frame);
     }, 140);
     return () => {
       clearInterval(id);
     };
-  }, [actor?.sprite, direction, walking, imgReady]);
+  }, [img, direction, walking]);
 
   function face(dir: number) {
     setDirection(dir);
     setWalking(true);
   }
 
-  const name = actor?.displayName?.trim() || actor?.handle.split('.').at(0) || '';
-
   return (
     <div className={styles.preview}>
       <div className={styles.previewChar}>
         <canvas ref={canvasRef} width={96} height={96} className={styles.previewCanvas} />
-        {name && <span className={styles.previewName}>{name}</span>}
+        <div className={styles.handle}>{name || ' '}</div>
       </div>
       <div className={styles.dpad}>
         <div className={styles.dpadRow}>
@@ -166,215 +172,279 @@ function SpritePreview({ actor }: { actor: FullActor | undefined }) {
   );
 }
 
-// ── Grid card ─────────────────────────────────────────────────────────────
+// ── Carousel slot canvas ──────────────────────────────────────────────────
 
-function SpriteCard({
-  actor,
-  selected,
-  onSelect,
-  dataDid,
-}: {
-  actor: FullActor;
-  selected: boolean;
-  onSelect: () => void;
-  dataDid?: string;
-}) {
+function SlotCanvas({ slot, size }: { slot: Slot; size: number }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
-    if (!actor.sprite) return;
-    const { url, frameWidth, frameHeight } = actor.sprite;
-    const img = new Image();
-    img.crossOrigin = 'anonymous';
-    img.src = url;
-    img.onload = () => {
-      const canvas = canvasRef.current;
-      if (!canvas) return;
-      const ctx = canvas.getContext('2d');
-      if (!ctx) return;
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      ctx.imageSmoothingEnabled = false;
-      ctx.drawImage(
-        img,
-        0,
-        DIR_FORWARD * frameHeight,
-        frameWidth,
-        frameHeight,
-        0,
-        0,
-        canvas.width,
-        canvas.height,
-      );
-    };
-  }, [actor.sprite]);
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+    ctx.clearRect(0, 0, size, size);
+    if (!slot.img) return;
+    ctx.imageSmoothingEnabled = false;
+    ctx.drawImage(slot.img, 0, DIR_FORWARD * FH, FW, FH, 0, 0, size, size);
+  }, [slot.img, size]);
 
-  const name = actor.displayName?.trim() || actor.handle.split('.')[0] || actor.handle;
-
-  return (
-    <button
-      className={`${styles.card} ${selected ? styles.selected : ''}`}
-      onClick={onSelect}
-      type="button"
-      title={actor.displayName || actor.handle}
-      data-did={dataDid}
-    >
-      <canvas ref={canvasRef} width={40} height={40} className={styles.cardCanvas} />
-      <span className={styles.cardName}>{name}</span>
-    </button>
-  );
+  return <canvas ref={canvasRef} width={size} height={size} className={styles.slotCanvas} />;
 }
 
 // ── Main component ────────────────────────────────────────────────────────
 
 export function ActorChooser({ locked, onSelect }: ActorChooserProps) {
-  const [actors, setActors] = useState<FullActor[]>([]);
-  const [selectedDid, setSelectedDid] = useState<string>(GAME_MASTER_DID);
-  const [loading, setLoading] = useState(true);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [showSuggestions, setShowSuggestions] = useState(false);
-  const gridRef = useRef<HTMLDivElement>(null);
-  const searchRef = useRef<HTMLInputElement>(null);
+  const onSelectRef = useRef(onSelect);
+  onSelectRef.current = onSelect;
 
-  const suggestions = useMemo(() => {
-    const q = searchQuery.trim().toLowerCase();
-    if (!q) return [];
-    return actors
-      .filter((a) => {
-        const name = (a.displayName?.trim() || a.handle).toLowerCase();
-        return name.includes(q) || a.handle.toLowerCase().includes(q);
-      })
-      .slice(0, 6);
-  }, [actors, searchQuery]);
+  const [slots, setSlots] = useState<Slot[]>(() =>
+    Array.from({ length: 5 }, () => ({
+      did: GAME_MASTER_DID,
+      img: null,
+      status: 'loading' as const,
+    })),
+  );
+  const [ready, setReady] = useState(false);
+  const [centerName, setCenterName] = useState<string | null>(null);
 
-  useEffect(() => {
-    fetch(`${RPG_ACTOR_API_URL}/api/actors/full`)
-      .then((r) => r.json())
-      .then((data: { actors: FullActor[] }) => {
-        const withSprite = data.actors.filter((a) => !!a.sprite && !!a.pds);
-        setActors(withSprite);
+  const poolRef = useRef<string[]>([]);
+  const rightIdxRef = useRef(5);
+  const leftIdxRef = useRef(-1);
+  const failedRef = useRef<Set<string>>(new Set());
+  const fallbackImgRef = useRef<HTMLImageElement | null>(null);
+  const slotsRef = useRef<Slot[]>(slots);
+  slotsRef.current = slots;
 
-        const saved = localStorage.getItem(LS_KEY);
-        const hasSaved = saved && withSprite.some((a) => a.did === saved);
-        const target = hasSaved ? saved : GAME_MASTER_DID;
-        const actor = withSprite.find((a) => a.did === target) ?? withSprite[0];
-        if (actor) {
-          setSelectedDid(actor.did);
-          onSelect(actor.did, actor.pds);
-        }
-      })
-      .catch(() => {})
-      .finally(() => {
-        setLoading(false);
-      });
+  const pickNext = useCallback((direction: 'left' | 'right'): string => {
+    const pool = poolRef.current;
+    if (!pool.length) return GAME_MASTER_DID;
+    const inUse = new Set(slotsRef.current.map((s) => s.did));
+    for (let tries = 0; tries < MAX_RETRIES; tries++) {
+      let did: string;
+      if (direction === 'right') {
+        did = pool[rightIdxRef.current % pool.length] ?? GAME_MASTER_DID;
+        rightIdxRef.current++;
+      } else {
+        const idx = ((leftIdxRef.current % pool.length) + pool.length) % pool.length;
+        leftIdxRef.current = idx - 1;
+        did = pool[idx] ?? GAME_MASTER_DID;
+      }
+      if (did && !failedRef.current.has(did) && !inUse.has(did)) return did;
+    }
+    return GAME_MASTER_DID;
   }, []);
 
-  function select(actor: FullActor) {
-    setSelectedDid(actor.did);
-    localStorage.setItem(LS_KEY, actor.did);
-    onSelect(actor.did, actor.pds);
+  const fetchSlot = useCallback(
+    async (
+      did: string,
+      slotIdx: number,
+      dir: 'left' | 'right' | 'init',
+      retries = 0,
+    ): Promise<void> => {
+      try {
+        const img = await fetchNormalizedSprite(did);
+        setSlots((prev) => {
+          if (prev[slotIdx]?.did !== did) return prev;
+          const next = [...prev];
+          next[slotIdx] = { did, img, status: 'ready' };
+          return next;
+        });
+      } catch {
+        failedRef.current.add(did);
+        const nextDir = dir === 'init' ? 'right' : dir;
+        if (retries >= MAX_RETRIES) {
+          const fallback = fallbackImgRef.current;
+          setSlots((prev) => {
+            if (prev[slotIdx]?.did !== did) return prev;
+            const next = [...prev];
+            next[slotIdx] = {
+              did: GAME_MASTER_DID,
+              img: fallback,
+              status: fallback ? 'ready' : 'failed',
+            };
+            return next;
+          });
+          return;
+        }
+        const nextDid = pickNext(nextDir);
+        setSlots((prev) => {
+          if (prev[slotIdx]?.did !== did) return prev;
+          const next = [...prev];
+          next[slotIdx] = { did: nextDid, img: null, status: 'loading' };
+          return next;
+        });
+        void fetchSlot(nextDid, slotIdx, nextDir, retries + 1);
+      }
+    },
+    [pickNext],
+  );
+
+  useEffect(() => {
+    async function init() {
+      const fallbackImg = await fetchNormalizedSprite(GAME_MASTER_DID).catch(() => null);
+      fallbackImgRef.current = fallbackImg;
+
+      let pool: string[] = [];
+      try {
+        const res = await fetch(`${RPG_ACTOR_API_URL}/api/actors`);
+        pool = parseDids((await res.json()) as unknown);
+      } catch {
+        /* use empty pool, will fill with GAME_MASTER_DID */
+      }
+
+      if (!pool.includes(GAME_MASTER_DID)) pool.unshift(GAME_MASTER_DID);
+
+      const saved = localStorage.getItem(LS_KEY);
+      const preferred = saved && pool.includes(saved) ? saved : GAME_MASTER_DID;
+
+      // Shuffle, place preferred at index 2
+      const rest = pool.filter((d) => d !== preferred);
+      for (let i = rest.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        const a = rest[i];
+        const b = rest[j];
+        if (a === undefined || b === undefined) continue;
+        rest[i] = b;
+        rest[j] = a;
+      }
+      const orderedPool = [...rest.slice(0, 2), preferred, ...rest.slice(2)];
+      poolRef.current = orderedPool;
+      rightIdxRef.current = 5;
+      leftIdxRef.current = orderedPool.length - 1;
+
+      const initDids = Array.from({ length: 5 }, (_, i) => orderedPool[i] ?? GAME_MASTER_DID);
+      setSlots(initDids.map((did) => ({ did, img: null, status: 'loading' as const })));
+      setReady(true);
+
+      await Promise.all(initDids.map((did, i) => fetchSlot(did, i, 'init')));
+    }
+    void init();
+  }, []); // fetchSlot is stable via useCallback with no changing deps
+
+  // slots always has 5 elements (initialized with 5, navigation maintains 5)
+  const centerSlot = slots[2] ?? FALLBACK_SLOT;
+  const centerDid = centerSlot.did;
+  const centerStatus = centerSlot.status;
+  const centerImg = centerSlot.img;
+
+  useEffect(() => {
+    if (!ready || centerStatus !== 'ready') return;
+    localStorage.setItem(LS_KEY, centerDid);
+    resolvePdsForDid(centerDid)
+      .then((pds) => {
+        onSelectRef.current(centerDid, pds ?? '');
+      })
+      .catch(() => {
+        onSelectRef.current(centerDid, '');
+      });
+  }, [centerDid, centerStatus, ready]);
+
+  useEffect(() => {
+    if (!ready || centerStatus !== 'ready') return;
+    let cancelled = false;
+    setCenterName(null);
+    resolveDisplayNameForDid(centerDid)
+      .then((name) => {
+        if (!cancelled) setCenterName(name);
+      })
+      .catch(() => {
+        if (!cancelled) setCenterName(null);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [centerDid, centerStatus, ready]);
+
+  function goRight() {
+    if (!ready) return;
+    const newDid = pickNext('right');
+    const newSlot: Slot = { did: newDid, img: null, status: 'loading' };
+    setSlots((prev) => [
+      prev[1] ?? FALLBACK_SLOT,
+      prev[2] ?? FALLBACK_SLOT,
+      prev[3] ?? FALLBACK_SLOT,
+      prev[4] ?? FALLBACK_SLOT,
+      newSlot,
+    ]);
+    void fetchSlot(newDid, 4, 'right');
   }
 
-  function selectAndFocus(actor: FullActor) {
-    select(actor);
-    setSearchQuery('');
-    setShowSuggestions(false);
-    // Scroll the card into view in the grid
-    setTimeout(() => {
-      const card = gridRef.current?.querySelector<HTMLElement>(`[data-did="${actor.did}"]`);
-      card?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-    }, 50);
+  function goLeft() {
+    if (!ready) return;
+    const newDid = pickNext('left');
+    const newSlot: Slot = { did: newDid, img: null, status: 'loading' };
+    setSlots((prev) => [
+      newSlot,
+      prev[0] ?? FALLBACK_SLOT,
+      prev[1] ?? FALLBACK_SLOT,
+      prev[2] ?? FALLBACK_SLOT,
+      prev[3] ?? FALLBACK_SLOT,
+    ]);
+    void fetchSlot(newDid, 0, 'left');
   }
-
-  const selectedActor = actors.find((a) => a.did === selectedDid);
 
   return (
     <div className={`${styles.wrap} ${locked ? styles.locked : ''}`}>
-      <div className={styles.title}>Choose Your Character*</div>
+      <div className={styles.title}>Choose Your Character</div>
       <div className={styles.divider} />
       <p className={styles.footnote}>
-        * Haven't made your character yet?{' '}
+        Haven't made your character yet? Head to{' '}
         <a
           href="https://rpg.actor/generator"
           target="_blank"
           rel="noopener noreferrer"
           className={styles.footnoteLink}
         >
-          Create your character at rpg.actor
+          rpg.actor/generator
         </a>{' '}
-        and you'll appear in this list.
+        to create one and you could appear here.
       </p>
-      <SpritePreview actor={selectedActor} />
-      <div className={styles.divider} />
-      {!loading && actors.length > 0 && (
-        <div className={styles.searchWrap}>
-          <input
-            ref={searchRef}
-            className={styles.searchInput}
-            type="text"
-            placeholder="search characters…"
-            value={searchQuery}
-            onChange={(e) => {
-              setSearchQuery(e.target.value);
-              setShowSuggestions(true);
-            }}
-            onFocus={() => {
-              setShowSuggestions(true);
-            }}
-            onBlur={() =>
-              setTimeout(() => {
-                setShowSuggestions(false);
-              }, 150)
-            }
-            onKeyDown={(e) => {
-              if (e.key === 'Escape') {
-                setSearchQuery('');
-                setShowSuggestions(false);
-              }
-              if (e.key === 'Enter' && suggestions[0]) selectAndFocus(suggestions[0]);
-            }}
-          />
-          {showSuggestions && suggestions.length > 0 && (
-            <ul className={styles.suggestions}>
-              {suggestions.map((a) => (
-                <li key={a.did}>
-                  <button
-                    className={`${styles.suggestionItem} ${a.did === selectedDid ? styles.suggestionSelected : ''}`}
-                    onMouseDown={() => {
-                      selectAndFocus(a);
-                    }}
-                    type="button"
-                  >
-                    {a.displayName?.trim() || a.handle}
-                    {a.displayName && (
-                      <span className={styles.suggestionHandle}>@{a.handle.split('.')[0]}</span>
-                    )}
-                  </button>
-                </li>
-              ))}
-            </ul>
-          )}
-        </div>
-      )}
 
-      {loading ? (
-        <div className={styles.loading}>loading…</div>
-      ) : actors.length === 0 ? (
-        <div className={styles.loading}>- - -</div>
-      ) : (
-        <div className={styles.grid} ref={gridRef}>
-          {actors.map((a) => (
-            <SpriteCard
-              key={a.did}
-              actor={a}
-              selected={a.did === selectedDid}
-              onSelect={() => {
-                select(a);
-              }}
-              dataDid={a.did}
-            />
-          ))}
+      <SpritePreview img={centerImg} name={centerName} />
+
+      <div className={styles.divider} />
+
+      <div className={styles.carousel}>
+        <button
+          className={styles.carouselArrow}
+          onClick={goLeft}
+          type="button"
+          aria-label="Previous character"
+          disabled={!ready}
+        >
+          ◀
+        </button>
+        <div className={styles.carouselTrack}>
+          <button
+            className={`${styles.slotBtn} ${styles.slotSide}`}
+            onClick={goLeft}
+            type="button"
+            aria-label="Select previous character"
+          >
+            <SlotCanvas slot={slots[1] ?? FALLBACK_SLOT} size={40} />
+          </button>
+          <div className={styles.slotCenter}>
+            <SlotCanvas slot={centerSlot} size={52} />
+          </div>
+          <button
+            className={`${styles.slotBtn} ${styles.slotSide}`}
+            onClick={goRight}
+            type="button"
+            aria-label="Select next character"
+          >
+            <SlotCanvas slot={slots[3] ?? FALLBACK_SLOT} size={40} />
+          </button>
         </div>
-      )}
+        <button
+          className={styles.carouselArrow}
+          onClick={goRight}
+          type="button"
+          aria-label="Next character"
+          disabled={!ready}
+        >
+          ▶
+        </button>
+      </div>
     </div>
   );
 }
