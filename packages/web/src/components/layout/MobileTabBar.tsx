@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import { Video } from 'lucide-react';
-import { CHAT_ROOMS_ENABLED } from '../../lib/config';
+import { CHAT_ROOMS_ENABLED, GAMES_ENABLED } from '../../lib/config';
 import styles from './MobileTabBar.module.css';
 
 export type MobileTab = 'meet' | 'buddies' | 'rooms' | 'fun';
@@ -51,6 +51,7 @@ export function MobileTabBar({ activeTab, onTabChange }: MobileTabBarProps) {
     () =>
       ALL_TABS.filter((tab) => {
         if (tab.id === 'rooms' && !CHAT_ROOMS_ENABLED) return false;
+        if (tab.id === 'fun' && !GAMES_ENABLED) return false;
         return true;
       }),
     [],

@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect, useMemo } from 'react';
+import { useState, useCallback, useEffect, useMemo, lazy, Suspense } from 'react';
 import { Header } from '../components/layout/Header';
 import { MobileTabBar } from '../components/layout/MobileTabBar';
 import type { MobileTab } from '../components/layout/MobileTabBar';
@@ -13,11 +13,20 @@ import { useVideoCall, setInnerCircleDidsForCalls } from '../contexts/VideoCallC
 import { useGroupCall } from '../contexts/GroupCallContext';
 import { useBlocks } from '../contexts/BlockContext';
 import { MeetLanding } from './MeetPage';
-import { GamesPanel } from '../components/games/GamesPanel';
-import { IS_TAURI } from '../lib/config';
+import { GAMES_ENABLED, IS_TAURI, TOWN_ENABLED } from '../lib/config';
+
+// Lazy — the town pulls in pixi.js (~hundreds of KB); non-town users skip it.
+const ProtoTownPanel = lazy(() =>
+  import('../components/prototown/ProtoTownPanel').then((m) => ({ default: m.ProtoTownPanel })),
+);
+
+// Lazy — keeps the games chunk out of the main HomePage bundle.
+const GamesPanel = lazy(() =>
+  import('../components/games/GamesPanel').then((m) => ({ default: m.GamesPanel })),
+);
 import styles from './HomePage.module.css';
 
-type View = 'meet' | 'buddies' | 'settings' | 'games';
+type View = 'meet' | 'buddies' | 'settings' | 'games' | 'town';
 
 export function HomePage() {
   const {
@@ -75,7 +84,7 @@ export function HomePage() {
   const [view, setView] = useState<View>(() => {
     if (sessionStorage.getItem('protoimsg:pending_games') === '1') {
       sessionStorage.removeItem('protoimsg:pending_games');
-      return 'games';
+      if (GAMES_ENABLED) return 'games';
     }
     return window.matchMedia('(max-width: 767px)').matches ? 'buddies' : 'meet';
   });
@@ -105,6 +114,7 @@ export function HomePage() {
   }, [buddies, activeCall, activeGroupCall]);
 
   const handleTabChange = useCallback((tab: MobileTab) => {
+    if (tab === 'fun' && !GAMES_ENABLED) return;
     if (IS_TAURI && tab === 'fun') {
       void import('../lib/tauri-windows').then(({ openGamesWindow }) => {
         void openGamesWindow();
@@ -127,6 +137,7 @@ export function HomePage() {
   }, []);
 
   const handleOpenGames = useCallback(() => {
+    if (!GAMES_ENABLED) return;
     if (IS_TAURI) {
       void import('../lib/tauri-windows').then(({ openGamesWindow }) => {
         void openGamesWindow();
@@ -134,6 +145,11 @@ export function HomePage() {
       return;
     }
     setView('games');
+  }, []);
+
+  const handleOpenTown = useCallback(() => {
+    if (!TOWN_ENABLED) return;
+    setView('town');
   }, []);
 
   if (view === 'settings') {
@@ -188,13 +204,14 @@ export function HomePage() {
       onMoveBuddy={moveBuddy}
       onBuddyClick={handleBuddyClick}
       onOpenMeet={
-        view === 'games'
+        view !== 'meet'
           ? () => {
               setView('meet');
             }
           : undefined
       }
-      onOpenGames={view !== 'games' ? handleOpenGames : undefined}
+      onOpenGames={GAMES_ENABLED && view !== 'games' ? handleOpenGames : undefined}
+      onOpenTown={TOWN_ENABLED && view !== 'town' ? handleOpenTown : undefined}
     />
   );
 
@@ -212,7 +229,15 @@ export function HomePage() {
             <div className={styles.main}>{profilePanel ?? buddyPanel}</div>
           ) : view === 'games' ? (
             <div className={styles.main}>
-              <GamesPanel />
+              <Suspense fallback={null}>
+                <GamesPanel />
+              </Suspense>
+            </div>
+          ) : view === 'town' ? (
+            <div className={styles.main}>
+              <Suspense fallback={null}>
+                <ProtoTownPanel />
+              </Suspense>
             </div>
           ) : (
             <div className={styles.main}>
@@ -234,7 +259,18 @@ export function HomePage() {
       <Header onOpenSettings={handleOpenSettings} />
       <div className={styles.body}>
         <div className={styles.main}>
-          {profilePanel ?? (view === 'games' ? <GamesPanel /> : <MeetLanding />)}
+          {profilePanel ??
+            (view === 'games' ? (
+              <Suspense fallback={null}>
+                <GamesPanel />
+              </Suspense>
+            ) : view === 'town' ? (
+              <Suspense fallback={null}>
+                <ProtoTownPanel />
+              </Suspense>
+            ) : (
+              <MeetLanding />
+            ))}
         </div>
         <aside className={styles.sidebar}>{buddyPanel}</aside>
       </div>

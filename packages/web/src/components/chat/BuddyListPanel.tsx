@@ -15,7 +15,7 @@ import { ReportUserModal } from '../feedback/ReportUserModal';
 import type { FollowGraphEntry } from '../../hooks/useFollowGraph';
 import type { DoorEvent } from '../../hooks/useBuddyList';
 import type { MemberWithPresence, CommunityListRow } from '../../types';
-import { Video } from 'lucide-react';
+import { Video, Map as MapIcon } from 'lucide-react';
 import styles from './BuddyListPanel.module.css';
 
 // game-icons.net/1x1/skoll/chess-knight — CC BY 3.0, skoll
@@ -44,6 +44,7 @@ interface BuddyListPanelProps {
   onMoveBuddy: (did: string, fromGroup: string, toGroup: string) => Promise<void>;
   onOpenMeet?: () => void;
   onOpenGames?: () => void;
+  onOpenTown?: () => void;
   /** When true, force footer visible even at narrow widths (Tauri main window). */
   tauriMode?: boolean;
   followers?: FollowGraphEntry[];
@@ -87,6 +88,7 @@ export function BuddyListPanel({
   onMoveBuddy,
   onOpenMeet,
   onOpenGames,
+  onOpenTown,
   tauriMode,
   error,
   followers = [],
@@ -734,12 +736,18 @@ export function BuddyListPanel({
 
       {/* Create group UI — hidden until feature is ready */}
 
-      {(onOpenMeet ?? onOpenGames) && (
+      {(onOpenMeet ?? onOpenGames ?? onOpenTown) && (
         <div className={`${styles.footer}${tauriMode ? ` ${styles.tauriFooter}` : ''}`}>
           {onOpenMeet && (
             <button className={styles.footerBtn} onClick={onOpenMeet}>
               <Video size={13} />
               {t('buddyList.footer.meet', 'Video Chat')}
+            </button>
+          )}
+          {onOpenTown && (
+            <button className={styles.footerBtn} onClick={onOpenTown}>
+              <MapIcon size={13} />
+              {t('buddyList.footer.town', 'Town')}
             </button>
           )}
           {onOpenGames && (

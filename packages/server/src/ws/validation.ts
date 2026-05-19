@@ -143,6 +143,30 @@ const groupCallLeave = z.object({
   callId: z.string().min(1),
 });
 
+const coord = z.number().finite().min(-1000).max(10_000);
+const facing = z.number().int().min(0).max(3);
+
+const townJoin = z.object({
+  type: z.literal('town_join'),
+  x: coord,
+  y: coord,
+  dir: facing,
+});
+
+const townMove = z.object({
+  type: z.literal('town_move'),
+  x: coord,
+  y: coord,
+  dir: facing,
+});
+
+const townChat = z.object({
+  type: z.literal('town_chat'),
+  text: z.string().trim().min(1).max(280),
+});
+
+const townLeave = z.object({ type: z.literal('town_leave') });
+
 const clientMessage = z.discriminatedUnion('type', [
   statusChange,
   ping,
@@ -167,6 +191,10 @@ const clientMessage = z.discriminatedUnion('type', [
   groupCallJoin,
   groupCallJoinByCode,
   groupCallLeave,
+  townJoin,
+  townMove,
+  townChat,
+  townLeave,
 ]);
 
 export type ValidatedClientMessage = z.infer<typeof clientMessage>;

@@ -10,7 +10,7 @@ import { LoginPage } from './pages/LoginPage';
 import { ConnectingScreen } from './components/auth/ConnectingScreen';
 import { AppErrorBoundary } from './components/AppErrorBoundary';
 import { AppLoader } from './components/AppLoader';
-import { SIGNUP_ENABLED } from './lib/config';
+import { PUBLIC_ARCADE_ENABLED, SIGNUP_ENABLED } from './lib/config';
 import styles from './App.module.css';
 
 // Set by login() before redirect, cleared by init() after processing.
@@ -180,9 +180,13 @@ function AppRoutes() {
       <Route
         path="/games"
         element={
-          <Suspense fallback={null}>
-            <PublicArcadePage />
-          </Suspense>
+          PUBLIC_ARCADE_ENABLED ? (
+            <Suspense fallback={null}>
+              <PublicArcadePage />
+            </Suspense>
+          ) : (
+            <Navigate to="/" replace />
+          )
         }
       />
       <Route

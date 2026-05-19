@@ -15,6 +15,7 @@ import type { LabelerService } from '../moderation/labeler-service.js';
 import type { BotService } from '../bot/service.js';
 import type { NotificationService } from '../notifications/service.js';
 import type { GroupCallService } from '../calls/service.js';
+import type { TownRoom } from './town.js';
 import { createLogger } from '../logger.js';
 import { incDmsSent } from '../stats/queries.js';
 import {
@@ -60,23 +61,29 @@ export async function handleClientMessage(
   labelerService: LabelerService,
   callSubs: DmSubscriptions,
   botService: BotService | null,
+  townRoom: TownRoom,
   notificationService?: NotificationService | null,
   groupCallService?: GroupCallService | null,
 ): Promise<void> {
-  // Rate limit: per-socket for tab fairness, per-DID to cap total throughput
-  const socketId = (ws as WebSocket & { socketId?: string }).socketId ?? did;
-  if (
-    !(await rateLimiter.check(`ws:socket:${socketId}`)) ||
-    !(await rateLimiter.check(`ws:did:${did}`))
-  ) {
-    ws.send(
-      JSON.stringify({
-        type: 'error',
-        message: 'Rate limited',
-        errorCode: ERROR_CODES.RATE_LIMITED,
-      }),
-    );
-    return;
+  // Rate limit: per-socket for tab fairness, per-DID to cap total throughput.
+  // town_move is exempt from this generic limiter — it is high-frequency by
+  // design — but TownRoom.move applies its own per-socket token bucket so the
+  // exemption can't be weaponised.
+  if (data.type !== 'town_move') {
+    const socketId = (ws as WebSocket & { socketId?: string }).socketId ?? did;
+    if (
+      !(await rateLimiter.check(`ws:socket:${socketId}`)) ||
+      !(await rateLimiter.check(`ws:did:${did}`))
+    ) {
+      ws.send(
+        JSON.stringify({
+          type: 'error',
+          message: 'Rate limited',
+          errorCode: ERROR_CODES.RATE_LIMITED,
+        }),
+      );
+      return;
+    }
   }
 
   switch (data.type) {
@@ -781,6 +788,26 @@ export async function handleClientMessage(
       } catch (err) {
         log.error({ err, callId: data.callId }, 'group_call_leave failed');
       }
+      break;
+    }
+
+    case 'town_join': {
+      townRoom.join(ws, did, data.x, data.y, data.dir);
+      break;
+    }
+
+    case 'town_move': {
+      townRoom.move(ws, data.x, data.y, data.dir);
+      break;
+    }
+
+    case 'town_chat': {
+      townRoom.chat(ws, data.text);
+      break;
+    }
+
+    case 'town_leave': {
+      townRoom.leave(ws);
       break;
     }
   }

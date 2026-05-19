@@ -124,5 +124,19 @@
     "messageTooLong": "Tá an teachtaireacht rófhada",
     "contentFiltered": "Chuir scagaire inneachair bac ar an teachtaireacht",
     "alreadyExists": "Ann cheana féin"
+  },
+  "buddyList": {
+    "footer": {
+      "town": "Town"
+    }
+  },
+  "town": {
+    "hud": {
+      "controls": "WASD / arrows to move"
+    },
+    "chat": {
+      "placeholder": "Say something to the town…",
+      "send": "Send"
+    }
   }
 }

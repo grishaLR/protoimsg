@@ -14,6 +14,15 @@ export const BOT_ENABLED: boolean = import.meta.env.VITE_BOT_ENABLED === 'true';
 /** Feature flag: set VITE_RUNNER_ENABLED=true to show the Runner game (WIP). */
 export const RUNNER_ENABLED: boolean = import.meta.env.VITE_RUNNER_ENABLED === 'true';
 
+/** Feature flag: set VITE_GAMES_ENABLED=true to show the Fun (games) button + view. */
+export const GAMES_ENABLED: boolean = import.meta.env.VITE_GAMES_ENABLED === 'true';
+
+/** Feature flag: set VITE_TOWN_ENABLED=true to show the Town button + view. */
+export const TOWN_ENABLED: boolean = import.meta.env.VITE_TOWN_ENABLED === 'true';
+
+/** Feature flag: set VITE_PUBLIC_ARCADE_ENABLED=true to enable the public /games route. */
+export const PUBLIC_ARCADE_ENABLED: boolean = import.meta.env.VITE_PUBLIC_ARCADE_ENABLED === 'true';
+
 /** Feature flag: set VITE_FEED_ENABLED=true to show the Feed tab. Hidden by default. */
 export const FEED_ENABLED: boolean = import.meta.env.VITE_FEED_ENABLED === 'true';
 

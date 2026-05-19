@@ -159,6 +159,31 @@ export interface GroupCallLeaveMessage extends WsMessageBase {
   callId: string;
 }
 
+// Town (spatial world) Client → Server messages
+
+export interface TownJoinMessage extends WsMessageBase {
+  type: 'town_join';
+  x: number;
+  y: number;
+  dir: number;
+}
+
+export interface TownMoveMessage extends WsMessageBase {
+  type: 'town_move';
+  x: number;
+  y: number;
+  dir: number;
+}
+
+export interface TownChatMessage extends WsMessageBase {
+  type: 'town_chat';
+  text: string;
+}
+
+export interface TownLeaveMessage extends WsMessageBase {
+  type: 'town_leave';
+}
+
 export type ClientMessage =
   | AuthMessage
   | StatusChangeMessage
@@ -183,7 +208,11 @@ export type ClientMessage =
   | GroupCallCreateStandaloneMessage
   | GroupCallJoinMessage
   | GroupCallJoinByCodeMessage
-  | GroupCallLeaveMessage;
+  | GroupCallLeaveMessage
+  | TownJoinMessage
+  | TownMoveMessage
+  | TownChatMessage
+  | TownLeaveMessage;
 
 // Server → Client messages
 
@@ -341,6 +370,40 @@ export interface GroupCallErrorEvent extends WsMessageBase {
   };
 }
 
+// Town (spatial world) Server → Client events
+
+export interface TownPeer {
+  did: string;
+  x: number;
+  y: number;
+  dir: number;
+}
+
+export interface TownStateEvent extends WsMessageBase {
+  type: 'town_state';
+  data: { peers: TownPeer[] };
+}
+
+export interface TownPeerJoinEvent extends WsMessageBase {
+  type: 'town_peer_join';
+  data: TownPeer;
+}
+
+export interface TownPeerMoveEvent extends WsMessageBase {
+  type: 'town_peer_move';
+  data: TownPeer;
+}
+
+export interface TownPeerLeaveEvent extends WsMessageBase {
+  type: 'town_peer_leave';
+  data: { did: string };
+}
+
+export interface TownChatEvent extends WsMessageBase {
+  type: 'town_chat';
+  data: { did: string; text: string };
+}
+
 export type ServerMessage =
   | AuthSuccessEvent
   | PresenceUpdateEvent
@@ -360,4 +423,9 @@ export type ServerMessage =
   | NewIceCandidateEvent
   | BotDmResponseEvent
   | GroupCallTokenEvent
-  | GroupCallErrorEvent;
+  | GroupCallErrorEvent
+  | TownStateEvent
+  | TownPeerJoinEvent
+  | TownPeerMoveEvent
+  | TownPeerLeaveEvent
+  | TownChatEvent;
