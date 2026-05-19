@@ -23,12 +23,17 @@ sessionStorage.removeItem('protoimsg:chunk_reload');
 // Auto-reload on stale chunks after a deploy (old hashed filenames → 404).
 // Prevents "Failed to fetch dynamically imported module" / "Unable to preload CSS" errors.
 function reloadOnChunkError<T>(p: Promise<T>): Promise<T> {
-  return p.catch((err: unknown): never => {
+  return p.catch((err: unknown): Promise<T> => {
     const key = 'protoimsg:chunk_reload';
     if (!sessionStorage.getItem(key)) {
       sessionStorage.setItem(key, '1');
       window.location.reload();
+      // Reload is imminent — return a never-settling promise so the Suspense
+      // fallback stays up. Re-throwing here would flash the ErrorBoundary and
+      // report a Sentry event for what is just a stale-deploy artifact.
+      return new Promise<T>(() => {});
     }
+    // Already reloaded once and it still failed — a genuine error. Surface it.
     throw err;
   });
 }

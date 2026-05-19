@@ -1,9 +1,14 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { lazy, Suspense, useCallback, useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { API_URL, RUNNER_ENABLED } from '../lib/config';
-import { RunnerGame } from '../components/games/RunnerGame';
 import { JumperGame } from '../components/games/JumperGame';
+
+// Lazy: Runner is WIP behind RUNNER_ENABLED. With the flag off its chunk is
+// never fetched, so users can't hit stale-deploy preload errors for it.
+const RunnerGame = lazy(() =>
+  import('../components/games/RunnerGame').then((m) => ({ default: m.RunnerGame })),
+);
 import { ActorChooser } from '../components/games/ActorChooser';
 import { ArcadeSignIn } from '../components/games/ArcadeSignIn';
 import {
@@ -238,14 +243,16 @@ export function PublicArcadePage() {
         {/* Center: game or selection */}
         <div className={`${styles.center} ${mobilePage !== 1 ? styles.mobileHidden : ''}`}>
           {activeGame === 'runner' ? (
-            <RunnerGame
-              did={runDid}
-              pds={runPds}
-              difficulty={difficulty}
-              practiceMode
-              onClose={reset}
-              onScore={handleScore}
-            />
+            <Suspense fallback={<div className={styles.center}>loading…</div>}>
+              <RunnerGame
+                did={runDid}
+                pds={runPds}
+                difficulty={difficulty}
+                practiceMode
+                onClose={reset}
+                onScore={handleScore}
+              />
+            </Suspense>
           ) : activeGame === 'jumper' ? (
             <JumperGame
               did={runDid}

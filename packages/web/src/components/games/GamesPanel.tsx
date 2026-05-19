@@ -1,10 +1,14 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { lazy, Suspense, useCallback, useEffect, useRef, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useAuth } from '../../hooks/useAuth';
 import { resolvePdsForDid } from '../../lib/resolve-pds';
 import { API_URL, RUNNER_ENABLED } from '../../lib/config';
-import { RunnerGame } from './RunnerGame';
 import { JumperGame } from './JumperGame';
+
+// Lazy: Runner is WIP behind RUNNER_ENABLED. With the flag off its chunk is
+// never fetched, so users can't hit stale-deploy preload errors for a game
+// they can't reach.
+const RunnerGame = lazy(() => import('./RunnerGame').then((m) => ({ default: m.RunnerGame })));
 import {
   LeaderboardCol,
   StatsCol,
@@ -195,13 +199,15 @@ export function GamesPanel() {
         {mobileNav}
         <div className={styles.gameCol}>
           <div className={`${styles.gameWrap} ${mobilePage !== 0 ? styles.mobileHidden : ''}`}>
-            <RunnerGame
-              did={did}
-              pds={pds}
-              difficulty={difficulty}
-              onClose={reset}
-              onScore={handleScore}
-            />
+            <Suspense fallback={<div className={styles.loading}>loading…</div>}>
+              <RunnerGame
+                did={did}
+                pds={pds}
+                difficulty={difficulty}
+                onClose={reset}
+                onScore={handleScore}
+              />
+            </Suspense>
           </div>
           <div className={`${styles.lbBelow} ${mobilePage !== 1 ? styles.mobileHidden : ''}`}>
             <span className={styles.lbHeading}>leaderboards</span>
