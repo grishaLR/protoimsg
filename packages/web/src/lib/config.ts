@@ -11,8 +11,8 @@ export const SIGNUP_ENABLED: boolean = import.meta.env.VITE_SIGNUP_ENABLED !== '
 /** Feature flag: set VITE_BOT_ENABLED=true to enable ProtoBuddy bot. */
 export const BOT_ENABLED: boolean = import.meta.env.VITE_BOT_ENABLED === 'true';
 
-/** Feature flag: set VITE_RUNNER_ENABLED=true to show the Runner game (WIP). */
-export const RUNNER_ENABLED: boolean = import.meta.env.VITE_RUNNER_ENABLED === 'true';
+/** Feature flag: set VITE_RUNNER_ENABLED=true to show the Hurdles game (WIP). */
+export const HURDLES_ENABLED: boolean = import.meta.env.VITE_RUNNER_ENABLED === 'true';
 
 /** Feature flag: set VITE_GAMES_ENABLED=true to show the Fun (games) button + view. */
 export const GAMES_ENABLED: boolean = import.meta.env.VITE_GAMES_ENABLED === 'true';

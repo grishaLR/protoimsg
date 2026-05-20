@@ -65,6 +65,8 @@ export default tseslint.config(
       '**/vitest.config.ts',
       '**/.storybook/**',
       '**/*.stories.tsx',
+      'scripts/**',
+      'packages/*/scripts/**',
     ],
   },
 );

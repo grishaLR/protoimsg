@@ -4,10 +4,10 @@ import { useAuth } from '../../hooks/useAuth';
 import { useActorSprite } from '../../hooks/useActorSprite';
 import { blobUrl } from '../../lib/record-blobs';
 import { API_URL } from '../../lib/config';
-import { RunnerEngine, type RunnerDeathInfo } from './RunnerEngine';
-import styles from './RunnerGame.module.css';
+import { HurdlesEngine, type HurdlesDeathInfo } from './HurdlesEngine';
+import styles from './HurdlesGame.module.css';
 
-interface RunnerGameProps {
+interface HurdlesGameProps {
   onClose: () => void;
   onScore?: (score: number, difficulty: Difficulty) => void;
   did?: string;
@@ -16,19 +16,19 @@ interface RunnerGameProps {
   practiceMode?: boolean;
 }
 
-export function RunnerGame({
+export function HurdlesGame({
   onClose,
   onScore,
   did,
   pds,
   difficulty,
   practiceMode,
-}: RunnerGameProps) {
+}: HurdlesGameProps) {
   const { data: sprite } = useActorSprite(did, pds);
   const { agent, did: viewerDid } = useAuth();
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const canvasContainerRef = useRef<HTMLDivElement>(null);
-  const engineRef = useRef<RunnerEngine | null>(null);
+  const engineRef = useRef<HurdlesEngine | null>(null);
   const imgRef = useRef<HTMLImageElement | null>(null);
   const leaderboardRef = useRef<{ did: string; score: number }[]>([]);
   const onCloseRef = useRef(onClose);
@@ -37,7 +37,7 @@ export function RunnerGame({
   onScoreRef.current = onScore;
 
   const [uiPhase, setUiPhase] = useState<'start' | 'playing' | 'dead'>('start');
-  const [deathInfo, setDeathInfo] = useState<RunnerDeathInfo | null>(null);
+  const [deathInfo, setDeathInfo] = useState<HurdlesDeathInfo | null>(null);
 
   // Scale canvas to fit container on narrow screens
   useEffect(() => {
@@ -60,8 +60,8 @@ export function RunnerGame({
 
   // Fetch leaderboard
   useEffect(() => {
-    const system = `runner_${difficulty}`;
-    const otherSystem = difficulty === 'faster' ? null : 'runner_faster';
+    const system = `hurdles_${difficulty}`;
+    const otherSystem = difficulty === 'faster' ? null : 'hurdles_faster';
     Promise.allSettled([
       fetch(`${API_URL}/api/games/leaderboard/${system}`).then(
         (r) => r.json() as Promise<{ entries: { did: string; score: number }[] }>,
@@ -105,7 +105,7 @@ export function RunnerGame({
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
-    const engine = new RunnerEngine(canvas, { difficulty, practiceMode });
+    const engine = new HurdlesEngine(canvas, { difficulty, practiceMode });
     engine.onDeath = (info) => {
       setDeathInfo(info);
       setUiPhase('dead');
@@ -129,7 +129,7 @@ export function RunnerGame({
   return (
     <div className={styles.wrapper}>
       <div className={styles.header}>
-        <span className={styles.title}>{difficulty} runner</span>
+        <span className={styles.title}>{difficulty} hurdles</span>
         <div className={styles.headerActions}>
           <button className={styles.close} onClick={onClose} aria-label="Close game" type="button">
             ✕
@@ -140,7 +140,7 @@ export function RunnerGame({
         <canvas ref={canvasRef} width={680} height={240} className={styles.canvas} />
         {uiPhase === 'start' && (
           <div className={styles.overlay}>
-            <span className={styles.overlayGameName}>{difficulty.toUpperCase()} RUNNER</span>
+            <span className={styles.overlayGameName}>{difficulty.toUpperCase()} HURDLES</span>
             <span className={styles.overlaySub}>
               ↑ / SPACE or click to jump · double jump · dodge the cacti
             </span>

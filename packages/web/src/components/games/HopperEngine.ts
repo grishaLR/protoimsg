@@ -1,15 +1,15 @@
 import {
-  JumperSim,
+  HopperSim,
   PLAYER_H,
-  type JumperDifficulty,
-  type JumperInputLog,
+  type HopperDifficulty,
+  type HopperInputLog,
   type Plat,
   type Alien,
   type BlackHole,
 } from '@protoimsg/game-sim';
 import type { Agent } from '@atproto/api';
 
-export type { JumperDifficulty };
+export type { HopperDifficulty };
 
 const CW = 352;
 const CH = 520;
@@ -27,7 +27,7 @@ export interface SpriteRecord {
   spriteSheet: { ref: { $link: string } };
 }
 
-export interface JumperDeathInfo {
+export interface HopperDeathInfo {
   score: number;
   hi: number;
   rank: number | null;
@@ -36,40 +36,40 @@ export interface JumperDeathInfo {
 }
 
 /** A finished run, handed to the host for persistence / server submission. */
-export interface JumperRun {
+export interface HopperRun {
   score: number;
   ticks: number;
-  inputLog: JumperInputLog;
+  inputLog: HopperInputLog;
 }
 
 type Phase = 'start' | 'playing' | 'suck' | 'deadDelay' | 'dead';
 
 /**
- * Renderer + audio + input layer wrapped around the deterministic JumperSim.
+ * Renderer + audio + input layer wrapped around the deterministic HopperSim.
  *
- * All gameplay logic lives in JumperSim; this class only draws sim state,
+ * All gameplay logic lives in HopperSim; this class only draws sim state,
  * plays sound, records the input log, and orchestrates the death animation.
  * The score is whatever the sim computed — never reported by this layer.
  */
-export class JumperEngine {
+export class HopperEngine {
   // Updated by the React wrapper between frames.
   agent: Agent | null = null;
   viewerDid: string | null = null;
   leaderboard: { did: string; score: number }[] = [];
 
-  onDeath?: (info: JumperDeathInfo) => void;
-  onScore?: (score: number, difficulty: JumperDifficulty) => void;
+  onDeath?: (info: HopperDeathInfo) => void;
+  onScore?: (score: number, difficulty: HopperDifficulty) => void;
   /** Fired once per run when NOT in practice mode — host submits to server. */
-  onSubmitRun?: (run: JumperRun) => void;
+  onSubmitRun?: (run: HopperRun) => void;
   onClose?: () => void;
 
   private canvas: HTMLCanvasElement;
   private ctx: CanvasRenderingContext2D;
-  private difficulty: JumperDifficulty;
+  private difficulty: HopperDifficulty;
   private practiceMode: boolean;
 
-  private sim: JumperSim;
-  private inputLog: JumperInputLog = [];
+  private sim: HopperSim;
+  private inputLog: HopperInputLog = [];
   private prevInput = { left: false, right: false };
 
   private phase: Phase = 'start';
@@ -122,7 +122,7 @@ export class JumperEngine {
 
   constructor(
     canvas: HTMLCanvasElement,
-    config: { difficulty: JumperDifficulty; practiceMode?: boolean; seed: number },
+    config: { difficulty: HopperDifficulty; practiceMode?: boolean; seed: number },
   ) {
     this.canvas = canvas;
     const ctx = canvas.getContext('2d');
@@ -130,7 +130,7 @@ export class JumperEngine {
     this.ctx = ctx;
     this.difficulty = config.difficulty;
     this.practiceMode = config.practiceMode ?? false;
-    this.sim = new JumperSim(config.seed, config.difficulty);
+    this.sim = new HopperSim(config.seed, config.difficulty);
 
     this.stars = Array.from({ length: 60 }, () => ({
       x: Math.random() * CW,
@@ -194,7 +194,7 @@ export class JumperEngine {
       this.agent.com.atproto.repo
         .getRecord({ repo: this.viewerDid, collection: 'actor.rpg.stats', rkey: 'self' })
         .then((res) => {
-          const gd = (res.data.value as Record<string, unknown> | undefined)?.jumper as
+          const gd = (res.data.value as Record<string, unknown> | undefined)?.hopper as
             | Record<string, unknown>
             | undefined;
           const dd = gd?.[this.difficulty] as { best?: number } | undefined;
@@ -204,7 +204,7 @@ export class JumperEngine {
         .catch(() => {});
     } else {
       const v = parseInt(
-        localStorage.getItem(`protoimsg:practice:jumper_${this.difficulty}:best`) ?? '0',
+        localStorage.getItem(`protoimsg:practice:hopper_${this.difficulty}:best`) ?? '0',
         10,
       );
       this.hi = v;
@@ -262,7 +262,7 @@ export class JumperEngine {
 
   /** Begin a fresh run with a new seed. Host supplies the seed. */
   restart(seed: number): void {
-    this.sim = new JumperSim(seed, this.difficulty);
+    this.sim = new HopperSim(seed, this.difficulty);
     this.inputLog = [];
     this.prevInput = { left: false, right: false };
     this.deathReported = false;
@@ -446,7 +446,7 @@ export class JumperEngine {
     this.onScore?.(st.score, this.difficulty);
     if (this.practiceMode) {
       if (isNewBest) {
-        localStorage.setItem(`protoimsg:practice:jumper_${this.difficulty}:best`, String(st.score));
+        localStorage.setItem(`protoimsg:practice:hopper_${this.difficulty}:best`, String(st.score));
       }
     } else {
       this.onSubmitRun?.({ score: st.score, ticks: st.tick, inputLog: this.inputLog });

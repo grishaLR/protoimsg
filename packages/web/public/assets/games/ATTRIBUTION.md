@@ -5,28 +5,28 @@
 - **Author:** Kenney (kenney.nl)
 - **License:** CC0 1.0 Universal (Public Domain)
 - **Source:** https://opengameart.org/content/alien-ufo-pack
-- **Used in:** Proto IM Jumper — flying alien enemy sprite (shipGreen_manned.png)
+- **Used in:** Hopper — flying alien enemy sprite (shipGreen_manned.png)
 
 ## Kenney Platformer Art: Pixel Edition
 
 - **Author:** Kenney (kenney.nl)
 - **License:** CC0 1.0 Universal (Public Domain)
 - **Source:** https://opengameart.org/content/platformer-art-pixel-edition
-- **Used in:** Proto IM Runner — terrain tiles, obstacles, cactus sprites
+- **Used in:** Hurdles — terrain tiles, obstacles, cactus sprites
 
 ## Spring
 
 - **Author:** GlitchesDunArtist
 - **License:** CC-BY 3.0 (attribution required)
 - **Source:** https://opengameart.org/content/spring-0
-- **Used in:** Proto IM Jumper — spring platform pickup sprite
+- **Used in:** Hopper — spring platform pickup sprite
 
 ## Sci-Fi Sound Effects Library
 
 - **Author:** artisticdude
 - **License:** CC0 1.0 Universal (Public Domain)
 - **Source:** https://opengameart.org/content/sci-fi-sound-effects-library
-- **Used in:** Proto IM Jumper — jetpack pickup sound (WarpDrive_01.mp3)
+- **Used in:** Hopper — jetpack pickup sound (WarpDrive_01.mp3)
 
 ## Space War Man Platform Shmup Set
 

@@ -7,7 +7,7 @@ import { publicAgent } from '../../lib/public-agent';
 import { useAuth } from '../../hooks/useAuth';
 import { useActorSprite } from '../../hooks/useActorSprite';
 import type { SpriteRecord } from '../../hooks/useActorSprite';
-import { RunnerGame } from '../games/RunnerGame';
+import { HurdlesGame } from '../games/HurdlesGame';
 import { useGermDeclaration } from '../../hooks/useGermDeclaration';
 import { useActorCollections, useActorRecords } from '../../hooks/useActorRecords';
 import {
@@ -2271,10 +2271,10 @@ export function ProfileView({ actor, onBack }: ProfileViewProps) {
             className={styles.gameOverlay}
             role="dialog"
             aria-modal="true"
-            aria-label="Runner game"
+            aria-label="Hurdles game"
           >
             <div className={styles.gameModal}>
-              <RunnerGame
+              <HurdlesGame
                 onClose={() => {
                   setGameOpen(false);
                 }}

@@ -11,7 +11,7 @@ const JETPACK_GIFT = {
   item: 'jet_pack',
   title: 'Jet Pack',
   description: 'Built for those who jump higher than the rest.',
-  context: 'Earned by reaching the leaderboard in proto IM jumper',
+  context: 'Earned by reaching the leaderboard in hopper',
   category: 'hind',
   kind: 'layer',
   assetCid: 'bafkreihglyimgjcbe2sykhjismvtgrydarkk6ff2rv6wlgv4geu54ehnpm',
@@ -28,8 +28,8 @@ export interface GameService {
   getLeaderboard: (system: string) => Promise<LeaderboardEntry[]>;
 }
 
-// "jumper_fast" → { base: "jumper", difficulty: "fast" }
-// "jumper"      → { base: "jumper", difficulty: "default" }
+// "hopper_fast" → { base: "hopper", difficulty: "fast" }
+// "hopper"      → { base: "hopper", difficulty: "default" }
 function parseSystem(system: string): { base: string; difficulty: string } {
   const idx = system.indexOf('_');
   if (idx === -1) return { base: system, difficulty: 'default' };
@@ -126,7 +126,7 @@ async function postLeaderboardAnnouncement(
   const mentionMap = new Map([[playerHandle, playerDid]]);
   if (bumpedDid && bumpedHandle) mentionMap.set(bumpedHandle, bumpedDid);
 
-  let text = `🎮 New leaderboard entry — proto IM ${gameName}!\n\n@${playerHandle} scored ${score}\nNow they're #${rank} on the board!`;
+  let text = `🎮 New leaderboard entry — ${gameName}!\n\n@${playerHandle} scored ${score}\nNow they're #${rank} on the board!`;
   if (bumpedHandle) text += `\n\nSorry @${bumpedHandle}... You're out!`;
   text += `\n\nPlay at ${siteUrl}`;
 
@@ -287,7 +287,7 @@ export function createGameService(
         system: base,
         player: playerDid,
         snapshotScope: 'full',
-        _meta: { name: `proto IM ${base}` },
+        _meta: { name: base },
         stats: { ...existingStats, [difficulty]: updatedDiff },
         createdAt,
         updatedAt: now,
@@ -333,7 +333,7 @@ export function createGameService(
           ).catch((err: unknown) => {
             log.error({ err, playerDid, system }, 'Failed to post leaderboard announcement');
           });
-          if (base === 'jumper') {
+          if (base === 'hopper') {
             void giftJetpack(a, playerDid).catch((err: unknown) => {
               log.error({ err, playerDid }, 'Failed to gift jetpack');
             });

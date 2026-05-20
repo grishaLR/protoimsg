@@ -1,13 +1,13 @@
 import { lazy, Suspense, useCallback, useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
-import { API_URL, RUNNER_ENABLED } from '../lib/config';
-import { JumperGame } from '../components/games/JumperGame';
+import { API_URL, HURDLES_ENABLED } from '../lib/config';
+import { HopperGame } from '../components/games/HopperGame';
 
-// Lazy: Runner is WIP behind RUNNER_ENABLED. With the flag off its chunk is
+// Lazy: Hurdles is WIP behind HURDLES_ENABLED. With the flag off its chunk is
 // never fetched, so users can't hit stale-deploy preload errors for it.
-const RunnerGame = lazy(() =>
-  import('../components/games/RunnerGame').then((m) => ({ default: m.RunnerGame })),
+const HurdlesGame = lazy(() =>
+  import('../components/games/HurdlesGame').then((m) => ({ default: m.HurdlesGame })),
 );
 import { ActorChooser } from '../components/games/ActorChooser';
 import { ArcadeSignIn } from '../components/games/ArcadeSignIn';
@@ -15,13 +15,13 @@ import {
   LeaderboardCol,
   AttributionsCol,
   GameIcon,
-  RUNNER_CREDITS,
-  JUMPER_CREDITS,
+  HURDLES_CREDITS,
+  HOPPER_CREDITS,
   type LbEntry,
 } from '../components/games/GameLeaderboard';
 import styles from './PublicArcadePage.module.css';
 
-type ActiveGame = 'runner' | 'jumper' | null;
+type ActiveGame = 'hurdles' | 'hopper' | null;
 type Difficulty = 'fast' | 'faster';
 
 export function PublicArcadePage() {
@@ -42,7 +42,7 @@ export function PublicArcadePage() {
   const [isRunning, setIsRunning] = useState(false);
   const [mobilePage, setMobilePage] = useState(1); // 0=Character 1=Play 2=Scores
   const MOBILE_PAGES = ['Character', 'Play', 'Scores'] as const;
-  const [previewGame, setPreviewGame] = useState<'runner' | 'jumper'>('jumper');
+  const [previewGame, setPreviewGame] = useState<'hurdles' | 'hopper'>('hopper');
   const refreshTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const fetchLeaderboards = useCallback((game: NonNullable<ActiveGame>) => {
@@ -63,9 +63,9 @@ export function PublicArcadePage() {
       .catch(() => {});
   }, []);
 
-  // Fetch runner leaderboard by default on mount
+  // Fetch hurdles leaderboard by default on mount
   useEffect(() => {
-    fetchLeaderboards('runner');
+    fetchLeaderboards('hurdles');
   }, [fetchLeaderboards]);
 
   useEffect(() => {
@@ -107,7 +107,7 @@ export function PublicArcadePage() {
     setActiveGame(null);
     setLeaderboards({ fast: [], faster: [] });
     setHandleMap({});
-    fetchLeaderboards('runner');
+    fetchLeaderboards('hurdles');
   };
 
   const launch = (game: NonNullable<ActiveGame>, diff: Difficulty) => {
@@ -118,7 +118,7 @@ export function PublicArcadePage() {
     setActiveGame(game);
   };
 
-  const credits = activeGame === 'jumper' ? JUMPER_CREDITS : RUNNER_CREDITS;
+  const credits = activeGame === 'hopper' ? HOPPER_CREDITS : HURDLES_CREDITS;
 
   return (
     <div className={styles.page}>
@@ -242,9 +242,9 @@ export function PublicArcadePage() {
 
         {/* Center: game or selection */}
         <div className={`${styles.center} ${mobilePage !== 1 ? styles.mobileHidden : ''}`}>
-          {activeGame === 'runner' ? (
+          {activeGame === 'hurdles' ? (
             <Suspense fallback={<div className={styles.center}>loading…</div>}>
-              <RunnerGame
+              <HurdlesGame
                 did={runDid}
                 pds={runPds}
                 difficulty={difficulty}
@@ -253,8 +253,8 @@ export function PublicArcadePage() {
                 onScore={handleScore}
               />
             </Suspense>
-          ) : activeGame === 'jumper' ? (
-            <JumperGame
+          ) : activeGame === 'hopper' ? (
+            <HopperGame
               did={runDid}
               pds={runPds}
               difficulty={difficulty}
@@ -264,38 +264,38 @@ export function PublicArcadePage() {
             />
           ) : (
             <div className={styles.previewWrap}>
-              {RUNNER_ENABLED && (
+              {HURDLES_ENABLED && (
                 <div className={styles.previewTabs}>
                   <button
-                    className={`${styles.previewTab} ${previewGame === 'runner' ? styles.previewTabActive : ''}`}
+                    className={`${styles.previewTab} ${previewGame === 'hurdles' ? styles.previewTabActive : ''}`}
                     onClick={() => {
-                      setPreviewGame('runner');
+                      setPreviewGame('hurdles');
                     }}
                     type="button"
                   >
-                    runner
+                    hurdles
                   </button>
                   <button
-                    className={`${styles.previewTab} ${previewGame === 'jumper' ? styles.previewTabActive : ''}`}
+                    className={`${styles.previewTab} ${previewGame === 'hopper' ? styles.previewTabActive : ''}`}
                     onClick={() => {
-                      setPreviewGame('jumper');
+                      setPreviewGame('hopper');
                     }}
                     type="button"
                   >
-                    jumper
+                    hopper
                   </button>
                 </div>
               )}
               <div className={styles.previewCanvas}>
                 <div
                   className={
-                    previewGame === 'runner'
-                      ? styles.gamePlaceholderRunner
-                      : styles.gamePlaceholderJumper
+                    previewGame === 'hurdles'
+                      ? styles.gamePlaceholderHurdles
+                      : styles.gamePlaceholderHopper
                   }
                 />
                 <div className={styles.diffOverlay}>
-                  <GameIcon icon={previewGame === 'runner' ? 'run' : 'ufo'} size={64} />
+                  <GameIcon icon={previewGame === 'hurdles' ? 'run' : 'ufo'} size={64} />
                   <span className={styles.diffOverlayGame}>{previewGame}</span>
                   <span className={styles.diffOverlayHint}>choose difficulty</span>
                   <div className={styles.diffBtns}>

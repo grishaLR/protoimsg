@@ -1,3 +1,7 @@
+// CSP-friendly shader path — our `script-src` does not allow `unsafe-eval`,
+// and Pixi v8's default shader system uses Function() to compile shaders.
+// This side-effect import swaps in a precompiled runtime.
+import 'pixi.js/unsafe-eval';
 import { Application, Container, Graphics, Sprite, Texture, TilingSprite } from 'pixi.js';
 import type { TownPeer } from '@protoimsg/shared';
 import { GAME_MASTER_DID, RPG_ACTOR_API_URL } from '../lib/config';

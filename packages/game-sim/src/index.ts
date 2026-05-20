@@ -1,15 +1,15 @@
 export { Rng, makeSeed, dsin } from './rng.js';
-export { JumperSim, simulate, difficultyConfig, PLAYER_W, PLAYER_H, MAX_TICKS } from './jumper.js';
+export { HopperSim, simulate, difficultyConfig, PLAYER_W, PLAYER_H, MAX_TICKS } from './hopper.js';
 export type {
-  JumperDifficulty,
+  HopperDifficulty,
   DeathCause,
-  JumperInput,
-  JumperInputEvent,
-  JumperInputLog,
-  JumperEvent,
-  JumperState,
+  HopperInput,
+  HopperInputEvent,
+  HopperInputLog,
+  HopperEvent,
+  HopperState,
   Plat,
   BlackHole,
   Alien,
   ReplayResult,
-} from './jumper.js';
+} from './hopper.js';

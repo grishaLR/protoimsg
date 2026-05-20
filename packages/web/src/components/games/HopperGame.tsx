@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Volume2, VolumeX } from 'lucide-react';
-import { makeSeed, type JumperInputLog } from '@protoimsg/game-sim';
+import { makeSeed, type HopperInputLog } from '@protoimsg/game-sim';
 import type { Agent } from '@atproto/api';
 import type { Difficulty } from './GamesPanel';
 import { useAuth } from '../../hooks/useAuth';
@@ -8,10 +8,10 @@ import { useActorSprite } from '../../hooks/useActorSprite';
 import { blobUrl } from '../../lib/record-blobs';
 import { authFetch } from '../../lib/api';
 import { API_URL } from '../../lib/config';
-import { JumperEngine, type JumperDeathInfo, type JumperRun } from './JumperEngine';
-import styles from './JumperGame.module.css';
+import { HopperEngine, type HopperDeathInfo, type HopperRun } from './HopperEngine';
+import styles from './HopperGame.module.css';
 
-interface JumperGameProps {
+interface HopperGameProps {
   onClose: () => void;
   onScore?: (score: number, difficulty: Difficulty) => void;
   did?: string;
@@ -26,7 +26,7 @@ interface RunTicket {
 }
 
 /** Writes the player's self-reported personal stats to their own repo. */
-async function writeJumperStats(
+async function writeHopperStats(
   agent: Agent,
   viewerDid: string,
   score: number,
@@ -39,7 +39,7 @@ async function writeJumperStats(
     const existingStats: Record<string, unknown> = statsRes
       ? (statsRes.data.value as Record<string, unknown>)
       : {};
-    const existingGame = existingStats.jumper as Record<string, unknown> | undefined;
+    const existingGame = existingStats.hopper as Record<string, unknown> | undefined;
     const prev = existingGame?.[difficulty] as
       | { best?: number; tries?: number; worst?: number }
       | undefined;
@@ -51,9 +51,9 @@ async function writeJumperStats(
       record: {
         ...existingStats,
         $type: 'actor.rpg.stats',
-        jumper: {
+        hopper: {
           ...(existingGame ?? {}),
-          _meta: { name: 'proto IM jumper' },
+          _meta: { name: 'hopper' },
           [difficulty]: {
             best: Math.max(score, prev?.best ?? 0),
             tries: (prev?.tries ?? 0) + 1,
@@ -69,18 +69,18 @@ async function writeJumperStats(
   }
 }
 
-export function JumperGame({
+export function HopperGame({
   onClose,
   onScore,
   did,
   pds,
   difficulty,
   practiceMode,
-}: JumperGameProps) {
+}: HopperGameProps) {
   const { data: sprite } = useActorSprite(did, pds);
   const { agent, did: viewerDid } = useAuth();
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const engineRef = useRef<JumperEngine | null>(null);
+  const engineRef = useRef<HopperEngine | null>(null);
   const imgRef = useRef<HTMLImageElement | null>(null);
   const leaderboardRef = useRef<{ did: string; score: number }[]>([]);
   const ticketRef = useRef<RunTicket | null>(null);
@@ -96,7 +96,7 @@ export function JumperGame({
   const [uiPhase, setUiPhase] = useState<'loading' | 'start' | 'playing' | 'dead' | 'error'>(
     'loading',
   );
-  const [deathInfo, setDeathInfo] = useState<JumperDeathInfo | null>(null);
+  const [deathInfo, setDeathInfo] = useState<HopperDeathInfo | null>(null);
 
   // Acquire a run ticket. Practice runs pick a local seed (works offline);
   // authed runs ask the server for a seed + single-use runId.
@@ -105,7 +105,7 @@ export function JumperGame({
     const res = await authFetch('/api/games/start', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ system: `jumper_${difficulty}` }),
+      body: JSON.stringify({ system: `hopper_${difficulty}` }),
     });
     if (!res.ok) throw new Error('failed to start run');
     const data = (await res.json()) as { runId: string; seed: number };
@@ -114,15 +114,15 @@ export function JumperGame({
 
   // Submit a finished authed run for server-side replay validation.
   const submitRun = useCallback(
-    (run: JumperRun) => {
+    (run: HopperRun) => {
       const runId = ticketRef.current?.runId;
       if (!runId) return;
       void authFetch('/api/games/score', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ runId, inputLog: run.inputLog satisfies JumperInputLog }),
+        body: JSON.stringify({ runId, inputLog: run.inputLog satisfies HopperInputLog }),
       }).catch(() => {});
-      if (agent && viewerDid) void writeJumperStats(agent, viewerDid, run.score, difficulty);
+      if (agent && viewerDid) void writeHopperStats(agent, viewerDid, run.score, difficulty);
     },
     [agent, viewerDid, difficulty],
   );
@@ -131,7 +131,7 @@ export function JumperGame({
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
-    let engine: JumperEngine | null = null;
+    let engine: HopperEngine | null = null;
     let cancelled = false;
     setUiPhase('loading');
     setDeathInfo(null);
@@ -139,7 +139,7 @@ export function JumperGame({
       .then((ticket) => {
         if (cancelled || !canvasRef.current) return;
         ticketRef.current = ticket;
-        engine = new JumperEngine(canvasRef.current, {
+        engine = new HopperEngine(canvasRef.current, {
           difficulty,
           practiceMode,
           seed: ticket.seed,
@@ -172,8 +172,8 @@ export function JumperGame({
 
   // Fetch leaderboard
   useEffect(() => {
-    const system = `jumper_${difficulty}`;
-    const otherSystem = difficulty === 'faster' ? null : 'jumper_faster';
+    const system = `hopper_${difficulty}`;
+    const otherSystem = difficulty === 'faster' ? null : 'hopper_faster';
     Promise.allSettled([
       fetch(`${API_URL}/api/games/leaderboard/${system}`).then(
         (r) => r.json() as Promise<{ entries: { did: string; score: number }[] }>,
@@ -270,7 +270,7 @@ export function JumperGame({
   return (
     <div className={styles.wrapper}>
       <div className={styles.header}>
-        <span className={styles.title}>{difficulty} jumper</span>
+        <span className={styles.title}>{difficulty} hopper</span>
         <div className={styles.headerActions}>
           <button
             className={styles.close}
@@ -316,7 +316,7 @@ export function JumperGame({
         )}
         {uiPhase === 'start' && (
           <div className={styles.overlay}>
-            <span className={styles.overlayGameName}>{difficulty.toUpperCase()} JUMPER</span>
+            <span className={styles.overlayGameName}>{difficulty.toUpperCase()} HOPPER</span>
             <span className={styles.overlaySub}>← → / A D · tap left or right on mobile</span>
             <button className={styles.overlayBtn} type="button" onClick={handlePlay}>
               PLAY

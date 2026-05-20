@@ -1,4 +1,4 @@
-// Deterministic jumper simulation.
+// Deterministic hopper simulation.
 //
 // This is the authoritative game logic. The browser runs it to render the
 // game; the server runs the exact same code to replay a submitted input log
@@ -6,7 +6,7 @@
 // sim from the same seed and inputs, the server never has to trust a
 // client-reported score.
 //
-// Extracted verbatim from the original JumperEngine.step() physics. The only
+// Extracted verbatim from the original HopperEngine.step() physics. The only
 // deliberate changes for determinism / fairness:
 //   - every Math.random() is replaced by the seeded Rng
 //   - Math.sin (alien bob) is replaced by dsin
@@ -18,30 +18,30 @@
 
 import { Rng, dsin } from './rng.js';
 
-export type JumperDifficulty = 'fast' | 'faster';
+export type HopperDifficulty = 'fast' | 'faster';
 export type DeathCause = 'fall' | 'alien' | 'blackhole';
 
 /** Per-tick control state. */
-export interface JumperInput {
+export interface HopperInput {
   left: boolean;
   right: boolean;
 }
 
 /** A change event in the recorded input log: at tick `t`, input became l/r. */
-export interface JumperInputEvent {
+export interface HopperInputEvent {
   t: number;
   l: boolean;
   r: boolean;
 }
 
-export type JumperInputLog = JumperInputEvent[];
+export type HopperInputLog = HopperInputEvent[];
 
 /**
  * Transient per-tick events. These are derived purely from the deterministic
  * step (no RNG, no bearing on the score) and exist only so the renderer can
  * trigger sound effects without re-deriving game events from state diffs.
  */
-export type JumperEvent = 'land' | 'spring' | 'crumble' | 'stomp' | 'jetpack';
+export type HopperEvent = 'land' | 'spring' | 'crumble' | 'stomp' | 'jetpack';
 
 export interface ReplayResult {
   score: number;
@@ -90,7 +90,7 @@ export interface Alien {
   dyingTimer: number;
 }
 
-export interface JumperState {
+export interface HopperState {
   px: number;
   py: number;
   pvx: number;
@@ -121,7 +121,7 @@ interface DifficultyConfig {
   initBlackHoleAt: number;
 }
 
-export function difficultyConfig(d: JumperDifficulty): DifficultyConfig {
+export function difficultyConfig(d: HopperDifficulty): DifficultyConfig {
   if (d === 'faster') {
     return {
       grav: 0.38,
@@ -144,14 +144,14 @@ export function difficultyConfig(d: JumperDifficulty): DifficultyConfig {
   };
 }
 
-export class JumperSim {
-  readonly state: JumperState;
+export class HopperSim {
+  readonly state: HopperState;
   /** Events from the most recent step() — render-only, cleared each step. */
-  readonly events: JumperEvent[] = [];
+  readonly events: HopperEvent[] = [];
   private readonly cfg: DifficultyConfig;
   private readonly rng: Rng;
 
-  constructor(seed: number, difficulty: JumperDifficulty) {
+  constructor(seed: number, difficulty: HopperDifficulty) {
     this.cfg = difficultyConfig(difficulty);
     this.rng = new Rng(seed);
     this.state = {
@@ -220,7 +220,7 @@ export class JumperSim {
   }
 
   /** Advance the simulation one tick. Idempotent once dead. */
-  step(input: JumperInput): void {
+  step(input: HopperInput): void {
     const st = this.state;
     const cfg = this.cfg;
     this.events.length = 0;
@@ -441,13 +441,13 @@ export const MAX_TICKS = 216000;
  */
 export function simulate(
   seed: number,
-  difficulty: JumperDifficulty,
-  log: JumperInputLog,
+  difficulty: HopperDifficulty,
+  log: HopperInputLog,
   maxTicks: number = MAX_TICKS,
 ): ReplayResult {
-  const sim = new JumperSim(seed, difficulty);
+  const sim = new HopperSim(seed, difficulty);
   let li = 0;
-  const cur: JumperInput = { left: false, right: false };
+  const cur: HopperInput = { left: false, right: false };
   for (let t = 0; t < maxTicks; t++) {
     while (li < log.length) {
       const ev = log[li];

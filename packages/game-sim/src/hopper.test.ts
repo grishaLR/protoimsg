@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { Rng, dsin } from './rng.js';
-import { JumperSim, simulate, type JumperInputLog, type JumperInput } from './jumper.js';
+import { HopperSim, simulate, type HopperInputLog, type HopperInput } from './hopper.js';
 
 // These tests lock the determinism the anti-cheat depends on: the server
 // must compute exactly the same score the player's browser did. If any of
@@ -33,7 +33,7 @@ describe('dsin', () => {
 });
 
 describe('simulate', () => {
-  const log: JumperInputLog = [
+  const log: HopperInputLog = [
     { t: 30, l: false, r: true },
     { t: 90, l: false, r: false },
     { t: 150, l: true, r: false },
@@ -65,16 +65,16 @@ describe('simulate', () => {
   });
 
   it('server replay matches a live tick-by-tick playthrough', () => {
-    // Drive a sim exactly as JumperEngine does — recording a change-event
+    // Drive a sim exactly as HopperEngine does — recording a change-event
     // whenever input flips — then replay the recorded log and compare.
-    const script = (t: number): JumperInput => ({
+    const script = (t: number): HopperInput => ({
       left: Math.floor(t / 37) % 3 === 1,
       right: Math.floor(t / 37) % 3 === 2,
     });
     for (const seed of [5, 50, 500]) {
-      const sim = new JumperSim(seed, 'fast');
-      const recorded: JumperInputLog = [];
-      let prev: JumperInput = { left: false, right: false };
+      const sim = new HopperSim(seed, 'fast');
+      const recorded: HopperInputLog = [];
+      let prev: HopperInput = { left: false, right: false };
       for (let t = 0; t < 6000 && !sim.state.dead; t++) {
         const input = script(t);
         if (input.left !== prev.left || input.right !== prev.right) {

@@ -59,7 +59,7 @@
   position: relative;
 }
 
-.gamePlaceholderJumper {
+.gamePlaceholderHopper {
   width: 352px;
   height: 580px;
   max-width: 100%;
@@ -67,7 +67,7 @@
   border-radius: var(--cm-radius-md);
 }
 
-.gamePlaceholderRunner {
+.gamePlaceholderHurdles {
   width: 680px;
   height: 296px;
   max-width: 100%;
@@ -162,7 +162,7 @@
   flex-direction: column;
 }
 
-/* ── Runner: game on top, leaderboards in a row below ───────────────────── */
+/* ── Hurdles: game on top, leaderboards in a row below ───────────────────── */
 
 .gameCol {
   display: inline-flex;
@@ -194,7 +194,7 @@
   gap: var(--cm-space-4);
 }
 
-/* ── Jumper: leaderboards stacked to the side ───────────────────────────── */
+/* ── Hopper: leaderboards stacked to the side ───────────────────────────── */
 
 .lbSide {
   display: flex;

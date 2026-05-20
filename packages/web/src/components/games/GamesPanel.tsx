@@ -2,27 +2,27 @@ import { lazy, Suspense, useCallback, useEffect, useRef, useState } from 'react'
 import { useQuery } from '@tanstack/react-query';
 import { useAuth } from '../../hooks/useAuth';
 import { resolvePdsForDid } from '../../lib/resolve-pds';
-import { API_URL, RUNNER_ENABLED } from '../../lib/config';
-import { JumperGame } from './JumperGame';
+import { API_URL, HURDLES_ENABLED } from '../../lib/config';
+import { HopperGame } from './HopperGame';
 
-// Lazy: Runner is WIP behind RUNNER_ENABLED. With the flag off its chunk is
+// Lazy: Hurdles is WIP behind HURDLES_ENABLED. With the flag off its chunk is
 // never fetched, so users can't hit stale-deploy preload errors for a game
 // they can't reach.
-const RunnerGame = lazy(() => import('./RunnerGame').then((m) => ({ default: m.RunnerGame })));
+const HurdlesGame = lazy(() => import('./HurdlesGame').then((m) => ({ default: m.HurdlesGame })));
 import {
   LeaderboardCol,
   StatsCol,
   AttributionsCol,
   GameIcon,
-  RUNNER_CREDITS,
-  JUMPER_CREDITS,
+  HURDLES_CREDITS,
+  HOPPER_CREDITS,
   type LbEntry,
   type GameStats,
   EMPTY_STATS,
 } from './GameLeaderboard';
 import styles from './GamesPanel.module.css';
 
-type ActiveGame = 'runner' | 'jumper' | null;
+type ActiveGame = 'hurdles' | 'hopper' | null;
 export type Difficulty = 'fast' | 'faster';
 
 export function GamesPanel() {
@@ -30,7 +30,7 @@ export function GamesPanel() {
   const [activeGame, setActiveGame] = useState<ActiveGame>(null);
   const [difficulty, setDifficulty] = useState<Difficulty>('fast');
   const [mobilePage, setMobilePage] = useState(0); // 0=Game 1=Scores
-  const [previewGame, setPreviewGame] = useState<'runner' | 'jumper'>('jumper');
+  const [previewGame, setPreviewGame] = useState<'hurdles' | 'hopper'>('hopper');
   const [leaderboards, setLeaderboards] = useState<{ fast: LbEntry[]; faster: LbEntry[] }>({
     fast: [],
     faster: [],
@@ -193,14 +193,14 @@ export function GamesPanel() {
     );
   }
 
-  if (activeGame === 'runner' && did && pds) {
+  if (activeGame === 'hurdles' && did && pds) {
     return (
       <div className={`${styles.panel} ${styles.gameActive}`}>
         {mobileNav}
         <div className={styles.gameCol}>
           <div className={`${styles.gameWrap} ${mobilePage !== 0 ? styles.mobileHidden : ''}`}>
             <Suspense fallback={<div className={styles.loading}>loading…</div>}>
-              <RunnerGame
+              <HurdlesGame
                 did={did}
                 pds={pds}
                 difficulty={difficulty}
@@ -226,23 +226,23 @@ export function GamesPanel() {
               />
               <StatsCol stats={gameStats} />
             </div>
-            <AttributionsCol items={RUNNER_CREDITS} />
+            <AttributionsCol items={HURDLES_CREDITS} />
           </div>
         </div>
       </div>
     );
   }
 
-  if (activeGame === 'jumper' && did && pds) {
+  if (activeGame === 'hopper' && did && pds) {
     return (
       <div className={`${styles.panel} ${styles.gameActive}`}>
         {mobileNav}
         <div className={styles.gameRow}>
           <div className={`${styles.lbSide} ${mobilePage !== 1 ? styles.mobileHidden : ''}`}>
-            <AttributionsCol items={JUMPER_CREDITS} />
+            <AttributionsCol items={HOPPER_CREDITS} />
           </div>
           <div className={`${styles.gameWrap} ${mobilePage !== 0 ? styles.mobileHidden : ''}`}>
-            <JumperGame
+            <HopperGame
               did={did}
               pds={pds}
               difficulty={difficulty}
@@ -275,36 +275,38 @@ export function GamesPanel() {
     <div className={styles.panel}>
       <h2 className={styles.heading}>Fun</h2>
       <div className={styles.previewWrap}>
-        {RUNNER_ENABLED && (
+        {HURDLES_ENABLED && (
           <div className={styles.previewTabs}>
             <button
-              className={`${styles.previewTab} ${previewGame === 'runner' ? styles.previewTabActive : ''}`}
+              className={`${styles.previewTab} ${previewGame === 'hurdles' ? styles.previewTabActive : ''}`}
               onClick={() => {
-                setPreviewGame('runner');
+                setPreviewGame('hurdles');
               }}
               type="button"
             >
-              runner
+              hurdles
             </button>
             <button
-              className={`${styles.previewTab} ${previewGame === 'jumper' ? styles.previewTabActive : ''}`}
+              className={`${styles.previewTab} ${previewGame === 'hopper' ? styles.previewTabActive : ''}`}
               onClick={() => {
-                setPreviewGame('jumper');
+                setPreviewGame('hopper');
               }}
               type="button"
             >
-              jumper
+              hopper
             </button>
           </div>
         )}
         <div className={styles.previewCanvas}>
           <div
             className={
-              previewGame === 'runner' ? styles.gamePlaceholderRunner : styles.gamePlaceholderJumper
+              previewGame === 'hurdles'
+                ? styles.gamePlaceholderHurdles
+                : styles.gamePlaceholderHopper
             }
           />
           <div className={styles.diffOverlay}>
-            <GameIcon icon={previewGame === 'runner' ? 'run' : 'ufo'} size={64} />
+            <GameIcon icon={previewGame === 'hurdles' ? 'run' : 'ufo'} size={64} />
             <span className={styles.diffOverlayGame}>{previewGame}</span>
             <span className={styles.diffOverlayHint}>choose difficulty</span>
             <div className={styles.diffBtns}>

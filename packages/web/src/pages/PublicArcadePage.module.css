@@ -214,7 +214,7 @@
   position: relative;
 }
 
-.gamePlaceholderJumper {
+.gamePlaceholderHopper {
   width: 352px;
   height: 580px;
   max-width: 100%;
@@ -222,7 +222,7 @@
   border-radius: var(--cm-radius-md);
 }
 
-.gamePlaceholderRunner {
+.gamePlaceholderHurdles {
   width: 680px;
   height: 296px;
   max-width: 100%;

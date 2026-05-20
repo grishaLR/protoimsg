@@ -3,8 +3,8 @@ import type { RequestHandler } from 'express';
 import {
   simulate,
   MAX_TICKS,
-  type JumperDifficulty,
-  type JumperInputLog,
+  type HopperDifficulty,
+  type HopperInputLog,
 } from '@protoimsg/game-sim';
 import { createLogger } from '../logger.js';
 import type { GameService } from './service.js';
@@ -13,7 +13,7 @@ import type { RunStore } from './run-store.js';
 const log = createLogger('games');
 
 const VALID_SYSTEM = /^[a-z_]{1,32}$/;
-const JUMPER_SYSTEM = /^jumper_(fast|faster)$/;
+const HOPPER_SYSTEM = /^hopper_(fast|faster)$/;
 const MAX_INPUT_EVENTS = 20000;
 const FRAME_MS = 1000 / 60;
 // A genuine run is rendered at ~60fps, so wall-clock time can't be much less
@@ -22,9 +22,9 @@ const FRAME_MS = 1000 / 60;
 const MIN_TIME_FACTOR = 0.8;
 
 /** Validate + normalize an untrusted input log from the request body. */
-function parseInputLog(v: unknown): JumperInputLog | null {
+function parseInputLog(v: unknown): HopperInputLog | null {
   if (!Array.isArray(v) || v.length > MAX_INPUT_EVENTS) return null;
-  const out: JumperInputLog = [];
+  const out: HopperInputLog = [];
   let lastT = -1;
   for (const e of v) {
     if (typeof e !== 'object' || e === null) return null;
@@ -67,7 +67,7 @@ export function gamesRouter(
         return;
       }
       const { system } = req.body as { system?: unknown };
-      if (typeof system !== 'string' || !JUMPER_SYSTEM.test(system)) {
+      if (typeof system !== 'string' || !HOPPER_SYSTEM.test(system)) {
         res.status(400).json({ error: 'Invalid system' });
         return;
       }
@@ -110,12 +110,12 @@ export function gamesRouter(
         return;
       }
 
-      const match = JUMPER_SYSTEM.exec(run.system);
+      const match = HOPPER_SYSTEM.exec(run.system);
       if (!match || !match[1]) {
         res.status(400).json({ error: 'Unsupported system' });
         return;
       }
-      const difficulty = match[1] as JumperDifficulty;
+      const difficulty = match[1] as HopperDifficulty;
 
       const result = simulate(run.seed, difficulty, events);
       if (!result.died) {

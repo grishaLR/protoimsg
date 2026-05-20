@@ -1,5 +1,5 @@
 {
-  "buildCommand": "pnpm turbo build --filter=@protoimsg/web",
+  "buildCommand": "pnpm turbo build --filter=@protoimsg/web --force",
   "outputDirectory": "packages/web/dist",
   "installCommand": "pnpm install",
   "framework": "vite",

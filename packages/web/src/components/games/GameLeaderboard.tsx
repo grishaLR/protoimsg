@@ -33,11 +33,11 @@ export type LbEntry = { did: string; score: number };
 export type GameStats = { best: number; worst: number; tries: number };
 export const EMPTY_STATS: GameStats = { best: 0, worst: 0, tries: 0 };
 
-export const RUNNER_CREDITS = [
+export const HURDLES_CREDITS = [
   { label: 'Icons', author: 'game-icons.net · CC BY 3.0', href: 'https://game-icons.net' },
 ];
 
-export const JUMPER_CREDITS = [
+export const HOPPER_CREDITS = [
   { label: 'UFO', author: 'kenney.nl', href: 'https://kenney.nl' },
   {
     label: 'Spring',
@@ -135,7 +135,7 @@ export function LeaderboardCol({
   );
 }
 
-export function AttributionsCol({ items }: { items: typeof JUMPER_CREDITS }) {
+export function AttributionsCol({ items }: { items: typeof HOPPER_CREDITS }) {
   return (
     <div className={styles.lbCol}>
       <div className={styles.lbTitle}>credits</div>

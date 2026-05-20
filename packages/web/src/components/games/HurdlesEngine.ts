@@ -1,9 +1,9 @@
 import type { Agent } from '@atproto/api';
 import { authFetch } from '../../lib/api';
 
-export type RunnerDifficulty = 'fast' | 'faster';
+export type HurdlesDifficulty = 'fast' | 'faster';
 
-export interface RunnerSpriteRecord {
+export interface HurdlesSpriteRecord {
   frameWidth: number;
   frameHeight: number;
   columns: number;
@@ -12,14 +12,14 @@ export interface RunnerSpriteRecord {
   spriteSheet: { ref: { $link: string } };
 }
 
-export interface RunnerDeathInfo {
+export interface HurdlesDeathInfo {
   score: number;
   hi: number;
   rank: number | null;
   result: 'leaderboard' | 'best' | 'lose';
 }
 
-async function writeRunnerStats(agent: Agent, viewerDid: string, score: number, system: string) {
+async function writeHurdlesStats(agent: Agent, viewerDid: string, score: number, system: string) {
   try {
     const idx = system.indexOf('_');
     const base = idx === -1 ? system : system.slice(0, idx);
@@ -44,7 +44,7 @@ async function writeRunnerStats(agent: Agent, viewerDid: string, score: number, 
         $type: 'actor.rpg.stats',
         [base]: {
           ...(existingGame ?? {}),
-          _meta: { name: `proto IM ${base}` },
+          _meta: { name: base },
           [difficulty]: {
             best: Math.max(score, prev?.best ?? 0),
             tries: (prev?.tries ?? 0) + 1,
@@ -60,24 +60,24 @@ async function writeRunnerStats(agent: Agent, viewerDid: string, score: number, 
   }
 }
 
-export class RunnerEngine {
+export class HurdlesEngine {
   agent: Agent | null = null;
   viewerDid: string | null = null;
   leaderboard: { did: string; score: number }[] = [];
 
-  onDeath?: (info: RunnerDeathInfo) => void;
-  onScore?: (score: number, difficulty: RunnerDifficulty) => void;
+  onDeath?: (info: HurdlesDeathInfo) => void;
+  onScore?: (score: number, difficulty: HurdlesDifficulty) => void;
   onClose?: () => void;
 
   private canvas: HTMLCanvasElement;
   private ctx: CanvasRenderingContext2D;
-  private difficulty: RunnerDifficulty;
+  private difficulty: HurdlesDifficulty;
   private practiceMode: boolean;
   private system: string;
   private initSpeed: number;
   private initSpawnIn: number;
 
-  private sprite: RunnerSpriteRecord | null = null;
+  private sprite: HurdlesSpriteRecord | null = null;
   private img: HTMLImageElement | null = null;
   private FW = 48;
   private FH = 48;
@@ -120,7 +120,7 @@ export class RunnerEngine {
 
   constructor(
     canvas: HTMLCanvasElement,
-    config: { difficulty: RunnerDifficulty; practiceMode?: boolean },
+    config: { difficulty: HurdlesDifficulty; practiceMode?: boolean },
   ) {
     this.canvas = canvas;
     const ctx = canvas.getContext('2d');
@@ -128,7 +128,7 @@ export class RunnerEngine {
     this.ctx = ctx;
     this.difficulty = config.difficulty;
     this.practiceMode = config.practiceMode ?? false;
-    this.system = `runner_${config.difficulty}`;
+    this.system = `hurdles_${config.difficulty}`;
     this.initSpeed = config.difficulty === 'faster' ? 11 : 7.5;
     this.initSpawnIn = config.difficulty === 'faster' ? 60 : 90;
 
@@ -174,7 +174,7 @@ export class RunnerEngine {
       this.agent.com.atproto.repo
         .getRecord({ repo: this.viewerDid, collection: 'actor.rpg.stats', rkey: 'self' })
         .then((res) => {
-          const gd = (res.data.value as Record<string, unknown> | undefined)?.runner as
+          const gd = (res.data.value as Record<string, unknown> | undefined)?.hurdles as
             | Record<string, unknown>
             | undefined;
           const dd = gd?.[this.difficulty] as { best?: number } | undefined;
@@ -184,7 +184,7 @@ export class RunnerEngine {
         .catch(() => {});
     } else {
       const v = parseInt(
-        localStorage.getItem(`protoimsg:practice:runner_${this.difficulty}:best`) ?? '0',
+        localStorage.getItem(`protoimsg:practice:hurdles_${this.difficulty}:best`) ?? '0',
         10,
       );
       st.hi = v;
@@ -192,7 +192,7 @@ export class RunnerEngine {
     }
   }
 
-  updateActor(sprite: RunnerSpriteRecord | null, img: HTMLImageElement | null): void {
+  updateActor(sprite: HurdlesSpriteRecord | null, img: HTMLImageElement | null): void {
     this.sprite = sprite;
     this.img = img;
     this.FW = (sprite?.frameWidth ?? 24) * this.SCALE;
@@ -259,14 +259,14 @@ export class RunnerEngine {
     st.deathResult = onBoard ? 'leaderboard' : isNewBest ? 'best' : 'lose';
     this.onScore?.(st.score, this.difficulty);
     if (canPost && this.agent && this.viewerDid) {
-      void writeRunnerStats(this.agent, this.viewerDid, st.score, this.system);
+      void writeHurdlesStats(this.agent, this.viewerDid, st.score, this.system);
       void authFetch('/api/games/score', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ system: this.system, score: st.score }),
       });
     } else {
-      const lsKey = `protoimsg:practice:runner_${this.difficulty}:best`;
+      const lsKey = `protoimsg:practice:hurdles_${this.difficulty}:best`;
       if (isNewBest) localStorage.setItem(lsKey, String(st.score));
     }
   }
