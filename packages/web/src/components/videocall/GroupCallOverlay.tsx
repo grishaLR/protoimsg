@@ -19,6 +19,8 @@ import {
   Share2,
   Mail,
   ExternalLink,
+  ChevronLeft,
+  ChevronRight,
 } from 'lucide-react';
 import '@livekit/components-styles';
 import {
@@ -31,8 +33,8 @@ import {
   AudioTrack,
   type TrackReference,
 } from '@livekit/components-react';
-import { Track, RoomEvent } from 'livekit-client';
-import type { RemoteParticipant, Participant } from 'livekit-client';
+import { Track, RoomEvent, VideoPresets } from 'livekit-client';
+import type { RemoteParticipant, Participant, RoomOptions } from 'livekit-client';
 import { useGroupCall } from '../../contexts/GroupCallContext';
 import { useDragResize } from '../../hooks/useDragResize';
 import styles from './VideoCallOverlay.module.css';
@@ -42,6 +44,28 @@ import styles from './VideoCallOverlay.module.css';
 const EMOJI_OPTIONS = ['👍', '❤️', '😂', '🎉', '🔥', '👏', '😮', '💯'];
 const DISPLAY_NAME_KEY = 'protoimsg:groupCallName';
 const AUTO_FOCUS_KEY = 'protoimsg:groupCallAutoFocus';
+
+/**
+ * Max video tiles mounted at once. Tiles beyond this are paginated; since
+ * unmounted tracks have no <VideoTrack> element, adaptiveStream pauses them
+ * server-side, so a 100+ person call only ever streams ~this many videos.
+ */
+const MAX_VISIBLE_TILES = 25;
+
+/**
+ * Room options tuned for large calls:
+ * - adaptiveStream: pauses/downscales tracks based on rendered element size
+ * - dynacast: stops publishing simulcast layers nobody is subscribed to
+ * - simulcast layers: lets the SFU send a cheap layer to small grid tiles
+ */
+const ROOM_OPTIONS: RoomOptions = {
+  adaptiveStream: true,
+  dynacast: true,
+  publishDefaults: {
+    simulcast: true,
+    videoSimulcastLayers: [VideoPresets.h180, VideoPresets.h360],
+  },
+};
 
 interface ChatMessage {
   id: string;
@@ -170,6 +194,9 @@ function GroupCallInner({ onLeave, meetCode }: { onLeave: () => void; meetCode: 
   );
   const [activeSpeakerSid, setActiveSpeakerSid] = useState<string | null>(null);
 
+  // ── Pagination ──
+  const [page, setPage] = useState(0);
+
   // ── Drag/resize ──
   const {
     containerRef,
@@ -199,6 +226,8 @@ function GroupCallInner({ onLeave, meetCode }: { onLeave: () => void; meetCode: 
   const tileVideoRefs = useRef<Map<string, HTMLVideoElement>>(new Map());
   const pipCanvasRef = useRef<HTMLCanvasElement | null>(null);
   const displayVideoRef = useRef<HTMLVideoElement | null>(null);
+  /** Tracks the PiP canvas should composite — the focused tile + current page. */
+  const pipTracksRef = useRef<typeof videoTracks>([]);
 
   // ── Set display name on join ──
   useEffect(() => {
@@ -327,7 +356,8 @@ function GroupCallInner({ onLeave, meetCode }: { onLeave: () => void; meetCode: 
     const draw = () => {
       ctx.fillStyle = '#1a1a2e';
       ctx.fillRect(0, 0, W, H);
-      const n = videoTracks.length || 1;
+      const tracks = pipTracksRef.current;
+      const n = tracks.length || 1;
       const c = n <= 1 ? 1 : n <= 4 ? 2 : n <= 9 ? 3 : 4;
       const r = Math.ceil(n / c);
       const tW = Math.floor(W / c),
@@ -335,14 +365,14 @@ function GroupCallInner({ onLeave, meetCode }: { onLeave: () => void; meetCode: 
         gap = 2;
 
       let i = 0;
-      for (const tr of videoTracks) {
+      for (const tr of tracks) {
         const col = i % c,
           row = Math.floor(i / c);
         const tx = col * tW + gap,
           ty = row * tH + gap,
           tw = tW - gap * 2,
           th = tH - gap * 2;
-        const vid = tileVideoRefs.current.get(tr.participant.sid);
+        const vid = tileVideoRefs.current.get(`${tr.participant.sid}:${tr.source}`);
         if (vid && vid.readyState >= 2) {
           const vw = vid.videoWidth || tw,
             vh = vid.videoHeight || th;
@@ -381,7 +411,7 @@ function GroupCallInner({ onLeave, meetCode }: { onLeave: () => void; meetCode: 
         document.exitPictureInPicture().catch(() => {});
       display.srcObject = null;
     };
-  }, [videoTracks.length]);
+  }, [showNamePrompt]);
 
   // Auto PiP
   useEffect(() => {
@@ -522,7 +552,34 @@ function GroupCallInner({ onLeave, meetCode }: { onLeave: () => void; meetCode: 
     ? videoTracks.filter((t) => trackKey(t) !== effectivePinned)
     : videoTracks;
 
-  const tileCount = otherTracks.length || 1;
+  // ── Pagination ──
+  // Local participant ordered first so "you" stay visible across page flips.
+  const orderedTracks = useMemo(() => {
+    const local = otherTracks.filter((t) => t.participant.isLocal);
+    const remote = otherTracks.filter((t) => !t.participant.isLocal);
+    return [...local, ...remote];
+  }, [otherTracks]);
+
+  const pageCount = Math.max(1, Math.ceil(orderedTracks.length / MAX_VISIBLE_TILES));
+  const safePage = Math.min(page, pageCount - 1);
+  const visibleTracks = orderedTracks.slice(
+    safePage * MAX_VISIBLE_TILES,
+    safePage * MAX_VISIBLE_TILES + MAX_VISIBLE_TILES,
+  );
+
+  // Clamp the page when participants leave and the current page disappears.
+  useEffect(() => {
+    if (page > pageCount - 1) setPage(Math.max(0, pageCount - 1));
+  }, [page, pageCount]);
+
+  // The PiP canvas composites whatever is on screen: focused tile + this page.
+  // Written in an effect (not during render) so concurrent/discarded renders
+  // can't leave the ref holding tracks from an abandoned render.
+  useEffect(() => {
+    pipTracksRef.current = focusedTrack ? [focusedTrack, ...visibleTracks] : visibleTracks;
+  }, [focusedTrack, visibleTracks]);
+
+  const tileCount = visibleTracks.length || 1;
   const cols = hasFocus ? 1 : tileCount <= 1 ? 1 : tileCount <= 4 ? 2 : tileCount <= 9 ? 3 : 4;
   const rows = hasFocus ? tileCount : Math.ceil(tileCount / cols);
 
@@ -773,8 +830,9 @@ function GroupCallInner({ onLeave, meetCode }: { onLeave: () => void; meetCode: 
                 <VideoTrack
                   trackRef={focusedTrack}
                   ref={(el: HTMLVideoElement | null) => {
-                    if (el) tileVideoRefs.current.set(focusedTrack.participant.sid, el);
-                    else tileVideoRefs.current.delete(focusedTrack.participant.sid);
+                    const key = trackKey(focusedTrack);
+                    if (el) tileVideoRefs.current.set(key, el);
+                    else tileVideoRefs.current.delete(key);
                   }}
                   style={{
                     width: '100%',
@@ -839,7 +897,7 @@ function GroupCallInner({ onLeave, meetCode }: { onLeave: () => void; meetCode: 
               ...(hasFocus ? {} : { flex: 1 }),
             }}
           >
-            {otherTracks.map((trackRef) => {
+            {visibleTracks.map((trackRef) => {
               const hasVideo = !!trackRef.publication?.track;
               const isLocal = trackRef.participant.isLocal;
               const sid = trackRef.participant.sid;
@@ -871,8 +929,9 @@ function GroupCallInner({ onLeave, meetCode }: { onLeave: () => void; meetCode: 
                     <VideoTrack
                       trackRef={trackRef as TrackReference}
                       ref={(el: HTMLVideoElement | null) => {
-                        if (el) tileVideoRefs.current.set(sid, el);
-                        else tileVideoRefs.current.delete(sid);
+                        const key = trackKey(trackRef);
+                        if (el) tileVideoRefs.current.set(key, el);
+                        else tileVideoRefs.current.delete(key);
                       }}
                       style={{
                         width: '100%',
@@ -998,6 +1057,55 @@ function GroupCallInner({ onLeave, meetCode }: { onLeave: () => void; meetCode: 
         )}
       </div>
       {/* End Video + Chat row */}
+
+      {/* Pagination */}
+      {pageCount > 1 && (
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: 8,
+            padding: '4px 8px',
+            background: 'var(--cm-titlebar)',
+            borderTop: '1px solid var(--cm-chrome-hover)',
+            fontSize: 'var(--cm-text-sm)',
+            color: 'var(--cm-chrome-text)',
+          }}
+        >
+          <button
+            className={styles.controlBtn}
+            onClick={() => {
+              setPage((p) => Math.max(0, p - 1));
+            }}
+            onPointerDown={(e) => {
+              e.stopPropagation();
+            }}
+            disabled={safePage === 0}
+            aria-label={t('videoCall.prevPage', { defaultValue: 'Previous page' })}
+            style={{ width: 28, height: 28, opacity: safePage === 0 ? 0.4 : 1 }}
+          >
+            <ChevronLeft size={16} />
+          </button>
+          <span style={{ fontFamily: 'monospace' }} aria-live="polite">
+            {safePage + 1} / {pageCount}
+          </span>
+          <button
+            className={styles.controlBtn}
+            onClick={() => {
+              setPage((p) => Math.min(pageCount - 1, p + 1));
+            }}
+            onPointerDown={(e) => {
+              e.stopPropagation();
+            }}
+            disabled={safePage === pageCount - 1}
+            aria-label={t('videoCall.nextPage', { defaultValue: 'Next page' })}
+            style={{ width: 28, height: 28, opacity: safePage === pageCount - 1 ? 0.4 : 1 }}
+          >
+            <ChevronRight size={16} />
+          </button>
+        </div>
+      )}
 
       {/* Emoji picker (popover above control bar) */}
       {showEmojiPicker && (
@@ -1164,6 +1272,7 @@ export function GroupCallOverlay() {
       <LiveKitRoom
         token={token}
         serverUrl={url}
+        options={ROOM_OPTIONS}
         connect={true}
         audio={false}
         video={false}
