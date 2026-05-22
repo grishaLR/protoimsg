@@ -207,8 +207,10 @@ export function HopperGame({
         const icon = rec.value.icon as { ref?: { $link: string } } | undefined;
         const cid = icon?.ref?.$link ?? (rec.value.assetCid as string | undefined);
         if (!cid) return;
+        // No crossOrigin: this is a Canvas 2D game and never reads the canvas
+        // back, so a "tainted" canvas is harmless — whereas setting crossOrigin
+        // hard-fails the load for any PDS that omits CORS headers.
         const img = new Image();
-        img.crossOrigin = 'anonymous';
         img.src = blobUrl(pds, did, cid);
         img.onload = () => {
           engineRef.current?.updateJetpackImg(img);
@@ -220,8 +222,10 @@ export function HopperGame({
   // Load actor sprite image
   useEffect(() => {
     if (!sprite?.spriteSheet.ref.$link || !pds || !did) return;
+    // No crossOrigin: this is a Canvas 2D game and never reads the canvas back,
+    // so a "tainted" canvas is harmless — whereas setting crossOrigin hard-fails
+    // the sprite load for any PDS that omits CORS headers.
     const img = new Image();
-    img.crossOrigin = 'anonymous';
     img.src = blobUrl(pds, did, sprite.spriteSheet.ref.$link);
     img.onload = () => {
       imgRef.current = img;
