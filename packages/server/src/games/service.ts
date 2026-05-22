@@ -40,12 +40,20 @@ function formatSystemName(system: string): string {
   return system.split('_').reverse().join(' ');
 }
 
-async function resolveHandle(agent: AtpAgent, did: string): Promise<string> {
+/**
+ * Resolve a DID to its handle via the appview — which works regardless of which
+ * PDS hosts the account. (`describeRepo` only works for repos on the bot's own
+ * PDS, so it threw for every player hosted elsewhere and the post fell back to
+ * a raw DID.) Returns null when there's no verified handle, so callers never
+ * print a DID.
+ */
+async function resolveHandle(agent: AtpAgent, did: string): Promise<string | null> {
   try {
-    const res = await agent.com.atproto.repo.describeRepo({ repo: did });
-    return res.data.handle;
+    const res = await agent.app.bsky.actor.getProfile({ actor: did });
+    const handle = res.data.handle;
+    return handle && handle !== 'handle.invalid' ? handle : null;
   } catch {
-    return did;
+    return null;
   }
 }
 
@@ -123,10 +131,13 @@ async function postLeaderboardAnnouncement(
   ]);
 
   const gameName = formatSystemName(system);
-  const mentionMap = new Map([[playerHandle, playerDid]]);
+  const mentionMap = new Map<string, string>();
+  if (playerHandle) mentionMap.set(playerHandle, playerDid);
   if (bumpedDid && bumpedHandle) mentionMap.set(bumpedHandle, bumpedDid);
 
-  let text = `🎮 New leaderboard entry — ${gameName}!\n\n@${playerHandle} scored ${score}\nNow they're #${rank} on the board!`;
+  // Mention "@handle" only when it resolved — never print a raw DID.
+  const playerLabel = playerHandle ? `@${playerHandle}` : 'A new player';
+  let text = `🎮 New leaderboard entry — ${gameName}!\n\n${playerLabel} scored ${score}\nNow they're #${rank} on the board!`;
   if (bumpedHandle) text += `\n\nSorry @${bumpedHandle}... You're out!`;
   text += `\n\nPlay at ${siteUrl}`;
 

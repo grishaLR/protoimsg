@@ -70,8 +70,8 @@
 
 .spriteWrap {
   flex-shrink: 0;
-  width: 64px;
-  height: 64px;
+  width: 112px;
+  height: 112px;
   background: var(--color-base-200);
   border-radius: var(--cm-radius-sm);
   box-shadow: var(--cm-pressed);
@@ -81,11 +81,21 @@
   overflow: hidden;
 }
 
+/* assetCid is a 3x4 layer sprite sheet — crop to a single cell so the modal
+   shows an icon, not the whole sheet. Cell (col 0, row 3) is the DIR_BACK pose
+   (`Avatar.ts`) — best view for back-worn equipment like the jetpack. For a
+   different cell: background-position: calc(col / 2 * 100%) calc(row / 3 * 100%). */
 .sprite {
-  image-rendering: pixelated;
   width: 100%;
   height: 100%;
-  object-fit: contain;
+  background-size: 300% 400%;
+  background-position: 0 100%;
+  background-repeat: no-repeat;
+  image-rendering: pixelated;
+  /* The art sits in the lower half of the cell (rpg sheets anchor sprites
+     low); shift up so it reads centered in the box. The bottom gap shows the
+     wrap background, which already matches the cell's transparent areas. */
+  transform: translateY(-12%);
 }
 
 .info {
