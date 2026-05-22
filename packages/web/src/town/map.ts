@@ -7,7 +7,7 @@ export const MAP_W = 40;
 export const MAP_H = 30;
 export const OBJ_SCALE = 2; // collage objects are 16-px base art
 
-export const ASSET_BASE = '/assets/games/town_rpg_pack/objects';
+export const ASSET_BASE = '/assets/town/town_rpg_pack';
 
 export type TownObjectType = 'pine' | 'pond';
 
@@ -51,6 +51,46 @@ function buildObjects(): PlacedObject[] {
 }
 
 export const OBJECTS: PlacedObject[] = buildObjects();
+
+// Concentric visibility zones — your position in town is who can see you.
+// Innermost is most private; the engine stacks them outer→inner so the
+// smaller rings draw on top.
+export type TownZone = 'everyone' | 'community' | 'inner' | 'bedroom';
+
+export interface ZoneRect {
+  zone: TownZone;
+  x: number;
+  y: number;
+  w: number;
+  h: number;
+}
+
+function centeredZone(
+  halfW: number,
+  halfH: number,
+): { x: number; y: number; w: number; h: number } {
+  return { x: MAP_W / 2 - halfW, y: MAP_H / 2 - halfH, w: halfW * 2, h: halfH * 2 };
+}
+
+export const ZONE_RECTS: ZoneRect[] = [
+  { zone: 'everyone', x: 0, y: 0, w: MAP_W, h: MAP_H },
+  { zone: 'community', ...centeredZone(15, 11) },
+  { zone: 'inner', ...centeredZone(8, 6) },
+  { zone: 'bedroom', ...centeredZone(5, 4) },
+];
+
+/** Innermost zone containing a tile — later (smaller) rects win. */
+export function zoneAtTile(tx: number, ty: number): TownZone {
+  let zone: TownZone = 'everyone';
+  for (const r of ZONE_RECTS) {
+    if (tx >= r.x && tx < r.x + r.w && ty >= r.y && ty < r.y + r.h) zone = r.zone;
+  }
+  return zone;
+}
+
+export function zoneAtPixel(px: number, py: number): TownZone {
+  return zoneAtTile(Math.floor(px / TILE), Math.floor(py / TILE));
+}
 
 // Tile footprint of an object, anchored at its placement tile.
 function footprint(o: PlacedObject): Array<[number, number]> {

@@ -1,10 +1,21 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import type { ServerMessage } from '@protoimsg/shared';
+import type { PresenceVisibility, ServerMessage } from '@protoimsg/shared';
 import { useAuth } from '../../hooks/useAuth';
+import { getCachedVisibility } from '../../hooks/usePresence';
 import { useWebSocket } from '../../contexts/WebSocketContext';
 import { WorldEngine } from '../../town/WorldEngine';
+import type { TownZone } from '../../town/map';
+import { zoneAtPixel } from '../../town/map';
 import styles from './ProtoTownPanel.module.css';
+
+// Visibility-IS-location: the zone you stand in decides who can see you.
+const ZONE_VISIBILITY: Record<TownZone, PresenceVisibility> = {
+  bedroom: 'no-one',
+  inner: 'inner-circle',
+  community: 'community',
+  everyone: 'everyone',
+};
 
 export function ProtoTownPanel() {
   const { t } = useTranslation('common');
@@ -29,11 +40,24 @@ export function ProtoTownPanel() {
     engine.onMove = (x, y, dir) => {
       sendRef.current({ type: 'town_move', x, y, dir });
     };
+    engine.onZoneChange = (zone) => {
+      sendRef.current({
+        type: 'status_change',
+        status: 'online',
+        visibleTo: ZONE_VISIBILITY[zone],
+      });
+    };
     void engine.init(container, did).then(() => {
       if (engineRef.current === engine) setEngineEpoch((e) => e + 1);
     });
     return () => {
       sendRef.current({ type: 'town_leave' });
+      // Leaving town: restore the visibility the user set outside of it.
+      sendRef.current({
+        type: 'status_change',
+        status: 'online',
+        visibleTo: getCachedVisibility(),
+      });
       engineRef.current = null;
       engine.destroy();
     };
@@ -47,6 +71,12 @@ export function ProtoTownPanel() {
     if (!engine) return;
     const p = engine.getPosition();
     send({ type: 'town_join', x: p.x, y: p.y, dir: p.dir });
+    // Initial visibility for the zone the player spawns in.
+    send({
+      type: 'status_change',
+      status: 'online',
+      visibleTo: ZONE_VISIBILITY[zoneAtPixel(p.x, p.y)],
+    });
     const unsub = subscribe((msg: ServerMessage) => {
       const e = engineRef.current;
       if (!e) return;

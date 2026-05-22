@@ -7,7 +7,27 @@ import type { TownPeer } from '@protoimsg/shared';
 import { GAME_MASTER_DID, RPG_ACTOR_API_URL } from '../lib/config';
 import { resolveDisplayNameForDid } from '../lib/resolve-pds';
 import { Avatar, DIR_BACK, DIR_FORWARD, DIR_LEFT, DIR_RIGHT, buildFrames } from './Avatar';
-import { ASSET_BASE, MAP_H, MAP_W, OBJECTS, OBJ_SCALE, TILE, isBlockedAtPixel } from './map';
+import type { TownZone } from './map';
+import {
+  ASSET_BASE,
+  MAP_H,
+  MAP_W,
+  OBJECTS,
+  OBJ_SCALE,
+  TILE,
+  ZONE_RECTS,
+  isBlockedAtPixel,
+  zoneAtPixel,
+} from './map';
+
+// One seamless grass tile, tinted per ring so the concentric bands read as
+// visibility boundaries — innermost (bedroom) is darkest/most private.
+const ZONE_TINT: Record<TownZone, number> = {
+  everyone: 0xffffff,
+  community: 0xd2e3b4,
+  inner: 0xa9cb88,
+  bedroom: 0x7fa564,
+};
 
 const SCALE = 2; // world zoom
 const SPEED = 132; // px/sec
@@ -74,6 +94,7 @@ export class WorldEngine {
 
   private px = MAP_W * TILE * 0.5;
   private py = MAP_H * TILE * 0.5;
+  private currentZone = zoneAtPixel(this.px, this.py);
   private sentX = -1;
   private sentY = -1;
   private sentDir = -1;
@@ -87,6 +108,9 @@ export class WorldEngine {
 
   /** Called (throttled) when the local player moves. */
   onMove?: (x: number, y: number, dir: number) => void;
+
+  /** Called when the local player crosses into a different visibility zone. */
+  onZoneChange?: (zone: TownZone) => void;
 
   constructor() {
     this.readyPromise = new Promise<void>((resolve) => {
@@ -139,9 +163,9 @@ export class WorldEngine {
 
   private async buildScene(did: string): Promise<void> {
     const [grass, pine, pond] = await Promise.all([
-      loadTexture(`${ASSET_BASE}/grass.png`),
-      loadTexture(`${ASSET_BASE}/pine.png`),
-      loadTexture(`${ASSET_BASE}/pond.png`),
+      loadTexture(`${ASSET_BASE}/graphics/grass-tile.png`),
+      loadTexture(`${ASSET_BASE}/objects/pine.png`),
+      loadTexture(`${ASSET_BASE}/objects/pond.png`),
     ]);
     if (this.destroyed) return;
     for (const t of [grass, pine, pond]) {
@@ -149,13 +173,27 @@ export class WorldEngine {
     }
 
     if (grass) {
-      const ground = new TilingSprite({
-        texture: grass,
-        width: MAP_W * TILE,
-        height: MAP_H * TILE,
+      // Concentric visibility zones, stacked outer→inner. Each is the same
+      // seamless tile tinted per ring, with a soft outline marking the border.
+      ZONE_RECTS.forEach((r, i) => {
+        const ground = new TilingSprite({
+          texture: grass,
+          width: r.w * TILE,
+          height: r.h * TILE,
+        });
+        ground.position.set(r.x * TILE, r.y * TILE);
+        ground.tint = ZONE_TINT[r.zone];
+        ground.zIndex = -10000 + i;
+        this.world.addChild(ground);
+
+        if (r.zone !== 'everyone') {
+          const edge = new Graphics()
+            .rect(r.x * TILE, r.y * TILE, r.w * TILE, r.h * TILE)
+            .stroke({ width: 2, color: 0x2c3a1c, alpha: 0.22 });
+          edge.zIndex = -9000 + i;
+          this.world.addChild(edge);
+        }
       });
-      ground.zIndex = -10000;
-      this.world.addChild(ground);
     }
 
     for (const o of OBJECTS) {
@@ -355,6 +393,12 @@ export class WorldEngine {
     }
     this.player.tick(dtMs, moving);
     this.player.setPosition(this.px, this.py);
+
+    const zone = zoneAtPixel(this.px, this.py);
+    if (zone !== this.currentZone) {
+      this.currentZone = zone;
+      this.onZoneChange?.(zone);
+    }
 
     // Throttled position broadcast (sends the resting position too, since the
     // changed-check stays true until the latest pose is acknowledged).
