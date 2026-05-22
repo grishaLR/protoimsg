@@ -81,11 +81,16 @@
   overflow: hidden;
 }
 
+/* assetCid is a 3x4 layer sprite sheet — crop to a single cell so the modal
+   shows an icon, not the whole sheet. For a different cell, set
+   background-position: calc(col / 2 * 100%) calc(row / 3 * 100%). */
 .sprite {
-  image-rendering: pixelated;
   width: 100%;
   height: 100%;
-  object-fit: contain;
+  background-size: 300% 400%;
+  background-position: 0 0;
+  background-repeat: no-repeat;
+  image-rendering: pixelated;
 }
 
 .info {

@@ -56,13 +56,13 @@ export function GiftUnlockedModal({ gift, onClose }: Props) {
 
         <div className={styles.body}>
           <div className={styles.spriteWrap}>
-            <img
+            {/* assetCid is the layerable 3x4 sprite sheet — there's no separate
+                icon blob, so crop it to a single cell (see the CSS) as the icon. */}
+            <div
               className={styles.sprite}
-              src={imgSrc}
-              alt={gift.title}
-              onError={(e) => {
-                (e.currentTarget as HTMLImageElement).style.display = 'none';
-              }}
+              style={{ backgroundImage: `url(${imgSrc})` }}
+              role="img"
+              aria-label={gift.title}
             />
           </div>
 

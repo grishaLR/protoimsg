@@ -820,7 +820,9 @@ export class HopperEngine {
     const img = this.jetpackImg;
     if (img) {
       ctx.imageSmoothingEnabled = false;
-      ctx.drawImage(img, x, y, 28, 28);
+      // jetpackImg is the full 3×4 / 48px layer sprite sheet (no separate icon
+      // blob) — draw cell (0,0) so the pickup shows one frame, not the grid.
+      ctx.drawImage(img, 0, 0, 48, 48, x, y, 28, 28);
     } else {
       ctx.fillStyle = '#ec4899';
       ctx.fillRect(x + 4, y + 2, 20, 24);
