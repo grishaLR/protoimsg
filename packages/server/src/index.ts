@@ -27,6 +27,8 @@ import { EmailService } from './email/service.js';
 import { createBotService } from './bot/service.js';
 import { createNotificationService } from './notifications/service.js';
 import { createGroupCallService, type GroupCallService } from './calls/service.js';
+import { createGameService } from './games/service.js';
+import { RunStore } from './games/run-store.js';
 
 async function main() {
   const config = loadConfig();
@@ -121,6 +123,22 @@ async function main() {
   const botService = config.BOT_ENABLED ? createBotService(emailService, db) : null;
   if (botService) log.info('Bot service (ProtoBuddy) enabled');
 
+  // Game service (optional — requires GAME_MASTER_IDENTIFIER + GAME_MASTER_PASSWORD)
+  const gameService =
+    config.GAME_MASTER_IDENTIFIER && config.GAME_MASTER_PASSWORD
+      ? createGameService(
+          config.GAME_MASTER_IDENTIFIER,
+          config.GAME_MASTER_PASSWORD,
+          config.PDS_URL ?? 'https://pds.protoimsg.app',
+          config.GAME_SITE_URL,
+        )
+      : undefined;
+  if (gameService) log.info('Game service enabled');
+  else log.warn('GAME_MASTER_IDENTIFIER/PASSWORD not set — leaderboards disabled');
+
+  // Game run store — issues seeds + single-use run tickets for score replay.
+  const runStore = new RunStore(redis);
+
   // Group call service (optional — requires all three LiveKit env vars)
   let groupCallService: GroupCallService | null = null;
   if (config.LIVEKIT_URL && config.LIVEKIT_API_KEY && config.LIVEKIT_API_SECRET) {
@@ -156,6 +174,8 @@ async function main() {
     emailService,
     notificationService,
     groupCallService,
+    gameService,
+    runStore,
   );
   const httpServer = createServer(app);
 

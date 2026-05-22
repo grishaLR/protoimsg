@@ -10,7 +10,7 @@ import { LoginPage } from './pages/LoginPage';
 import { ConnectingScreen } from './components/auth/ConnectingScreen';
 import { AppErrorBoundary } from './components/AppErrorBoundary';
 import { AppLoader } from './components/AppLoader';
-import { SIGNUP_ENABLED } from './lib/config';
+import { PUBLIC_ARCADE_ENABLED, SIGNUP_ENABLED } from './lib/config';
 import styles from './App.module.css';
 
 // Set by login() before redirect, cleared by init() after processing.
@@ -23,12 +23,17 @@ sessionStorage.removeItem('protoimsg:chunk_reload');
 // Auto-reload on stale chunks after a deploy (old hashed filenames → 404).
 // Prevents "Failed to fetch dynamically imported module" / "Unable to preload CSS" errors.
 function reloadOnChunkError<T>(p: Promise<T>): Promise<T> {
-  return p.catch((err: unknown): never => {
+  return p.catch((err: unknown): Promise<T> => {
     const key = 'protoimsg:chunk_reload';
     if (!sessionStorage.getItem(key)) {
       sessionStorage.setItem(key, '1');
       window.location.reload();
+      // Reload is imminent — return a never-settling promise so the Suspense
+      // fallback stays up. Re-throwing here would flash the ErrorBoundary and
+      // report a Sentry event for what is just a stale-deploy artifact.
+      return new Promise<T>(() => {});
     }
+    // Already reloaded once and it still failed — a genuine error. Surface it.
     throw err;
   });
 }
@@ -49,6 +54,22 @@ const VideoCallWindowPage = lazy(() =>
     import('./pages/VideoCallWindowPage').then((m) => ({ default: m.VideoCallWindowPage })),
   ),
 );
+const ProfileWindowPage = lazy(() =>
+  reloadOnChunkError(
+    import('./pages/ProfileWindowPage').then((m) => ({ default: m.ProfileWindowPage })),
+  ),
+);
+const PublicArcadePage = lazy(() =>
+  reloadOnChunkError(
+    import('./pages/PublicArcadePage').then((m) => ({ default: m.PublicArcadePage })),
+  ),
+);
+const MeetWindowPage = lazy(() =>
+  reloadOnChunkError(import('./pages/MeetWindowPage').then((m) => ({ default: m.MeetWindowPage }))),
+);
+const BotWindowPage = lazy(() =>
+  reloadOnChunkError(import('./pages/BotWindowPage').then((m) => ({ default: m.BotWindowPage }))),
+);
 /** /meet/:callId — saves the meet code so it survives OAuth, then redirects to /. */
 function MeetRedirect() {
   const { callId } = useParams<{ callId: string }>();
@@ -57,9 +78,6 @@ function MeetRedirect() {
   }
   return <Navigate to="/" replace />;
 }
-const BetaSignupPage = lazy(() =>
-  reloadOnChunkError(import('./pages/BetaSignupPage').then((m) => ({ default: m.BetaSignupPage }))),
-);
 const SignupPage = lazy(() =>
   reloadOnChunkError(import('./pages/SignupPage').then((m) => ({ default: m.SignupPage }))),
 );
@@ -115,14 +133,6 @@ function AppRoutes() {
     <Routes>
       <Route path="/login" element={<LoginPage />} />
       <Route
-        path="/beta-signup"
-        element={
-          <Suspense fallback={null}>
-            <BetaSignupPage />
-          </Suspense>
-        }
-      />
-      <Route
         path="/signup"
         element={
           SIGNUP_ENABLED ? (
@@ -156,6 +166,50 @@ function AppRoutes() {
         element={
           <ProtectedRoute>
             <VideoCallWindowPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/profile/:did"
+        element={
+          <ProtectedRoute>
+            <ProfileWindowPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/games"
+        element={
+          PUBLIC_ARCADE_ENABLED ? (
+            <Suspense fallback={null}>
+              <PublicArcadePage />
+            </Suspense>
+          ) : (
+            <Navigate to="/" replace />
+          )
+        }
+      />
+      <Route
+        path="/meet-window"
+        element={
+          <ProtectedRoute>
+            <MeetWindowPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/meet-window/:meetCode"
+        element={
+          <ProtectedRoute>
+            <MeetWindowPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/bot"
+        element={
+          <ProtectedRoute>
+            <BotWindowPage />
           </ProtectedRoute>
         }
       />

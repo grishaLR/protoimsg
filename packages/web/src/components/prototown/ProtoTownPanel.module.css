@@ -1,0 +1,67 @@
+.panel {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.world {
+  position: absolute;
+  inset: 0;
+}
+
+.hud {
+  position: absolute;
+  left: var(--cm-space-6);
+  top: var(--cm-space-6);
+  padding: var(--cm-space-2) var(--cm-space-5);
+  font-size: var(--cm-text-xs);
+  color: var(--color-base-content);
+  background: var(--color-base-100);
+  border: var(--cm-space-0.5) solid var(--color-base-300);
+  border-radius: var(--cm-radius-sm);
+  box-shadow: var(--cm-raised);
+  pointer-events: none;
+  user-select: none;
+}
+
+.chatBar {
+  position: absolute;
+  left: var(--cm-space-6);
+  right: var(--cm-space-6);
+  bottom: var(--cm-space-6);
+  margin: var(--cm-space-0) auto;
+  max-width: var(--cm-panel-width-dm);
+  display: flex;
+  gap: var(--cm-space-3);
+}
+
+.chatInput {
+  flex: 1;
+  padding: var(--cm-space-2) var(--cm-space-4);
+  font-size: var(--cm-text-sm);
+  color: var(--color-base-content);
+  background: var(--color-base-100);
+  border: var(--cm-space-0.5) solid var(--color-base-300);
+  border-radius: var(--cm-radius-md);
+}
+
+.chatInput:focus {
+  outline: var(--cm-focus-thin) solid var(--cm-focus);
+  outline-offset: var(--cm-focus-offset);
+}
+
+.chatSend {
+  padding: var(--cm-space-2) var(--cm-space-6);
+  font-size: var(--cm-text-sm);
+  color: var(--color-primary-content);
+  background: var(--color-primary);
+  border: var(--cm-space-0.5) solid var(--color-base-300);
+  border-radius: var(--cm-radius-md);
+  box-shadow: var(--cm-raised);
+  cursor: pointer;
+}
+
+.chatSend:active {
+  box-shadow: var(--cm-pressed);
+}

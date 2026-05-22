@@ -19,6 +19,7 @@
   "dependencies": {
     "@atproto/api": "^0.13.0",
     "@atproto/oauth-client-node": "^0.2.0",
+    "@protoimsg/game-sim": "workspace:*",
     "@protoimsg/lexicon": "workspace:*",
     "@protoimsg/shared": "workspace:*",
     "@sentry/node": "^10.38.0",

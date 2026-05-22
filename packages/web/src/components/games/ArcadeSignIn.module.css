@@ -1,0 +1,47 @@
+.content {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.btn {
+  background: var(--cm-surface-button);
+  box-shadow: var(--cm-raised);
+  border: 0;
+  border-radius: var(--cm-radius-sm);
+  padding: 8px 0;
+  font-size: var(--cm-text-sm);
+  font-weight: 900;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--color-base-content);
+  cursor: pointer;
+}
+
+.btn:active:not(:disabled) {
+  box-shadow: var(--cm-pressed);
+}
+
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.error {
+  font-size: var(--cm-text-xs);
+  color: var(--color-error, #cc0000);
+  text-align: center;
+}
+
+.note {
+  font-size: var(--cm-text-xs);
+  color: var(--color-base-content);
+  opacity: 0.45;
+  text-align: center;
+}

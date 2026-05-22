@@ -11,6 +11,18 @@ export const SIGNUP_ENABLED: boolean = import.meta.env.VITE_SIGNUP_ENABLED !== '
 /** Feature flag: set VITE_BOT_ENABLED=true to enable ProtoBuddy bot. */
 export const BOT_ENABLED: boolean = import.meta.env.VITE_BOT_ENABLED === 'true';
 
+/** Feature flag: set VITE_RUNNER_ENABLED=true to show the Hurdles game (WIP). */
+export const HURDLES_ENABLED: boolean = import.meta.env.VITE_RUNNER_ENABLED === 'true';
+
+/** Feature flag: set VITE_GAMES_ENABLED=true to show the Fun (games) button + view. */
+export const GAMES_ENABLED: boolean = import.meta.env.VITE_GAMES_ENABLED === 'true';
+
+/** Feature flag: set VITE_TOWN_ENABLED=true to show the Town button + view. */
+export const TOWN_ENABLED: boolean = import.meta.env.VITE_TOWN_ENABLED === 'true';
+
+/** Feature flag: set VITE_PUBLIC_ARCADE_ENABLED=true to enable the public /games route. */
+export const PUBLIC_ARCADE_ENABLED: boolean = import.meta.env.VITE_PUBLIC_ARCADE_ENABLED === 'true';
+
 /** Feature flag: set VITE_FEED_ENABLED=true to show the Feed tab. Hidden by default. */
 export const FEED_ENABLED: boolean = import.meta.env.VITE_FEED_ENABLED === 'true';
 
@@ -20,6 +32,15 @@ export const CHAT_ROOMS_ENABLED: boolean = import.meta.env.VITE_CHAT_ROOMS_ENABL
 /** Cloudflare Turnstile site key for signup CAPTCHA (optional — skipped when absent). */
 export const TURNSTILE_SITE_KEY: string | undefined =
   (import.meta.env.VITE_TURNSTILE_SITE_KEY as string | undefined) || undefined;
+
+/** Game master DID — owner of equipment.rpg.give records we scan for pending gifts. */
+export const GAME_MASTER_DID: string =
+  (import.meta.env.VITE_GAME_MASTER_DID as string | undefined) ??
+  'did:plc:ew5e3up4h2jf4j263qhdjo4e';
+
+/** Base URL for the RPG actor registry API. */
+export const RPG_ACTOR_API_URL: string =
+  (import.meta.env.VITE_RPG_ACTOR_API_URL as string | undefined) ?? 'https://rpg.actor';
 
 /** True when running inside a Tauri v2 desktop shell. */
 // __TAURI_INTERNALS__ is injected before page scripts run (unlike __TAURI__ which

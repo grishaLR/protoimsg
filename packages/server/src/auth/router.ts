@@ -165,17 +165,6 @@ export function authRouter(
         await globalAllowlist.add(sql, pdsData.did, pdsData.handle, 'signup', 'system');
       }
 
-      // Fire-and-forget: add to waitlist for admin visibility
-      if (sql) {
-        void sql`
-          INSERT INTO waitlist (handle, did, email, source)
-          VALUES (${pdsData.handle}, ${pdsData.did}, ${email}, 'signup')
-          ON CONFLICT (did) DO UPDATE SET handle = EXCLUDED.handle, email = EXCLUDED.email
-        `.catch((err: unknown) => {
-          log.warn({ err, did: pdsData.did }, 'signup waitlist insert failed');
-        });
-      }
-
       res.status(201).json({ did: pdsData.did, handle: pdsData.handle });
     } catch (err) {
       next(err);
@@ -244,29 +233,6 @@ export function authRouter(
         return;
       }
 
-      if (!globalAllowlist.isAllowed(data.did)) {
-        log.warn({ did: data.did, handle }, 'auth/preflight rejected: not on allowlist');
-
-        // Auto-insert into waitlist so they appear in the admin panel.
-        // DID has a unique index — ON CONFLICT prevents duplicate inserts.
-        if (sql) {
-          void sql`
-            INSERT INTO waitlist (handle, did, source)
-            VALUES (${handle}, ${data.did}, 'login')
-            ON CONFLICT (did) DO UPDATE SET handle = EXCLUDED.handle
-          `.catch((err: unknown) => {
-            log.warn({ err, did: data.did }, 'auto-waitlist insert failed');
-          });
-        }
-
-        res.status(403).json({
-          error: 'This account is not yet on the beta allowlist.',
-          errorCode: ERROR_CODES.NOT_ON_ALLOWLIST,
-        });
-
-        return;
-      }
-
       res.json({ allowed: true });
     } catch (err) {
       next(err);
@@ -291,15 +257,6 @@ export function authRouter(
         res.status(403).json({
           error: 'This account is not permitted to use this service.',
           errorCode: ERROR_CODES.BANNED,
-        });
-        return;
-      }
-
-      if (!globalAllowlist.isAllowed(parsed.data.did)) {
-        log.warn({ did: parsed.data.did }, 'auth/challenge rejected: not on allowlist');
-        res.status(403).json({
-          error: 'This account is not yet on the beta allowlist.',
-          errorCode: ERROR_CODES.NOT_ON_ALLOWLIST,
         });
         return;
       }
@@ -332,17 +289,6 @@ export function authRouter(
         res.status(403).json({
           error: 'This account is not permitted to use this service.',
           errorCode: ERROR_CODES.BANNED,
-        });
-
-        return;
-      }
-
-      if (!globalAllowlist.isAllowed(did)) {
-        log.warn({ did, handle }, 'auth/session rejected: not on allowlist');
-
-        res.status(403).json({
-          error: 'This account is not yet on the beta allowlist.',
-          errorCode: ERROR_CODES.NOT_ON_ALLOWLIST,
         });
 
         return;

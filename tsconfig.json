@@ -3,6 +3,7 @@
   "references": [
     { "path": "packages/lexicon" },
     { "path": "packages/shared" },
+    { "path": "packages/game-sim" },
     { "path": "packages/server" }
   ]
 }

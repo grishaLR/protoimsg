@@ -4,6 +4,10 @@ import { useQuery, useInfiniteQuery, useQueries } from '@tanstack/react-query';
 import { ArrowLeft, ExternalLink } from 'lucide-react';
 import type { AppBskyFeedDefs, AppBskyEmbedImages } from '@atproto/api';
 import { publicAgent } from '../../lib/public-agent';
+import { useAuth } from '../../hooks/useAuth';
+import { useActorSprite } from '../../hooks/useActorSprite';
+import type { SpriteRecord } from '../../hooks/useActorSprite';
+import { HurdlesGame } from '../games/HurdlesGame';
 import { useGermDeclaration } from '../../hooks/useGermDeclaration';
 import { useActorCollections, useActorRecords } from '../../hooks/useActorRecords';
 import {
@@ -93,64 +97,97 @@ function StatusBadge({ pds, did }: { pds: string; did: string }) {
   );
 }
 
-interface SpriteRecord {
-  frameWidth: number;
-  frameHeight: number;
-  columns: number;
-  width: number;
-  height: number;
-  spriteSheet: { ref: { $link: string } };
-}
+const GAME_SEQ = [
+  'ArrowUp',
+  'ArrowDown',
+  'ArrowLeft',
+  'ArrowRight',
+  'ArrowRight',
+  'ArrowLeft',
+  'ArrowDown',
+  'ArrowUp',
+];
 
-function SpriteWalker({ pds, did }: { pds: string; did: string }) {
+function SpriteWalker({
+  pds,
+  did,
+  statusText,
+  viewerDid,
+  viewerPds,
+  cursorDir,
+}: {
+  pds: string;
+  did: string;
+  statusText?: string;
+  viewerDid?: string | null;
+  viewerPds?: string | null;
+  cursorDir: 'left' | 'right' | 'up' | 'down' | null;
+}) {
   const { data: sprite } = useActorSprite(did, pds);
+  const { data: viewerSprite } = useActorSprite(viewerDid ?? undefined, viewerPds ?? undefined);
 
   if (!sprite?.spriteSheet.ref.$link) return null;
 
-  const { frameWidth: fw, frameHeight: fh, columns, width, height } = sprite;
+  const { frameWidth: fw, frameHeight: fh } = sprite;
   const scale = 2;
   const rfw = fw * scale;
   const rfh = fh * scale;
+  const hasViewer = !!viewerSprite && !!viewerDid && viewerDid !== did;
+
+  const makeSpriteStyle = (sp: SpriteRecord, spPds: string, spDid: string) =>
+    ({
+      width: rfw,
+      height: rfh,
+      backgroundImage: `url(${blobUrl(spPds, spDid, sp.spriteSheet.ref.$link)})`,
+      backgroundSize: `${sp.width * scale}px ${sp.height * scale}px`,
+      '--sprite-total-w': `-${sp.columns * rfw}px`,
+      '--row-down': '0px',
+      '--row-left': `-${rfh}px`,
+      '--row-right': `-${2 * rfh}px`,
+      '--row-up': `-${3 * rfh}px`,
+    }) as React.CSSProperties;
+
+  const dirClass =
+    cursorDir === 'right'
+      ? styles.spriteFaceRight
+      : cursorDir === 'left'
+        ? styles.spriteFaceLeft
+        : cursorDir === 'up'
+          ? styles.spriteFaceUp
+          : cursorDir === 'down'
+            ? styles.spriteFaceDown
+            : '';
 
   return (
-    <div className={styles.spriteTrack} style={{ '--sprite-h': `${rfh}px` } as React.CSSProperties}>
+    <>
       <div
-        className={styles.sprite}
-        style={
-          {
-            width: rfw,
-            height: rfh,
-            backgroundImage: `url(${blobUrl(pds, did, sprite.spriteSheet.ref.$link)})`,
-            backgroundSize: `${width * scale}px ${height * scale}px`,
-            '--sprite-total-w': `-${columns * rfw}px`,
-            '--row-down': '0px',
-            '--row-left': `-${rfh}px`,
-            '--row-right': `-${2 * rfh}px`,
-            '--row-up': `-${3 * rfh}px`,
-          } as React.CSSProperties
-        }
-      />
-    </div>
+        className={`${styles.spriteTrack} ${cursorDir ? styles.spriteTrackPaused : ''}`}
+        style={{ '--sprite-h': `${rfh}px` } as React.CSSProperties}
+      >
+        <div
+          className={[styles.sprite, hasViewer ? styles.spriteOwner : '', dirClass]
+            .filter(Boolean)
+            .join(' ')}
+          style={makeSpriteStyle(sprite, pds, did)}
+        />
+        {viewerSprite && viewerDid && viewerDid !== did && viewerPds && (
+          <div
+            className={[styles.sprite, styles.spriteVisitor, dirClass].filter(Boolean).join(' ')}
+            style={makeSpriteStyle(viewerSprite, viewerPds, viewerDid)}
+          />
+        )}
+      </div>
+      {statusText && (
+        <div
+          className={styles.spriteBubble}
+          style={{ '--bubble-bottom': `${rfh + 8}px` } as React.CSSProperties}
+          aria-hidden="true"
+        >
+          {statusText.length > 58 ? `${statusText.slice(0, 55)}…` : statusText}
+        </div>
+      )}
+    </>
   );
-}
-
-function useActorSprite(did: string | undefined, pds: string | undefined) {
-  return useQuery({
-    queryKey: ['actorSprite', did],
-    enabled: !!did && !!pds,
-    staleTime: 5 * 60_000,
-    queryFn: async (): Promise<SpriteRecord | null> => {
-      const params = new URLSearchParams({
-        repo: did as string,
-        collection: 'actor.rpg.sprite',
-        limit: '1',
-      });
-      const res = await fetch(`${pds}/xrpc/com.atproto.repo.listRecords?${params}`);
-      if (!res.ok) return null;
-      const json = (await res.json()) as { records: Array<{ value: unknown }> };
-      return (json.records[0]?.value ?? null) as SpriteRecord | null;
-    },
-  });
 }
 
 function SpriteHead({ pds, did, size = 56 }: { pds: string; did: string; size?: number }) {
@@ -1583,7 +1620,6 @@ function KeytraceCard({
           {!isVerified && status && <span className={styles.keytraceStatus}>{status}</span>}
         </div>
         {subject && profileUrl ? (
-          // eslint-disable-next-line no-restricted-syntax -- validated by isSafeUrl() above
           <a
             className={styles.keytraceSubject}
             href={profileUrl}
@@ -1596,7 +1632,6 @@ function KeytraceCard({
           <span className={styles.keytraceSubject}>@{subject}</span>
         ) : null}
         {claimUri && (
-          // eslint-disable-next-line no-restricted-syntax -- validated by isSafeUrl() above
           <a
             className={styles.recordLink}
             href={claimUri}
@@ -1639,7 +1674,6 @@ function TangledRepoCard({ record, ctx }: { record: RecordItem; ctx: RenderConte
         <span className={styles.postMeta}>{createdAt ? formatDate(createdAt) : null}</span>
         <div className={styles.tangledLinks}>
           {website && (
-            // eslint-disable-next-line no-restricted-syntax -- validated by isSafeUrl() above
             <a
               className={styles.recordLink}
               href={website}
@@ -2043,6 +2077,9 @@ export function ProfileView({ actor, onBack }: ProfileViewProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
   const headerRef = useRef<HTMLDivElement>(null);
   const [pinned, setPinned] = useState(false);
+  const [cursorDir, setCursorDir] = useState<'left' | 'right' | 'up' | 'down' | null>(null);
+  const [gameOpen, setGameOpen] = useState(false);
+  const gameSeqRef = useRef<string[]>([]);
 
   const {
     data: profile,
@@ -2057,9 +2094,41 @@ export function ProfileView({ actor, onBack }: ProfileViewProps) {
     enabled: !!actor,
   });
 
+  const { did: viewerDid } = useAuth();
+  const { data: viewerPds } = usePds(viewerDid ?? undefined);
+
   const { canMessage: germAvailable, germUrl } = useGermDeclaration(profile?.did);
   const { data: collectionsData } = useActorCollections(profile?.did);
   const { data: pds } = usePds(profile?.did);
+
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      if (!['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key)) return;
+      const next = [...gameSeqRef.current, e.key].slice(-GAME_SEQ.length);
+      gameSeqRef.current = next;
+      if (next.join(',') === GAME_SEQ.join(',')) {
+        setGameOpen(true);
+        gameSeqRef.current = [];
+      }
+    };
+    window.addEventListener('keydown', handler);
+    return () => {
+      window.removeEventListener('keydown', handler);
+    };
+  }, []);
+
+  const handleHeaderMouseMove = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    const cx = e.clientX - rect.left;
+    const cy = e.clientY - rect.top;
+    const mx = rect.width / 2;
+    const my = rect.height / 2;
+    if (Math.abs(cx - mx) > Math.abs(cy - my)) {
+      setCursorDir(cx > mx ? 'right' : 'left');
+    } else {
+      setCursorDir(cy > my ? 'down' : 'up');
+    }
+  }, []);
 
   const tabs = useMemo<TabSpec[]>(() => {
     const cols = collectionsData?.collections ?? [];
@@ -2113,7 +2182,14 @@ export function ProfileView({ actor, onBack }: ProfileViewProps) {
         {error && <div className={styles.error}>{t('errorBoundary.fallbackMessage')}</div>}
 
         {profile && (
-          <div className={styles.profileHeader} ref={headerRef}>
+          <div
+            className={styles.profileHeader}
+            ref={headerRef}
+            onMouseMove={handleHeaderMouseMove}
+            onMouseLeave={() => {
+              setCursorDir(null);
+            }}
+          >
             {profile.banner && isSafeUrl(profile.banner) ? (
               // eslint-disable-next-line no-restricted-syntax -- validated by isSafeUrl() above
               <img className={styles.banner} src={profile.banner} alt="" />
@@ -2177,8 +2253,36 @@ export function ProfileView({ actor, onBack }: ProfileViewProps) {
                 </div>
               )}
             </div>
-            {ctx && <SpriteWalker pds={ctx.pds} did={ctx.did} />}
+            {ctx && (
+              <SpriteWalker
+                pds={ctx.pds}
+                did={ctx.did}
+                statusText={profile.description ?? undefined}
+                viewerDid={viewerDid}
+                viewerPds={viewerPds ?? null}
+                cursorDir={cursorDir}
+              />
+            )}
             {ctx && <StatusBadge pds={ctx.pds} did={ctx.did} />}
+          </div>
+        )}
+        {gameOpen && ctx && (
+          <div
+            className={styles.gameOverlay}
+            role="dialog"
+            aria-modal="true"
+            aria-label="Hurdles game"
+          >
+            <div className={styles.gameModal}>
+              <HurdlesGame
+                onClose={() => {
+                  setGameOpen(false);
+                }}
+                did={ctx.did}
+                pds={ctx.pds}
+                difficulty="fast"
+              />
+            </div>
           </div>
         )}
 
@@ -2187,7 +2291,6 @@ export function ProfileView({ actor, onBack }: ProfileViewProps) {
             <div className={styles.condensedHeader}>
               <div className={styles.condensedHeaderInner}>
                 {profile.banner && isSafeUrl(profile.banner) ? (
-                  // eslint-disable-next-line no-restricted-syntax -- validated by isSafeUrl() above
                   <img
                     className={styles.condensedBannerBg}
                     src={profile.banner}

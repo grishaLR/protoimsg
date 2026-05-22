@@ -192,7 +192,8 @@
     },
     "footer": {
       "chatRooms": "Chat Rooms",
-      "feed": "Feed"
+      "feed": "Feed",
+      "town": "Town"
     },
     "unreadIm": "{{count}} unread",
     "incomingIm": "Incoming IM",
@@ -301,5 +302,14 @@
     "deleteGroup": "Delete group",
     "expand": "Expand",
     "collapse": "Collapse"
+  },
+  "town": {
+    "hud": {
+      "controls": "WASD / arrows to move"
+    },
+    "chat": {
+      "placeholder": "Say something to the town…",
+      "send": "Send"
+    }
   }
 }

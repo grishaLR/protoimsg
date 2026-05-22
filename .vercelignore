@@ -1,2 +1,30 @@
-packages/desktop/src-tauri/target
-packages/desktop/node_modules
+# Dependencies — Vercel runs `pnpm install` itself.
+node_modules
+**/node_modules
+
+# Build outputs — Vercel runs the build itself.
+dist
+**/dist
+.turbo
+**/.turbo
+.next
+**/.next
+
+# TS incremental cache — composite-mode tsc reads these and skips emit,
+# leaving Vercel with no dist/ for downstream packages.
+*.tsbuildinfo
+**/*.tsbuildinfo
+
+# Git history is not needed at build time.
+.git
+
+# Packages the web build doesn't depend on.
+packages/desktop
+packages/mobile
+
+# Editor / OS noise
+.DS_Store
+.vscode
+.idea
+*.log
+.cache

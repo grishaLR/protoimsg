@@ -6,12 +6,7 @@ import { useTheme } from '../../hooks/useTheme';
 import { useRotatingPlaceholder } from '../../hooks/useRotatingPlaceholder';
 import { useTurnstile } from '../../hooks/useTurnstile';
 import { THEME_OPTIONS, type Theme } from '../../contexts/ThemeContext';
-import {
-  AccountBannedError,
-  NotOnAllowlistError,
-  CaptchaFailedError,
-  joinWaitlist,
-} from '../../lib/api';
+import { AccountBannedError, CaptchaFailedError } from '../../lib/api';
 import { SIGNUP_ENABLED } from '../../lib/config';
 import { ActorSearch, type ActorSearchResult } from '../shared/ActorSearch';
 import { AtprotoInfoModal } from './AtprotoInfoModal';
@@ -26,7 +21,6 @@ export function LoginForm() {
   const [handle, setHandle] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [banned, setBanned] = useState(false);
-  const [notOnAllowlist, setNotOnAllowlist] = useState(false);
   const [loading, setLoading] = useState(false);
   const [showInfo, setShowInfo] = useState(false);
   const placeholder = useRotatingPlaceholder('login');
@@ -39,12 +33,9 @@ export function LoginForm() {
 
     setError(null);
     setBanned(false);
-    setNotOnAllowlist(false);
     setLoading(true);
     login(trimmed, turnstile.getToken() ?? undefined).catch((err: unknown) => {
-      if (err instanceof NotOnAllowlistError) {
-        setNotOnAllowlist(true);
-      } else if (err instanceof AccountBannedError) {
+      if (err instanceof AccountBannedError) {
         setBanned(true);
       } else if (err instanceof CaptchaFailedError) {
         setError(t('login.error.captchaFailed'));
@@ -78,17 +69,6 @@ export function LoginForm() {
           </button>
         </div>
       </div>
-    );
-  }
-
-  if (notOnAllowlist) {
-    return (
-      <BetaSignupForm
-        handle={handle}
-        onBack={() => {
-          setNotOnAllowlist(false);
-        }}
-      />
     );
   }
 
@@ -165,103 +145,5 @@ export function LoginForm() {
         />
       )}
     </>
-  );
-}
-
-export function BetaSignupForm({ handle, onBack }: { handle: string; onBack: () => void }) {
-  const { t } = useTranslation('auth');
-  const [email, setEmail] = useState('');
-  const [handleValue, setHandleValue] = useState(handle);
-  const [submitting, setSubmitting] = useState(false);
-  const [success, setSuccess] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const placeholder = useRotatingPlaceholder('login');
-
-  function handleSubmit(e: React.SyntheticEvent) {
-    e.preventDefault();
-    const trimmedEmail = email.trim();
-    if (!trimmedEmail) return;
-
-    // Basic client-side email check
-    if (!trimmedEmail.includes('@') || !trimmedEmail.includes('.')) {
-      setError(t('login.betaSignup.error.invalid'));
-      return;
-    }
-
-    setError(null);
-    setSubmitting(true);
-    joinWaitlist(trimmedEmail, handleValue.trim())
-      .then(() => {
-        setSuccess(true);
-      })
-      .catch(() => {
-        setError(t('login.betaSignup.error.default'));
-      })
-      .finally(() => {
-        setSubmitting(false);
-      });
-  }
-
-  return (
-    <div className={styles.form}>
-      <h1 className={styles.title}>{t('login.title')}</h1>
-      <div className={styles.betaSignupBox}>
-        <h2 className={styles.betaSignupTitle}>{t('login.betaSignup.title')}</h2>
-        <p className={styles.betaSignupBody}>{t('login.betaSignup.body')}</p>
-        {success ? (
-          <>
-            <p className={styles.betaSignupSuccess}>{t('login.betaSignup.success')}</p>
-            <button className={styles.button} type="button" onClick={onBack}>
-              {t('login.betaSignup.back')}
-            </button>
-          </>
-        ) : (
-          <form onSubmit={handleSubmit}>
-            <div className={styles.betaSignupBox}>
-              <label className={styles.betaSignupLabel} htmlFor="waitlist-email">
-                {t('login.betaSignup.emailLabel')}
-              </label>
-              <input
-                id="waitlist-email"
-                className={styles.betaSignupInput}
-                type="email"
-                value={email}
-                onChange={(e) => {
-                  setEmail(e.target.value);
-                }}
-                placeholder={t('login.betaSignup.emailPlaceholder')}
-                required
-                autoFocus
-              />
-              <label className={styles.betaSignupLabel} htmlFor="waitlist-handle">
-                {t('login.betaSignup.handleLabel')}
-              </label>
-              <input
-                id="waitlist-handle"
-                className={styles.betaSignupInput}
-                type="text"
-                value={handleValue}
-                onChange={(e) => {
-                  setHandleValue(e.target.value);
-                }}
-                placeholder={handle || placeholder}
-                required
-              />
-              {error && <p className={styles.error}>{error}</p>}
-              <button
-                className={styles.button}
-                type="submit"
-                disabled={submitting || !email.trim() || !handleValue.trim()}
-              >
-                {submitting ? t('login.betaSignup.submitting') : t('login.betaSignup.submit')}
-              </button>
-              <button className={styles.button} type="button" onClick={onBack}>
-                {t('login.betaSignup.back')}
-              </button>
-            </div>
-          </form>
-        )}
-      </div>
-    </div>
   );
 }

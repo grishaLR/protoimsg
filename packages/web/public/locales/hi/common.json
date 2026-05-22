@@ -124,5 +124,19 @@
     "messageTooLong": "संदेश बहुत लंबा है",
     "contentFiltered": "संदेश कंटेंट फ़िल्टर द्वारा रोक दिया गया",
     "alreadyExists": "पहले से मौजूद है"
+  },
+  "buddyList": {
+    "footer": {
+      "town": "Town"
+    }
+  },
+  "town": {
+    "hud": {
+      "controls": "WASD / arrows to move"
+    },
+    "chat": {
+      "placeholder": "Say something to the town…",
+      "send": "Send"
+    }
   }
 }

@@ -1,0 +1,337 @@
+.panel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  padding: var(--space-6);
+  gap: var(--space-6);
+}
+
+.heading {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--color-text);
+  margin: 0;
+}
+
+
+/* ── Game preview (canvas + difficulty overlay) ──────────────────────────── */
+
+.previewWrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--cm-space-3);
+}
+
+.previewTabs {
+  display: flex;
+  gap: var(--cm-space-2);
+}
+
+.previewTab {
+  padding: var(--cm-space-1) var(--cm-space-5);
+  background: var(--cm-surface-button);
+  border: none;
+  border-radius: var(--cm-radius-sm);
+  box-shadow: var(--cm-raised);
+  font-size: var(--cm-text-sm);
+  font-weight: 700;
+  color: var(--color-base-content);
+  cursor: pointer;
+  opacity: 0.55;
+}
+
+.previewTab:hover {
+  opacity: 0.85;
+}
+
+.previewTabActive {
+  opacity: 1;
+  background: var(--color-primary, #1a6400);
+  color: var(--color-primary-content, #fff);
+  box-shadow: var(--cm-pressed);
+}
+
+.previewCanvas {
+  position: relative;
+}
+
+.gamePlaceholderHopper {
+  width: 352px;
+  height: 580px;
+  max-width: 100%;
+  background: #06000f;
+  border-radius: var(--cm-radius-md);
+}
+
+.gamePlaceholderHurdles {
+  width: 680px;
+  height: 296px;
+  max-width: 100%;
+  background: #0f172a;
+  border-radius: var(--cm-radius-md);
+}
+
+.diffOverlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--cm-space-4);
+  background: oklch(0 0 0 / 0.58);
+  backdrop-filter: blur(2px);
+  z-index: 10;
+  color: #fff;
+}
+
+.diffOverlayGame {
+  font-size: var(--cm-text-xl, 1.25rem);
+  font-weight: 900;
+  color: #fff;
+  letter-spacing: 0.12em;
+  text-transform: lowercase;
+}
+
+.diffOverlayHint {
+  font-size: var(--cm-text-sm);
+  color: #fff;
+  opacity: 0.65;
+  margin-top: calc(-1 * var(--cm-space-2));
+}
+
+.diffBtns {
+  display: flex;
+  gap: var(--cm-space-3);
+}
+
+.diffBtn {
+  padding: var(--cm-space-3) var(--cm-space-10);
+  background: var(--color-primary, #1a6400);
+  border: none;
+  border-radius: var(--cm-radius-sm);
+  box-shadow: var(--cm-raised);
+  font-size: var(--cm-text-md);
+  font-weight: 900;
+  color: var(--color-primary-content, #fff);
+  cursor: pointer;
+  letter-spacing: 0.04em;
+}
+
+.diffBtn:hover {
+  filter: brightness(1.15);
+}
+
+.diffBtn:active {
+  box-shadow: var(--cm-pressed);
+}
+
+.loading {
+  font-size: var(--cm-text-sm);
+  color: var(--color-base-content);
+  opacity: 0.5;
+  padding: var(--cm-space-8);
+}
+
+
+/* ── Game + leaderboard layout ──────────────────────────────────────────── */
+
+.gameLayout {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  padding: var(--cm-space-4);
+  overflow: auto;
+}
+
+.gameRow {
+  display: inline-flex;
+  flex-direction: row;
+  gap: var(--cm-space-6);
+  align-items: center;
+}
+
+.gameWrap {
+  display: inline-flex;
+  flex-direction: column;
+}
+
+/* ── Hurdles: game on top, leaderboards in a row below ───────────────────── */
+
+.gameCol {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--cm-space-4);
+}
+
+.lbHeading {
+  font-family: monospace;
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: #4a7a00;
+  text-align: center;
+}
+
+.lbBelow {
+  display: flex;
+  flex-direction: column;
+  gap: var(--cm-space-3);
+  width: 100%;
+}
+
+.lbRow {
+  display: flex;
+  flex-direction: row;
+  gap: var(--cm-space-4);
+}
+
+/* ── Hopper: leaderboards stacked to the side ───────────────────────────── */
+
+.lbSide {
+  display: flex;
+  flex-direction: column;
+  gap: var(--cm-space-4);
+  flex-shrink: 0;
+}
+
+/* ── Mobile nav (hidden on desktop) ─────────────────────────────────────── */
+
+.mobileNav {
+  display: none;
+}
+
+.mobileBack {
+  display: none;
+}
+
+@media (max-width: 767px) {
+  .gameLayout {
+    padding: var(--cm-space-2);
+  }
+
+  .gameActive {
+    position: fixed;
+    inset: 0;
+    z-index: 999;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    padding: 0;
+    justify-content: flex-start;
+    gap: 0;
+  }
+
+  /* Nav bar: back button on left, page arrows on right */
+  .mobileNav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--cm-space-2) var(--cm-space-4);
+    background: var(--cm-surface);
+    box-shadow: var(--cm-raised);
+    flex-shrink: 0;
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  .mobileBack {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: var(--cm-space-1) var(--cm-space-4);
+    background: var(--cm-surface-button);
+    box-shadow: var(--cm-raised);
+    color: var(--color-base-content);
+    border: none;
+    border-radius: var(--cm-radius-sm);
+    font-size: var(--cm-text-sm);
+    font-weight: 700;
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+
+  .mobileBack:active {
+    box-shadow: var(--cm-pressed);
+  }
+
+  .mobileNavPages {
+    display: flex;
+    align-items: center;
+    gap: var(--cm-space-2);
+  }
+
+  .mobileNavArrow {
+    width: 32px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    background: var(--cm-surface-button);
+    box-shadow: var(--cm-raised);
+    border: 0;
+    border-radius: var(--cm-radius-sm);
+    cursor: pointer;
+    color: var(--color-base-content);
+  }
+
+  .mobileNavArrow:active {
+    box-shadow: var(--cm-pressed);
+  }
+
+  .mobileNavArrow:disabled {
+    opacity: 0.35;
+    cursor: default;
+  }
+
+  .mobileNavLabel {
+    font-size: var(--cm-text-sm);
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--color-base-content);
+    min-width: 48px;
+    text-align: center;
+  }
+
+  .mobileHidden {
+    display: none !important;
+  }
+
+  /* Active game: content area fills remaining height */
+  .gameActive .gameCol,
+  .gameActive .gameRow {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    padding: var(--cm-space-3) var(--cm-space-2) var(--cm-space-6);
+    overflow-y: auto;
+    box-sizing: border-box;
+  }
+
+  .gameActive .gameWrap,
+  .gameActive .lbBelow,
+  .gameActive .lbSide {
+    width: 100%;
+  }
+
+  .gameRow {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .lbSide {
+    width: 100%;
+    justify-content: center;
+  }
+}

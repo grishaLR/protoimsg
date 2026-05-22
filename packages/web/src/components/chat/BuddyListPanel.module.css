@@ -448,6 +448,10 @@
 
 .footerBtn {
   flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
   padding: var(--cm-space-1) var(--cm-space-2);
   background: var(--cm-surface);
   color: var(--color-base-content);
@@ -457,6 +461,15 @@
   font-size: var(--cm-text-sm);
   font-weight: 700;
   box-shadow: var(--cm-raised);
+}
+
+.footerBtnIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 13px;
+  height: 13px;
+  flex-shrink: 0;
 }
 
 .footerBtn:hover {

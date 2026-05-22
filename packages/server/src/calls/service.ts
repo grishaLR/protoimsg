@@ -67,6 +67,9 @@ export interface GroupCallService {
 /** How long an empty call lingers before being cleaned up. */
 const STALE_CALL_TTL_MS = 5 * 60 * 1000;
 
+/** Hard cap on participants per call — a defensive limit against abuse. */
+const MAX_ROOM_PARTICIPANTS = 200;
+
 export function createGroupCallService(
   livekitUrl: string,
   livekitApiKey: string,
@@ -132,7 +135,11 @@ export function createGroupCallService(
 
     // Create the LiveKit room
     try {
-      await roomService.createRoom({ name: livekitRoom, emptyTimeout: 300 });
+      await roomService.createRoom({
+        name: livekitRoom,
+        emptyTimeout: 300,
+        maxParticipants: MAX_ROOM_PARTICIPANTS,
+      });
     } catch (err) {
       log.error({ err, callId, roomId }, 'Failed to create LiveKit room');
       throw new Error('Failed to create video call room');
@@ -170,7 +177,11 @@ export function createGroupCallService(
     const meetCode = generateMeetCode();
 
     try {
-      await roomService.createRoom({ name: livekitRoom, emptyTimeout: 300 });
+      await roomService.createRoom({
+        name: livekitRoom,
+        emptyTimeout: 300,
+        maxParticipants: MAX_ROOM_PARTICIPANTS,
+      });
     } catch (err) {
       log.error({ err, callId }, 'Failed to create LiveKit room for standalone call');
       throw new Error('Failed to create video call room');
@@ -245,6 +256,11 @@ export function createGroupCallService(
     // Already in the call? Generate a fresh token
     let participant = call.participants.get(did);
     if (!participant) {
+      // Enforce the cap in our own authoritative state, not just LiveKit-side,
+      // so an over-limit joiner gets a clean error instead of a stale Map entry.
+      if (call.participants.size >= MAX_ROOM_PARTICIPANTS) {
+        throw new Error('This meeting is full');
+      }
       participant = { anonymousId: generateParticipantId(), joinedAt: Date.now() };
       call.participants.set(did, participant);
     }

@@ -124,5 +124,19 @@
     "messageTooLong": "Tin nhắn quá dài",
     "contentFiltered": "Tin nhắn đã bị chặn bởi bộ lọc nội dung",
     "alreadyExists": "Đã tồn tại"
+  },
+  "buddyList": {
+    "footer": {
+      "town": "Town"
+    }
+  },
+  "town": {
+    "hud": {
+      "controls": "WASD / arrows to move"
+    },
+    "chat": {
+      "placeholder": "Say something to the town…",
+      "send": "Send"
+    }
   }
 }

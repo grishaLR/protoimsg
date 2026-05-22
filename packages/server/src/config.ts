@@ -25,7 +25,10 @@ const envSchema = z.object({
   OAUTH_CLIENT_ID: z.string().optional(),
   OAUTH_REDIRECT_URI: z.string().url().optional(),
   SENTRY_DSN: z.string().url().optional(),
-  REDIS_URL: z.string().startsWith('redis://').optional(),
+  REDIS_URL: z
+    .string()
+    .regex(/^rediss?:\/\//)
+    .optional(),
   LOG_LEVEL: z.enum(['fatal', 'error', 'warn', 'info', 'debug', 'trace']).optional(),
   CORS_ORIGIN: z.string().default('http://localhost:5173'),
   DB_POOL_MAX: z.coerce.number().int().min(1).default(20),
@@ -64,6 +67,11 @@ const envSchema = z.object({
   PDS_URL: z.string().url().optional(),
   /** Minutes of commit silence before Sentry warning. 0 disables the check. */
   COMMIT_SILENCE_MINUTES: z.coerce.number().min(0).default(30),
+  /** Game master ATProto account — holds leaderboard master records. */
+  GAME_MASTER_IDENTIFIER: z.string().optional(),
+  GAME_MASTER_PASSWORD: z.string().optional(),
+  /** URL posted in leaderboard announcements e.g. https://protoimsg.app */
+  GAME_SITE_URL: z.string().url().default('https://protoimsg.app'),
   /** LiveKit server URL (e.g. wss://livekit.protoimsg.app) */
   LIVEKIT_URL: z.string().optional(),
   /** LiveKit API key (generated via livekit-server --keys) */

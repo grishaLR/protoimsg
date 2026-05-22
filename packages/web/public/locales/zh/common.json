@@ -124,5 +124,19 @@
     "messageTooLong": "消息过长",
     "contentFiltered": "消息被内容过滤器拦截",
     "alreadyExists": "已存在"
+  },
+  "buddyList": {
+    "footer": {
+      "town": "Town"
+    }
+  },
+  "town": {
+    "hud": {
+      "controls": "WASD / arrows to move"
+    },
+    "chat": {
+      "placeholder": "Say something to the town…",
+      "send": "Send"
+    }
   }
 }

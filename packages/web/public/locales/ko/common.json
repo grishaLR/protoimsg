@@ -124,5 +124,19 @@
     "messageTooLong": "메시지가 너무 깁니다",
     "contentFiltered": "콘텐츠 필터에 의해 메시지가 차단되었습니다",
     "alreadyExists": "이미 존재합니다"
+  },
+  "buddyList": {
+    "footer": {
+      "town": "Town"
+    }
+  },
+  "town": {
+    "hud": {
+      "controls": "WASD / arrows to move"
+    },
+    "chat": {
+      "placeholder": "Say something to the town…",
+      "send": "Send"
+    }
   }
 }

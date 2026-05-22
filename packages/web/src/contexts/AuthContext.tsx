@@ -13,7 +13,6 @@ import { OAUTH_SCOPE } from '@protoimsg/shared';
 import { getOAuthClient, REQUIRED_SCOPES, AUTH_VERSION } from '../lib/oauth';
 import {
   AccountBannedError,
-  NotOnAllowlistError,
   CaptchaFailedError,
   preflightCheck,
   fetchChallenge,
@@ -25,6 +24,8 @@ import {
 import { IS_TAURI } from '../lib/config';
 import { publicAgent } from '../lib/public-agent';
 import { Sentry } from '../sentry';
+import { useGiftAcceptance } from '../hooks/useGiftAcceptance';
+import { GiftUnlockedModal } from '../components/gifts/GiftUnlockedModal';
 
 export type AuthPhase =
   | 'initializing'
@@ -262,8 +263,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                 });
               }
             } catch (err: unknown) {
-              if (err instanceof AccountBannedError || err instanceof NotOnAllowlistError) {
-                // Account is banned or not on allowlist — revoke OAuth so it doesn't auto-restore
+              if (err instanceof AccountBannedError) {
+                // Account is banned — revoke OAuth so it doesn't auto-restore
                 const oauthClient = getOAuthClient();
                 void oauthClient.revoke(restoredSession.did);
                 setAuthError(err.message);
@@ -303,12 +304,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       await preflightCheck(inputHandle, turnstileToken);
     } catch (err: unknown) {
-      if (
-        err instanceof AccountBannedError ||
-        err instanceof NotOnAllowlistError ||
-        err instanceof CaptchaFailedError
-      )
-        throw err;
+      if (err instanceof AccountBannedError || err instanceof CaptchaFailedError) throw err;
     }
 
     // Flag that an OAuth redirect is in progress — checked on return to
@@ -335,6 +331,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       void oauthClient.revoke(sub);
     }
   }, [did, clearAuth]);
+
+  const { current: pendingGift, dismiss: dismissGift } = useGiftAcceptance(agent, did);
 
   const value = useMemo<AuthContextValue>(
     () => ({
@@ -365,5 +363,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     ],
   );
 
-  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+  return (
+    <AuthContext.Provider value={value}>
+      {children}
+      {pendingGift && <GiftUnlockedModal gift={pendingGift} onClose={dismissGift} />}
+    </AuthContext.Provider>
+  );
 }

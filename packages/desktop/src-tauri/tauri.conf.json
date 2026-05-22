@@ -35,6 +35,12 @@
       "icons/128x128@2x.png",
       "icons/icon.icns",
       "icons/icon.ico"
-    ]
+    ],
+    "macOS": {
+      "infoPlist": "Info.plist",
+      "entitlements": "./entitlements.mac.plist",
+      "provisioningProfile": "./embedded.provisionprofile",
+      "signingIdentity": "Apple Distribution"
+    }
   }
 }

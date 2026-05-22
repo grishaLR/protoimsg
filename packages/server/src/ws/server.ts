@@ -4,6 +4,7 @@ import type { Server, IncomingMessage } from 'http';
 import { DmSubscriptions } from '../dms/subscriptions.js';
 import { CommunityWatchers } from './buddy-watchers.js';
 import { handleClientMessage } from './handlers.js';
+import { TownRoom } from './town.js';
 import { attachHeartbeat } from './heartbeat.js';
 import type { PresenceService } from '../presence/service.js';
 import type { DmService } from '../dms/service.js';
@@ -144,6 +145,7 @@ export function createWsServer(
   const userSockets = new UserSockets();
   blockService.startSweep();
   const communityWatchers = new CommunityWatchers(sql, blockService);
+  const townRoom = new TownRoom(blockService);
   const pendingCleanup = new Set<Promise<void>>();
 
   wss.on('connection', (ws: WebSocket, req: IncomingMessage) => {
@@ -320,6 +322,7 @@ export function createWsServer(
             labelerService,
             callSubs,
             botService,
+            townRoom,
             notificationService,
             groupCallService,
           );
@@ -344,6 +347,7 @@ export function createWsServer(
         // Remove this socket first so we can check remaining connections
         userSockets.remove(did, ws);
         communityWatchers.unwatchAll(ws);
+        townRoom.leave(ws);
         botService?.handleClose(ws);
 
         const abandonedConvos = dmSubs.unsubscribeAll(ws);

@@ -11,7 +11,6 @@ import { presenceRouter } from './presence/router.js';
 import { communityRouter } from './community/router.js';
 import { gifRouter } from './giphy/router.js';
 import { iceRouter } from './ice/router.js';
-import { waitlistRouter } from './waitlist/router.js';
 import { feedbackRouter } from './feedback/router.js';
 import { adminRouter } from './admin/router.js';
 import { notificationsRouter } from './notifications/router.js';
@@ -31,6 +30,9 @@ import { groupCallRouter } from './calls/router.js';
 import { getMetricsText, getMetricsContentType, observeHttpRequestDuration } from './metrics.js';
 import { checkHealth } from './health.js';
 import { audioProxyRouter } from './audio-proxy.js';
+import { gamesRouter } from './games/router.js';
+import type { GameService } from './games/service.js';
+import type { RunStore } from './games/run-store.js';
 
 export function createApp(
   config: Config,
@@ -53,6 +55,8 @@ export function createApp(
   emailService?: EmailService | null,
   notificationService?: NotificationService | null,
   groupCallService?: GroupCallService | null,
+  gameService?: GameService,
+  runStore?: RunStore | null,
 ): Express {
   const app = express();
   // Trust one proxy hop (Fly.io) so req.ip reflects the real client IP
@@ -117,13 +121,6 @@ export function createApp(
     authRouter(sessions, config, challenges, globalBans, globalAllowlist, sql, notificationService),
   );
 
-  // Waitlist (public, rate-limited)
-  app.use(
-    '/api/waitlist',
-    createRateLimitMiddleware(authRateLimiter),
-    waitlistRouter(sql, emailService ?? null),
-  );
-
   // Admin routes (API key protected — only mounted when ADMIN_API_KEY is set)
   if (config.ADMIN_API_KEY) {
     app.use(
@@ -186,6 +183,14 @@ export function createApp(
 
   // Audio proxy — allows web client to use Web Audio API on cross-origin audio (CORS bypass)
   app.use('/api/audio-proxy', createRateLimitMiddleware(rateLimiter), audioProxyRouter());
+
+  // Games — leaderboard (public) + score submission (auth required)
+  if (gameService && runStore) {
+    app.use(
+      '/api/games',
+      gamesRouter(gameService, runStore, requireAuth, createRateLimitMiddleware(rateLimiter)),
+    );
+  }
 
   // GIF proxy (optional — mounted when either GIPHY_API_KEY or KLIPY_API_KEY is set)
   if ((giphyApiKey || klipyApiKey) && gifRateLimiter) {

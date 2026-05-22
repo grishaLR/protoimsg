@@ -11,11 +11,51 @@ fn update_tray_tooltip(app: tauri::AppHandle, tooltip: String) {
     }
 }
 
+/// Rebuild the tray menu to reflect active call state.
+/// When active, replaces "Start Meet" with a disabled "◉ In a call" indicator.
+#[tauri::command]
+fn set_call_state(app: tauri::AppHandle, active: bool) {
+    let Some(tray) = app.tray_by_id("main-tray") else {
+        return;
+    };
+    let result = (|| -> tauri::Result<()> {
+        let menu = if active {
+            let call_item = MenuItemBuilder::with_id("call_active", "◉ In a call")
+                .enabled(false)
+                .build(&app)?;
+            let show_item = MenuItemBuilder::with_id("show", "Show protoimsg").build(&app)?;
+            let quit_item = MenuItemBuilder::with_id("quit", "Quit").build(&app)?;
+            MenuBuilder::new(&app)
+                .item(&call_item)
+                .separator()
+                .item(&show_item)
+                .separator()
+                .item(&quit_item)
+                .build()?
+        } else {
+            let show_item = MenuItemBuilder::with_id("show", "Show protoimsg").build(&app)?;
+            let meet_item = MenuItemBuilder::with_id("meet", "Start Meet").build(&app)?;
+            let quit_item = MenuItemBuilder::with_id("quit", "Quit").build(&app)?;
+            MenuBuilder::new(&app)
+                .item(&show_item)
+                .item(&meet_item)
+                .separator()
+                .item(&quit_item)
+                .build()?
+        };
+        tray.set_menu(Some(menu))?;
+        Ok(())
+    })();
+    if let Err(e) = result {
+        eprintln!("set_call_state: failed to rebuild tray menu: {e}");
+    }
+}
+
 pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_notification::init())
         .plugin(tauri_plugin_shell::init())
-        .invoke_handler(tauri::generate_handler![update_tray_tooltip])
+        .invoke_handler(tauri::generate_handler![update_tray_tooltip, set_call_state])
         .setup(|app| {
             // Build tray menu
             let show_item = MenuItemBuilder::with_id("show", "Show protoimsg").build(app)?;

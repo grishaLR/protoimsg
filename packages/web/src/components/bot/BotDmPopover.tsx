@@ -90,7 +90,8 @@ export function BotDmPopover() {
     }
   };
 
-  if (!isOpen) return null;
+  // The /bot route renders its own full-window chat — suppress the floating popover there
+  if (!isOpen || window.location.pathname === '/bot') return null;
 
   function handleKeyDown(e: KeyboardEvent<HTMLTextAreaElement>) {
     if (e.key === 'Enter' && !e.shiftKey) {

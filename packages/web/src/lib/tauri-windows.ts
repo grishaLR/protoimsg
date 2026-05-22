@@ -86,10 +86,24 @@ export async function closeVideoCallWindow(conversationId: string): Promise<void
   }
 }
 
+/** Open or focus a profile window for a given DID */
+export async function openProfileWindow(did: string): Promise<void> {
+  const label = `profile-${did.replace(/[^a-zA-Z0-9]/g, '-')}`;
+  await openOrFocusWindow({
+    label,
+    url: `/profile/${encodeURIComponent(did)}`,
+    title: 'Profile — protoimsg',
+    width: 420,
+    height: 600,
+    minWidth: 320,
+    minHeight: 480,
+  });
+}
+
 /** Open or focus a group meet window */
 export async function openMeetWindow(meetCode?: string): Promise<void> {
   const label = 'meet';
-  const url = meetCode ? `/meet/${meetCode}` : '/meet';
+  const url = meetCode ? `/meet-window/${meetCode}` : '/meet-window';
   await openOrFocusWindow({
     label,
     url,
@@ -98,6 +112,32 @@ export async function openMeetWindow(meetCode?: string): Promise<void> {
     height: 600,
     minWidth: 640,
     minHeight: 480,
+  });
+}
+
+/** Open or focus the games window */
+export async function openGamesWindow(): Promise<void> {
+  await openOrFocusWindow({
+    label: 'games',
+    url: '/games',
+    title: 'Games — protoimsg',
+    width: 480,
+    height: 640,
+    minWidth: 380,
+    minHeight: 520,
+  });
+}
+
+/** Open or focus the protobuddy bot window */
+export async function openBotWindow(): Promise<void> {
+  await openOrFocusWindow({
+    label: 'bot',
+    url: '/bot',
+    title: 'protobuddy — protoimsg',
+    width: 360,
+    height: 520,
+    minWidth: 280,
+    minHeight: 400,
   });
 }
 

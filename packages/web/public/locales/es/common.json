@@ -124,5 +124,19 @@
     "messageTooLong": "El mensaje es demasiado largo",
     "contentFiltered": "El mensaje fue bloqueado por el filtro de contenido",
     "alreadyExists": "Ya existe"
+  },
+  "buddyList": {
+    "footer": {
+      "town": "Town"
+    }
+  },
+  "town": {
+    "hud": {
+      "controls": "WASD / arrows to move"
+    },
+    "chat": {
+      "placeholder": "Say something to the town…",
+      "send": "Send"
+    }
   }
 }

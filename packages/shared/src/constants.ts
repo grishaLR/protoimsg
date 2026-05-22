@@ -62,4 +62,5 @@ export const DM_LIMITS = {
 /*  Only ATProto core + protoimsg chat collection access.                    */
 /* -------------------------------------------------------------------------- */
 
-export const OAUTH_SCOPE = 'atproto include:app.protoimsg.chat.authFull';
+export const OAUTH_SCOPE =
+  'atproto include:app.protoimsg.chat.authFull repo:actor.rpg.stats repo:equipment.rpg.item';

@@ -36,18 +36,8 @@ export class AccountBannedError extends Error {
   }
 }
 
-export class NotOnAllowlistError extends Error {
-  constructor(message: string) {
-    super(message);
-    this.name = 'NotOnAllowlistError';
-  }
-}
-
 /** Throw the appropriate 403 error based on the server's errorCode. */
 function throwForbiddenError(data: { error: string; errorCode?: string }): never {
-  if (data.errorCode === 'NOT_ON_ALLOWLIST') {
-    throw new NotOnAllowlistError(data.error);
-  }
   throw new AccountBannedError(data.error);
 }
 
@@ -112,21 +102,6 @@ export async function deleteServerSession(): Promise<void> {
     method: 'DELETE',
     headers: { Authorization: `Bearer ${serverToken}` },
   });
-}
-
-// -- Waitlist --
-
-export async function joinWaitlist(email: string, handle: string): Promise<{ success: boolean }> {
-  const res = await fetch(`${API_URL}/api/waitlist`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ email, handle }),
-  });
-  if (!res.ok) {
-    const data = (await res.json().catch(() => ({}))) as { error?: string };
-    throw new Error(data.error ?? 'Failed to join waitlist');
-  }
-  return (await res.json()) as { success: boolean };
 }
 
 // -- PDS account creation --
@@ -210,7 +185,7 @@ export interface TranslateStatusResponse {
 
 // -- Auth fetch helper --
 
-async function authFetch(url: string, init?: RequestInit): Promise<Response> {
+export async function authFetch(url: string, init?: RequestInit): Promise<Response> {
   const headers = new Headers(init?.headers);
   if (serverToken) {
     headers.set('Authorization', `Bearer ${serverToken}`);
