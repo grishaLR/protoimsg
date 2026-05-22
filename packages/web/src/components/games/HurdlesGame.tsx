@@ -1,8 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import type { Difficulty } from './GamesPanel';
 import { useAuth } from '../../hooks/useAuth';
-import { useActorSprite } from '../../hooks/useActorSprite';
-import { blobUrl } from '../../lib/record-blobs';
+import { NORMALIZED_SPRITE, normalizedSpriteUrl } from '../../lib/actor-sprite';
 import { API_URL } from '../../lib/config';
 import { HurdlesEngine, type HurdlesDeathInfo } from './HurdlesEngine';
 import styles from './HurdlesGame.module.css';
@@ -16,15 +15,7 @@ interface HurdlesGameProps {
   practiceMode?: boolean;
 }
 
-export function HurdlesGame({
-  onClose,
-  onScore,
-  did,
-  pds,
-  difficulty,
-  practiceMode,
-}: HurdlesGameProps) {
-  const { data: sprite } = useActorSprite(did, pds);
+export function HurdlesGame({ onClose, onScore, did, difficulty, practiceMode }: HurdlesGameProps) {
   const { agent, did: viewerDid } = useAuth();
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const canvasContainerRef = useRef<HTMLDivElement>(null);
@@ -38,6 +29,9 @@ export function HurdlesGame({
 
   const [uiPhase, setUiPhase] = useState<'start' | 'playing' | 'dead'>('start');
   const [deathInfo, setDeathInfo] = useState<HurdlesDeathInfo | null>(null);
+  // Sprite gate: the game can't be started until the actor sprite resolves.
+  // 'missing' = no rpg.actor character — the player can never play without one.
+  const [spriteStatus, setSpriteStatus] = useState<'pending' | 'ok' | 'missing'>('pending');
 
   // Scale canvas to fit container on narrow screens
   useEffect(() => {
@@ -84,17 +78,27 @@ export function HurdlesGame({
       .catch(() => {});
   }, [difficulty]);
 
-  // Load actor sprite image
+  // Load the actor sprite from rpg.actor's normalized endpoint (see
+  // lib/actor-sprite) — the same source the town uses, so a sprite that renders
+  // in the town renders here too. Needs only the did; on failure (no rpg.actor
+  // character) onload never fires and the engine draws its procedural fallback.
   useEffect(() => {
-    if (!sprite?.spriteSheet.ref.$link || !pds || !did) return;
+    if (!did) {
+      setSpriteStatus('missing');
+      return;
+    }
     const img = new Image();
-    img.crossOrigin = 'anonymous';
-    img.src = blobUrl(pds, did, sprite.spriteSheet.ref.$link);
+    img.src = normalizedSpriteUrl(did);
     img.onload = () => {
       imgRef.current = img;
-      engineRef.current?.updateActor(sprite, img);
+      engineRef.current?.updateActor(NORMALIZED_SPRITE, img);
+      setSpriteStatus('ok');
     };
-  }, [sprite, pds, did]);
+    // 404 / load failure → the user has no rpg.actor character.
+    img.onerror = () => {
+      setSpriteStatus('missing');
+    };
+  }, [did]);
 
   // Push auth updates into engine
   useEffect(() => {
@@ -116,7 +120,7 @@ export function HurdlesGame({
     };
     engine.updateAuth(agent ?? null, viewerDid ?? null);
     engine.updateLeaderboard(leaderboardRef.current);
-    if (imgRef.current && sprite) engine.updateActor(sprite, imgRef.current);
+    if (imgRef.current) engine.updateActor(NORMALIZED_SPRITE, imgRef.current);
     engineRef.current = engine;
     setUiPhase('start');
     setDeathInfo(null);
@@ -138,7 +142,40 @@ export function HurdlesGame({
       </div>
       <div ref={canvasContainerRef} className={styles.canvasContainer}>
         <canvas ref={canvasRef} width={680} height={240} className={styles.canvas} />
-        {uiPhase === 'start' && (
+        {uiPhase === 'start' && spriteStatus === 'pending' && (
+          <div className={styles.overlay}>
+            <span className={styles.overlaySub}>loading your character…</span>
+          </div>
+        )}
+        {uiPhase === 'start' && spriteStatus === 'missing' && (
+          <div className={styles.overlay}>
+            <span className={styles.overlayGameName}>No character yet</span>
+            <span className={styles.overlaySub}>
+              Create a pixel character at rpg.actor, or play the open arcade with a ready-made one.
+            </span>
+            <div className={styles.overlayCtas}>
+              <button
+                className={styles.overlayBtnSecondary}
+                type="button"
+                onClick={() => {
+                  window.location.href = '/games';
+                }}
+              >
+                Open the arcade
+              </button>
+              <button
+                className={styles.overlayBtn}
+                type="button"
+                onClick={() => {
+                  window.open('https://rpg.actor/generator', '_blank', 'noopener,noreferrer');
+                }}
+              >
+                Create a character
+              </button>
+            </div>
+          </div>
+        )}
+        {uiPhase === 'start' && spriteStatus === 'ok' && (
           <div className={styles.overlay}>
             <span className={styles.overlayGameName}>{difficulty.toUpperCase()} HURDLES</span>
             <span className={styles.overlaySub}>

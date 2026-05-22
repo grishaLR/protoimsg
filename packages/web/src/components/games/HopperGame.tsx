@@ -4,7 +4,7 @@ import { makeSeed, type HopperInputLog } from '@protoimsg/game-sim';
 import type { Agent } from '@atproto/api';
 import type { Difficulty } from './GamesPanel';
 import { useAuth } from '../../hooks/useAuth';
-import { useActorSprite } from '../../hooks/useActorSprite';
+import { NORMALIZED_SPRITE, normalizedSpriteUrl } from '../../lib/actor-sprite';
 import { blobUrl } from '../../lib/record-blobs';
 import { authFetch } from '../../lib/api';
 import { API_URL } from '../../lib/config';
@@ -77,7 +77,6 @@ export function HopperGame({
   difficulty,
   practiceMode,
 }: HopperGameProps) {
-  const { data: sprite } = useActorSprite(did, pds);
   const { agent, did: viewerDid } = useAuth();
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const engineRef = useRef<HopperEngine | null>(null);
@@ -97,6 +96,9 @@ export function HopperGame({
     'loading',
   );
   const [deathInfo, setDeathInfo] = useState<HopperDeathInfo | null>(null);
+  // Sprite gate: the game can't be started until the actor sprite resolves.
+  // 'missing' = no rpg.actor character — the player can never play without one.
+  const [spriteStatus, setSpriteStatus] = useState<'pending' | 'ok' | 'missing'>('pending');
 
   // Acquire a run ticket. Practice runs pick a local seed (works offline);
   // authed runs ask the server for a seed + single-use runId.
@@ -155,7 +157,7 @@ export function HopperGame({
         };
         engine.updateAuth(agent ?? null, viewerDid ?? null);
         engine.updateLeaderboard(leaderboardRef.current);
-        if (imgRef.current && sprite) engine.updateActor(sprite, imgRef.current);
+        if (imgRef.current) engine.updateActor(NORMALIZED_SPRITE, imgRef.current);
         engine.setSfxMuted(localStorage.getItem('protoimsg:sfx-muted') === 'true');
         engineRef.current = engine;
         setUiPhase('start');
@@ -207,8 +209,10 @@ export function HopperGame({
         const icon = rec.value.icon as { ref?: { $link: string } } | undefined;
         const cid = icon?.ref?.$link ?? (rec.value.assetCid as string | undefined);
         if (!cid) return;
+        // No crossOrigin: this is a Canvas 2D game and never reads the canvas
+        // back, so a "tainted" canvas is harmless — whereas setting crossOrigin
+        // hard-fails the load for any PDS that omits CORS headers.
         const img = new Image();
-        img.crossOrigin = 'anonymous';
         img.src = blobUrl(pds, did, cid);
         img.onload = () => {
           engineRef.current?.updateJetpackImg(img);
@@ -217,17 +221,27 @@ export function HopperGame({
       .catch(() => {});
   }, [pds, did]);
 
-  // Load actor sprite image
+  // Load the actor sprite from rpg.actor's normalized endpoint (see
+  // lib/actor-sprite) — the same source the town uses, so a sprite that renders
+  // in the town renders here too. Needs only the did; on failure (no rpg.actor
+  // character) onload never fires and the engine draws its procedural fallback.
   useEffect(() => {
-    if (!sprite?.spriteSheet.ref.$link || !pds || !did) return;
+    if (!did) {
+      setSpriteStatus('missing');
+      return;
+    }
     const img = new Image();
-    img.crossOrigin = 'anonymous';
-    img.src = blobUrl(pds, did, sprite.spriteSheet.ref.$link);
+    img.src = normalizedSpriteUrl(did);
     img.onload = () => {
       imgRef.current = img;
-      engineRef.current?.updateActor(sprite, img);
+      engineRef.current?.updateActor(NORMALIZED_SPRITE, img);
+      setSpriteStatus('ok');
     };
-  }, [sprite, pds, did]);
+    // 404 / load failure → the user has no rpg.actor character.
+    img.onerror = () => {
+      setSpriteStatus('missing');
+    };
+  }, [did]);
 
   // Push auth updates into engine
   useEffect(() => {
@@ -314,7 +328,40 @@ export function HopperGame({
             </div>
           </div>
         )}
-        {uiPhase === 'start' && (
+        {uiPhase === 'start' && spriteStatus === 'pending' && (
+          <div className={styles.overlay}>
+            <span className={styles.overlaySub}>loading your character…</span>
+          </div>
+        )}
+        {uiPhase === 'start' && spriteStatus === 'missing' && (
+          <div className={styles.overlay}>
+            <span className={styles.overlayGameName}>No character yet</span>
+            <span className={styles.overlaySub}>
+              Create a pixel character at rpg.actor, or play the open arcade with a ready-made one.
+            </span>
+            <div className={styles.overlayCtas}>
+              <button
+                className={styles.overlayBtnSecondary}
+                type="button"
+                onClick={() => {
+                  window.location.href = '/games';
+                }}
+              >
+                Open the arcade
+              </button>
+              <button
+                className={styles.overlayBtn}
+                type="button"
+                onClick={() => {
+                  window.open('https://rpg.actor/generator', '_blank', 'noopener,noreferrer');
+                }}
+              >
+                Create a character
+              </button>
+            </div>
+          </div>
+        )}
+        {uiPhase === 'start' && spriteStatus === 'ok' && (
           <div className={styles.overlay}>
             <span className={styles.overlayGameName}>{difficulty.toUpperCase()} HOPPER</span>
             <span className={styles.overlaySub}>← → / A D · tap left or right on mobile</span>
