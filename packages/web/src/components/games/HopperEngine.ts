@@ -18,6 +18,11 @@ const BH_RADIUS = 20;
 const BH_PULL_RADIUS = 100;
 const JETPACK_DURATION = 210;
 
+/** Cap on accumulated time after a long/backgrounded frame — avoids fast-forward. */
+const MAX_FRAME_GAP_MS = 250;
+/** Max sim steps run per rAF — bounds catch-up so a long frame can't spiral. */
+const MAX_CATCHUP_STEPS = 5;
+
 export interface SpriteRecord {
   frameWidth: number;
   frameHeight: number;
@@ -114,6 +119,7 @@ export class HopperEngine {
   private touchRight = false;
   private raf = 0;
   private lastFrameTime = 0;
+  private accumulator = 0;
   private readonly FRAME_MS = 1000 / 60;
   private animFrame = 0;
   private animTick = 0;
@@ -323,14 +329,26 @@ export class HopperEngine {
 
   // ── Main loop ──────────────────────────────────────────────────────────
 
+  // Fixed-timestep loop. The sim is frame-locked — one step() == one tick — so
+  // it must advance exactly 60 ticks/sec for the game to play at the right
+  // speed. A snap-to-`now` throttle under-ticks on non-60/120 Hz displays
+  // (e.g. 144 Hz → 48 ticks/sec), so instead we accumulate real elapsed time
+  // and run however many fixed 1/60 s ticks have actually passed.
   private loop = (now: number) => {
-    if (now - this.lastFrameTime < this.FRAME_MS - 1) {
-      this.raf = requestAnimationFrame(this.loop);
-      return;
-    }
-    this.lastFrameTime = now;
-    this.frame();
     this.raf = requestAnimationFrame(this.loop);
+    if (this.lastFrameTime === 0) this.lastFrameTime = now;
+    let elapsed = now - this.lastFrameTime;
+    this.lastFrameTime = now;
+    if (elapsed > MAX_FRAME_GAP_MS) elapsed = MAX_FRAME_GAP_MS;
+    this.accumulator += elapsed;
+    let steps = 0;
+    while (this.accumulator >= this.FRAME_MS && steps < MAX_CATCHUP_STEPS) {
+      this.frame();
+      this.accumulator -= this.FRAME_MS;
+      steps++;
+    }
+    // Hit the catch-up cap (a very long frame) — drop the backlog, don't spiral.
+    if (steps === MAX_CATCHUP_STEPS) this.accumulator = 0;
   };
 
   private frame(): void {

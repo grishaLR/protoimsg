@@ -60,6 +60,11 @@ async function writeHurdlesStats(agent: Agent, viewerDid: string, score: number,
   }
 }
 
+/** Cap on accumulated time after a long/backgrounded frame — avoids fast-forward. */
+const MAX_FRAME_GAP_MS = 250;
+/** Max steps run per rAF — bounds catch-up so a long frame can't spiral. */
+const MAX_CATCHUP_STEPS = 5;
+
 export class HurdlesEngine {
   agent: Agent | null = null;
   viewerDid: string | null = null;
@@ -114,6 +119,7 @@ export class HurdlesEngine {
 
   private raf = 0;
   private lastFrameTime = 0;
+  private accumulator = 0;
   private readonly FRAME_MS = 1000 / 60;
   private scoreWritten = false;
   private deathReported = false;
@@ -322,14 +328,23 @@ export class HurdlesEngine {
     }
   }
 
+  // Fixed-timestep loop — see HopperEngine for the rationale. step() advances
+  // the game by exactly one 1/60 s tick, so it must run a true 60 times/sec
+  // regardless of the display's refresh rate.
   private loop = (now: number) => {
-    if (now - this.lastFrameTime < this.FRAME_MS - 1) {
-      this.raf = requestAnimationFrame(this.loop);
-      return;
-    }
-    this.lastFrameTime = now;
-    this.step();
     this.raf = requestAnimationFrame(this.loop);
+    if (this.lastFrameTime === 0) this.lastFrameTime = now;
+    let elapsed = now - this.lastFrameTime;
+    this.lastFrameTime = now;
+    if (elapsed > MAX_FRAME_GAP_MS) elapsed = MAX_FRAME_GAP_MS;
+    this.accumulator += elapsed;
+    let steps = 0;
+    while (this.accumulator >= this.FRAME_MS && steps < MAX_CATCHUP_STEPS) {
+      this.step();
+      this.accumulator -= this.FRAME_MS;
+      steps++;
+    }
+    if (steps === MAX_CATCHUP_STEPS) this.accumulator = 0;
   };
 
   private step(): void {
