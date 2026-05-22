@@ -33,8 +33,10 @@ function spriteNormalizedUrl(did: string): string {
 
 function fetchNormalizedSprite(did: string): Promise<HTMLImageElement> {
   return new Promise((resolve, reject) => {
+    // No crossOrigin: the sprite is drawn only to display-only Canvas 2D, so a
+    // tainted canvas is harmless — and crossOrigin would needlessly hard-fail
+    // the load if rpg.actor ever served the image without CORS headers.
     const img = new Image();
-    img.crossOrigin = 'anonymous';
     img.src = spriteNormalizedUrl(did);
     img.onload = () => {
       resolve(img);
