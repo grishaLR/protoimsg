@@ -6,6 +6,7 @@ import { createRoot } from 'react-dom/client';
 import { initSentry } from './sentry';
 import { App } from './App';
 
+//init Sentry
 initSentry();
 
 const root = document.getElementById('root');
