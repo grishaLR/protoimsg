@@ -25,11 +25,11 @@
     "eslint": "^9.18.0",
     "husky": "^9.1.7",
     "lint-staged": "^15.4.3",
-    "prettier": "^3.4.2",
-    "turbo": "^2.3.4",
+    "prettier": "^3.8.3",
+    "turbo": "^2.9.15",
     "typescript": "^5.7.3",
-    "typescript-eslint": "^8.20.0",
-    "vitest": "^4.0.18"
+    "typescript-eslint": "^8.60.0",
+    "vitest": "^4.1.7"
   },
   "lint-staged": {
     "*.{ts,tsx}": [
