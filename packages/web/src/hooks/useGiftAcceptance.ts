@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import type { Agent } from '@atproto/api';
 import { PDS_URL, GAME_MASTER_DID } from '../lib/config';
 
@@ -116,12 +116,12 @@ async function acceptGive(agent: Agent, userDid: string, give: GiveRecord): Prom
 
 export function useGiftAcceptance(agent: Agent | null, did: string | null) {
   const [queue, setQueue] = useState<AcceptedGift[]>([]);
-  const ranRef = useRef(false);
+  // Bumped by `refresh()` to re-run the effect after a server-side action that
+  // may have created a new give (e.g. a score that hit the leaderboard).
+  const [refreshTrigger, setRefreshTrigger] = useState(0);
 
   useEffect(() => {
     if (!agent || !did) return;
-    if (ranRef.current) return;
-    ranRef.current = true;
 
     void (async () => {
       try {
@@ -146,16 +146,32 @@ export function useGiftAcceptance(agent: Agent | null, did: string | null) {
             providerHandle,
           });
         }
-        if (newlyAccepted.length > 0) setQueue(newlyAccepted);
+        if (newlyAccepted.length === 0) return;
+        // Append, deduped by uri, so a refresh never drops an undismissed gift
+        // and parallel runs can't double-queue the same give.
+        setQueue((q) => {
+          const existing = new Set(q.map((g) => g.uri));
+          const fresh = newlyAccepted.filter((g) => !existing.has(g.uri));
+          return fresh.length ? [...q, ...fresh] : q;
+        });
       } catch {
         // Non-critical — gift acceptance is best-effort
       }
     })();
-  }, [agent, did]);
+  }, [agent, did, refreshTrigger]);
 
   const dismiss = useCallback(() => {
     setQueue((q) => q.slice(1));
   }, []);
 
-  return { current: queue[0] ?? null, dismiss };
+  /**
+   * Re-check for pending gifts. Call after an action that may have triggered a
+   * server-side give (e.g. submitting a score that hit the leaderboard) — saves
+   * the user from refreshing the page to see the unlock modal pop.
+   */
+  const refresh = useCallback(() => {
+    setRefreshTrigger((n) => n + 1);
+  }, []);
+
+  return { current: queue[0] ?? null, dismiss, refresh };
 }

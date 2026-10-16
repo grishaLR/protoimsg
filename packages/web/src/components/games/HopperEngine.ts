@@ -271,6 +271,11 @@ export class HopperEngine {
     this.sim = new HopperSim(seed, this.difficulty);
     this.inputLog = [];
     this.prevInput = { left: false, right: false };
+    // Belt-and-suspenders: clear held-input state so a key still down (or a
+    // keyup the engine missed) can't bleed into the new run.
+    this.keys = { left: false, right: false };
+    this.touchLeft = false;
+    this.touchRight = false;
     this.deathReported = false;
     this.deathResult = 'lose';
     this.deathCause = 'fall';
@@ -295,15 +300,22 @@ export class HopperEngine {
 
   private onKey = (e: KeyboardEvent) => {
     const down = e.type === 'keydown';
-    if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') {
-      if (this.phase === 'playing') {
-        this.keys.left = down;
+    const isLeft = e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A';
+    const isRight = e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D';
+    // keyup MUST update state regardless of phase. Otherwise an arrow held at
+    // the moment of death (phase != 'playing') stays "pressed" into the next
+    // run, and the player drifts on respawn until they tap the key again.
+    if (isLeft) {
+      if (!down) this.keys.left = false;
+      else if (this.phase === 'playing') {
+        this.keys.left = true;
         e.preventDefault();
       }
     }
-    if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') {
-      if (this.phase === 'playing') {
-        this.keys.right = down;
+    if (isRight) {
+      if (!down) this.keys.right = false;
+      else if (this.phase === 'playing') {
+        this.keys.right = true;
         e.preventDefault();
       }
     }

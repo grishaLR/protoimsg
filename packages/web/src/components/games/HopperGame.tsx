@@ -77,7 +77,7 @@ export function HopperGame({
   difficulty,
   practiceMode,
 }: HopperGameProps) {
-  const { agent, did: viewerDid } = useAuth();
+  const { agent, did: viewerDid, refreshGifts } = useAuth();
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const engineRef = useRef<HopperEngine | null>(null);
   const imgRef = useRef<HTMLImageElement | null>(null);
@@ -123,10 +123,17 @@ export function HopperGame({
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ runId, inputLog: run.inputLog satisfies HopperInputLog }),
-      }).catch(() => {});
+      })
+        .then(() => {
+          // The server writes the jetpack `equipment.rpg.give` synchronously
+          // when the score hits the leaderboard, so by the time this resolves
+          // the gift is queryable — pop the unlock modal without a page refresh.
+          refreshGifts();
+        })
+        .catch(() => {});
       if (agent && viewerDid) void writeHopperStats(agent, viewerDid, run.score, difficulty);
     },
-    [agent, viewerDid, difficulty],
+    [agent, viewerDid, difficulty, refreshGifts],
   );
 
   // Create the engine once per difficulty, after the first ticket is acquired.
