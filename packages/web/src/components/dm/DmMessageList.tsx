@@ -2,6 +2,7 @@ import { useEffect, useRef, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useVirtualList } from 'virtualized-ui';
 import type { DmMessageView } from '../../types';
+import { RichText } from '../shared/RichText';
 import styles from './DmMessageList.module.css';
 
 interface DmMessageListProps {
@@ -75,7 +76,7 @@ export function DmMessageList({ messages, currentDid, typing }: DmMessageListPro
               >
                 {msg.text && (
                   <div className={styles.bubble} dir="auto">
-                    {msg.text}
+                    <RichText text={msg.text} facets={msg.facets} />
                   </div>
                 )}
                 {msg.embed != null && (
