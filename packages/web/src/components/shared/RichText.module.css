@@ -1,0 +1,62 @@
+/*
+ * Everything here derives from currentColor rather than a theme accent:
+ * rich text renders inside bubbles whose background may itself be the accent
+ * (your own DMs are --color-primary), so an accent-colored link would vanish.
+ * Never lower opacity here — several themes' primary bubbles are already
+ * near the AA contrast floor.
+ */
+
+/* Dotted underline tells mentions/tags apart from bold without relying on color. */
+.mention,
+.tag {
+  color: inherit;
+  font-weight: 600;
+  text-decoration: underline dotted;
+  text-decoration-thickness: var(--cm-underline-thin);
+  text-underline-offset: var(--cm-underline-offset);
+}
+
+.link {
+  color: inherit;
+  text-decoration: underline;
+  text-decoration-thickness: var(--cm-underline-thin);
+  text-underline-offset: var(--cm-underline-offset);
+}
+
+@media (hover: hover) {
+  .link:hover {
+    text-decoration-thickness: var(--cm-underline-thick);
+  }
+}
+
+.link:focus-visible {
+  outline: var(--cm-focus-outset) solid currentColor;
+  outline-offset: var(--cm-focus-offset);
+  border-radius: var(--cm-radius-sm);
+}
+
+.codeInline,
+.codeBlock {
+  font-family: var(--cm-font-mono);
+  font-size: var(--cm-text-sm);
+  background: color-mix(in srgb, currentColor var(--cm-code-tint), transparent);
+  border-radius: var(--cm-radius-sm);
+}
+
+.codeInline {
+  padding: var(--cm-space-0.5) var(--cm-space-2);
+}
+
+.codeBlock {
+  display: block;
+  padding: var(--cm-space-4);
+  white-space: pre-wrap;
+  margin-block: var(--cm-space-2);
+}
+
+.blockquote {
+  display: block;
+  border-inline-start: var(--cm-underline-thick) solid currentColor;
+  padding-inline-start: var(--cm-space-4);
+  font-style: italic;
+}

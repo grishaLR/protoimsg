@@ -91,6 +91,14 @@
   --cm-focus-inset: -2px;
   --cm-focus-inset-lg: -4px;
 
+  /* ── Rich text (DM bubbles) ─────────────────────────── */
+  --cm-font-mono: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+  --cm-underline-thin: 1px;
+  --cm-underline-thick: 2px;
+  --cm-underline-offset: 2px;
+  /* currentColor share for code backgrounds — kept low so text stays AA on primary bubbles */
+  --cm-code-tint: 10%;
+
   /* ── Transition durations ───────────────────────────── */
   --cm-duration-fast: 0.1s;
   --cm-duration-normal: 0.15s;

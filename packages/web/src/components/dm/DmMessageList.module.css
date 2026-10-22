@@ -40,11 +40,14 @@
 }
 
 .bubble {
-  padding: var(--cm-space-3, 6px) var(--cm-space-3, 6px) var(--cm-space-3, 6px) var(--cm-space-4, 10px);
+  padding: var(--cm-space-3, 6px) var(--cm-space-3, 6px) var(--cm-space-3, 6px)
+    var(--cm-space-4, 10px);
   border-radius: var(--cm-radius-md);
   font-size: var(--cm-text-md);
   line-height: var(--cm-leading-snug);
   word-break: break-word;
+  /* keep the sender's line breaks (multi-line DMs, quotes) */
+  white-space: pre-wrap;
 }
 
 .own .bubble {
