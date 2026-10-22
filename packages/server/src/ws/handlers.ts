@@ -176,8 +176,6 @@ export async function handleClientMessage(
       const allMembers = data.groups.flatMap((g) => g.members);
       await syncCommunityMembers(sql, did, allMembers);
       await upsertCommunityList(sql, { did, groups: data.groups });
-      // Zones gate proximity voice by circle — pick up the new lists.
-      townRoom.refreshCircles(did);
       // Re-notify watchers: inner circle changes affect who can see us
       const syncPresence = await service.getPresence(did);
       const syncVisibleTo = await service.getVisibleTo(did);

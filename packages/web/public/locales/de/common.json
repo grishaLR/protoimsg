@@ -147,11 +147,7 @@
       "live": "Live · {{count}} können dich hören",
       "announceJoined": "Jemand ist in der Nähe – Sprache verbunden",
       "announceEnded": "Sprache beendet",
-      "zoneOff": {
-        "bedroom": "In deinem Zimmer ist Sprache aus – nur du bist hier",
-        "inner": "Sprache hier nur für den engsten Kreis",
-        "community": "Sprache hier nur für Community-Mitglieder"
-      }
+      "homeOff": "In deinem Zimmer ist Sprache aus – nur du bist hier"
     }
   }
 }

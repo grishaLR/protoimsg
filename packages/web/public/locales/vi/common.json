@@ -147,11 +147,7 @@
       "live": "Trực tiếp · {{count}} người nghe được bạn",
       "announceJoined": "Có người ở gần — đã kết nối giọng nói",
       "announceEnded": "Giọng nói đã kết thúc",
-      "zoneOff": {
-        "bedroom": "Giọng nói tắt trong phòng của bạn — chỉ có mình bạn",
-        "inner": "Ở đây giọng nói chỉ dành cho vòng thân thiết",
-        "community": "Ở đây giọng nói chỉ dành cho thành viên cộng đồng"
-      }
+      "homeOff": "Giọng nói tắt trong phòng của bạn — chỉ có mình bạn"
     }
   }
 }

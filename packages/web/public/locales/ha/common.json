@@ -145,11 +145,7 @@
       "live": "Kai tsaye · {{count}} suna jin ka",
       "announceJoined": "Akwai wani kusa — an haɗa murya",
       "announceEnded": "Murya ta ƙare",
-      "zoneOff": {
-        "bedroom": "An kashe murya a ɗakinka — kai kaɗai ne",
-        "inner": "Murya a nan na da'irar kusa ne kawai",
-        "community": "Murya a nan na membobin al'umma ne kawai"
-      }
+      "homeOff": "An kashe murya a ɗakinka — kai kaɗai ne"
     }
   }
 }

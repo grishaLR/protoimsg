@@ -5,7 +5,6 @@ import { DmSubscriptions } from '../dms/subscriptions.js';
 import { CommunityWatchers } from './buddy-watchers.js';
 import { handleClientMessage } from './handlers.js';
 import { TownRoom } from './town.js';
-import { getCommunityMemberDids, getInnerCircleDids } from '../community/queries.js';
 import type { TownVoice } from '../calls/town-voice.js';
 import { attachHeartbeat } from './heartbeat.js';
 import type { PresenceService } from '../presence/service.js';
@@ -148,13 +147,7 @@ export function createWsServer(
   const userSockets = new UserSockets();
   blockService.startSweep((d) => userSockets.get(d).size > 0);
   const communityWatchers = new CommunityWatchers(sql, blockService);
-  const townRoom = new TownRoom(blockService, townVoice ?? null, async (owner) => {
-    const [community, inner] = await Promise.all([
-      getCommunityMemberDids(sql, owner),
-      getInnerCircleDids(sql, owner),
-    ]);
-    return { community, inner };
-  });
+  const townRoom = new TownRoom(blockService, townVoice ?? null);
   const pendingCleanup = new Set<Promise<void>>();
 
   wss.on('connection', (ws: WebSocket, req: IncomingMessage) => {

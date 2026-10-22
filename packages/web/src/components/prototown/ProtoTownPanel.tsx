@@ -13,10 +13,8 @@ import styles from './ProtoTownPanel.module.css';
 
 // Visibility-IS-location: the zone you stand in decides who can see you.
 const ZONE_VISIBILITY: Record<TownZone, PresenceVisibility> = {
-  bedroom: 'no-one',
-  inner: 'inner-circle',
-  community: 'community',
-  everyone: 'everyone',
+  home: 'no-one',
+  public: 'everyone',
 };
 
 const MIC_STORAGE_KEY = 'protoimsg:townMic';
@@ -266,8 +264,8 @@ export function ProtoTownPanel() {
             >
               {micOn ? t('town.voice.micOn') : t('town.voice.micOff')}
             </button>
-            {nearbyUnlinked > 0 && zone && zone !== 'everyone' && (
-              <span className={styles.nearby}>{t(`town.voice.zoneOff.${zone}`)}</span>
+            {nearbyUnlinked > 0 && zone === 'home' && (
+              <span className={styles.nearby}>{t('town.voice.homeOff')}</span>
             )}
             {micError && (
               <span className={styles.micError} role="alert">

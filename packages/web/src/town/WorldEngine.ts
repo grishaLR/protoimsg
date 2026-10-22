@@ -29,13 +29,11 @@ import {
   zoneAtPixel,
 } from './map';
 
-// One seamless grass tile, tinted per ring so the concentric bands read as
-// visibility boundaries — innermost (bedroom) is darkest/most private.
+// One seamless grass tile, tinted per zone — the darker centre square is your
+// (interim) home, where nobody can see or hear you.
 const ZONE_TINT: Record<TownZone, number> = {
-  everyone: 0xffffff,
-  community: 0xd2e3b4,
-  inner: 0xa9cb88,
-  bedroom: 0x7fa564,
+  public: 0xffffff,
+  home: 0x7fa564,
 };
 
 const SCALE = 2; // world zoom
@@ -239,7 +237,7 @@ export class WorldEngine {
         ground.zIndex = -10000 + i;
         this.world.addChild(ground);
 
-        if (r.zone !== 'everyone') {
+        if (r.zone !== 'public') {
           const edge = new Graphics()
             .rect(r.x * TILE, r.y * TILE, r.w * TILE, r.h * TILE)
             .stroke({ width: 2, color: 0x2c3a1c, alpha: 0.22 });

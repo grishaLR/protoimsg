@@ -147,11 +147,7 @@
       "live": "Canlı · {{count}} kişi seni duyabiliyor",
       "announceJoined": "Yakınlarda biri var — ses bağlandı",
       "announceEnded": "Ses sona erdi",
-      "zoneOff": {
-        "bedroom": "Odanda ses kapalı — burada sadece sen varsın",
-        "inner": "Burada ses yalnızca yakın çevre için",
-        "community": "Burada ses yalnızca topluluk üyeleri için"
-      }
+      "homeOff": "Odanda ses kapalı — burada sadece sen varsın"
     }
   }
 }

@@ -147,11 +147,7 @@
       "live": "En vivo · {{count}} pueden oírte",
       "announceJoined": "Hay alguien cerca: voz conectada",
       "announceEnded": "Voz finalizada",
-      "zoneOff": {
-        "bedroom": "La voz está desactivada en tu cuarto: solo estás tú",
-        "inner": "Aquí la voz es solo para el círculo cercano",
-        "community": "Aquí la voz es solo para miembros de la comunidad"
-      }
+      "homeOff": "La voz está desactivada en tu cuarto: solo estás tú"
     }
   }
 }

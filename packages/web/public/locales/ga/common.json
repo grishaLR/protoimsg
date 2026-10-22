@@ -147,11 +147,7 @@
       "live": "Beo · is féidir le {{count}} tú a chloisteáil",
       "announceJoined": "Tá duine éigin in aice láimhe — guth ceangailte",
       "announceEnded": "Guth críochnaithe",
-      "zoneOff": {
-        "bedroom": "Tá an guth as i do sheomra — níl ann ach tú",
-        "inner": "Guth anseo don chiorcal istigh amháin",
-        "community": "Guth anseo do bhaill an phobail amháin"
-      }
+      "homeOff": "Tá an guth as i do sheomra — níl ann ach tú"
     }
   }
 }

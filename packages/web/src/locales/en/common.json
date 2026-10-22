@@ -320,11 +320,7 @@
       "live": "Live · {{count}} can hear you",
       "announceJoined": "Someone is nearby — voice connected",
       "announceEnded": "Voice ended",
-      "zoneOff": {
-        "bedroom": "Voice is off in your room — it's just you",
-        "inner": "Voice here is inner circle only",
-        "community": "Voice here is community members only"
-      }
+      "homeOff": "Voice is off in your room — it's just you"
     }
   }
 }
