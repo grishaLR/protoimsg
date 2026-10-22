@@ -69,10 +69,24 @@ export type {
   TownMoveMessage,
   TownChatMessage,
   TownLeaveMessage,
+  TownVoiceRefreshMessage,
   TownPeer,
   TownStateEvent,
   TownPeerJoinEvent,
   TownPeerMoveEvent,
   TownPeerLeaveEvent,
   TownChatEvent,
+  TownVoiceMember,
+  TownProximityEvent,
 } from './ws-types.js';
+
+export {
+  TOWN_TILE,
+  TOWN_MAP_W,
+  TOWN_MAP_H,
+  TOWN_ZONE_RECTS,
+  TOWN_PROXIMITY,
+  townZoneAtTile,
+  townZoneAtPixel,
+} from './town.js';
+export type { TownZone, TownZoneRect } from './town.js';

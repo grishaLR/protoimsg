@@ -137,6 +137,16 @@
     "chat": {
       "placeholder": "Say something to the town…",
       "send": "Send"
+    },
+    "voice": {
+      "micOn": "माइक चालू",
+      "micOff": "माइक बंद",
+      "enableAudio": "आस-पास के लोगों को सुनने के लिए क्लिक करें",
+      "micDenied": "माइक्रोफ़ोन अवरुद्ध — ब्राउज़र अनुमतियाँ जाँचें",
+      "nearby": "आस-पास: {{count}}",
+      "live": "लाइव · {{count}} आपको सुन सकते हैं",
+      "announceJoined": "कोई पास है — आवाज़ जुड़ गई",
+      "announceEnded": "आवाज़ समाप्त"
     }
   }
 }

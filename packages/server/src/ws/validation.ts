@@ -167,6 +167,8 @@ const townChat = z.object({
 
 const townLeave = z.object({ type: z.literal('town_leave') });
 
+const townVoiceRefresh = z.object({ type: z.literal('town_voice_refresh') });
+
 const clientMessage = z.discriminatedUnion('type', [
   statusChange,
   ping,
@@ -195,6 +197,7 @@ const clientMessage = z.discriminatedUnion('type', [
   townMove,
   townChat,
   townLeave,
+  townVoiceRefresh,
 ]);
 
 export type ValidatedClientMessage = z.infer<typeof clientMessage>;

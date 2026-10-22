@@ -137,6 +137,16 @@
     "chat": {
       "placeholder": "Say something to the town…",
       "send": "Send"
+    },
+    "voice": {
+      "micOn": "Mic bật",
+      "micOff": "Mic tắt",
+      "enableAudio": "Nhấn để nghe những người ở gần",
+      "micDenied": "Micrô bị chặn — kiểm tra quyền của trình duyệt",
+      "nearby": "Ở gần: {{count}}",
+      "live": "Trực tiếp · {{count}} người nghe được bạn",
+      "announceJoined": "Có người ở gần — đã kết nối giọng nói",
+      "announceEnded": "Giọng nói đã kết thúc"
     }
   }
 }

@@ -9,7 +9,8 @@ app = 'protoimsg-livekit'
 primary_region = 'iad'
 
 [build]
-  image = 'livekit/livekit-server:latest'
+  # Pinned — bump deliberately (test group calls + town voice on staging first).
+  image = 'livekit/livekit-server:v1.9.12'
 
 [env]
   LIVEKIT_LOG_LEVEL = 'info'

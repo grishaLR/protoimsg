@@ -137,6 +137,16 @@
     "chat": {
       "placeholder": "Say something to the town…",
       "send": "Send"
+    },
+    "voice": {
+      "micOn": "الميكروفون مفعّل",
+      "micOff": "الميكروفون مغلق",
+      "enableAudio": "انقر لسماع الأشخاص القريبين",
+      "micDenied": "الميكروفون محظور — تحقق من أذونات المتصفح",
+      "nearby": "بالقرب: {{count}}",
+      "live": "مباشر · {{count}} يمكنهم سماعك",
+      "announceJoined": "شخص ما بالقرب — تم توصيل الصوت",
+      "announceEnded": "انتهى الصوت"
     }
   }
 }

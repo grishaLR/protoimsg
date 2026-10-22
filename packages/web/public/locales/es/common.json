@@ -137,6 +137,16 @@
     "chat": {
       "placeholder": "Say something to the town…",
       "send": "Send"
+    },
+    "voice": {
+      "micOn": "Micrófono activado",
+      "micOff": "Micrófono desactivado",
+      "enableAudio": "Haz clic para escuchar a la gente cercana",
+      "micDenied": "Micrófono bloqueado: revisa los permisos del navegador",
+      "nearby": "Cerca: {{count}}",
+      "live": "En vivo · {{count}} pueden oírte",
+      "announceJoined": "Hay alguien cerca: voz conectada",
+      "announceEnded": "Voz finalizada"
     }
   }
 }

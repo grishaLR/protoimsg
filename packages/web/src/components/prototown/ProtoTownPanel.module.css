@@ -10,10 +10,19 @@
   inset: 0;
 }
 
-.hud {
+.topBar {
   position: absolute;
-  left: var(--cm-space-6);
-  top: var(--cm-space-6);
+  inset-block-start: var(--cm-space-6);
+  inset-inline: var(--cm-space-6);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--cm-space-3);
+  pointer-events: none;
+}
+
+.hud {
   padding: var(--cm-space-2) var(--cm-space-5);
   font-size: var(--cm-text-xs);
   color: var(--color-base-content);
@@ -27,9 +36,8 @@
 
 .chatBar {
   position: absolute;
-  left: var(--cm-space-6);
-  right: var(--cm-space-6);
-  bottom: var(--cm-space-6);
+  inset-inline: var(--cm-space-6);
+  inset-block-end: var(--cm-space-6);
   margin: var(--cm-space-0) auto;
   max-width: var(--cm-panel-width-dm);
   display: flex;
@@ -64,4 +72,82 @@
 
 .chatSend:active {
   box-shadow: var(--cm-pressed);
+}
+
+.voiceBar {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  align-items: center;
+  gap: var(--cm-space-3);
+  margin-inline-start: auto;
+}
+
+.voiceBar > * {
+  pointer-events: auto;
+}
+
+.nearby,
+.micError {
+  padding: var(--cm-space-2) var(--cm-space-5);
+  font-size: var(--cm-text-xs);
+  color: var(--color-base-content);
+  background: var(--color-base-100);
+  border: var(--cm-space-0.5) solid var(--color-base-300);
+  border-radius: var(--cm-radius-sm);
+  box-shadow: var(--cm-raised);
+}
+
+.micError {
+  max-inline-size: var(--cm-panel-width-dm);
+  color: var(--color-error);
+}
+
+.voiceButton {
+  padding: var(--cm-space-2) var(--cm-space-5);
+  font-size: var(--cm-text-xs);
+  color: var(--color-base-content);
+  background: var(--color-base-100);
+  border: var(--cm-space-0.5) solid var(--color-base-300);
+  border-radius: var(--cm-radius-md);
+  box-shadow: var(--cm-raised);
+  cursor: pointer;
+}
+
+.voiceButton:active {
+  box-shadow: var(--cm-pressed);
+}
+
+.voiceButton:focus-visible {
+  outline: var(--cm-focus-thin) solid var(--cm-focus);
+  outline-offset: var(--cm-focus-offset);
+}
+
+/* 44px touch target on phones/tablets: space-16 (32) + space-6 (12). */
+@media (pointer: coarse) {
+  .voiceButton {
+    min-block-size: calc(var(--cm-space-16) + var(--cm-space-6));
+  }
+}
+
+.micOn {
+  color: var(--color-primary-content);
+  background: var(--color-primary);
+}
+
+.live {
+  color: var(--color-primary-content);
+  background: var(--color-primary);
+}
+
+.srOnly {
+  position: absolute;
+  inline-size: var(--cm-space-0.5);
+  block-size: var(--cm-space-0.5);
+  margin: calc(-1 * var(--cm-space-0.5));
+  padding: var(--cm-space-0);
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: var(--cm-space-0);
 }

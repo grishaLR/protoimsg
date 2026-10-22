@@ -6,7 +6,15 @@ import { Application, Container, Graphics, Sprite, Texture, TilingSprite } from 
 import type { TownPeer } from '@protoimsg/shared';
 import { GAME_MASTER_DID, RPG_ACTOR_API_URL } from '../lib/config';
 import { resolveDisplayNameForDid } from '../lib/resolve-pds';
-import { Avatar, DIR_BACK, DIR_FORWARD, DIR_LEFT, DIR_RIGHT, buildFrames } from './Avatar';
+import {
+  Avatar,
+  DIR_BACK,
+  DIR_FORWARD,
+  DIR_LEFT,
+  DIR_RIGHT,
+  SPRITE_H,
+  buildFrames,
+} from './Avatar';
 import type { TownZone } from './map';
 import {
   ASSET_BASE,
@@ -35,6 +43,12 @@ const MOVE_SEND_MS = 110; // position broadcast throttle
 const PEER_SNAP_DIST = 240; // snap a peer instead of interpolating past this
 const PEER_LERP = 11; // peer position ease rate (per second)
 const MAX_FRAME_MS = 50; // clamp delta time — avoids tunneling on stalls
+
+// Proximity aura mesh — drawn between everyone in your voice cluster.
+const AURA_COLOR = 0xb794ff;
+const AURA_SPEAKING = 0xe9ddff;
+const AURA_R = 15; // world px around the body centre
+const MESH_Z = -4000; // above ground + pond, below y-sorted avatars/trees
 
 function spriteUrl(did: string): string {
   return `${RPG_ACTOR_API_URL}/api/sprite/normalized?did=${encodeURIComponent(did)}`;
@@ -91,6 +105,11 @@ export class WorldEngine {
   private fallbackTex: Texture | null = null;
   private ownedTextures: Texture[] = [];
   private selfDid = '';
+  private mesh = new Graphics();
+  private cluster: string[] = [];
+  private speaking = new Set<string>();
+  private meshClock = 0;
+  private meshDrawn = false;
 
   private px = MAP_W * TILE * 0.5;
   private py = MAP_H * TILE * 0.5;
@@ -140,6 +159,9 @@ export class WorldEngine {
 
     this.fallbackTex = this.makePortalTexture();
 
+    this.mesh.zIndex = MESH_Z;
+    this.world.addChild(this.mesh);
+
     await this.buildScene(did);
 
     window.addEventListener('keydown', this.onKeyDown);
@@ -154,6 +176,27 @@ export class WorldEngine {
 
   getPosition(): { x: number; y: number; dir: number } {
     return { x: this.px, y: this.py, dir: this.player.dir };
+  }
+
+  /** DIDs sharing your voice room (including you); [] clears the mesh. */
+  setVoiceCluster(dids: string[]): void {
+    this.cluster = dids;
+  }
+
+  setSpeaking(dids: Set<string>): void {
+    this.speaking = dids;
+  }
+
+  /** World-px distance from you to a peer, or null if they're not in view. */
+  distanceTo(did: string): number | null {
+    const p = this.positionOf(did);
+    return p ? Math.hypot(p.x - this.px, p.y - this.py) : null;
+  }
+
+  private positionOf(did: string): { x: number; y: number } | null {
+    if (did === this.selfDid) return { x: this.px, y: this.py };
+    const p = this.peers.get(did);
+    return p ? { x: p.x, y: p.y } : null;
   }
 
   setInputEnabled(enabled: boolean): void {
@@ -436,11 +479,59 @@ export class WorldEngine {
       peer.avatar.setPosition(peer.x, peer.y);
     }
 
+    this.drawMesh(dtMs);
+
     this.world.position.set(
       this.app.screen.width / 2 - this.px * SCALE,
       this.app.screen.height / 2 - this.py * SCALE,
     );
   };
+
+  /** Aura rings around each cluster member, linked by mesh threads. */
+  private drawMesh(dtMs: number): void {
+    const g = this.mesh;
+    const points: Array<{ x: number; y: number; speaking: boolean }> = [];
+    for (const did of this.cluster) {
+      const pos = this.positionOf(did);
+      if (pos) points.push({ x: pos.x, y: pos.y - SPRITE_H / 2, speaking: this.speaking.has(did) });
+    }
+    if (points.length < 2) {
+      // Clearing rebuilds the Graphics context — skip it on idle frames.
+      if (this.meshDrawn) g.clear();
+      this.meshDrawn = false;
+      return;
+    }
+    g.clear();
+    this.meshDrawn = true;
+
+    this.meshClock += dtMs;
+    const pulse = 0.5 + 0.5 * Math.sin(this.meshClock / 420);
+
+    for (let i = 0; i < points.length; i++) {
+      for (let j = i + 1; j < points.length; j++) {
+        const a = points[i];
+        const b = points[j];
+        if (!a || !b) continue;
+        const live = a.speaking || b.speaking;
+        g.moveTo(a.x, a.y)
+          .lineTo(b.x, b.y)
+          .stroke({
+            width: live ? 1.5 : 1,
+            color: live ? AURA_SPEAKING : AURA_COLOR,
+            alpha: live ? 0.75 : 0.3 + 0.15 * pulse,
+          });
+      }
+    }
+    for (const p of points) {
+      const r = AURA_R + (p.speaking ? 2 + 2 * pulse : pulse);
+      g.circle(p.x, p.y, r).fill({ color: AURA_COLOR, alpha: p.speaking ? 0.22 : 0.12 });
+      g.circle(p.x, p.y, r).stroke({
+        width: 1,
+        color: p.speaking ? AURA_SPEAKING : AURA_COLOR,
+        alpha: p.speaking ? 0.9 : 0.5,
+      });
+    }
+  }
 
   destroy(): void {
     this.destroyed = true;

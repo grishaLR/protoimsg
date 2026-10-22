@@ -135,6 +135,16 @@
     "chat": {
       "placeholder": "Say something to the town…",
       "send": "Send"
+    },
+    "voice": {
+      "micOn": "Maikrofoni imewashwa",
+      "micOff": "Maikrofoni imezimwa",
+      "enableAudio": "Bofya ili kusikia watu walio karibu",
+      "micDenied": "Maikrofoni imezuiwa — angalia ruhusa za kivinjari",
+      "nearby": "Karibu: {{count}}",
+      "live": "Moja kwa moja · {{count}} wanaweza kukusikia",
+      "announceJoined": "Kuna mtu karibu — sauti imeunganishwa",
+      "announceEnded": "Sauti imeisha"
     }
   }
 }
