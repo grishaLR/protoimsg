@@ -1,6 +1,9 @@
 import { Container, Graphics, Rectangle, Sprite, Text, Texture } from 'pixi.js';
 
 export const FRAME = 48; // rpg.actor sprite sheet cell size
+// Characters draw at half size; with the 2× world zoom that's 1:1 source pixels.
+const SPRITE_SCALE = 0.5;
+export const SPRITE_H = FRAME * SPRITE_SCALE; // on-world sprite height
 const COLS = 3; // walk-cycle columns
 const WALK_CYCLE = [1, 0, 2, 0] as const;
 const WALK_FRAME_MS = 150;
@@ -79,6 +82,7 @@ export class Avatar {
 
   constructor(name: string) {
     this.sprite.anchor.set(0.5, 1);
+    this.sprite.scale.set(SPRITE_SCALE);
     this.container.addChild(this.sprite);
     this.label = new Text({
       text: name,
@@ -103,10 +107,10 @@ export class Avatar {
   setFrames(frames: Texture[][]): void {
     if (this.destroyed) return;
     this.frames = frames;
-    // Don't call setSize — the 48×48 frame textures render at native size with
-    // the default scale of 1. Calling setSize before applyFrame would compute
-    // a huge scale against the empty default texture and the sprite would
-    // explode in size.
+    // Don't call setSize — the 48×48 frame textures render via the fixed
+    // SPRITE_SCALE set in the constructor. Calling setSize before applyFrame
+    // would compute a huge scale against the empty default texture and the
+    // sprite would explode in size.
     this.applyFrame();
     // Real sprite is in — retire the portal placeholder.
     if (this.fallbackSprite) {
@@ -125,8 +129,8 @@ export class Avatar {
     }
     const s = new Sprite(tex);
     s.anchor.set(0.5, 0.5);
-    s.position.set(0, -FRAME / 2);
-    s.scale.set(2); // 16-px source → 32-px on screen, nearest-neighbor
+    s.position.set(0, -SPRITE_H / 2);
+    s.scale.set(1); // 16-px source, nearest-neighbor — matches the half-size sprite
     this.fallbackSprite = s;
     this.container.addChild(s);
   }
@@ -176,7 +180,7 @@ export class Avatar {
       this.bubble.destroy({ children: true });
     }
     const bubble = makeBubble(text);
-    bubble.y = -FRAME - 6;
+    bubble.y = -SPRITE_H - 6;
     this.container.addChild(bubble);
     this.bubble = bubble;
     this.bubbleExpiry = performance.now() + BUBBLE_MS;

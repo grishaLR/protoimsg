@@ -8,11 +8,14 @@ const SWEEP_INTERVAL_MS = 5 * 60 * 1000;
 export class BlockService {
   private blocks = new Map<string, Set<string>>();
   private lastSeen = new Map<string, number>();
+  /** DIDs whose block list has arrived this session (even if empty). */
+  private synced = new Set<string>();
   private sweepTimer: ReturnType<typeof setInterval> | null = null;
 
   /** Replace a user's entire block list (called on sync_blocks) */
   sync(did: string, blockedDids: string[]): void {
     this.lastSeen.set(did, Date.now());
+    this.synced.add(did);
     if (blockedDids.length === 0) {
       this.blocks.delete(did);
     } else {
@@ -23,6 +26,14 @@ export class BlockService {
   /** Update last-seen timestamp (call on connect/message) */
   touch(did: string): void {
     this.lastSeen.set(did, Date.now());
+  }
+
+  /**
+   * Whether this DID's block list is known. Features that put people in
+   * direct contact (town proximity voice) must fail closed until it is.
+   */
+  hasSynced(did: string): boolean {
+    return this.synced.has(did);
   }
 
   /** Check if either user blocks the other (bidirectional) */
@@ -43,17 +54,24 @@ export class BlockService {
   clear(did: string): void {
     this.blocks.delete(did);
     this.lastSeen.delete(did);
+    this.synced.delete(did);
   }
 
-  /** Start periodic sweep of stale entries */
-  startSweep(): void {
+  /**
+   * Start periodic sweep of stale entries. `isOnline` protects connected
+   * users — their list is only synced once per connect, so sweeping it
+   * mid-session would silently unblock them.
+   */
+  startSweep(isOnline: (did: string) => boolean = () => false): void {
     if (this.sweepTimer) return;
     this.sweepTimer = setInterval(() => {
-      const cutoff = Date.now() - STALE_THRESHOLD_MS;
+      const now = Date.now();
+      const cutoff = now - STALE_THRESHOLD_MS;
       for (const [did, ts] of this.lastSeen) {
-        if (ts < cutoff) {
-          this.blocks.delete(did);
-          this.lastSeen.delete(did);
+        if (isOnline(did)) {
+          this.lastSeen.set(did, now);
+        } else if (ts < cutoff) {
+          this.clear(did);
         }
       }
     }, SWEEP_INTERVAL_MS);

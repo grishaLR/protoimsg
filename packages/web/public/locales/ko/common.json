@@ -137,6 +137,16 @@
     "chat": {
       "placeholder": "Say something to the town…",
       "send": "Send"
+    },
+    "voice": {
+      "micOn": "마이크 켜짐",
+      "micOff": "마이크 꺼짐",
+      "enableAudio": "클릭하여 근처 사람들의 소리 듣기",
+      "micDenied": "마이크가 차단됨 — 브라우저 권한을 확인하세요",
+      "nearby": "근처: {{count}}",
+      "live": "라이브 · {{count}}명이 듣고 있어요",
+      "announceJoined": "근처에 누군가 있어요 — 음성 연결됨",
+      "announceEnded": "음성 종료"
     }
   }
 }

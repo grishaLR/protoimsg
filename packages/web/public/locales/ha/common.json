@@ -135,6 +135,16 @@
     "chat": {
       "placeholder": "Say something to the town…",
       "send": "Send"
+    },
+    "voice": {
+      "micOn": "Makirufo a kunne",
+      "micOff": "Makirufo a kashe",
+      "enableAudio": "Danna don jin mutanen da ke kusa",
+      "micDenied": "An toshe makirufo — duba izinin burauza",
+      "nearby": "Kusa: {{count}}",
+      "live": "Kai tsaye · {{count}} suna jin ka",
+      "announceJoined": "Akwai wani kusa — an haɗa murya",
+      "announceEnded": "Murya ta ƙare"
     }
   }
 }

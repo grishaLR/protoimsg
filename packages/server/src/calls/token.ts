@@ -1,4 +1,4 @@
-import { AccessToken } from 'livekit-server-sdk';
+import { AccessToken, type TrackSource } from 'livekit-server-sdk';
 
 /**
  * Generates an anonymous LiveKit access token.
@@ -13,6 +13,8 @@ export async function generateAnonymousToken(
   roomName: string,
   participantId: string,
   ttlSeconds = 15 * 60,
+  /** Restrict what may be published — e.g. mic-only for proximity voice. */
+  publish?: { sources: TrackSource[]; data: boolean },
 ): Promise<string> {
   const token = new AccessToken(apiKey, apiSecret, {
     identity: participantId,
@@ -24,7 +26,8 @@ export async function generateAnonymousToken(
     roomJoin: true,
     canPublish: true,
     canSubscribe: true,
-    canPublishData: true,
+    canPublishData: publish?.data ?? true,
+    ...(publish ? { canPublishSources: publish.sources } : {}),
   });
 
   return await token.toJwt();

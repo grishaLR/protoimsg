@@ -137,6 +137,16 @@
     "chat": {
       "placeholder": "Say something to the town…",
       "send": "Send"
+    },
+    "voice": {
+      "micOn": "เปิดไมค์",
+      "micOff": "ปิดไมค์",
+      "enableAudio": "คลิกเพื่อฟังคนที่อยู่ใกล้",
+      "micDenied": "ไมโครโฟนถูกบล็อก — ตรวจสอบสิทธิ์ของเบราว์เซอร์",
+      "nearby": "ใกล้เคียง: {{count}}",
+      "live": "ถ่ายทอดสด · {{count}} คนได้ยินคุณ",
+      "announceJoined": "มีคนอยู่ใกล้ — เชื่อมต่อเสียงแล้ว",
+      "announceEnded": "เสียงสิ้นสุดแล้ว"
     }
   }
 }

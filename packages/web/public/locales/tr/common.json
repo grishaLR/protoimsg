@@ -137,6 +137,16 @@
     "chat": {
       "placeholder": "Say something to the town…",
       "send": "Send"
+    },
+    "voice": {
+      "micOn": "Mikrofon açık",
+      "micOff": "Mikrofon kapalı",
+      "enableAudio": "Yakındaki kişileri duymak için tıkla",
+      "micDenied": "Mikrofon engellendi — tarayıcı izinlerini kontrol et",
+      "nearby": "Yakındakiler: {{count}}",
+      "live": "Canlı · {{count}} kişi seni duyabiliyor",
+      "announceJoined": "Yakınlarda biri var — ses bağlandı",
+      "announceEnded": "Ses sona erdi"
     }
   }
 }

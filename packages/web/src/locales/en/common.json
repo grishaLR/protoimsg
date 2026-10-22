@@ -310,6 +310,16 @@
     "chat": {
       "placeholder": "Say something to the town…",
       "send": "Send"
+    },
+    "voice": {
+      "micOn": "Mic on",
+      "micOff": "Mic off",
+      "enableAudio": "Click to hear people nearby",
+      "micDenied": "Microphone blocked — check browser permissions",
+      "nearby": "Nearby: {{count}}",
+      "live": "Live · {{count}} can hear you",
+      "announceJoined": "Someone is nearby — voice connected",
+      "announceEnded": "Voice ended"
     }
   }
 }

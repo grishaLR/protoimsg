@@ -137,6 +137,16 @@
     "chat": {
       "placeholder": "Say something to the town…",
       "send": "Send"
+    },
+    "voice": {
+      "micOn": "麦克风已开",
+      "micOff": "麦克风已关",
+      "enableAudio": "点击收听附近的人",
+      "micDenied": "麦克风被阻止 — 请检查浏览器权限",
+      "nearby": "附近：{{count}}",
+      "live": "直播中 · {{count}} 人能听到你",
+      "announceJoined": "附近有人 — 语音已连接",
+      "announceEnded": "语音已结束"
     }
   }
 }

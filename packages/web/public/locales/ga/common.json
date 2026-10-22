@@ -137,6 +137,16 @@
     "chat": {
       "placeholder": "Say something to the town…",
       "send": "Send"
+    },
+    "voice": {
+      "micOn": "Micreafón air",
+      "micOff": "Micreafón as",
+      "enableAudio": "Cliceáil chun daoine in aice láimhe a chloisteáil",
+      "micDenied": "Micreafón blocáilte — seiceáil ceadanna an bhrabhsálaí",
+      "nearby": "In aice láimhe: {{count}}",
+      "live": "Beo · is féidir le {{count}} tú a chloisteáil",
+      "announceJoined": "Tá duine éigin in aice láimhe — guth ceangailte",
+      "announceEnded": "Guth críochnaithe"
     }
   }
 }
