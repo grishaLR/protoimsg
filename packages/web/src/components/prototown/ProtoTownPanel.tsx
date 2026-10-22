@@ -64,6 +64,10 @@ export function ProtoTownPanel() {
   const [micError, setMicError] = useState(false);
   const [audioBlocked, setAudioBlocked] = useState(false);
   const [nearbyCount, setNearbyCount] = useState(0);
+  // People close by that you are NOT in a voice room with, and where you stand —
+  // together they explain why voice is off ("community only here").
+  const [nearbyUnlinked, setNearbyUnlinked] = useState(0);
+  const [zone, setZone] = useState<TownZone | null>(null);
   const [micLive, setMicLive] = useState(false);
   // Screen-reader announcement on voice transitions only, not every roster tick.
   const [announcement, setAnnouncement] = useState('');
@@ -116,11 +120,13 @@ export function ProtoTownPanel() {
     engine.onMove = (x, y, dir) => {
       sendRef.current({ type: 'town_move', x, y, dir });
     };
-    engine.onZoneChange = (zone) => {
+    engine.onNearbyUnlinkedChange = setNearbyUnlinked;
+    engine.onZoneChange = (next) => {
+      setZone(next);
       sendRef.current({
         type: 'status_change',
         status: 'online',
-        visibleTo: ZONE_VISIBILITY[zone],
+        visibleTo: ZONE_VISIBILITY[next],
       });
     };
     void engine.init(container, did).then(() => {
@@ -134,6 +140,8 @@ export function ProtoTownPanel() {
       voice.destroy();
       setVoiceSupported(false);
       setNearbyCount(0);
+      setNearbyUnlinked(0);
+      setZone(null);
       setAudioBlocked(false);
       setMicLive(false);
       setMicError(false);
@@ -156,6 +164,7 @@ export function ProtoTownPanel() {
     const engine = engineRef.current;
     if (!engine) return;
     const p = engine.getPosition();
+    setZone(zoneAtPixel(p.x, p.y));
     send({ type: 'town_join', x: p.x, y: p.y, dir: p.dir });
     // Initial visibility for the zone the player spawns in.
     send({
@@ -257,6 +266,9 @@ export function ProtoTownPanel() {
             >
               {micOn ? t('town.voice.micOn') : t('town.voice.micOff')}
             </button>
+            {nearbyUnlinked > 0 && zone && zone !== 'everyone' && (
+              <span className={styles.nearby}>{t(`town.voice.zoneOff.${zone}`)}</span>
+            )}
             {micError && (
               <span className={styles.micError} role="alert">
                 {t('town.voice.micDenied')}

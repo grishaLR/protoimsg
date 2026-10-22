@@ -146,7 +146,12 @@
       "nearby": "近く: {{count}}",
       "live": "ライブ · {{count}} 人に聞こえています",
       "announceJoined": "近くに誰かいます — 音声接続済み",
-      "announceEnded": "音声終了"
+      "announceEnded": "音声終了",
+      "zoneOff": {
+        "bedroom": "自分の部屋では音声はオフです — ここはあなただけ",
+        "inner": "ここでの音声は親しい仲間のみ",
+        "community": "ここでの音声はコミュニティメンバーのみ"
+      }
     }
   }
 }

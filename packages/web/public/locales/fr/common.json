@@ -146,7 +146,12 @@
       "nearby": "À proximité : {{count}}",
       "live": "En direct · {{count}} peuvent vous entendre",
       "announceJoined": "Quelqu’un est à proximité — voix connectée",
-      "announceEnded": "Voix terminée"
+      "announceEnded": "Voix terminée",
+      "zoneOff": {
+        "bedroom": "La voix est coupée dans ta chambre — tu es seul·e ici",
+        "inner": "Ici, la voix est réservée au cercle proche",
+        "community": "Ici, la voix est réservée aux membres de la communauté"
+      }
     }
   }
 }

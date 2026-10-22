@@ -144,7 +144,12 @@
       "nearby": "Karibu: {{count}}",
       "live": "Moja kwa moja · {{count}} wanaweza kukusikia",
       "announceJoined": "Kuna mtu karibu — sauti imeunganishwa",
-      "announceEnded": "Sauti imeisha"
+      "announceEnded": "Sauti imeisha",
+      "zoneOff": {
+        "bedroom": "Sauti imezimwa chumbani kwako — uko peke yako",
+        "inner": "Sauti hapa ni kwa mduara wa karibu pekee",
+        "community": "Sauti hapa ni kwa wanajumuiya pekee"
+      }
     }
   }
 }
