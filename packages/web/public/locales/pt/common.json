@@ -147,7 +147,12 @@
       "live": "Ao vivo · {{count}} podem ouvir você",
       "announceJoined": "Alguém está por perto — voz conectada",
       "announceEnded": "Voz encerrada",
-      "homeOff": "A voz fica desligada no seu quarto — aqui é só você"
+      "homeOff": "A voz fica desligada no seu quarto — aqui é só você",
+      "camOn": "Câmera ligada",
+      "camOff": "Câmera desligada",
+      "camDenied": "Câmera bloqueada — verifique as permissões do navegador",
+      "you": "Você",
+      "videoStrip": "Vídeo das pessoas por perto"
     }
   }
 }

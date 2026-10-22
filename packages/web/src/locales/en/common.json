@@ -320,7 +320,12 @@
       "live": "Live · {{count}} can hear you",
       "announceJoined": "Someone is nearby — voice connected",
       "announceEnded": "Voice ended",
-      "homeOff": "Voice is off in your room — it's just you"
+      "homeOff": "Voice is off in your room — it's just you",
+      "camOn": "Camera on",
+      "camOff": "Camera off",
+      "camDenied": "Camera blocked — check browser permissions",
+      "you": "You",
+      "videoStrip": "Video from people nearby"
     }
   }
 }

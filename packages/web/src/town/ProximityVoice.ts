@@ -3,12 +3,22 @@ import {
   Room,
   RoomEvent,
   Track,
+  VideoPresets,
   type Participant,
   type RemoteTrack,
+  type VideoTrack,
 } from 'livekit-client';
 import type { TownProximityEvent } from '@protoimsg/shared';
 
 type VoiceRoom = NonNullable<TownProximityEvent['data']['room']>;
+
+/** One camera feed in your conversation (yours or a mesh member's). */
+export interface ProximityVideo {
+  key: string;
+  did: string;
+  track: VideoTrack;
+  local: boolean;
+}
 
 const RETRY_BASE_MS = 2000;
 const RETRY_MAX_MS = 30_000;
@@ -16,7 +26,8 @@ const RETRY_MAX_MS = 30_000;
 /**
  * Proximity voice for proto town. The server decides who shares a room (the
  * aura cluster); this follows its assignments — joining, switching or leaving
- * the LiveKit room — and plays everyone's mic audio.
+ * the LiveKit room — and plays everyone's mic audio, plus camera video for
+ * anyone who turns theirs on.
  *
  * Every assignment takes a sequence number synchronously; after each await we
  * bail if a newer assignment (or destroy) has happened, so a slow connect can
@@ -29,6 +40,8 @@ export class ProximityVoice {
   private pidToDid = new Map<string, string>();
   private audioEls = new Set<HTMLMediaElement>();
   private micEnabled: boolean;
+  /** Per conversation only — always starts off, and leaving the room turns it off. */
+  private cameraOn = false;
   private seq = 0;
   private destroyed = false;
   private retryTimer: ReturnType<typeof setTimeout> | null = null;
@@ -46,6 +59,12 @@ export class ProximityVoice {
   onMicError?: () => void;
   /** Connection lost or failed — ask the server for a fresh token. */
   onRequestRefresh?: () => void;
+  /** Camera feeds currently showing in your conversation. */
+  onVideoChange?: (videos: ProximityVideo[]) => void;
+  /** Your camera turned on/off (including automatically when the conversation ends). */
+  onCameraChange?: (on: boolean) => void;
+  /** Camera permission was denied or no device is available. */
+  onCameraError?: () => void;
 
   constructor(
     private audioHost: HTMLElement,
@@ -79,6 +98,7 @@ export class ProximityVoice {
       state !== ConnectionState.Disconnected
     ) {
       this.applyPermissions(this.room);
+      this.emitVideo();
       return;
     }
 
@@ -92,6 +112,8 @@ export class ProximityVoice {
       webAudioMix: true,
       // "Mic off" must release the device, not just mute it.
       publishDefaults: { stopMicTrackOnMute: true },
+      // Small tiles — no need to burn bandwidth on HD.
+      videoCaptureDefaults: { resolution: VideoPresets.h360.resolution },
     });
     this.room = room;
     this.roomId = next.roomId;
@@ -143,6 +165,36 @@ export class ProximityVoice {
     }
   }
 
+  /**
+   * Turn your camera on/off for the current conversation. Only works while
+   * you're in one — there's nobody to show it to otherwise.
+   */
+  async setCameraEnabled(on: boolean): Promise<void> {
+    const room = this.room;
+    if (room?.state !== ConnectionState.Connected) return;
+    const seq = this.seq;
+    if (!on) {
+      this.setCameraState(false);
+      await room.localParticipant.setCameraEnabled(false).catch(() => undefined);
+      this.emitVideo();
+      return;
+    }
+    try {
+      await room.localParticipant.setCameraEnabled(true);
+    } catch {
+      this.setCameraState(false);
+      this.onCameraError?.();
+      return;
+    }
+    // Conversation changed while the camera was starting — don't leave it on.
+    if (this.isStale(seq) || this.room !== room) {
+      await room.localParticipant.setCameraEnabled(false).catch(() => undefined);
+      return;
+    }
+    this.setCameraState(true);
+    this.emitVideo();
+  }
+
   /** Per-member volume (0–1), e.g. by distance. Called on an interval. */
   setVolumes(volumeFor: (did: string) => number): void {
     const room = this.room;
@@ -170,6 +222,9 @@ export class ProximityVoice {
     this.onLiveChange = undefined;
     this.onMicError = undefined;
     this.onRequestRefresh = undefined;
+    this.onVideoChange = undefined;
+    this.onCameraChange = undefined;
+    this.onCameraError = undefined;
     void this.leaveRoom();
   }
 
@@ -177,16 +232,34 @@ export class ProximityVoice {
     // Every handler ignores a room we've already moved on from.
     room
       .on(RoomEvent.TrackSubscribed, (track: RemoteTrack) => {
-        if (this.room !== room || track.kind !== Track.Kind.Audio) return;
+        if (this.room !== room) return;
+        if (track.kind === Track.Kind.Video) {
+          this.emitVideo();
+          return;
+        }
+        if (track.kind !== Track.Kind.Audio) return;
         const el = track.attach();
         this.audioHost.appendChild(el);
         this.audioEls.add(el);
       })
       .on(RoomEvent.TrackUnsubscribed, (track: RemoteTrack) => {
+        if (track.kind === Track.Kind.Video) {
+          if (this.room === room) this.emitVideo();
+          return;
+        }
         for (const el of track.detach()) {
           el.remove();
           this.audioEls.delete(el);
         }
+      })
+      .on(RoomEvent.TrackMuted, () => {
+        if (this.room === room) this.emitVideo();
+      })
+      .on(RoomEvent.TrackUnmuted, () => {
+        if (this.room === room) this.emitVideo();
+      })
+      .on(RoomEvent.ParticipantDisconnected, () => {
+        if (this.room === room) this.emitVideo();
       })
       .on(RoomEvent.ActiveSpeakersChanged, (speakers: Participant[]) => {
         if (this.room !== room) return;
@@ -208,6 +281,7 @@ export class ProximityVoice {
         this.room = null;
         this.roomId = null;
         this.clearAudio();
+        this.clearVideo();
         this.onLiveChange?.(false);
         this.scheduleRetry();
       });
@@ -242,6 +316,41 @@ export class ProximityVoice {
     this.onLiveChange?.(true);
   }
 
+  private setCameraState(on: boolean): void {
+    if (this.cameraOn === on) return;
+    this.cameraOn = on;
+    this.onCameraChange?.(on);
+  }
+
+  /** Rebuild the list of visible camera feeds: yours, then each roster member's. */
+  private emitVideo(): void {
+    const room = this.room;
+    if (!room) {
+      this.onVideoChange?.([]);
+      return;
+    }
+    const videos: ProximityVideo[] = [];
+    const own = room.localParticipant.getTrackPublication(Track.Source.Camera);
+    if (this.cameraOn && own?.videoTrack && !own.isMuted) {
+      videos.push({ key: 'self', did: this.selfDid, track: own.videoTrack, local: true });
+    }
+    for (const p of room.remoteParticipants.values()) {
+      const did = this.pidToDid.get(p.identity);
+      // Only roster members, and never your own other tab.
+      if (!did || did === this.selfDid) continue;
+      const pub = p.getTrackPublication(Track.Source.Camera);
+      if (pub?.videoTrack && pub.isSubscribed && !pub.isMuted) {
+        videos.push({ key: p.identity, did, track: pub.videoTrack, local: false });
+      }
+    }
+    this.onVideoChange?.(videos);
+  }
+
+  private clearVideo(): void {
+    this.setCameraState(false);
+    this.onVideoChange?.([]);
+  }
+
   /** A newer assignment (or destroy) happened while we were awaiting. */
   private isStale(seq: number): boolean {
     return seq !== this.seq || this.destroyed;
@@ -274,6 +383,8 @@ export class ProximityVoice {
     this.roomId = null;
     this.selfPid = null;
     this.clearAudio();
+    // The conversation is over (or changing) — your camera goes off with it.
+    this.clearVideo();
     this.onLiveChange?.(false);
     if (room) {
       room.removeAllListeners();

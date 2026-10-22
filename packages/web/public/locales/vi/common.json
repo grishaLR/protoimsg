@@ -147,7 +147,12 @@
       "live": "Trực tiếp · {{count}} người nghe được bạn",
       "announceJoined": "Có người ở gần — đã kết nối giọng nói",
       "announceEnded": "Giọng nói đã kết thúc",
-      "homeOff": "Giọng nói tắt trong phòng của bạn — chỉ có mình bạn"
+      "homeOff": "Giọng nói tắt trong phòng của bạn — chỉ có mình bạn",
+      "camOn": "Camera bật",
+      "camOff": "Camera tắt",
+      "camDenied": "Camera bị chặn — kiểm tra quyền của trình duyệt",
+      "you": "Bạn",
+      "videoStrip": "Video từ những người ở gần"
     }
   }
 }

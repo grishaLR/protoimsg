@@ -147,7 +147,12 @@
       "live": "Canlı · {{count}} kişi seni duyabiliyor",
       "announceJoined": "Yakınlarda biri var — ses bağlandı",
       "announceEnded": "Ses sona erdi",
-      "homeOff": "Odanda ses kapalı — burada sadece sen varsın"
+      "homeOff": "Odanda ses kapalı — burada sadece sen varsın",
+      "camOn": "Kamera açık",
+      "camOff": "Kamera kapalı",
+      "camDenied": "Kamera engellendi — tarayıcı izinlerini kontrol et",
+      "you": "Sen",
+      "videoStrip": "Yakındakilerin videosu"
     }
   }
 }

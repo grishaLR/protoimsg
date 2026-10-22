@@ -6,7 +6,8 @@ import { useAuth } from '../../hooks/useAuth';
 import { getCachedVisibility } from '../../hooks/usePresence';
 import { useWebSocket } from '../../contexts/WebSocketContext';
 import { WorldEngine } from '../../town/WorldEngine';
-import { ProximityVoice } from '../../town/ProximityVoice';
+import { ProximityVoice, type ProximityVideo } from '../../town/ProximityVoice';
+import { TownVideoTile } from './TownVideoTile';
 import type { TownZone } from '../../town/map';
 import { zoneAtPixel } from '../../town/map';
 import styles from './ProtoTownPanel.module.css';
@@ -67,6 +68,9 @@ export function ProtoTownPanel() {
   const [nearbyUnlinked, setNearbyUnlinked] = useState(0);
   const [zone, setZone] = useState<TownZone | null>(null);
   const [micLive, setMicLive] = useState(false);
+  const [cameraOn, setCameraOn] = useState(false);
+  const [cameraError, setCameraError] = useState(false);
+  const [videos, setVideos] = useState<ProximityVideo[]>([]);
   // Screen-reader announcement on voice transitions only, not every roster tick.
   const [announcement, setAnnouncement] = useState('');
   const prevNearbyRef = useRef(0);
@@ -96,6 +100,11 @@ export function ProtoTownPanel() {
     };
     voice.onAudioBlockedChange = setAudioBlocked;
     voice.onLiveChange = setMicLive;
+    voice.onVideoChange = setVideos;
+    voice.onCameraChange = setCameraOn;
+    voice.onCameraError = () => {
+      setCameraError(true);
+    };
     voice.onMicError = () => {
       setMicOn(false);
       setMicError(true);
@@ -142,6 +151,9 @@ export function ProtoTownPanel() {
       setZone(null);
       setAudioBlocked(false);
       setMicLive(false);
+      setCameraOn(false);
+      setCameraError(false);
+      setVideos([]);
       setMicError(false);
       sendRef.current({ type: 'town_leave' });
       // Leaving town: restore the visibility the user set outside of it.
@@ -212,6 +224,11 @@ export function ProtoTownPanel() {
     else if (prev > 0 && nearbyCount === 0) setAnnouncement(t('town.voice.announceEnded'));
   }, [nearbyCount, t]);
 
+  const toggleCamera = useCallback(() => {
+    setCameraError(false);
+    void voiceRef.current?.setCameraEnabled(!cameraOn);
+  }, [cameraOn]);
+
   const toggleMic = useCallback(() => {
     const next = !micOn;
     setMicOn(next);
@@ -264,6 +281,15 @@ export function ProtoTownPanel() {
             >
               {micOn ? t('town.voice.micOn') : t('town.voice.micOff')}
             </button>
+            {nearbyCount > 0 && (
+              <button
+                type="button"
+                className={`${styles.voiceButton} ${cameraOn ? styles.micOn : ''}`}
+                onClick={toggleCamera}
+              >
+                {cameraOn ? t('town.voice.camOn') : t('town.voice.camOff')}
+              </button>
+            )}
             {nearbyUnlinked > 0 && zone === 'home' && (
               <span className={styles.nearby}>{t('town.voice.homeOff')}</span>
             )}
@@ -272,9 +298,21 @@ export function ProtoTownPanel() {
                 {t('town.voice.micDenied')}
               </span>
             )}
+            {cameraError && (
+              <span className={styles.micError} role="alert">
+                {t('town.voice.camDenied')}
+              </span>
+            )}
           </div>
         )}
       </div>
+      {videos.length > 0 && (
+        <div className={styles.videoStrip} role="group" aria-label={t('town.voice.videoStrip')}>
+          {videos.map((v) => (
+            <TownVideoTile key={v.key} video={v} />
+          ))}
+        </div>
+      )}
       <form
         className={styles.chatBar}
         onSubmit={(e) => {

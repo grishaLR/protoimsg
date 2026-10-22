@@ -147,7 +147,12 @@
       "live": "直播中 · {{count}} 人能听到你",
       "announceJoined": "附近有人 — 语音已连接",
       "announceEnded": "语音已结束",
-      "homeOff": "你的房间里语音已关闭 — 这里只有你"
+      "homeOff": "你的房间里语音已关闭 — 这里只有你",
+      "camOn": "摄像头已开",
+      "camOff": "摄像头已关",
+      "camDenied": "摄像头被阻止 — 请检查浏览器权限",
+      "you": "你",
+      "videoStrip": "附近的人的视频"
     }
   }
 }

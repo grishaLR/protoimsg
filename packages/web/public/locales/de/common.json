@@ -147,7 +147,12 @@
       "live": "Live · {{count}} können dich hören",
       "announceJoined": "Jemand ist in der Nähe – Sprache verbunden",
       "announceEnded": "Sprache beendet",
-      "homeOff": "In deinem Zimmer ist Sprache aus – nur du bist hier"
+      "homeOff": "In deinem Zimmer ist Sprache aus – nur du bist hier",
+      "camOn": "Kamera an",
+      "camOff": "Kamera aus",
+      "camDenied": "Kamera blockiert – Browserberechtigungen prüfen",
+      "you": "Du",
+      "videoStrip": "Video von Leuten in der Nähe"
     }
   }
 }

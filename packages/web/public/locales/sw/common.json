@@ -145,7 +145,12 @@
       "live": "Moja kwa moja · {{count}} wanaweza kukusikia",
       "announceJoined": "Kuna mtu karibu — sauti imeunganishwa",
       "announceEnded": "Sauti imeisha",
-      "homeOff": "Sauti imezimwa chumbani kwako — uko peke yako"
+      "homeOff": "Sauti imezimwa chumbani kwako — uko peke yako",
+      "camOn": "Kamera imewashwa",
+      "camOff": "Kamera imezimwa",
+      "camDenied": "Kamera imezuiwa — angalia ruhusa za kivinjari",
+      "you": "Wewe",
+      "videoStrip": "Video kutoka kwa watu walio karibu"
     }
   }
 }

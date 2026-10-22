@@ -145,7 +145,12 @@
       "live": "Kai tsaye · {{count}} suna jin ka",
       "announceJoined": "Akwai wani kusa — an haɗa murya",
       "announceEnded": "Murya ta ƙare",
-      "homeOff": "An kashe murya a ɗakinka — kai kaɗai ne"
+      "homeOff": "An kashe murya a ɗakinka — kai kaɗai ne",
+      "camOn": "Kyamara a kunne",
+      "camOff": "Kyamara a kashe",
+      "camDenied": "An toshe kyamara — duba izinin burauza",
+      "you": "Kai",
+      "videoStrip": "Bidiyo daga mutanen da ke kusa"
     }
   }
 }

@@ -44,11 +44,11 @@ const PEER_LERP = 11; // peer position ease rate (per second)
 const MAX_FRAME_MS = 50; // clamp delta time — avoids tunneling on stalls
 
 // Proximity aura mesh — drawn between everyone in your voice cluster.
-// Anyone merely nearby (not in your voice room) gets a soft neutral aura, so
-// closeness is always visible even where a zone keeps voice off.
-const NEAR_COLOR = 0xffffff;
+// Anyone merely nearby (not in your voice room yet) gets a softer violet aura,
+// so closeness is always visible; the connected mesh is brighter and bolder.
+const NEAR_COLOR = 0x9f6bff;
 const AURA_COLOR = 0xb794ff;
-const AURA_SPEAKING = 0xe9ddff;
+const AURA_SPEAKING = 0xf0e6ff;
 const AURA_R = 15; // world px around the body centre
 const MESH_Z = -4000; // above ground + pond, below y-sorted avatars/trees
 
@@ -547,12 +547,12 @@ export class WorldEngine {
       for (const p of near) {
         g.moveTo(self.x, self.y)
           .lineTo(p.x, p.y)
-          .stroke({ width: 1, color: NEAR_COLOR, alpha: 0.18 + 0.1 * pulse });
+          .stroke({ width: 1, color: NEAR_COLOR, alpha: 0.35 + 0.15 * pulse });
       }
       const selfLinked = linked.has(this.selfDid);
       for (const p of selfLinked ? near : [self, ...near]) {
-        g.circle(p.x, p.y, AURA_R).fill({ color: NEAR_COLOR, alpha: 0.07 });
-        g.circle(p.x, p.y, AURA_R).stroke({ width: 1, color: NEAR_COLOR, alpha: 0.35 });
+        g.circle(p.x, p.y, AURA_R).fill({ color: NEAR_COLOR, alpha: 0.18 });
+        g.circle(p.x, p.y, AURA_R).stroke({ width: 1, color: NEAR_COLOR, alpha: 0.7 });
       }
     }
     if (points.length < 2) return;
@@ -566,19 +566,19 @@ export class WorldEngine {
         g.moveTo(a.x, a.y)
           .lineTo(b.x, b.y)
           .stroke({
-            width: live ? 1.5 : 1,
+            width: live ? 2 : 1.5,
             color: live ? AURA_SPEAKING : AURA_COLOR,
-            alpha: live ? 0.75 : 0.3 + 0.15 * pulse,
+            alpha: live ? 0.95 : 0.55 + 0.2 * pulse,
           });
       }
     }
     for (const p of points) {
       const r = AURA_R + (p.speaking ? 2 + 2 * pulse : pulse);
-      g.circle(p.x, p.y, r).fill({ color: AURA_COLOR, alpha: p.speaking ? 0.22 : 0.12 });
+      g.circle(p.x, p.y, r).fill({ color: AURA_COLOR, alpha: p.speaking ? 0.38 : 0.26 });
       g.circle(p.x, p.y, r).stroke({
-        width: 1,
+        width: 1.5,
         color: p.speaking ? AURA_SPEAKING : AURA_COLOR,
-        alpha: p.speaking ? 0.9 : 0.5,
+        alpha: p.speaking ? 1 : 0.85,
       });
     }
   }
