@@ -1,6 +1,6 @@
 import { randomBytes } from 'crypto';
 import type { WebSocket } from 'ws';
-import { TOWN_PROXIMITY } from '@protoimsg/shared';
+import { TOWN_PROXIMITY, townZoneAtPixel } from '@protoimsg/shared';
 import type { ServerMessage, TownPeer, TownVoiceMember } from '@protoimsg/shared';
 import type { BlockService } from '../moderation/block-service.js';
 import type { TownVoice } from '../calls/town-voice.js';
@@ -24,15 +24,9 @@ interface TownMember extends TownPeer {
   roomId: string | null;
   /** Anonymous LiveKit identity for the current room. */
   pid: string;
+  /** At home: invisible to everyone else (no join/move/chat broadcasts). */
+  hidden: boolean;
 }
-
-/** A user's circles, used to gate voice in the community/inner zones. */
-export interface TownCircles {
-  community: Set<string>;
-  inner: Set<string>;
-}
-
-export type CirclesLoader = (did: string) => Promise<TownCircles>;
 
 interface VoiceRoomState {
   /** Bumped per send — a slower, older send never overwrites a newer roster. */
@@ -59,6 +53,10 @@ const VOICE_RETRY_MS = 5000;
 // there (kicked members reconnecting with a still-valid token).
 const RECONCILE_MS = 5000;
 
+function isHome(x: number, y: number): boolean {
+  return townZoneAtPixel(x, y) === 'home';
+}
+
 function randomId(prefix: string): string {
   return `${prefix}${randomBytes(8).toString('hex')}`;
 }
@@ -78,8 +76,8 @@ function pairKey(a: ProxNode, b: ProxNode): string {
  * LiveKit room. Safety rules, all fail-closed:
  * - blocked pairs never share a room, even through a third person;
  * - nobody is voice-eligible until their block list has synced;
- * - the bedroom is solo; the inner/community zones only connect you with
- *   people in that circle of yours (and they must allow you too);
+ * - home is private: nobody there is seen, heard or broadcast; the rest of
+ *   the map is the public world (circle-gated spaces arrive as scenes);
  * - removed participants are evicted, and rooms are reconciled against the
  *   expected roster because LiveKit tokens can't be revoked.
  */
@@ -95,12 +93,10 @@ export class TownRoom {
   /** When each not-yet-linked close pair first came within range. */
   private closeSince = new Map<string, number>();
   private rooms = new Map<string, VoiceRoomState>();
-  private circles = new Map<string, TownCircles>();
 
   constructor(
     private blockService: BlockService,
     private voice: TownVoice | null = null,
-    private loadCircles: CirclesLoader | null = null,
   ) {
     if (voice) {
       this.reconcileTimer = setInterval(() => {
@@ -125,18 +121,20 @@ export class TownRoom {
       moveBudgetTs: Date.now(),
       roomId: prev?.roomId ?? null,
       pid: prev?.pid ?? '',
+      hidden: isHome(x, y),
     });
     if (prev?.roomId) this.pendingDirty.add(prev.roomId);
-    if (!this.circles.has(did)) this.refreshCircles(did);
 
     const peers: TownPeer[] = [];
     for (const m of this.members.values()) {
-      if (m.ws === ws || m.did === did) continue;
+      if (m.ws === ws || m.did === did || m.hidden) continue;
       if (this.blockService.isBlocked(did, m.did)) continue;
       peers.push({ did: m.did, x: m.x, y: m.y, dir: m.dir });
     }
     this.sendTo(ws, { type: 'town_state', data: { peers, voice: this.voice !== null } });
-    this.broadcast(did, { type: 'town_peer_join', data: { did, x, y, dir } }, ws);
+    if (!isHome(x, y)) {
+      this.broadcast(did, { type: 'town_peer_join', data: { did, x, y, dir } }, ws);
+    }
     this.scheduleProximity();
   }
 
@@ -146,7 +144,17 @@ export class TownRoom {
     m.x = x;
     m.y = y;
     m.dir = dir;
-    this.broadcast(m.did, { type: 'town_peer_move', data: { did: m.did, x, y, dir } }, ws);
+    const wasHidden = m.hidden;
+    m.hidden = isHome(x, y);
+    if (m.hidden) {
+      // Stepping inside looks like leaving town to everyone else.
+      if (!wasHidden) this.announceLeaveIfGone(m, ws);
+    } else if (wasHidden) {
+      // Stepping out looks like arriving.
+      this.broadcast(m.did, { type: 'town_peer_join', data: { did: m.did, x, y, dir } }, ws);
+    } else {
+      this.broadcast(m.did, { type: 'town_peer_move', data: { did: m.did, x, y, dir } }, ws);
+    }
     this.scheduleProximity();
   }
 
@@ -156,7 +164,10 @@ export class TownRoom {
     // Echoed to everyone, including the sender, so all clients render the
     // bubble identically. `text` is relayed verbatim — clients MUST render it
     // as plain text (the Pixi bubble uses Text, never markup).
-    this.broadcast(m.did, { type: 'town_chat', data: { did: m.did, text } });
+    const msg: ServerMessage = { type: 'town_chat', data: { did: m.did, text } };
+    // At home nobody else is there to hear it — only your own bubble shows.
+    if (m.hidden) this.sendTo(ws, msg);
+    else this.broadcast(m.did, msg);
   }
 
   leave(ws: WebSocket): void {
@@ -169,13 +180,18 @@ export class TownRoom {
       this.pendingDirty.add(m.roomId);
       this.scheduleProximity();
     }
-    // Only announce the leave if the DID has no other socket still present
-    // (a second tab keeps the avatar alive for everyone else).
+    if (!m.hidden) this.announceLeaveIfGone(m, ws);
+  }
+
+  /**
+   * Tell everyone `m`'s avatar is gone — unless another socket of the same DID
+   * is still visible in town (a second tab keeps the avatar alive).
+   */
+  private announceLeaveIfGone(m: TownMember, exclude: WebSocket): void {
     for (const other of this.members.values()) {
-      if (other.did === m.did) return;
+      if (other !== m && other.did === m.did && !other.hidden) return;
     }
-    this.circles.delete(m.did);
-    this.broadcast(m.did, { type: 'town_peer_leave', data: { did: m.did } }, ws);
+    this.broadcast(m.did, { type: 'town_peer_leave', data: { did: m.did } }, exclude);
   }
 
   /** Re-evaluate clusters now that block lists changed (blocked pairs split). */
@@ -189,27 +205,6 @@ export class TownRoom {
     if (!m?.roomId) return;
     this.pendingDirty.add(m.roomId);
     this.scheduleProximity();
-  }
-
-  /** (Re)load a member's community + inner circle after it changed. */
-  refreshCircles(did: string): void {
-    const load = this.loadCircles;
-    if (!load || this.disposed) return;
-    load(did)
-      .then((c) => {
-        if (this.disposed) return;
-        // Dropped if they left town while loading.
-        for (const m of this.members.values()) {
-          if (m.did === did) {
-            this.circles.set(did, c);
-            this.scheduleProximity();
-            return;
-          }
-        }
-      })
-      .catch((err: unknown) => {
-        log.warn({ err }, 'Failed to load circles for town voice');
-      });
   }
 
   dispose(): void {
@@ -227,20 +222,6 @@ export class TownRoom {
       this.proximityTimer = null;
       this.updateProximity();
     }, delay);
-  }
-
-  /** May `owner`'s zone let `other` hear them? */
-  private zoneAllows(owner: ProxNode, other: ProxNode): boolean {
-    switch (zoneOf(owner)) {
-      case 'everyone':
-        return true;
-      case 'community':
-        return this.circles.get(owner.did)?.community.has(other.did) ?? false;
-      case 'inner':
-        return this.circles.get(owner.did)?.inner.has(other.did) ?? false;
-      case 'bedroom':
-        return false;
-    }
   }
 
   private updateProximity(): void {
@@ -263,12 +244,8 @@ export class TownRoom {
     const nextClose = new Map<string, number>();
     const dwell = { pending: false };
     const rules: ClusterRules = {
-      eligible: (n) => this.blockService.hasSynced(n.did) && zoneOf(n) !== 'bedroom',
-      compatible: (a, b) =>
-        a.did !== b.did &&
-        !this.blockService.isBlocked(a.did, b.did) &&
-        this.zoneAllows(a, b) &&
-        this.zoneAllows(b, a),
+      eligible: (n) => this.blockService.hasSynced(n.did) && zoneOf(n) === 'public',
+      compatible: (a, b) => a.did !== b.did && !this.blockService.isBlocked(a.did, b.did),
       newLinkReady: (a, b) => {
         const key = pairKey(a, b);
         const since = prevClose.get(key) ?? now;

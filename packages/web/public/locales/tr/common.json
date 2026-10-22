@@ -146,7 +146,8 @@
       "nearby": "Yakındakiler: {{count}}",
       "live": "Canlı · {{count}} kişi seni duyabiliyor",
       "announceJoined": "Yakınlarda biri var — ses bağlandı",
-      "announceEnded": "Ses sona erdi"
+      "announceEnded": "Ses sona erdi",
+      "homeOff": "Odanda ses kapalı — burada sadece sen varsın"
     }
   }
 }

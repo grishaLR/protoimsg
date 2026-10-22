@@ -146,7 +146,8 @@
       "nearby": "In der Nähe: {{count}}",
       "live": "Live · {{count}} können dich hören",
       "announceJoined": "Jemand ist in der Nähe – Sprache verbunden",
-      "announceEnded": "Sprache beendet"
+      "announceEnded": "Sprache beendet",
+      "homeOff": "In deinem Zimmer ist Sprache aus – nur du bist hier"
     }
   }
 }

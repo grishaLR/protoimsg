@@ -3,7 +3,7 @@ import type { WebSocket } from 'ws';
 import type { TownProximityEvent } from '@protoimsg/shared';
 import { BlockService } from '../moderation/block-service.js';
 import type { TownVoice } from '../calls/town-voice.js';
-import { TownRoom, type TownCircles } from './town.js';
+import { TownRoom } from './town.js';
 
 type Room = TownProximityEvent['data']['room'];
 
@@ -38,12 +38,18 @@ function fakeVoice(participants: string[] = []) {
 const A = 'did:plc:a';
 const B = 'did:plc:b';
 const C = 'did:plc:c';
-// The top rows (tile y < 4) are open 'everyone' ground; the inner zone (not
-// bedroom) is around tile (13, 15).
+// Open public ground, and the centre square that stands in for home.
 const OPEN = 200;
 const ROW = 100;
-const INNER_X = 13 * 48 + 24;
-const INNER_Y = 15 * 48 + 24;
+const HOME_X = 20 * 48;
+const HOME_Y = 15 * 48;
+
+/** Every message of `type` a socket received. */
+function sent(s: FakeWs, type: string): Array<{ type: string; data: unknown }> {
+  return s.send.mock.calls
+    .map((c) => JSON.parse(String(c[0])) as { type: string; data: unknown })
+    .filter((m) => m.type === type);
+}
 
 describe('TownRoom proximity voice', () => {
   let blocks: BlockService;
@@ -154,27 +160,14 @@ describe('TownRoom proximity voice', () => {
     ).toEqual([A, B]);
   });
 
-  it('gates the inner zone by inner circle, in both directions', async () => {
-    const circles = new Map<string, TownCircles>([
-      [A, { community: new Set(), inner: new Set([B]) }],
-      [B, { community: new Set(), inner: new Set() }],
-    ]);
-    town.dispose();
-    town = new TownRoom(blocks, voice, (d) =>
-      Promise.resolve(circles.get(d) ?? { community: new Set(), inner: new Set() }),
-    );
+  it('keeps voice off at home', async () => {
     const a = fakeWs();
     const b = fakeWs();
-    town.join(a.ws, A, INNER_X, INNER_Y, 0);
-    town.join(b.ws, B, INNER_X + 20, INNER_Y, 0);
+    town.join(a.ws, A, HOME_X, HOME_Y, 0);
+    town.join(b.ws, B, HOME_X + 20, HOME_Y, 0);
     await settle();
-    // B is in A's inner circle, but A is not in B's — B's zone says no.
     expect(lastRoom(a)).toBeUndefined();
-
-    circles.set(B, { community: new Set(), inner: new Set([A]) });
-    town.refreshCircles(B);
-    await settle();
-    expect(lastRoom(a)?.roomId).toBe(lastRoom(b)?.roomId);
+    expect(lastRoom(b)).toBeUndefined();
   });
 
   it('reconciles out participants who are not on the roster', async () => {
@@ -201,5 +194,68 @@ describe('TownRoom proximity voice', () => {
     await settle();
     expect(a.send.mock.calls.length).toBeGreaterThan(before);
     expect(lastRoom(a)?.token).toContain(lastRoom(a)?.selfPid ?? '?');
+  });
+});
+
+describe('TownRoom home privacy', () => {
+  let town: TownRoom;
+
+  beforeEach(() => {
+    const blocks = new BlockService();
+    town = new TownRoom(blocks, null);
+  });
+
+  afterEach(() => {
+    town.dispose();
+  });
+
+  it('does not announce or list someone who is home', () => {
+    const a = fakeWs();
+    const b = fakeWs();
+    town.join(a.ws, A, OPEN, ROW, 0);
+    town.join(b.ws, B, HOME_X, HOME_Y, 0);
+    expect(sent(a, 'town_peer_join')).toHaveLength(0);
+
+    const c = fakeWs();
+    town.join(c.ws, C, OPEN, ROW, 0);
+    const state = sent(c, 'town_state')[0]?.data as { peers: Array<{ did: string }> };
+    expect(state.peers.map((p) => p.did)).toEqual([A]);
+  });
+
+  it('stepping inside looks like leaving, stepping out like arriving', () => {
+    const a = fakeWs();
+    const b = fakeWs();
+    town.join(a.ws, A, OPEN, ROW, 0);
+    town.join(b.ws, B, OPEN + 20, ROW, 0);
+
+    town.move(b.ws, HOME_X, HOME_Y, 0);
+    expect(sent(a, 'town_peer_leave')).toEqual([{ type: 'town_peer_leave', data: { did: B } }]);
+
+    town.move(b.ws, HOME_X + 10, HOME_Y, 0);
+    expect(sent(a, 'town_peer_move')).toHaveLength(0);
+
+    town.move(b.ws, OPEN, ROW, 1);
+    expect(sent(a, 'town_peer_join').at(-1)?.data).toEqual({ did: B, x: OPEN, y: ROW, dir: 1 });
+  });
+
+  it('keeps chat at home to yourself', () => {
+    const a = fakeWs();
+    const b = fakeWs();
+    town.join(a.ws, A, OPEN, ROW, 0);
+    town.join(b.ws, B, HOME_X, HOME_Y, 0);
+    town.chat(b.ws, 'hello?');
+    expect(sent(a, 'town_chat')).toHaveLength(0);
+    expect(sent(b, 'town_chat')).toHaveLength(1);
+  });
+
+  it('a second visible tab keeps the avatar alive when one tab goes home', () => {
+    const a = fakeWs();
+    const b1 = fakeWs();
+    const b2 = fakeWs();
+    town.join(a.ws, A, OPEN, ROW, 0);
+    town.join(b1.ws, B, OPEN + 20, ROW, 0);
+    town.join(b2.ws, B, OPEN + 40, ROW, 0);
+    town.move(b1.ws, HOME_X, HOME_Y, 0);
+    expect(sent(a, 'town_peer_leave')).toHaveLength(0);
   });
 });

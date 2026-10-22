@@ -146,7 +146,8 @@
       "nearby": "附近：{{count}}",
       "live": "直播中 · {{count}} 人能听到你",
       "announceJoined": "附近有人 — 语音已连接",
-      "announceEnded": "语音已结束"
+      "announceEnded": "语音已结束",
+      "homeOff": "你的房间里语音已关闭 — 这里只有你"
     }
   }
 }

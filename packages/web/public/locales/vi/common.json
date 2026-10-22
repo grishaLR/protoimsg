@@ -146,7 +146,8 @@
       "nearby": "Ở gần: {{count}}",
       "live": "Trực tiếp · {{count}} người nghe được bạn",
       "announceJoined": "Có người ở gần — đã kết nối giọng nói",
-      "announceEnded": "Giọng nói đã kết thúc"
+      "announceEnded": "Giọng nói đã kết thúc",
+      "homeOff": "Giọng nói tắt trong phòng của bạn — chỉ có mình bạn"
     }
   }
 }

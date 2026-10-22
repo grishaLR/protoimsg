@@ -319,7 +319,8 @@
       "nearby": "Nearby: {{count}}",
       "live": "Live · {{count}} can hear you",
       "announceJoined": "Someone is nearby — voice connected",
-      "announceEnded": "Voice ended"
+      "announceEnded": "Voice ended",
+      "homeOff": "Voice is off in your room — it's just you"
     }
   }
 }

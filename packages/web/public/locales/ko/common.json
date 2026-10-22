@@ -146,7 +146,8 @@
       "nearby": "근처: {{count}}",
       "live": "라이브 · {{count}}명이 듣고 있어요",
       "announceJoined": "근처에 누군가 있어요 — 음성 연결됨",
-      "announceEnded": "음성 종료"
+      "announceEnded": "음성 종료",
+      "homeOff": "내 방에서는 음성이 꺼져 있어요 — 혼자만의 공간이에요"
     }
   }
 }

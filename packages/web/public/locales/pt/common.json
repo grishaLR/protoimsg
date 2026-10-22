@@ -146,7 +146,8 @@
       "nearby": "Por perto: {{count}}",
       "live": "Ao vivo · {{count}} podem ouvir você",
       "announceJoined": "Alguém está por perto — voz conectada",
-      "announceEnded": "Voz encerrada"
+      "announceEnded": "Voz encerrada",
+      "homeOff": "A voz fica desligada no seu quarto — aqui é só você"
     }
   }
 }

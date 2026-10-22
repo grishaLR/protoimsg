@@ -3,6 +3,7 @@
 // This side-effect import swaps in a precompiled runtime.
 import 'pixi.js/unsafe-eval';
 import { Application, Container, Graphics, Sprite, Texture, TilingSprite } from 'pixi.js';
+import { TOWN_PROXIMITY } from '@protoimsg/shared';
 import type { TownPeer } from '@protoimsg/shared';
 import { GAME_MASTER_DID, RPG_ACTOR_API_URL } from '../lib/config';
 import { resolveDisplayNameForDid } from '../lib/resolve-pds';
@@ -28,13 +29,11 @@ import {
   zoneAtPixel,
 } from './map';
 
-// One seamless grass tile, tinted per ring so the concentric bands read as
-// visibility boundaries — innermost (bedroom) is darkest/most private.
+// One seamless grass tile, tinted per zone — the darker centre square is your
+// (interim) home, where nobody can see or hear you.
 const ZONE_TINT: Record<TownZone, number> = {
-  everyone: 0xffffff,
-  community: 0xd2e3b4,
-  inner: 0xa9cb88,
-  bedroom: 0x7fa564,
+  public: 0xffffff,
+  home: 0x7fa564,
 };
 
 const SCALE = 2; // world zoom
@@ -45,6 +44,9 @@ const PEER_LERP = 11; // peer position ease rate (per second)
 const MAX_FRAME_MS = 50; // clamp delta time — avoids tunneling on stalls
 
 // Proximity aura mesh — drawn between everyone in your voice cluster.
+// Anyone merely nearby (not in your voice room) gets a soft neutral aura, so
+// closeness is always visible even where a zone keeps voice off.
+const NEAR_COLOR = 0xffffff;
 const AURA_COLOR = 0xb794ff;
 const AURA_SPEAKING = 0xe9ddff;
 const AURA_R = 15; // world px around the body centre
@@ -110,6 +112,9 @@ export class WorldEngine {
   private speaking = new Set<string>();
   private meshClock = 0;
   private meshDrawn = false;
+  /** Peers within proximity range of you (join/leave hysteresis, like the server). */
+  private nearby = new Set<string>();
+  private nearbyUnlinked = 0;
 
   private px = MAP_W * TILE * 0.5;
   private py = MAP_H * TILE * 0.5;
@@ -130,6 +135,9 @@ export class WorldEngine {
 
   /** Called when the local player crosses into a different visibility zone. */
   onZoneChange?: (zone: TownZone) => void;
+
+  /** Count of nearby avatars you are NOT in a voice room with changed. */
+  onNearbyUnlinkedChange?: (count: number) => void;
 
   constructor() {
     this.readyPromise = new Promise<void>((resolve) => {
@@ -229,7 +237,7 @@ export class WorldEngine {
         ground.zIndex = -10000 + i;
         this.world.addChild(ground);
 
-        if (r.zone !== 'everyone') {
+        if (r.zone !== 'public') {
           const edge = new Graphics()
             .rect(r.x * TILE, r.y * TILE, r.w * TILE, r.h * TILE)
             .stroke({ width: 2, color: 0x2c3a1c, alpha: 0.22 });
@@ -487,15 +495,37 @@ export class WorldEngine {
     );
   };
 
-  /** Aura rings around each cluster member, linked by mesh threads. */
+  private updateNearby(): void {
+    const { joinRadius, leaveRadius } = TOWN_PROXIMITY;
+    for (const [did, p] of this.peers) {
+      const d = Math.hypot(p.x - this.px, p.y - this.py);
+      if (d < joinRadius) this.nearby.add(did);
+      else if (d > leaveRadius) this.nearby.delete(did);
+    }
+    for (const did of this.nearby) if (!this.peers.has(did)) this.nearby.delete(did);
+  }
+
+  /**
+   * Two layers: a soft white aura linking you to anyone nearby you aren't in a
+   * voice room with, and the colorful mesh (rings, threads, speaking pulse)
+   * for everyone you are connected to.
+   */
   private drawMesh(dtMs: number): void {
     const g = this.mesh;
+    this.updateNearby();
+    const linked = new Set(this.cluster.length >= 2 ? this.cluster : []);
+    const unlinked = [...this.nearby].filter((did) => !linked.has(did));
+    if (unlinked.length !== this.nearbyUnlinked) {
+      this.nearbyUnlinked = unlinked.length;
+      this.onNearbyUnlinkedChange?.(unlinked.length);
+    }
+
     const points: Array<{ x: number; y: number; speaking: boolean }> = [];
-    for (const did of this.cluster) {
+    for (const did of linked) {
       const pos = this.positionOf(did);
       if (pos) points.push({ x: pos.x, y: pos.y - SPRITE_H / 2, speaking: this.speaking.has(did) });
     }
-    if (points.length < 2) {
+    if (points.length < 2 && unlinked.length === 0) {
       // Clearing rebuilds the Graphics context — skip it on idle frames.
       if (this.meshDrawn) g.clear();
       this.meshDrawn = false;
@@ -506,6 +536,26 @@ export class WorldEngine {
 
     this.meshClock += dtMs;
     const pulse = 0.5 + 0.5 * Math.sin(this.meshClock / 420);
+
+    // Soft proximity aura: you + each nearby-but-not-connected avatar.
+    if (unlinked.length > 0) {
+      const self = { x: this.px, y: this.py - SPRITE_H / 2 };
+      const near = unlinked.flatMap((did) => {
+        const pos = this.positionOf(did);
+        return pos ? [{ x: pos.x, y: pos.y - SPRITE_H / 2 }] : [];
+      });
+      for (const p of near) {
+        g.moveTo(self.x, self.y)
+          .lineTo(p.x, p.y)
+          .stroke({ width: 1, color: NEAR_COLOR, alpha: 0.18 + 0.1 * pulse });
+      }
+      const selfLinked = linked.has(this.selfDid);
+      for (const p of selfLinked ? near : [self, ...near]) {
+        g.circle(p.x, p.y, AURA_R).fill({ color: NEAR_COLOR, alpha: 0.07 });
+        g.circle(p.x, p.y, AURA_R).stroke({ width: 1, color: NEAR_COLOR, alpha: 0.35 });
+      }
+    }
+    if (points.length < 2) return;
 
     for (let i = 0; i < points.length; i++) {
       for (let j = i + 1; j < points.length; j++) {

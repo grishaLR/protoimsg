@@ -1,13 +1,15 @@
 // Shared geometry for proto town — the server needs the zones too, so it can
-// keep proximity voice out of the private (bedroom) zone.
+// hide avatars that are home and keep voice out of there.
 
 export const TOWN_TILE = 48;
 export const TOWN_MAP_W = 40;
 export const TOWN_MAP_H = 30;
 
-// Concentric visibility zones — your position in town is who can see you.
-// Innermost is most private; later (smaller) rects win.
-export type TownZone = 'everyone' | 'community' | 'inner' | 'bedroom';
+// Interim zones until homes/gated communities become their own scenes (see
+// GATHER_PLAN.md): the open map is the public world — visible to everyone,
+// open proximity voice — and the centre square stands in for your home,
+// where nobody sees or hears you. Later rects win.
+export type TownZone = 'public' | 'home';
 
 export interface TownZoneRect {
   zone: TownZone;
@@ -25,15 +27,13 @@ function centeredZone(
 }
 
 export const TOWN_ZONE_RECTS: TownZoneRect[] = [
-  { zone: 'everyone', x: 0, y: 0, w: TOWN_MAP_W, h: TOWN_MAP_H },
-  { zone: 'community', ...centeredZone(15, 11) },
-  { zone: 'inner', ...centeredZone(8, 6) },
-  { zone: 'bedroom', ...centeredZone(5, 4) },
+  { zone: 'public', x: 0, y: 0, w: TOWN_MAP_W, h: TOWN_MAP_H },
+  { zone: 'home', ...centeredZone(5, 4) },
 ];
 
 /** Innermost zone containing a tile. */
 export function townZoneAtTile(tx: number, ty: number): TownZone {
-  let zone: TownZone = 'everyone';
+  let zone: TownZone = 'public';
   for (const r of TOWN_ZONE_RECTS) {
     if (tx >= r.x && tx < r.x + r.w && ty >= r.y && ty < r.y + r.h) zone = r.zone;
   }
