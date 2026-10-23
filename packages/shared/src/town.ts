@@ -5,12 +5,12 @@ export const TOWN_TILE = 48;
 export const TOWN_MAP_W = 40;
 export const TOWN_MAP_H = 30;
 
-// Interim zones until homes/gated communities become their own scenes (see
-// GATHER_PLAN.md). The walled centre stands in for your home (inner circle) —
-// nobody sees or hears you there. Around it, a fenced neighborhood that will
-// become your gated community; for now it's as open as the public world
-// outside the gate. Walls and fence block movement except at the door and
-// gate (the door is where knocking will happen). Later rects win.
+// Interim zones until homes/gated communities become their own scenes. The
+// walled centre stands in for your home (inner circle) — nobody sees or hears
+// you there. Around it, a fenced neighborhood that will become your gated
+// community; for now it's as open as the public world outside the gate. Walls
+// and fence block movement except at the door and gate (the door is where
+// knocking will happen). Later rects win.
 export type TownZone = 'public' | 'neighborhood' | 'home';
 
 export interface TownZoneRect {
