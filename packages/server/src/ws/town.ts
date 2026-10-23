@@ -244,7 +244,7 @@ export class TownRoom {
     const nextClose = new Map<string, number>();
     const dwell = { pending: false };
     const rules: ClusterRules = {
-      eligible: (n) => this.blockService.hasSynced(n.did) && zoneOf(n) === 'public',
+      eligible: (n) => this.blockService.hasSynced(n.did) && zoneOf(n) !== 'home',
       compatible: (a, b) => a.did !== b.did && !this.blockService.isBlocked(a.did, b.did),
       newLinkReady: (a, b) => {
         const key = pairKey(a, b);

@@ -161,7 +161,43 @@
       "camera": "Cámara",
       "videoHidden": "Video oculto",
       "showVideo": "Mostrar video",
-      "hideVideo": "Ocultar"
+      "hideVideo": "Ocultar",
+      "videoTitle": "Video · {{count}}",
+      "collapseVideo": "Minimizar",
+      "expandVideo": "Mostrar"
+    },
+    "areas": {
+      "home": {
+        "label": "Casa · círculo cercano",
+        "tooltip": "Tu casa. Aquí nadie puede verte ni oírte. Pronto: tus amigos tocarán la puerta, y dejar entrar a alguien lo añade a tu círculo cercano.",
+        "enter": "Estás en casa: aquí nadie puede verte ni oírte."
+      },
+      "neighborhood": {
+        "label": "Vecindario",
+        "tooltip": "Tu vecindario cerrado. Pronto solo la gente de tu comunidad podrá verte aquí y cruzar la reja. Por ahora está abierto, como el mundo de afuera.",
+        "enter": "Vecindario: abierto a todos por ahora (pronto solo para tu comunidad)."
+      },
+      "public": {
+        "enter": "Mundo público: cualquiera puede verte y pueden hablar cuando están cerca."
+      }
+    },
+    "beta": {
+      "message": "🚧 El pueblo está en construcción: ¡algunas cosas funcionan!",
+      "more": "¿Qué funciona?",
+      "dismiss": "Descartar",
+      "chip": "BETA · ¿qué funciona?",
+      "title": "proto town (beta)",
+      "worksHeading": "Ya funciona",
+      "work1": "Pasea como tu personaje de rpg.actor",
+      "work2": "Burbujas de chat que ve todo el que esté cerca",
+      "work3": "Acércate a alguien: un aura morada los une y pueden hablar (micrófono y cámara son opcionales)",
+      "work4": "Tu casa en el centro es privada: nadie te ve ni te oye ahí",
+      "soonHeading": "Próximamente",
+      "soon1": "Tocar puertas para dejar entrar a tus amigos",
+      "soon2": "Tu propio vecindario cerrado para tu comunidad",
+      "soon3": "Casas, decoración, el arcade y más",
+      "feedback": "¿Algo roto o un deseo? Cuéntaselo a ProtoBuddy: /feedback tu mensaje",
+      "close": "Entendido"
     }
   }
 }

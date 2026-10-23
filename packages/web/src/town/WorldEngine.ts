@@ -2,7 +2,16 @@
 // and Pixi v8's default shader system uses Function() to compile shaders.
 // This side-effect import swaps in a precompiled runtime.
 import 'pixi.js/unsafe-eval';
-import { Application, Container, Graphics, Sprite, Texture, TilingSprite } from 'pixi.js';
+import {
+  Application,
+  Container,
+  Graphics,
+  Sprite,
+  Text,
+  Texture,
+  TilingSprite,
+  type FederatedPointerEvent,
+} from 'pixi.js';
 import { TOWN_PROXIMITY } from '@protoimsg/shared';
 import type { TownPeer } from '@protoimsg/shared';
 import { GAME_MASTER_DID, RPG_ACTOR_API_URL } from '../lib/config';
@@ -17,6 +26,10 @@ import {
   buildFrames,
 } from './Avatar';
 import type { TownZone } from './map';
+import { AREA_LABEL_POS, buildStructures } from './structures';
+
+/** Areas with a floating label + tooltip. */
+export type TownArea = keyof typeof AREA_LABEL_POS;
 import {
   ASSET_BASE,
   MAP_H,
@@ -33,7 +46,8 @@ import {
 // (interim) home, where nobody can see or hear you.
 const ZONE_TINT: Record<TownZone, number> = {
   public: 0xffffff,
-  home: 0x7fa564,
+  neighborhood: 0xd2e3b4,
+  home: 0x9c8a6e, // floorboards-ish — reads as indoors
 };
 
 const SCALE = 2; // world zoom
@@ -139,6 +153,14 @@ export class WorldEngine {
   /** Count of nearby avatars you are NOT in a voice room with changed. */
   onNearbyUnlinkedChange?: (count: number) => void;
 
+  /**
+   * Pointer over / tapped an area label (screen px relative to the canvas),
+   * or null when the pointer leaves it.
+   */
+  onAreaHover?: (area: TownArea | null, x: number, y: number) => void;
+
+  private areaLabels = new Map<TownArea, Text>();
+
   constructor() {
     this.readyPromise = new Promise<void>((resolve) => {
       this.resolveReady = resolve;
@@ -158,6 +180,9 @@ export class WorldEngine {
       return;
     }
     this.ready = true;
+    // 120 Hz displays would otherwise render twice as often for no visible gain,
+    // competing with video encode/decode for CPU.
+    this.app.ticker.maxFPS = 60;
     this.app.canvas.style.display = 'block';
     container.appendChild(this.app.canvas);
 
@@ -184,6 +209,44 @@ export class WorldEngine {
 
   getPosition(): { x: number; y: number; dir: number } {
     return { x: this.px, y: this.py, dir: this.player.dir };
+  }
+
+  /** Set the (localized) text of each area label. */
+  setAreaLabels(labels: Record<TownArea, string>): void {
+    for (const [area, text] of this.areaLabels) text.text = labels[area];
+  }
+
+  private buildAreaLabels(): void {
+    for (const area of Object.keys(AREA_LABEL_POS) as TownArea[]) {
+      const pos = AREA_LABEL_POS[area];
+      const label = new Text({
+        text: '',
+        style: {
+          fontFamily: 'monospace',
+          fontSize: 10,
+          fontWeight: 'bold',
+          fill: 0xffffff,
+          stroke: { color: 0x1a1726, width: 3 },
+          letterSpacing: 1,
+        },
+      });
+      label.anchor.set(0.5, 0);
+      label.position.set(pos.x, pos.y);
+      label.zIndex = -4000; // on the ground — avatars walk over it
+      // Hover (desktop) or tap (touch) explains what the area is.
+      label.eventMode = 'static';
+      label.cursor = 'help';
+      const show = (e: FederatedPointerEvent): void => {
+        this.onAreaHover?.(area, e.global.x, e.global.y);
+      };
+      label.on('pointerover', show);
+      label.on('pointertap', show);
+      label.on('pointerout', () => {
+        this.onAreaHover?.(null, 0, 0);
+      });
+      this.areaLabels.set(area, label);
+      this.world.addChild(label);
+    }
   }
 
   /** DIDs sharing your voice room (including you); [] clears the mesh. */
@@ -236,16 +299,12 @@ export class WorldEngine {
         ground.tint = ZONE_TINT[r.zone];
         ground.zIndex = -10000 + i;
         this.world.addChild(ground);
-
-        if (r.zone !== 'public') {
-          const edge = new Graphics()
-            .rect(r.x * TILE, r.y * TILE, r.w * TILE, r.h * TILE)
-            .stroke({ width: 2, color: 0x2c3a1c, alpha: 0.22 });
-          edge.zIndex = -9000 + i;
-          this.world.addChild(edge);
-        }
       });
     }
+
+    // Home walls, neighborhood fence, door, gate and the path between.
+    for (const piece of buildStructures()) this.world.addChild(piece);
+    this.buildAreaLabels();
 
     for (const o of OBJECTS) {
       if (o.type === 'pond' && pond) {

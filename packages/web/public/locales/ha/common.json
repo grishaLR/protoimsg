@@ -159,7 +159,43 @@
       "camera": "Kyamara",
       "videoHidden": "An ɓoye bidiyo",
       "showVideo": "Nuna bidiyo",
-      "hideVideo": "Ɓoye"
+      "hideVideo": "Ɓoye",
+      "videoTitle": "Bidiyo · {{count}}",
+      "collapseVideo": "Rage",
+      "expandVideo": "Nuna"
+    },
+    "areas": {
+      "home": {
+        "label": "Gida · da'irar kusa",
+        "tooltip": "Gidanka. Babu wanda zai iya ganinka ko jinka a nan. Nan ba da jimawa ba: abokai za su ƙwanƙwasa ƙofa, kuma barin wani ya shigo zai saka shi cikin da'irarka ta kusa.",
+        "enter": "Kana gida — babu wanda zai iya ganinka ko jinka a nan."
+      },
+      "neighborhood": {
+        "label": "Unguwa",
+        "tooltip": "Unguwarka mai shinge. Nan ba da jimawa ba sai mutanen al'ummarka ne kawai za su gan ka a nan su wuce ƙofar. Yanzu a buɗe take kamar duniyar waje.",
+        "enter": "Unguwa — a buɗe ga kowa a yanzu (ga al'umma kawai nan ba da jimawa ba)."
+      },
+      "public": {
+        "enter": "Duniyar jama'a — kowa zai iya ganinka, kuma za ku iya magana idan kuna kusa."
+      }
+    },
+    "beta": {
+      "message": "🚧 Ana gina garin — wasu abubuwa suna aiki!",
+      "more": "Me ke aiki?",
+      "dismiss": "Rufe",
+      "chip": "GWAJI · me ke aiki?",
+      "title": "proto town (gwaji)",
+      "worksHeading": "Yana aiki yanzu",
+      "work1": "Zagaya a matsayin halinka na rpg.actor",
+      "work2": "Kumfar hira da kowa da ke kusa yake gani",
+      "work3": "Ka je kusa da wani — haske mai ruwan shunayya zai haɗa ku kuma za ku iya magana (makirufo da kyamara na zaɓi ne)",
+      "work4": "Gidanka a tsakiya na sirri ne — babu wanda zai gan ka ko ya ji ka a can",
+      "soonHeading": "Nan ba da jimawa ba",
+      "soon1": "Ƙwanƙwasa ƙofofi don barin abokai su shigo",
+      "soon2": "Unguwarka mai shinge don al'ummarka",
+      "soon3": "Gidaje, ado, wurin wasanni da ƙari",
+      "feedback": "Wani abu ya lalace ko kana da buri? Faɗa wa ProtoBuddy: /feedback saƙonka",
+      "close": "Na gane"
     }
   }
 }

@@ -334,7 +334,43 @@
       "camera": "Camera",
       "videoHidden": "Video hidden",
       "showVideo": "Show video",
-      "hideVideo": "Hide"
+      "hideVideo": "Hide",
+      "videoTitle": "Video · {{count}}",
+      "collapseVideo": "Minimize",
+      "expandVideo": "Show"
+    },
+    "areas": {
+      "home": {
+        "label": "Home · inner circle",
+        "tooltip": "Your home. Nobody can see or hear you in here. Soon: friends knock on the door, and letting someone in adds them to your inner circle.",
+        "enter": "You're home — nobody can see or hear you here."
+      },
+      "neighborhood": {
+        "label": "Neighborhood",
+        "tooltip": "Your gated neighborhood. Soon only people in your community will see you here and get through the gate. For now it's open, like the world outside.",
+        "enter": "Neighborhood — open to everyone for now (community-only soon)."
+      },
+      "public": {
+        "enter": "Public world — anyone can see you, and you can talk when you're close."
+      }
+    },
+    "beta": {
+      "message": "🚧 The town is under construction — some things work!",
+      "more": "What works?",
+      "dismiss": "Dismiss",
+      "chip": "BETA · what works?",
+      "title": "proto town (beta)",
+      "worksHeading": "Works today",
+      "work1": "Walk around as your rpg.actor character",
+      "work2": "Chat bubbles everyone nearby can see",
+      "work3": "Walk up to someone — a purple aura links you and you can talk (mic and camera are opt-in)",
+      "work4": "Your home in the middle is private — nobody sees or hears you there",
+      "soonHeading": "Coming soon",
+      "soon1": "Knocking on doors to let friends in",
+      "soon2": "Your own gated neighborhood for your community",
+      "soon3": "Houses, decorating, the arcade and more",
+      "feedback": "Something broken or a wish? Tell ProtoBuddy: /feedback your message",
+      "close": "Got it"
     }
   }
 }

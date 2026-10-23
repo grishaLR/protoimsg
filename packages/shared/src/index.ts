@@ -88,5 +88,10 @@ export {
   TOWN_PROXIMITY,
   townZoneAtTile,
   townZoneAtPixel,
+  townBarrierAtTile,
+  TOWN_HOME_RECT,
+  TOWN_NEIGHBORHOOD_RECT,
+  TOWN_DOOR,
+  TOWN_GATE,
 } from './town.js';
-export type { TownZone, TownZoneRect } from './town.js';
+export type { TownZone, TownZoneRect, TownBarrier } from './town.js';

@@ -7,6 +7,7 @@ import {
   TOWN_MAP_W,
   TOWN_TILE,
   TOWN_ZONE_RECTS,
+  townBarrierAtTile,
   townZoneAtPixel,
   townZoneAtTile,
 } from '@protoimsg/shared';
@@ -62,8 +63,8 @@ function buildObjects(): PlacedObject[] {
 
 export const OBJECTS: PlacedObject[] = buildObjects();
 
-// Concentric visibility zones live in @protoimsg/shared so the server can
-// read them too (proximity voice is disabled in the bedroom).
+// Zones and barriers live in @protoimsg/shared so the server sees the same
+// layout (home is private; walls/fence block movement).
 export type TownZone = SharedTownZone;
 export type ZoneRect = TownZoneRect;
 export const ZONE_RECTS = TOWN_ZONE_RECTS;
@@ -84,6 +85,12 @@ function footprint(o: PlacedObject): Array<[number, number]> {
 const BLOCKED = new Set<string>();
 for (const o of OBJECTS) {
   for (const [x, y] of footprint(o)) BLOCKED.add(`${x},${y}`);
+}
+// Home walls and neighborhood fence — the door and gate are the way through.
+for (let x = 0; x < MAP_W; x++) {
+  for (let y = 0; y < MAP_H; y++) {
+    if (townBarrierAtTile(x, y)) BLOCKED.add(`${x},${y}`);
+  }
 }
 
 export function isBlockedTile(tx: number, ty: number): boolean {

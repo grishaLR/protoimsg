@@ -159,7 +159,43 @@
       "camera": "Kamera",
       "videoHidden": "Video imefichwa",
       "showVideo": "Onyesha video",
-      "hideVideo": "Ficha"
+      "hideVideo": "Ficha",
+      "videoTitle": "Video · {{count}}",
+      "collapseVideo": "Punguza",
+      "expandVideo": "Onyesha"
+    },
+    "areas": {
+      "home": {
+        "label": "Nyumbani · mduara wa karibu",
+        "tooltip": "Nyumbani kwako. Hakuna anayeweza kukuona wala kukusikia humu. Hivi karibuni: marafiki wataigonga mlango, na kumruhusu mtu aingie kunamwongeza kwenye mduara wako wa karibu.",
+        "enter": "Uko nyumbani — hakuna anayeweza kukuona wala kukusikia hapa."
+      },
+      "neighborhood": {
+        "label": "Mtaa",
+        "tooltip": "Mtaa wako wenye uzio. Hivi karibuni ni watu wa jumuiya yako pekee watakaokuona hapa na kupita langoni. Kwa sasa uko wazi kama ulimwengu wa nje.",
+        "enter": "Mtaa — uko wazi kwa wote kwa sasa (hivi karibuni kwa jumuiya pekee)."
+      },
+      "public": {
+        "enter": "Ulimwengu wa umma — yeyote anaweza kukuona, na mnaweza kuzungumza mkiwa karibu."
+      }
+    },
+    "beta": {
+      "message": "🚧 Mji unajengwa — baadhi ya mambo yanafanya kazi!",
+      "more": "Nini kinafanya kazi?",
+      "dismiss": "Funga",
+      "chip": "BETA · nini kinafanya kazi?",
+      "title": "proto town (beta)",
+      "worksHeading": "Kinafanya kazi sasa",
+      "work1": "Tembea kama mhusika wako wa rpg.actor",
+      "work2": "Viputo vya gumzo ambavyo kila mtu karibu anaona",
+      "work3": "Mkaribie mtu — mwanga wa zambarau unawaunganisha na mnaweza kuzungumza (maikrofoni na kamera ni kwa hiari)",
+      "work4": "Nyumba yako katikati ni ya faragha — hakuna anayekuona wala kukusikia hapo",
+      "soonHeading": "Inakuja hivi karibuni",
+      "soon1": "Kugonga milango ili kuwaruhusu marafiki waingie",
+      "soon2": "Mtaa wako wenye uzio kwa ajili ya jumuiya yako",
+      "soon3": "Nyumba, mapambo, ukumbi wa michezo na zaidi",
+      "feedback": "Kitu kimeharibika au una ombi? Mwambie ProtoBuddy: /feedback ujumbe wako",
+      "close": "Nimeelewa"
     }
   }
 }

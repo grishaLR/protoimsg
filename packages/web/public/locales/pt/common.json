@@ -161,7 +161,43 @@
       "camera": "Câmera",
       "videoHidden": "Vídeo oculto",
       "showVideo": "Mostrar vídeo",
-      "hideVideo": "Ocultar"
+      "hideVideo": "Ocultar",
+      "videoTitle": "Vídeo · {{count}}",
+      "collapseVideo": "Minimizar",
+      "expandVideo": "Mostrar"
+    },
+    "areas": {
+      "home": {
+        "label": "Casa · círculo próximo",
+        "tooltip": "Sua casa. Ninguém pode ver ou ouvir você aqui. Em breve: amigos batem na porta, e deixar alguém entrar adiciona a pessoa ao seu círculo próximo.",
+        "enter": "Você está em casa — ninguém pode ver ou ouvir você aqui."
+      },
+      "neighborhood": {
+        "label": "Vizinhança",
+        "tooltip": "Sua vizinhança cercada. Em breve só pessoas da sua comunidade vão ver você aqui e passar pelo portão. Por enquanto está aberta, como o mundo lá fora.",
+        "enter": "Vizinhança — aberta a todos por enquanto (em breve só para a comunidade)."
+      },
+      "public": {
+        "enter": "Mundo público — qualquer pessoa pode ver você, e dá para conversar quando estão perto."
+      }
+    },
+    "beta": {
+      "message": "🚧 A cidade está em construção — algumas coisas funcionam!",
+      "more": "O que funciona?",
+      "dismiss": "Dispensar",
+      "chip": "BETA · o que funciona?",
+      "title": "proto town (beta)",
+      "worksHeading": "Já funciona",
+      "work1": "Ande por aí como seu personagem do rpg.actor",
+      "work2": "Balões de chat que todos por perto veem",
+      "work3": "Chegue perto de alguém — uma aura roxa liga vocês e dá para conversar (microfone e câmera são opcionais)",
+      "work4": "Sua casa no centro é privada — ninguém vê ou ouve você lá",
+      "soonHeading": "Em breve",
+      "soon1": "Bater nas portas para deixar amigos entrarem",
+      "soon2": "Sua própria vizinhança cercada para sua comunidade",
+      "soon3": "Casas, decoração, o fliperama e mais",
+      "feedback": "Algo quebrado ou um desejo? Conte ao ProtoBuddy: /feedback sua mensagem",
+      "close": "Entendi"
     }
   }
 }

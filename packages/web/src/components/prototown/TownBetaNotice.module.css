@@ -1,0 +1,109 @@
+.banner {
+  position: absolute;
+  inset-inline: var(--cm-space-0);
+  inset-block-start: var(--cm-space-0);
+  z-index: var(--cm-z-local-top);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: var(--cm-space-3);
+  padding: var(--cm-space-1) var(--cm-space-4);
+  font-size: var(--cm-text-sm);
+  font-weight: 600;
+  text-align: center;
+  color: var(--color-warning-content);
+  background: var(--color-warning);
+}
+
+.more,
+.dismiss {
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.more {
+  text-decoration: underline;
+}
+
+.dismiss {
+  padding: var(--cm-space-1);
+  opacity: 0.7;
+}
+
+.dismiss:hover,
+.dismiss:focus-visible {
+  opacity: 1;
+}
+
+.more:focus-visible,
+.dismiss:focus-visible,
+.betaChip:focus-visible,
+.close:focus-visible {
+  outline: var(--cm-focus-thin) solid currentColor;
+  outline-offset: var(--cm-focus-offset);
+}
+
+/* After dismissing: a small BETA tab that still opens the notes. */
+.betaChip {
+  position: absolute;
+  inset-inline-start: var(--cm-space-6);
+  inset-block-end: calc(var(--cm-space-6) * 2 + var(--cm-space-16));
+  z-index: var(--cm-z-local-top);
+  padding: var(--cm-space-1) var(--cm-space-4);
+  font-size: var(--cm-text-xs);
+  font-weight: 600;
+  color: var(--color-warning-content);
+  background: var(--color-warning);
+  border: none;
+  border-radius: var(--cm-radius-sm);
+  box-shadow: var(--cm-raised);
+  cursor: pointer;
+}
+
+.dialog {
+  max-inline-size: min(calc(100vw - var(--cm-space-16)), var(--cm-form-max-w));
+  padding: var(--cm-space-6);
+  color: var(--color-base-content);
+  background: var(--color-base-100);
+  border: var(--cm-space-0.5) solid var(--color-base-300);
+  border-radius: var(--cm-radius-lg);
+  box-shadow: var(--cm-raised), var(--cm-window-shadow);
+}
+
+.title {
+  margin: var(--cm-space-0) var(--cm-space-0) var(--cm-space-4);
+  font-size: var(--cm-text-md);
+}
+
+.heading {
+  margin: var(--cm-space-4) var(--cm-space-0) var(--cm-space-2);
+  font-size: var(--cm-text-sm);
+}
+
+.list {
+  margin: var(--cm-space-0);
+  padding-inline-start: var(--cm-space-8);
+  font-size: var(--cm-text-sm);
+  line-height: var(--cm-leading-snug);
+}
+
+.footer {
+  margin: var(--cm-space-4) var(--cm-space-0);
+  font-size: var(--cm-text-xs);
+  opacity: 0.8;
+}
+
+.close {
+  padding: var(--cm-space-2) var(--cm-space-6);
+  font-size: var(--cm-text-sm);
+  color: var(--color-primary-content);
+  background: var(--color-primary);
+  border: var(--cm-space-0.5) solid var(--color-base-300);
+  border-radius: var(--cm-radius-md);
+  box-shadow: var(--cm-raised);
+  cursor: pointer;
+}

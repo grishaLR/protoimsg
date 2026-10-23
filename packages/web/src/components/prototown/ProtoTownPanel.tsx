@@ -7,7 +7,9 @@ import { getCachedVisibility } from '../../hooks/usePresence';
 import { useWebSocket } from '../../contexts/WebSocketContext';
 import { WorldEngine } from '../../town/WorldEngine';
 import { ProximityVoice, type ProximityVideo } from '../../town/ProximityVoice';
-import { TownVideoTile } from './TownVideoTile';
+import { TownVideoWindow } from './TownVideoWindow';
+import { TownBetaNotice } from './TownBetaNotice';
+import type { TownArea } from '../../town/WorldEngine';
 import type { TownZone } from '../../town/map';
 import { zoneAtPixel } from '../../town/map';
 import styles from './ProtoTownPanel.module.css';
@@ -15,6 +17,8 @@ import styles from './ProtoTownPanel.module.css';
 // Visibility-IS-location: the zone you stand in decides who can see you.
 const ZONE_VISIBILITY: Record<TownZone, PresenceVisibility> = {
   home: 'no-one',
+  // Open for now — becomes community-only when neighborhoods are gated.
+  neighborhood: 'everyone',
   public: 'everyone',
 };
 
@@ -67,6 +71,10 @@ export function ProtoTownPanel() {
   // together they explain why voice is off ("community only here").
   const [nearbyUnlinked, setNearbyUnlinked] = useState(0);
   const [zone, setZone] = useState<TownZone | null>(null);
+  // Area label tooltip (hover/tap), and a short note when you walk into an area.
+  const [areaTip, setAreaTip] = useState<{ area: TownArea; x: number; y: number } | null>(null);
+  const [zoneNote, setZoneNote] = useState<TownZone | null>(null);
+  const [bannerShown, setBannerShown] = useState(false);
   const [micLive, setMicLive] = useState(false);
   const [cameraOn, setCameraOn] = useState(false);
   const [cameraError, setCameraError] = useState(false);
@@ -79,6 +87,8 @@ export function ProtoTownPanel() {
   // Screen-reader announcement on voice transitions only, not every roster tick.
   const [announcement, setAnnouncement] = useState('');
   const prevNearbyRef = useRef(0);
+  const tRef = useRef(t);
+  tRef.current = t;
   const sendRef = useRef(send);
   sendRef.current = send;
   // Bumped when an engine finishes initialising — gates the WS-join effect so
@@ -138,8 +148,12 @@ export function ProtoTownPanel() {
       sendRef.current({ type: 'town_move', x, y, dir });
     };
     engine.onNearbyUnlinkedChange = setNearbyUnlinked;
+    engine.onAreaHover = (area, x, y) => {
+      setAreaTip(area ? { area, x, y } : null);
+    };
     engine.onZoneChange = (next) => {
       setZone(next);
+      setZoneNote(next);
       sendRef.current({
         type: 'status_change',
         status: 'online',
@@ -148,6 +162,10 @@ export function ProtoTownPanel() {
     };
     void engine.init(container, did).then(() => {
       if (engineRef.current === engine) setEngineEpoch((e) => e + 1);
+    });
+    engine.setAreaLabels({
+      home: tRef.current('town.areas.home.label'),
+      neighborhood: tRef.current('town.areas.neighborhood.label'),
     });
     return () => {
       clearInterval(volumeTimer);
@@ -266,6 +284,14 @@ export function ProtoTownPanel() {
     void voiceRef.current?.toggleCamera();
   }, []);
 
+  // With your own camera on you've opted into a video conversation, so others'
+  // feeds show automatically. Otherwise they start hidden until you reveal
+  // them — and a newcomer turns your camera off, so they always start hidden.
+  const isRevealed = useCallback(
+    (v: ProximityVideo) => v.local || cameraOn || revealed.has(v.key),
+    [cameraOn, revealed],
+  );
+
   const toggleReveal = useCallback((key: string) => {
     setRevealed((prev) => {
       const next = new Set(prev);
@@ -288,6 +314,26 @@ export function ProtoTownPanel() {
     void voiceRef.current?.startAudio();
   }, []);
 
+  // Relabel areas when the language changes.
+  useEffect(() => {
+    if (engineEpoch === 0) return;
+    engineRef.current?.setAreaLabels({
+      home: t('town.areas.home.label'),
+      neighborhood: t('town.areas.neighborhood.label'),
+    });
+  }, [t, engineEpoch]);
+
+  // The "you're entering…" note fades after a few seconds.
+  useEffect(() => {
+    if (!zoneNote) return;
+    const timer = setTimeout(() => {
+      setZoneNote(null);
+    }, 5000);
+    return () => {
+      clearTimeout(timer);
+    };
+  }, [zoneNote]);
+
   const sendChat = useCallback(() => {
     const input = inputRef.current;
     if (!input) return;
@@ -304,7 +350,19 @@ export function ProtoTownPanel() {
       <div className={styles.srOnly} aria-live="polite">
         {announcement}
       </div>
-      <div className={styles.topBar}>
+      <TownBetaNotice onBannerChange={setBannerShown} />
+      {areaTip && (
+        <div className={styles.areaTip} role="tooltip" style={{ left: areaTip.x, top: areaTip.y }}>
+          <strong>{t(`town.areas.${areaTip.area}.label`)}</strong>
+          <span>{t(`town.areas.${areaTip.area}.tooltip`)}</span>
+        </div>
+      )}
+      {zoneNote && (
+        <div className={styles.zoneNote} role="status">
+          {t(`town.areas.${zoneNote}.enter`)}
+        </div>
+      )}
+      <div className={`${styles.topBar} ${bannerShown ? styles.belowBanner : ''}`}>
         <div className={styles.hud}>{t('town.hud.controls')}</div>
         {voiceSupported && (
           <div className={styles.voiceBar}>
@@ -367,16 +425,7 @@ export function ProtoTownPanel() {
         )}
       </div>
       {videos.length > 0 && (
-        <div className={styles.videoStrip} role="group" aria-label={t('town.voice.videoStrip')}>
-          {videos.map((v) => (
-            <TownVideoTile
-              key={v.key}
-              video={v}
-              revealed={v.local || revealed.has(v.key)}
-              onToggleReveal={toggleReveal}
-            />
-          ))}
-        </div>
+        <TownVideoWindow videos={videos} isRevealed={isRevealed} onToggleReveal={toggleReveal} />
       )}
       <form
         className={styles.chatBar}

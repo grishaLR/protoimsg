@@ -129,8 +129,10 @@ export class ProximityVoice {
     if (this.isStale(seq)) return;
 
     const room = new Room({
-      adaptiveStream: false,
-      dynacast: false,
+      // Only stream video that's actually on screen, at the size it's shown:
+      // hidden feeds cost nothing, small tiles get the small layer.
+      adaptiveStream: true,
+      dynacast: true,
       // GainNode volume — HTMLMediaElement.volume is ignored on iOS.
       webAudioMix: true,
       // "Mic off" must release the device, not just mute it.
@@ -231,7 +233,14 @@ export class ProximityVoice {
         }
         this.pendingCamera = track;
         try {
-          await room.localParticipant.publishTrack(track, { source: Track.Source.Camera });
+          // Single layer: the server couldn't repair loss on the top simulcast
+          // layer (no RTX), which froze video on lossy Wi-Fi. Small clusters
+          // don't need simulcast anyway.
+          await room.localParticipant.publishTrack(track, {
+            source: Track.Source.Camera,
+            simulcast: false,
+            videoEncoding: { maxBitrate: 450_000, maxFramerate: 24 },
+          });
         } finally {
           if (this.pendingCamera === track) this.pendingCamera = null;
         }
