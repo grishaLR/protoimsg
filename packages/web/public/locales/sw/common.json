@@ -162,7 +162,8 @@
       "hideVideo": "Ficha",
       "videoTitle": "Video · {{count}}",
       "collapseVideo": "Punguza",
-      "expandVideo": "Onyesha"
+      "expandVideo": "Onyesha",
+      "videoPaused": "Video imesitishwa · muunganisho dhaifu"
     },
     "areas": {
       "home": {

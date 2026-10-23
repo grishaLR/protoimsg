@@ -8,6 +8,7 @@ import {
   type LocalVideoTrack,
   type Participant,
   type RemoteTrack,
+  type RemoteTrackPublication,
   type TrackPublication,
   type VideoTrack,
 } from 'livekit-client';
@@ -21,6 +22,8 @@ export interface ProximityVideo {
   did: string;
   track: VideoTrack;
   local: boolean;
+  /** The server paused this feed (congestion) — show a notice, not a frozen frame. */
+  paused: boolean;
 }
 
 const RETRY_BASE_MS = 2000;
@@ -49,6 +52,9 @@ export class ProximityVoice {
   private cameraWanted = false;
   /** A camera track created but not yet published — stopped if we leave first. */
   private pendingCamera: LocalVideoTrack | null = null;
+  /** Remote camera feeds the server has paused, by participant identity. */
+  private pausedVideo = new Set<string>();
+  private prepared = false;
   private seq = 0;
   private destroyed = false;
   private retryTimer: ReturnType<typeof setTimeout> | null = null;
@@ -97,7 +103,7 @@ export class ProximityVoice {
     if (!next) {
       this.pidToDid.clear();
       this.onMembersChange?.([]);
-      await this.leaveRoom();
+      this.leaveRoom();
       return;
     }
 
@@ -125,7 +131,7 @@ export class ProximityVoice {
       return;
     }
 
-    await this.leaveRoom();
+    this.leaveRoom();
     if (this.isStale(seq)) return;
 
     const room = new Room({
@@ -267,6 +273,16 @@ export class ProximityVoice {
     this.emitVideo();
   }
 
+  /**
+   * Warm up the LiveKit connection (DNS, TLS, region lookup) so the first
+   * conversation connects faster. Safe to call repeatedly.
+   */
+  prepare(url: string): void {
+    if (this.prepared || this.destroyed) return;
+    this.prepared = true;
+    void new Room().prepareConnection(url).catch(() => undefined);
+  }
+
   /** Flip the camera from what the user last asked for — safe to spam-click. */
   toggleCamera(): Promise<void> {
     return this.setCameraEnabled(!(this.cameraOn || this.cameraWanted));
@@ -303,7 +319,7 @@ export class ProximityVoice {
     this.onCameraChange = undefined;
     this.onCameraError = undefined;
     this.onCameraPendingChange = undefined;
-    void this.leaveRoom();
+    this.leaveRoom();
   }
 
   private bindRoomEvents(room: Room): void {
@@ -352,6 +368,15 @@ export class ProximityVoice {
       .on(RoomEvent.ParticipantDisconnected, () => {
         if (this.room === room) this.emitVideo();
       })
+      .on(
+        RoomEvent.TrackStreamStateChanged,
+        (pub: RemoteTrackPublication, state: Track.StreamState, participant: Participant) => {
+          if (this.room !== room || pub.source !== Track.Source.Camera) return;
+          if (state === Track.StreamState.Paused) this.pausedVideo.add(participant.identity);
+          else this.pausedVideo.delete(participant.identity);
+          this.emitVideo();
+        },
+      )
       .on(RoomEvent.ActiveSpeakersChanged, (speakers: Participant[]) => {
         if (this.room !== room) return;
         const dids = new Set<string>();
@@ -450,7 +475,13 @@ export class ProximityVoice {
     const videos: ProximityVideo[] = [];
     const own = room.localParticipant.getTrackPublication(Track.Source.Camera);
     if (this.cameraOn && own?.videoTrack && !own.isMuted) {
-      videos.push({ key: 'self', did: this.selfDid, track: own.videoTrack, local: true });
+      videos.push({
+        key: 'self',
+        did: this.selfDid,
+        track: own.videoTrack,
+        local: true,
+        paused: false,
+      });
     }
     for (const p of room.remoteParticipants.values()) {
       const did = this.pidToDid.get(p.identity);
@@ -458,7 +489,13 @@ export class ProximityVoice {
       if (!did || did === this.selfDid) continue;
       const pub = p.getTrackPublication(Track.Source.Camera);
       if (pub?.videoTrack && pub.isSubscribed && !pub.isMuted) {
-        videos.push({ key: p.identity, did, track: pub.videoTrack, local: false });
+        videos.push({
+          key: p.identity,
+          did,
+          track: pub.videoTrack,
+          local: false,
+          paused: this.pausedVideo.has(p.identity),
+        });
       }
     }
     this.onVideoChange?.(videos);
@@ -498,7 +535,7 @@ export class ProximityVoice {
     this.onAudioBlockedChange?.(false);
   }
 
-  private async leaveRoom(): Promise<void> {
+  private leaveRoom(): void {
     const room = this.room;
     this.room = null;
     this.roomId = null;
@@ -507,9 +544,12 @@ export class ProximityVoice {
     // The conversation is over (or changing) — your camera goes off with it.
     this.clearVideo();
     this.onLiveChange?.(false);
+    this.pausedVideo.clear();
     if (room) {
       room.removeAllListeners();
-      await room.disconnect();
+      // Don't wait for the old room to finish closing before joining the next
+      // one — it still stops our tracks; we just stop blocking on it.
+      void room.disconnect();
     }
   }
 }

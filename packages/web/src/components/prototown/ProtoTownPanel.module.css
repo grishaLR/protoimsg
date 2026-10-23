@@ -268,3 +268,18 @@
   box-shadow: var(--cm-raised);
   pointer-events: none;
 }
+
+/* Server paused this feed (weak connection) — say so instead of freezing. */
+.videoPaused {
+  position: absolute;
+  inset: var(--cm-space-0);
+  z-index: var(--cm-z-local-raised);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--cm-space-3);
+  font-size: var(--cm-text-xs);
+  text-align: center;
+  color: var(--color-base-content);
+  background: color-mix(in srgb, var(--color-base-100) 80%, transparent);
+}

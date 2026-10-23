@@ -520,7 +520,8 @@ export class WorldEngine {
       this.sentX = this.px;
       this.sentY = this.py;
       this.sentDir = this.player.dir;
-      this.onMove?.(this.px, this.py, this.player.dir);
+      // Whole pixels: sub-pixel jitter isn't worth a network message.
+      this.onMove?.(Math.round(this.px), Math.round(this.py), this.player.dir);
     }
 
     // Peers: interpolate toward their last reported position.

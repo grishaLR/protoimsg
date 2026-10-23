@@ -164,7 +164,8 @@
       "hideVideo": "Ocultar",
       "videoTitle": "Vídeo · {{count}}",
       "collapseVideo": "Minimizar",
-      "expandVideo": "Mostrar"
+      "expandVideo": "Mostrar",
+      "videoPaused": "Vídeo pausado · conexão fraca"
     },
     "areas": {
       "home": {

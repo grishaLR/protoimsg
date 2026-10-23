@@ -164,7 +164,8 @@
       "hideVideo": "छिपाएँ",
       "videoTitle": "वीडियो · {{count}}",
       "collapseVideo": "छोटा करें",
-      "expandVideo": "दिखाएँ"
+      "expandVideo": "दिखाएँ",
+      "videoPaused": "वीडियो रुका · कमज़ोर कनेक्शन"
     },
     "areas": {
       "home": {

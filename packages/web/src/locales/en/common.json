@@ -337,7 +337,8 @@
       "hideVideo": "Hide",
       "videoTitle": "Video · {{count}}",
       "collapseVideo": "Minimize",
-      "expandVideo": "Show"
+      "expandVideo": "Show",
+      "videoPaused": "Video paused · weak connection"
     },
     "areas": {
       "home": {

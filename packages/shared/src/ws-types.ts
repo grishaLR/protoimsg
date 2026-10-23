@@ -387,8 +387,21 @@ export interface TownPeer {
 
 export interface TownStateEvent extends WsMessageBase {
   type: 'town_state';
-  /** `voice` is false when the server has no LiveKit — no proximity audio. */
-  data: { peers: TownPeer[]; voice: boolean };
+  /**
+   * `voice` is false when the server has no LiveKit — no proximity audio.
+   * `voiceUrl` lets the client warm up its LiveKit connection early.
+   */
+  data: { peers: TownPeer[]; voice: boolean; voiceUrl?: string };
+}
+
+/**
+ * Batched changes to what you can see (sent at most every ~100ms): avatars
+ * that appeared or moved within your view, and DIDs that left it (walked
+ * out of view, went home, or left town). Replaces per-move broadcasts.
+ */
+export interface TownViewEvent extends WsMessageBase {
+  type: 'town_view';
+  data: { upsert: TownPeer[]; remove: string[] };
 }
 
 export interface TownPeerJoinEvent extends WsMessageBase {
@@ -463,4 +476,5 @@ export type ServerMessage =
   | TownPeerMoveEvent
   | TownPeerLeaveEvent
   | TownChatEvent
-  | TownProximityEvent;
+  | TownProximityEvent
+  | TownViewEvent;

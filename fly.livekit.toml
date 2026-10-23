@@ -54,8 +54,10 @@ primary_region = 'iad'
     port = 7881
 
 [[vm]]
-  size = 'shared-cpu-2x'
-  memory = '1gb'
+  # Dedicated CPU: shared vCPUs run on burst credit, and when throttled the
+  # SFU's packet pacing/forwarding gets jittery — video stutters under load.
+  size = 'performance-1x'
+  memory = '2gb'
 
 # Secrets to set via `fly secrets set -c fly.livekit.toml`:
 #   LIVEKIT_KEYS="<api_key>: <api_secret>"

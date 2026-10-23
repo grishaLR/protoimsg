@@ -162,7 +162,8 @@
       "hideVideo": "Ɓoye",
       "videoTitle": "Bidiyo · {{count}}",
       "collapseVideo": "Rage",
-      "expandVideo": "Nuna"
+      "expandVideo": "Nuna",
+      "videoPaused": "An dakatar da bidiyo · haɗi mara ƙarfi"
     },
     "areas": {
       "home": {

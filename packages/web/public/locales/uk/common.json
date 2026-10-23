@@ -164,7 +164,8 @@
       "hideVideo": "Сховати",
       "videoTitle": "Відео · {{count}}",
       "collapseVideo": "Згорнути",
-      "expandVideo": "Показати"
+      "expandVideo": "Показати",
+      "videoPaused": "Відео на паузі · слабке з'єднання"
     },
     "areas": {
       "home": {

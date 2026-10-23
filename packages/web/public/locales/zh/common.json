@@ -164,7 +164,8 @@
       "hideVideo": "隐藏",
       "videoTitle": "视频 · {{count}}",
       "collapseVideo": "最小化",
-      "expandVideo": "显示"
+      "expandVideo": "显示",
+      "videoPaused": "视频已暂停 · 网络不佳"
     },
     "areas": {
       "home": {

@@ -87,6 +87,13 @@ export function townZoneAtPixel(px: number, py: number): TownZone {
 }
 
 /**
+ * Area of interest, in world px: the server only sends you avatars within
+ * this box around you (comfortably larger than the viewport at 2× zoom on a
+ * large monitor). Keeps move fan-out O(neighbours), not O(everyone).
+ */
+export const TOWN_VIEW = { halfWidth: 720, halfHeight: 480 } as const;
+
+/**
  * Proximity voice ("aura mesh") radii, in world px. Two avatars link when they
  * come within JOIN and stay linked until they drift past LEAVE — the gap is
  * hysteresis so standing at the edge doesn't flap the audio room.

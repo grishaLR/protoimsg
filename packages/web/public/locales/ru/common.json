@@ -164,7 +164,8 @@
       "hideVideo": "Скрыть",
       "videoTitle": "Видео · {{count}}",
       "collapseVideo": "Свернуть",
-      "expandVideo": "Показать"
+      "expandVideo": "Показать",
+      "videoPaused": "Видео на паузе · слабое соединение"
     },
     "areas": {
       "home": {

@@ -220,6 +220,13 @@ export function ProtoTownPanel() {
         case 'town_state':
           e.setPeers(msg.data.peers);
           setVoiceSupported(msg.data.voice);
+          // Warm up DNS/TLS to LiveKit before anyone walks up to you.
+          if (msg.data.voiceUrl) voiceRef.current?.prepare(msg.data.voiceUrl);
+          break;
+        case 'town_view':
+          // Batched: who appeared/moved in your view, and who left it.
+          for (const p of msg.data.upsert) e.peerMove(p);
+          for (const peerDid of msg.data.remove) e.peerLeave(peerDid);
           break;
         case 'town_proximity':
           void voiceRef.current?.assign(msg.data.room);

@@ -164,7 +164,8 @@
       "hideVideo": "非表示",
       "videoTitle": "ビデオ · {{count}}",
       "collapseVideo": "最小化",
-      "expandVideo": "表示"
+      "expandVideo": "表示",
+      "videoPaused": "ビデオ一時停止 · 接続が不安定"
     },
     "areas": {
       "home": {

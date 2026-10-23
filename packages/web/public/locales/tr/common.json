@@ -164,7 +164,8 @@
       "hideVideo": "Gizle",
       "videoTitle": "Video · {{count}}",
       "collapseVideo": "Küçült",
-      "expandVideo": "Göster"
+      "expandVideo": "Göster",
+      "videoPaused": "Video duraklatıldı · zayıf bağlantı"
     },
     "areas": {
       "home": {

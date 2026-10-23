@@ -164,7 +164,8 @@
       "hideVideo": "숨기기",
       "videoTitle": "영상 · {{count}}",
       "collapseVideo": "최소화",
-      "expandVideo": "보기"
+      "expandVideo": "보기",
+      "videoPaused": "영상 일시정지 · 연결 약함"
     },
     "areas": {
       "home": {

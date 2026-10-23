@@ -164,7 +164,8 @@
       "hideVideo": "ซ่อน",
       "videoTitle": "วิดีโอ · {{count}}",
       "collapseVideo": "ย่อ",
-      "expandVideo": "แสดง"
+      "expandVideo": "แสดง",
+      "videoPaused": "วิดีโอหยุดชั่วคราว · สัญญาณอ่อน"
     },
     "areas": {
       "home": {

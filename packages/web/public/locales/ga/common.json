@@ -164,7 +164,8 @@
       "hideVideo": "Folaigh",
       "videoTitle": "Físeán · {{count}}",
       "collapseVideo": "Íoslaghdaigh",
-      "expandVideo": "Taispeáin"
+      "expandVideo": "Taispeáin",
+      "videoPaused": "Físeán ar sos · nasc lag"
     },
     "areas": {
       "home": {

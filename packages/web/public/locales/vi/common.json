@@ -164,7 +164,8 @@
       "hideVideo": "Ẩn",
       "videoTitle": "Video · {{count}}",
       "collapseVideo": "Thu nhỏ",
-      "expandVideo": "Hiện"
+      "expandVideo": "Hiện",
+      "videoPaused": "Video tạm dừng · kết nối yếu"
     },
     "areas": {
       "home": {
