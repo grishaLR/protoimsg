@@ -152,20 +152,8 @@
   border: var(--cm-space-0);
 }
 
-/* Camera feeds in your proximity conversation, just above the chat bar. */
-.videoStrip {
-  position: absolute;
-  inset-inline: var(--cm-space-6);
-  inset-block-end: calc(var(--cm-space-6) * 2 + var(--cm-space-16));
-  display: flex;
-  justify-content: center;
-  gap: var(--cm-space-3);
-  overflow-x: auto;
-}
-
 .videoTile {
   position: relative;
-  flex: 0 0 var(--cm-town-video-w);
   margin: var(--cm-space-0);
   aspect-ratio: 4 / 3;
   overflow: hidden;
@@ -235,4 +223,63 @@
   text-overflow: ellipsis;
   color: var(--color-base-content);
   background: var(--color-base-100);
+}
+
+/* Room for the town beta banner above the HUD row. */
+.belowBanner {
+  inset-block-start: calc(var(--cm-space-6) + var(--cm-space-12));
+}
+
+/* Area label tooltip — anchored just below the pointer/tap point. */
+.areaTip {
+  position: absolute;
+  z-index: var(--cm-z-local-top);
+  display: flex;
+  flex-direction: column;
+  gap: var(--cm-space-1);
+  max-inline-size: var(--cm-tooltip-max-w);
+  padding: var(--cm-space-2) var(--cm-space-4);
+  font-size: var(--cm-text-xs);
+  line-height: var(--cm-leading-snug);
+  color: var(--color-base-content);
+  background: var(--color-base-100);
+  border: var(--cm-space-0.5) solid var(--color-base-300);
+  border-radius: var(--cm-radius-sm);
+  box-shadow: var(--cm-raised);
+  transform: translate(-50%, var(--cm-space-6));
+  pointer-events: none;
+}
+
+/* "You're entering…" note, centred under the HUD row. */
+.zoneNote {
+  position: absolute;
+  inset-inline: var(--cm-space-0);
+  inset-block-start: calc(var(--cm-space-6) + var(--cm-space-16) + var(--cm-space-12));
+  margin-inline: auto;
+  inline-size: fit-content;
+  max-inline-size: min(calc(100% - var(--cm-space-16)), var(--cm-panel-width-dm));
+  padding: var(--cm-space-2) var(--cm-space-5);
+  font-size: var(--cm-text-xs);
+  text-align: center;
+  color: var(--color-base-content);
+  background: var(--color-base-100);
+  border: var(--cm-space-0.5) solid var(--color-base-300);
+  border-radius: var(--cm-radius-sm);
+  box-shadow: var(--cm-raised);
+  pointer-events: none;
+}
+
+/* Server paused this feed (weak connection) — say so instead of freezing. */
+.videoPaused {
+  position: absolute;
+  inset: var(--cm-space-0);
+  z-index: var(--cm-z-local-raised);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--cm-space-3);
+  font-size: var(--cm-text-xs);
+  text-align: center;
+  color: var(--color-base-content);
+  background: color-mix(in srgb, var(--color-base-100) 80%, transparent);
 }

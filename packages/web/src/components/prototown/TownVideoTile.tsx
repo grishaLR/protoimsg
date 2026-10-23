@@ -43,6 +43,11 @@ export function TownVideoTile({ video, revealed, onToggleReveal }: TownVideoTile
   const label = video.local ? t('town.voice.you') : (name ?? t('town.voice.camera'));
   return (
     <figure className={styles.videoTile}>
+      {revealed && video.paused && (
+        <div className={styles.videoPaused} role="status">
+          {t('town.voice.videoPaused')}
+        </div>
+      )}
       {revealed ? (
         <video
           ref={videoRef}

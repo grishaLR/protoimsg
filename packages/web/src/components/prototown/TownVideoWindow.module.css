@@ -1,0 +1,139 @@
+/* Floating video window — themed and resizable like the DM popovers. */
+.window {
+  position: fixed;
+  /* Default spot until dragged: bottom-right, clear of the chat bar. */
+  inset-inline-end: var(--cm-space-8);
+  inset-block-end: calc(var(--cm-space-8) * 2 + var(--cm-space-16));
+  inline-size: calc(var(--cm-town-video-w) * 2 + var(--cm-space-6));
+  max-inline-size: calc(100vw - var(--cm-space-16));
+  max-block-size: calc(100vh - var(--cm-space-16));
+  display: flex;
+  flex-direction: column;
+  background: var(--color-base-100);
+  border-radius: var(--cm-radius-lg);
+  box-shadow: var(--cm-raised), var(--cm-window-shadow);
+  z-index: var(--cm-z-popover);
+}
+
+.collapsed {
+  block-size: auto;
+}
+
+.titleBar {
+  display: flex;
+  align-items: center;
+  gap: var(--cm-space-3);
+  padding: var(--cm-space-2) var(--cm-space-4);
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+  border-block-end: var(--cm-space-0.5) solid var(--color-base-300);
+}
+
+.titleBar:active {
+  cursor: grabbing;
+}
+
+.title {
+  flex: 1;
+  font-size: var(--cm-text-xs);
+  font-weight: 600;
+  color: var(--color-base-content);
+}
+
+.titleButton {
+  padding: var(--cm-space-0) var(--cm-space-3);
+  font-size: var(--cm-text-xs);
+  color: var(--color-base-content);
+  background: none;
+  border: var(--cm-space-0.5) solid var(--color-base-300);
+  border-radius: var(--cm-radius-sm);
+  cursor: pointer;
+}
+
+.titleButton:focus-visible {
+  outline: var(--cm-focus-thin) solid var(--cm-focus);
+  outline-offset: var(--cm-focus-offset);
+}
+
+/* Tiles grow with the window: wider window → bigger video. */
+.grid {
+  flex: 1 1 auto;
+  min-block-size: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(var(--cm-town-video-w), 100%), 1fr));
+  align-content: start;
+  gap: var(--cm-space-3);
+  padding: var(--cm-space-3);
+  overflow: auto;
+}
+
+/* Resize handles — invisible hit areas around all edges and corners. */
+.resizeHandle {
+  position: absolute;
+  z-index: var(--cm-z-local-top);
+}
+
+.resizeN,
+.resizeS {
+  inset-inline: var(--cm-call-resize-corner);
+  block-size: var(--cm-call-resize-edge);
+}
+
+.resizeN {
+  inset-block-start: calc(var(--cm-call-resize-edge) / -2);
+  cursor: n-resize;
+}
+
+.resizeS {
+  inset-block-end: calc(var(--cm-call-resize-edge) / -2);
+  cursor: s-resize;
+}
+
+.resizeE,
+.resizeW {
+  inset-block: var(--cm-call-resize-corner);
+  inline-size: var(--cm-call-resize-edge);
+}
+
+.resizeE {
+  right: calc(var(--cm-call-resize-edge) / -2);
+  cursor: e-resize;
+}
+
+.resizeW {
+  left: calc(var(--cm-call-resize-edge) / -2);
+  cursor: w-resize;
+}
+
+.resizeNE,
+.resizeNW,
+.resizeSE,
+.resizeSW {
+  inline-size: var(--cm-call-resize-corner);
+  block-size: var(--cm-call-resize-corner);
+}
+
+.resizeNE {
+  top: calc(var(--cm-call-resize-edge) / -2);
+  right: calc(var(--cm-call-resize-edge) / -2);
+  cursor: ne-resize;
+}
+
+.resizeNW {
+  top: calc(var(--cm-call-resize-edge) / -2);
+  left: calc(var(--cm-call-resize-edge) / -2);
+  cursor: nw-resize;
+}
+
+.resizeSE {
+  bottom: calc(var(--cm-call-resize-edge) / -2);
+  right: calc(var(--cm-call-resize-edge) / -2);
+  cursor: se-resize;
+}
+
+.resizeSW {
+  bottom: calc(var(--cm-call-resize-edge) / -2);
+  left: calc(var(--cm-call-resize-edge) / -2);
+  cursor: sw-resize;
+}

@@ -161,7 +161,44 @@
       "camera": "摄像头",
       "videoHidden": "视频已隐藏",
       "showVideo": "显示视频",
-      "hideVideo": "隐藏"
+      "hideVideo": "隐藏",
+      "videoTitle": "视频 · {{count}}",
+      "collapseVideo": "最小化",
+      "expandVideo": "显示",
+      "videoPaused": "视频已暂停 · 网络不佳"
+    },
+    "areas": {
+      "home": {
+        "label": "家 · 亲密圈",
+        "tooltip": "你的家。在这里没人能看到或听到你。即将推出：朋友会来敲门，让某人进来会把对方加入你的亲密圈。",
+        "enter": "你在家 — 在这里没人能看到或听到你。"
+      },
+      "neighborhood": {
+        "label": "街区",
+        "tooltip": "你的围栏街区。很快只有你社区里的人能在这里看到你并穿过大门。目前它和外面的世界一样开放。",
+        "enter": "街区 — 目前对所有人开放（即将仅限社区）。"
+      },
+      "public": {
+        "enter": "公共世界 — 任何人都能看到你，靠近时就能交谈。"
+      }
+    },
+    "beta": {
+      "message": "🚧 小镇正在建设中 — 有些功能已经能用了！",
+      "more": "能用什么？",
+      "dismiss": "关闭",
+      "chip": "测试版 · 能用什么？",
+      "title": "proto town（测试版）",
+      "worksHeading": "现在可用",
+      "work1": "以你的 rpg.actor 角色四处走动",
+      "work2": "附近所有人都能看到的聊天气泡",
+      "work3": "走近某人 — 紫色光环会把你们连在一起，可以聊天（麦克风和摄像头需自行开启）",
+      "work4": "中间你的家是私密的 — 在那里没人能看到或听到你",
+      "soonHeading": "即将推出",
+      "soon1": "敲门让朋友进来",
+      "soon2": "属于你社区的专属围栏街区",
+      "soon3": "房子、装饰、游戏厅等等",
+      "feedback": "有问题或愿望？告诉 ProtoBuddy：/feedback 你的留言",
+      "close": "知道了"
     }
   }
 }

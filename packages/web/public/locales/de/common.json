@@ -161,7 +161,44 @@
       "camera": "Kamera",
       "videoHidden": "Video ausgeblendet",
       "showVideo": "Video zeigen",
-      "hideVideo": "Ausblenden"
+      "hideVideo": "Ausblenden",
+      "videoTitle": "Video · {{count}}",
+      "collapseVideo": "Minimieren",
+      "expandVideo": "Anzeigen",
+      "videoPaused": "Video pausiert · schwache Verbindung"
+    },
+    "areas": {
+      "home": {
+        "label": "Zuhause · engster Kreis",
+        "tooltip": "Dein Zuhause. Hier kann dich niemand sehen oder hören. Bald: Freunde klopfen an die Tür, und wer reindarf, kommt in deinen engsten Kreis.",
+        "enter": "Du bist zuhause – hier sieht oder hört dich niemand."
+      },
+      "neighborhood": {
+        "label": "Nachbarschaft",
+        "tooltip": "Deine eingezäunte Nachbarschaft. Bald sehen dich hier nur Leute aus deiner Community, und nur sie kommen durchs Tor. Im Moment ist sie offen wie die Welt draußen.",
+        "enter": "Nachbarschaft – vorerst für alle offen (bald nur Community)."
+      },
+      "public": {
+        "enter": "Öffentliche Welt – alle können dich sehen, und in der Nähe könnt ihr reden."
+      }
+    },
+    "beta": {
+      "message": "🚧 Die Stadt ist im Aufbau – manches funktioniert schon!",
+      "more": "Was geht schon?",
+      "dismiss": "Ausblenden",
+      "chip": "BETA · was geht schon?",
+      "title": "proto town (Beta)",
+      "worksHeading": "Geht schon",
+      "work1": "Lauf als dein rpg.actor-Charakter herum",
+      "work2": "Chat-Blasen, die alle in der Nähe sehen",
+      "work3": "Geh zu jemandem hin – eine lila Aura verbindet euch und ihr könnt reden (Mikro und Kamera nur auf Wunsch)",
+      "work4": "Dein Zuhause in der Mitte ist privat – dort sieht oder hört dich niemand",
+      "soonHeading": "Bald",
+      "soon1": "An Türen klopfen, um Freunde reinzulassen",
+      "soon2": "Deine eigene eingezäunte Nachbarschaft für deine Community",
+      "soon3": "Häuser, Einrichten, die Spielhalle und mehr",
+      "feedback": "Etwas kaputt oder ein Wunsch? Sag es ProtoBuddy: /feedback deine Nachricht",
+      "close": "Verstanden"
     }
   }
 }

@@ -161,7 +161,44 @@
       "camera": "Kamera",
       "videoHidden": "Video gizli",
       "showVideo": "Videoyu göster",
-      "hideVideo": "Gizle"
+      "hideVideo": "Gizle",
+      "videoTitle": "Video · {{count}}",
+      "collapseVideo": "Küçült",
+      "expandVideo": "Göster",
+      "videoPaused": "Video duraklatıldı · zayıf bağlantı"
+    },
+    "areas": {
+      "home": {
+        "label": "Ev · yakın çevre",
+        "tooltip": "Evin. Burada kimse seni göremez ya da duyamaz. Yakında: arkadaşlar kapıyı çalacak ve birini içeri almak onu yakın çevrene ekleyecek.",
+        "enter": "Evdesin — burada kimse seni göremez ya da duyamaz."
+      },
+      "neighborhood": {
+        "label": "Mahalle",
+        "tooltip": "Çitle çevrili mahallen. Yakında burada seni yalnızca topluluğundakiler görecek ve kapıdan geçebilecek. Şimdilik dışarıdaki dünya gibi açık.",
+        "enter": "Mahalle — şimdilik herkese açık (yakında yalnızca topluluk)."
+      },
+      "public": {
+        "enter": "Herkese açık dünya — herkes seni görebilir, yakınken konuşabilirsiniz."
+      }
+    },
+    "beta": {
+      "message": "🚧 Kasaba yapım aşamasında — bazı şeyler çalışıyor!",
+      "more": "Neler çalışıyor?",
+      "dismiss": "Kapat",
+      "chip": "BETA · neler çalışıyor?",
+      "title": "proto town (beta)",
+      "worksHeading": "Şu an çalışanlar",
+      "work1": "rpg.actor karakterinle dolaş",
+      "work2": "Yakındaki herkesin gördüğü sohbet balonları",
+      "work3": "Birine yaklaş — mor bir aura sizi bağlar ve konuşabilirsiniz (mikrofon ve kamera isteğe bağlı)",
+      "work4": "Ortadaki evin özel — orada kimse seni göremez ya da duyamaz",
+      "soonHeading": "Yakında",
+      "soon1": "Arkadaşlarını içeri almak için kapı çalma",
+      "soon2": "Topluluğun için kendi çitli mahallen",
+      "soon3": "Evler, dekorasyon, oyun salonu ve daha fazlası",
+      "feedback": "Bozuk bir şey ya da bir dilek mi? ProtoBuddy'ye söyle: /feedback mesajın",
+      "close": "Anladım"
     }
   }
 }

@@ -127,6 +127,11 @@ const CONVERSATION_MATCHES: ConversationMatch[] = [
     i18nKey: 'bot:responses.topic.rooms',
   },
   {
+    patterns: [/\btown\b/, /proto ?town/, /\baura\b/, /proximity/, /walk around/, /\bknock/],
+    response: () => TOPICS['town'] ?? '',
+    i18nKey: 'bot:responses.topic.town',
+  },
+  {
     patterns: [/inner circle/, /trusted (people|friends)/, /trust tier/],
     response: () => TOPICS['innercircle'] ?? '',
     i18nKey: 'bot:responses.topic.innercircle',

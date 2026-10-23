@@ -1,6 +1,6 @@
 import { randomBytes } from 'crypto';
 import type { WebSocket } from 'ws';
-import { TOWN_PROXIMITY, townZoneAtPixel } from '@protoimsg/shared';
+import { TOWN_PROXIMITY, TOWN_VIEW, townZoneAtPixel } from '@protoimsg/shared';
 import type { ServerMessage, TownPeer, TownVoiceMember } from '@protoimsg/shared';
 import type { BlockService } from '../moderation/block-service.js';
 import type { TownVoice } from '../calls/town-voice.js';
@@ -24,14 +24,18 @@ interface TownMember extends TownPeer {
   roomId: string | null;
   /** Anonymous LiveKit identity for the current room. */
   pid: string;
-  /** At home: invisible to everyone else (no join/move/chat broadcasts). */
+  /** At home: invisible to everyone else (never in anyone's view). */
   hidden: boolean;
+  /** Bumped on every position change — views re-send only what moved. */
+  ver: number;
+  /** What this socket's client currently shows: DID → `${memberId}:${ver}`. */
+  known: Map<string, string>;
 }
 
 interface VoiceRoomState {
   /** Bumped per send — a slower, older send never overwrites a newer roster. */
   version: number;
-  /** Serialises createRoom so tokens never race ahead of the room's cap. */
+  /** The one createRoom call for this room — tokens wait on it so they never race ahead of the cap. */
   ready: Promise<void>;
 }
 
@@ -43,6 +47,10 @@ const MOVE_BURST = 30; // bucket capacity
 
 // Proximity clusters are recomputed at most this often, not per move.
 const PROXIMITY_TICK_MS = 200;
+// Avatar views are diffed and sent in one batch per viewer at most this often.
+const VIEW_TICK_MS = 100;
+// Spatial grid for view lookups: a viewer's box spans at most 3×3 cells.
+const VIEW_CELL = Math.max(TOWN_VIEW.halfWidth, TOWN_VIEW.halfHeight);
 // A new link must hold this long before a room is minted — stops jittering
 // across the radius from churning LiveKit rooms.
 const LINK_DWELL_MS = 600;
@@ -52,6 +60,15 @@ const VOICE_RETRY_MS = 5000;
 // How often every active room is checked for participants who shouldn't be
 // there (kicked members reconnecting with a still-valid token).
 const RECONCILE_MS = 5000;
+
+function cellKey(cx: number, cy: number): string {
+  return `${String(cx)},${String(cy)}`;
+}
+
+/** Identity + version of what a viewer was last sent about an avatar. */
+function viewKey(m: TownMember): string {
+  return `${String(m.id)}:${String(m.ver)}`;
+}
 
 function isHome(x: number, y: number): boolean {
   return townZoneAtPixel(x, y) === 'home';
@@ -85,6 +102,7 @@ export class TownRoom {
   private members = new Map<WebSocket, TownMember>();
   private nextId = 1;
   private proximityTimer: ReturnType<typeof setTimeout> | null = null;
+  private viewTimer: ReturnType<typeof setTimeout> | null = null;
   private reconcileTimer: ReturnType<typeof setInterval> | null = null;
   private disposed = false;
   private voiceBackoffUntil = 0;
@@ -122,19 +140,26 @@ export class TownRoom {
       roomId: prev?.roomId ?? null,
       pid: prev?.pid ?? '',
       hidden: isHome(x, y),
+      ver: (prev?.ver ?? 0) + 1,
+      known: new Map(),
     });
     if (prev?.roomId) this.pendingDirty.add(prev.roomId);
 
+    // Your initial view, sent directly; everyone else learns about you on the
+    // next view tick.
+    const self = this.members.get(ws);
     const peers: TownPeer[] = [];
-    for (const m of this.members.values()) {
-      if (m.ws === ws || m.did === did || m.hidden) continue;
-      if (this.blockService.isBlocked(did, m.did)) continue;
-      peers.push({ did: m.did, x: m.x, y: m.y, dir: m.dir });
+    if (self) {
+      for (const [peerDid, m] of this.viewOf(self, this.buildViewGrid())) {
+        self.known.set(peerDid, viewKey(m));
+        peers.push({ did: m.did, x: m.x, y: m.y, dir: m.dir });
+      }
     }
-    this.sendTo(ws, { type: 'town_state', data: { peers, voice: this.voice !== null } });
-    if (!isHome(x, y)) {
-      this.broadcast(did, { type: 'town_peer_join', data: { did, x, y, dir } }, ws);
-    }
+    this.sendTo(ws, {
+      type: 'town_state',
+      data: { peers, voice: this.voice !== null, voiceUrl: this.voice?.url },
+    });
+    this.scheduleView();
     this.scheduleProximity();
   }
 
@@ -144,17 +169,11 @@ export class TownRoom {
     m.x = x;
     m.y = y;
     m.dir = dir;
-    const wasHidden = m.hidden;
+    m.ver++;
+    // Stepping inside drops you out of every view (looks like leaving town);
+    // stepping out puts you back (looks like arriving).
     m.hidden = isHome(x, y);
-    if (m.hidden) {
-      // Stepping inside looks like leaving town to everyone else.
-      if (!wasHidden) this.announceLeaveIfGone(m, ws);
-    } else if (wasHidden) {
-      // Stepping out looks like arriving.
-      this.broadcast(m.did, { type: 'town_peer_join', data: { did: m.did, x, y, dir } }, ws);
-    } else {
-      this.broadcast(m.did, { type: 'town_peer_move', data: { did: m.did, x, y, dir } }, ws);
-    }
+    this.scheduleView();
     this.scheduleProximity();
   }
 
@@ -164,10 +183,13 @@ export class TownRoom {
     // Echoed to everyone, including the sender, so all clients render the
     // bubble identically. `text` is relayed verbatim — clients MUST render it
     // as plain text (the Pixi bubble uses Text, never markup).
-    const msg: ServerMessage = { type: 'town_chat', data: { did: m.did, text } };
-    // At home nobody else is there to hear it — only your own bubble shows.
-    if (m.hidden) this.sendTo(ws, msg);
-    else this.broadcast(m.did, msg);
+    const payload = JSON.stringify({ type: 'town_chat', data: { did: m.did, text } });
+    for (const v of this.members.values()) {
+      // You always see your own bubble; others only if you're in their view
+      // (never while you're home — you're in nobody's view then).
+      const sees = v.ws === ws || (!m.hidden && v.known.has(m.did));
+      if (sees && v.ws.readyState === v.ws.OPEN) v.ws.send(payload);
+    }
   }
 
   leave(ws: WebSocket): void {
@@ -180,18 +202,80 @@ export class TownRoom {
       this.pendingDirty.add(m.roomId);
       this.scheduleProximity();
     }
-    if (!m.hidden) this.announceLeaveIfGone(m, ws);
+    // Viewers drop the avatar on the next view tick — unless another visible
+    // socket of the same DID keeps it alive.
+    this.scheduleView();
   }
 
-  /**
-   * Tell everyone `m`'s avatar is gone — unless another socket of the same DID
-   * is still visible in town (a second tab keeps the avatar alive).
-   */
-  private announceLeaveIfGone(m: TownMember, exclude: WebSocket): void {
-    for (const other of this.members.values()) {
-      if (other !== m && other.did === m.did && !other.hidden) return;
+  private scheduleView(): void {
+    if (this.disposed || this.viewTimer) return;
+    this.viewTimer = setTimeout(() => {
+      this.viewTimer = null;
+      this.flushViews();
+    }, VIEW_TICK_MS);
+  }
+
+  /** Visible members bucketed by grid cell, one representative socket per DID. */
+  private buildViewGrid(): Map<string, TownMember[]> {
+    const rep = new Map<string, TownMember>();
+    for (const m of this.members.values()) {
+      if (m.hidden) continue;
+      // Several tabs of one DID: the most recently moved one is the avatar.
+      const cur = rep.get(m.did);
+      if (!cur || m.ver > cur.ver) rep.set(m.did, m);
     }
-    this.broadcast(m.did, { type: 'town_peer_leave', data: { did: m.did } }, exclude);
+    const grid = new Map<string, TownMember[]>();
+    for (const m of rep.values()) {
+      const k = cellKey(Math.floor(m.x / VIEW_CELL), Math.floor(m.y / VIEW_CELL));
+      const bucket = grid.get(k);
+      if (bucket) bucket.push(m);
+      else grid.set(k, [m]);
+    }
+    return grid;
+  }
+
+  /** Everyone `v` should currently see, by DID. */
+  private viewOf(v: TownMember, grid: Map<string, TownMember[]>): Map<string, TownMember> {
+    const out = new Map<string, TownMember>();
+    const cx = Math.floor(v.x / VIEW_CELL);
+    const cy = Math.floor(v.y / VIEW_CELL);
+    for (let dx = -1; dx <= 1; dx++) {
+      for (let dy = -1; dy <= 1; dy++) {
+        for (const m of grid.get(cellKey(cx + dx, cy + dy)) ?? []) {
+          if (m.did === v.did || this.blockService.isBlocked(v.did, m.did)) continue;
+          if (Math.abs(m.x - v.x) > TOWN_VIEW.halfWidth) continue;
+          if (Math.abs(m.y - v.y) > TOWN_VIEW.halfHeight) continue;
+          out.set(m.did, m);
+        }
+      }
+    }
+    return out;
+  }
+
+  /** Send each viewer one batched diff of who appeared, moved or left its view. */
+  private flushViews(): void {
+    if (this.disposed) return;
+    const grid = this.buildViewGrid();
+    for (const v of this.members.values()) {
+      const view = this.viewOf(v, grid);
+      const upsert: TownPeer[] = [];
+      const remove: string[] = [];
+      for (const [did, m] of view) {
+        const key = viewKey(m);
+        if (v.known.get(did) === key) continue;
+        v.known.set(did, key);
+        upsert.push({ did: m.did, x: m.x, y: m.y, dir: m.dir });
+      }
+      for (const did of v.known.keys()) {
+        if (!view.has(did)) {
+          v.known.delete(did);
+          remove.push(did);
+        }
+      }
+      if (upsert.length > 0 || remove.length > 0) {
+        this.sendTo(v.ws, { type: 'town_view', data: { upsert, remove } });
+      }
+    }
   }
 
   /** Re-evaluate clusters now that block lists changed (blocked pairs split). */
@@ -210,6 +294,8 @@ export class TownRoom {
   dispose(): void {
     this.disposed = true;
     if (this.proximityTimer) clearTimeout(this.proximityTimer);
+    if (this.viewTimer) clearTimeout(this.viewTimer);
+    this.viewTimer = null;
     if (this.reconcileTimer) clearInterval(this.reconcileTimer);
     this.proximityTimer = null;
     this.reconcileTimer = null;
@@ -244,7 +330,7 @@ export class TownRoom {
     const nextClose = new Map<string, number>();
     const dwell = { pending: false };
     const rules: ClusterRules = {
-      eligible: (n) => this.blockService.hasSynced(n.did) && zoneOf(n) === 'public',
+      eligible: (n) => this.blockService.hasSynced(n.did) && zoneOf(n) !== 'home',
       compatible: (a, b) => a.did !== b.did && !this.blockService.isBlocked(a.did, b.did),
       newLinkReady: (a, b) => {
         const key = pairKey(a, b);
@@ -298,16 +384,17 @@ export class TownRoom {
   private async sendRoom(voice: TownVoice, roomId: string): Promise<void> {
     let state = this.rooms.get(roomId);
     if (!state) {
-      state = { version: 0, ready: Promise.resolve() };
+      // createRoom once per room (sets the participant cap) — later roster
+      // sends just await it instead of paying a LiveKit round-trip each time.
+      // A failure drops the state, so the retry creates it again.
+      state = {
+        version: 0,
+        ready: voice.ensureRoom(roomId, TOWN_PROXIMITY.maxClusterSize),
+      };
       this.rooms.set(roomId, state);
     }
     const version = ++state.version;
-    // Idempotent — also re-creates (with the cap) a room LiveKit already
-    // closed on empty-timeout, rather than letting a join auto-create it.
-    const ready = state.ready
-      .catch(() => undefined)
-      .then(() => voice.ensureRoom(roomId, TOWN_PROXIMITY.maxClusterSize));
-    state.ready = ready;
+    const ready = state.ready;
 
     const targets = this.roomMembers(roomId).map((m) => ({ m, pid: m.pid }));
     try {
@@ -380,19 +467,5 @@ export class TownRoom {
 
   private sendTo(ws: WebSocket, msg: ServerMessage): void {
     if (ws.readyState === ws.OPEN) ws.send(JSON.stringify(msg));
-  }
-
-  /**
-   * Broadcast a message *about* `subjectDid`. Recipients with a block
-   * relationship to the subject are skipped — a blocked user is invisible
-   * (avatar, movement, chat) to the user who blocked them, and vice versa.
-   */
-  private broadcast(subjectDid: string, msg: ServerMessage, exclude?: WebSocket): void {
-    const payload = JSON.stringify(msg);
-    for (const m of this.members.values()) {
-      if (m.ws === exclude || m.ws.readyState !== m.ws.OPEN) continue;
-      if (this.blockService.isBlocked(m.did, subjectDid)) continue;
-      m.ws.send(payload);
-    }
   }
 }
