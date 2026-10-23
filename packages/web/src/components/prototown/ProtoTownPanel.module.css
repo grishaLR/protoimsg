@@ -151,3 +151,88 @@
   white-space: nowrap;
   border: var(--cm-space-0);
 }
+
+/* Camera feeds in your proximity conversation, just above the chat bar. */
+.videoStrip {
+  position: absolute;
+  inset-inline: var(--cm-space-6);
+  inset-block-end: calc(var(--cm-space-6) * 2 + var(--cm-space-16));
+  display: flex;
+  justify-content: center;
+  gap: var(--cm-space-3);
+  overflow-x: auto;
+}
+
+.videoTile {
+  position: relative;
+  flex: 0 0 var(--cm-town-video-w);
+  margin: var(--cm-space-0);
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  background: var(--color-base-300);
+  border: var(--cm-space-0.5) solid var(--color-primary);
+  border-radius: var(--cm-radius-md);
+  box-shadow: var(--cm-raised);
+}
+
+.video {
+  display: block;
+  inline-size: 100%;
+  block-size: 100%;
+  object-fit: cover;
+}
+
+/* Your own preview reads naturally as a mirror. */
+.mirror {
+  transform: scaleX(-1);
+}
+
+.videoHidden {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--cm-space-2);
+  block-size: 100%;
+  padding-block-end: var(--cm-space-8);
+  font-size: var(--cm-text-xs);
+  color: var(--color-base-content);
+}
+
+.hideVideo {
+  margin-inline-start: auto;
+  padding: var(--cm-space-0) var(--cm-space-2);
+  font-size: var(--cm-text-xs);
+  color: inherit;
+  background: none;
+  border: var(--cm-space-0.5) solid var(--color-base-300);
+  border-radius: var(--cm-radius-sm);
+  cursor: pointer;
+}
+
+.hideVideo:focus-visible {
+  outline: var(--cm-focus-thin) solid var(--cm-focus);
+  outline-offset: var(--cm-focus-offset);
+}
+
+/* Unmissable: you are on camera right now. */
+.camLive {
+  color: var(--color-error-content);
+  background: var(--color-error);
+}
+
+.videoName {
+  position: absolute;
+  inset-inline: var(--cm-space-0);
+  inset-block-end: var(--cm-space-0);
+  display: flex;
+  align-items: center;
+  gap: var(--cm-space-2);
+  padding: var(--cm-space-1) var(--cm-space-3);
+  overflow: hidden;
+  font-size: var(--cm-text-xs);
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  color: var(--color-base-content);
+  background: var(--color-base-100);
+}

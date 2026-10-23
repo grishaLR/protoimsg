@@ -6,7 +6,8 @@ import { useAuth } from '../../hooks/useAuth';
 import { getCachedVisibility } from '../../hooks/usePresence';
 import { useWebSocket } from '../../contexts/WebSocketContext';
 import { WorldEngine } from '../../town/WorldEngine';
-import { ProximityVoice } from '../../town/ProximityVoice';
+import { ProximityVoice, type ProximityVideo } from '../../town/ProximityVoice';
+import { TownVideoTile } from './TownVideoTile';
 import type { TownZone } from '../../town/map';
 import { zoneAtPixel } from '../../town/map';
 import styles from './ProtoTownPanel.module.css';
@@ -67,6 +68,14 @@ export function ProtoTownPanel() {
   const [nearbyUnlinked, setNearbyUnlinked] = useState(0);
   const [zone, setZone] = useState<TownZone | null>(null);
   const [micLive, setMicLive] = useState(false);
+  const [cameraOn, setCameraOn] = useState(false);
+  const [cameraError, setCameraError] = useState(false);
+  const [videos, setVideos] = useState<ProximityVideo[]>([]);
+  const [cameraPending, setCameraPending] = useState(false);
+  // Why the camera last changed — drives announcements + the "someone joined" notice.
+  const [cameraEvent, setCameraEvent] = useState<'on' | 'off' | 'joined' | null>(null);
+  // Other people's video starts hidden; you reveal each feed yourself.
+  const [revealed, setRevealed] = useState<Set<string>>(() => new Set());
   // Screen-reader announcement on voice transitions only, not every roster tick.
   const [announcement, setAnnouncement] = useState('');
   const prevNearbyRef = useRef(0);
@@ -96,6 +105,16 @@ export function ProtoTownPanel() {
     };
     voice.onAudioBlockedChange = setAudioBlocked;
     voice.onLiveChange = setMicLive;
+    voice.onVideoChange = setVideos;
+    voice.onCameraChange = (on, reason) => {
+      setCameraOn(on);
+      // 'ended' is already covered by the "voice ended" announcement.
+      if (reason !== 'ended') setCameraEvent(on ? 'on' : (reason ?? 'off'));
+    };
+    voice.onCameraPendingChange = setCameraPending;
+    voice.onCameraError = () => {
+      setCameraError(true);
+    };
     voice.onMicError = () => {
       setMicOn(false);
       setMicError(true);
@@ -142,6 +161,12 @@ export function ProtoTownPanel() {
       setZone(null);
       setAudioBlocked(false);
       setMicLive(false);
+      setCameraOn(false);
+      setCameraError(false);
+      setCameraPending(false);
+      setCameraEvent(null);
+      setVideos([]);
+      setRevealed(new Set());
       setMicError(false);
       sendRef.current({ type: 'town_leave' });
       // Leaving town: restore the visibility the user set outside of it.
@@ -209,8 +234,46 @@ export function ProtoTownPanel() {
     const prev = prevNearbyRef.current;
     prevNearbyRef.current = nearbyCount;
     if (prev === 0 && nearbyCount > 0) setAnnouncement(t('town.voice.announceJoined'));
-    else if (prev > 0 && nearbyCount === 0) setAnnouncement(t('town.voice.announceEnded'));
+    else if (prev > 0 && nearbyCount === 0) {
+      setAnnouncement(t('town.voice.announceEnded'));
+      // New conversation, fresh consent: hide everyone's video again.
+      setRevealed(new Set());
+    }
   }, [nearbyCount, t]);
+
+  useEffect(() => {
+    if (!cameraEvent) return;
+    const key =
+      cameraEvent === 'on'
+        ? 'town.voice.camOnAnnounce'
+        : cameraEvent === 'joined'
+          ? 'town.voice.camAutoOff'
+          : 'town.voice.camOffAnnounce';
+    setAnnouncement(t(key));
+    if (cameraEvent !== 'joined') return;
+    // Keep the visible "someone joined" notice up briefly.
+    const timer = setTimeout(() => {
+      setCameraEvent(null);
+    }, 5000);
+    return () => {
+      clearTimeout(timer);
+    };
+  }, [cameraEvent, t]);
+
+  const toggleCamera = useCallback(() => {
+    setCameraError(false);
+    setCameraEvent(null);
+    void voiceRef.current?.toggleCamera();
+  }, []);
+
+  const toggleReveal = useCallback((key: string) => {
+    setRevealed((prev) => {
+      const next = new Set(prev);
+      if (next.has(key)) next.delete(key);
+      else next.add(key);
+      return next;
+    });
+  }, []);
 
   const toggleMic = useCallback(() => {
     const next = !micOn;
@@ -264,6 +327,29 @@ export function ProtoTownPanel() {
             >
               {micOn ? t('town.voice.micOn') : t('town.voice.micOff')}
             </button>
+            {/* Never hide the off switch while the camera is live or starting. */}
+            {(nearbyCount > 0 || cameraOn || cameraPending) && (
+              <button
+                type="button"
+                className={`${styles.voiceButton} ${cameraOn ? styles.micOn : ''}`}
+                aria-busy={cameraPending}
+                onClick={toggleCamera}
+              >
+                {cameraPending
+                  ? t('town.voice.camStarting')
+                  : cameraOn
+                    ? t('town.voice.camOn')
+                    : t('town.voice.camOff')}
+              </button>
+            )}
+            {cameraOn && (
+              <span className={`${styles.nearby} ${styles.camLive}`}>
+                {t('town.voice.camLive')}
+              </span>
+            )}
+            {cameraEvent === 'joined' && (
+              <span className={styles.nearby}>{t('town.voice.camAutoOff')}</span>
+            )}
             {nearbyUnlinked > 0 && zone === 'home' && (
               <span className={styles.nearby}>{t('town.voice.homeOff')}</span>
             )}
@@ -272,9 +358,26 @@ export function ProtoTownPanel() {
                 {t('town.voice.micDenied')}
               </span>
             )}
+            {cameraError && (
+              <span className={styles.micError} role="alert">
+                {t('town.voice.camDenied')}
+              </span>
+            )}
           </div>
         )}
       </div>
+      {videos.length > 0 && (
+        <div className={styles.videoStrip} role="group" aria-label={t('town.voice.videoStrip')}>
+          {videos.map((v) => (
+            <TownVideoTile
+              key={v.key}
+              video={v}
+              revealed={v.local || revealed.has(v.key)}
+              onToggleReveal={toggleReveal}
+            />
+          ))}
+        </div>
+      )}
       <form
         className={styles.chatBar}
         onSubmit={(e) => {

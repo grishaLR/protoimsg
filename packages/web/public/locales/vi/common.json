@@ -147,7 +147,21 @@
       "live": "Trực tiếp · {{count}} người nghe được bạn",
       "announceJoined": "Có người ở gần — đã kết nối giọng nói",
       "announceEnded": "Giọng nói đã kết thúc",
-      "homeOff": "Giọng nói tắt trong phòng của bạn — chỉ có mình bạn"
+      "homeOff": "Giọng nói tắt trong phòng của bạn — chỉ có mình bạn",
+      "camOn": "Camera bật",
+      "camOff": "Camera tắt",
+      "camDenied": "Camera bị chặn — kiểm tra quyền của trình duyệt",
+      "you": "Bạn",
+      "videoStrip": "Video từ những người ở gần",
+      "camStarting": "Đang bật camera…",
+      "camLive": "● Camera đang phát",
+      "camAutoOff": "Đã tắt camera — có người tham gia cuộc trò chuyện",
+      "camOnAnnounce": "Camera của bạn đang bật",
+      "camOffAnnounce": "Camera của bạn đang tắt",
+      "camera": "Camera",
+      "videoHidden": "Video đã ẩn",
+      "showVideo": "Hiện video",
+      "hideVideo": "Ẩn"
     }
   }
 }

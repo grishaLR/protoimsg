@@ -147,7 +147,21 @@
       "live": "En vivo · {{count}} pueden oírte",
       "announceJoined": "Hay alguien cerca: voz conectada",
       "announceEnded": "Voz finalizada",
-      "homeOff": "La voz está desactivada en tu cuarto: solo estás tú"
+      "homeOff": "La voz está desactivada en tu cuarto: solo estás tú",
+      "camOn": "Cámara activada",
+      "camOff": "Cámara desactivada",
+      "camDenied": "Cámara bloqueada: revisa los permisos del navegador",
+      "you": "Tú",
+      "videoStrip": "Video de la gente cercana",
+      "camStarting": "Iniciando cámara…",
+      "camLive": "● Cámara en vivo",
+      "camAutoOff": "Cámara apagada: alguien se unió a la conversación",
+      "camOnAnnounce": "Tu cámara está encendida",
+      "camOffAnnounce": "Tu cámara está apagada",
+      "camera": "Cámara",
+      "videoHidden": "Video oculto",
+      "showVideo": "Mostrar video",
+      "hideVideo": "Ocultar"
     }
   }
 }

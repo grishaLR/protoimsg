@@ -145,7 +145,21 @@
       "live": "Moja kwa moja · {{count}} wanaweza kukusikia",
       "announceJoined": "Kuna mtu karibu — sauti imeunganishwa",
       "announceEnded": "Sauti imeisha",
-      "homeOff": "Sauti imezimwa chumbani kwako — uko peke yako"
+      "homeOff": "Sauti imezimwa chumbani kwako — uko peke yako",
+      "camOn": "Kamera imewashwa",
+      "camOff": "Kamera imezimwa",
+      "camDenied": "Kamera imezuiwa — angalia ruhusa za kivinjari",
+      "you": "Wewe",
+      "videoStrip": "Video kutoka kwa watu walio karibu",
+      "camStarting": "Inawasha kamera…",
+      "camLive": "● Kamera iko hewani",
+      "camAutoOff": "Kamera imezimwa — mtu amejiunga na mazungumzo",
+      "camOnAnnounce": "Kamera yako imewashwa",
+      "camOffAnnounce": "Kamera yako imezimwa",
+      "camera": "Kamera",
+      "videoHidden": "Video imefichwa",
+      "showVideo": "Onyesha video",
+      "hideVideo": "Ficha"
     }
   }
 }

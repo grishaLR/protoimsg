@@ -13,11 +13,12 @@ const log = createLogger('town-voice');
 const TOKEN_TTL_SECONDS = 30;
 
 /**
- * Proximity rooms are audio-only: people walking up to you consented to being
- * heard, not seen. Enforced in the token so a modified client can't push
- * camera/screen/data. Add CAMERA here when opt-in mesh video lands.
+ * Mic + camera only — never screen share or data, enforced in the token so a
+ * modified client can't push them. Camera is opt-in per conversation on the
+ * client (off by default, off again when the cluster ends), and only roster
+ * members may subscribe to it, same as audio.
  */
-const PUBLISH = { sources: [TrackSource.MICROPHONE], data: false };
+const PUBLISH = { sources: [TrackSource.MICROPHONE, TrackSource.CAMERA], data: false };
 
 /** Seconds LiveKit keeps an emptied proximity room before closing it. */
 const EMPTY_TIMEOUT_SECONDS = 30;

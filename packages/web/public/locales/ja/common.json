@@ -147,7 +147,21 @@
       "live": "ライブ · {{count}} 人に聞こえています",
       "announceJoined": "近くに誰かいます — 音声接続済み",
       "announceEnded": "音声終了",
-      "homeOff": "自分の部屋では音声はオフです — ここはあなただけ"
+      "homeOff": "自分の部屋では音声はオフです — ここはあなただけ",
+      "camOn": "カメラオン",
+      "camOff": "カメラオフ",
+      "camDenied": "カメラがブロックされています — ブラウザの権限を確認してください",
+      "you": "あなた",
+      "videoStrip": "近くの人のビデオ",
+      "camStarting": "カメラを起動中…",
+      "camLive": "● カメラ配信中",
+      "camAutoOff": "カメラをオフにしました — 誰かが会話に参加しました",
+      "camOnAnnounce": "カメラはオンです",
+      "camOffAnnounce": "カメラはオフです",
+      "camera": "カメラ",
+      "videoHidden": "ビデオ非表示",
+      "showVideo": "ビデオを表示",
+      "hideVideo": "非表示"
     }
   }
 }
