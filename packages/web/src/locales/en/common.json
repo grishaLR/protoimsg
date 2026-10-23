@@ -325,7 +325,16 @@
       "camOff": "Camera off",
       "camDenied": "Camera blocked — check browser permissions",
       "you": "You",
-      "videoStrip": "Video from people nearby"
+      "videoStrip": "Video from people nearby",
+      "camStarting": "Starting camera…",
+      "camLive": "● Camera live",
+      "camAutoOff": "Camera turned off — someone joined the conversation",
+      "camOnAnnounce": "Your camera is on",
+      "camOffAnnounce": "Your camera is off",
+      "camera": "Camera",
+      "videoHidden": "Video hidden",
+      "showVideo": "Show video",
+      "hideVideo": "Hide"
     }
   }
 }

@@ -152,7 +152,16 @@
       "camOff": "카메라 꺼짐",
       "camDenied": "카메라가 차단됨 — 브라우저 권한을 확인하세요",
       "you": "나",
-      "videoStrip": "근처 사람들의 영상"
+      "videoStrip": "근처 사람들의 영상",
+      "camStarting": "카메라 시작 중…",
+      "camLive": "● 카메라 라이브",
+      "camAutoOff": "카메라가 꺼졌어요 — 누군가 대화에 참여했어요",
+      "camOnAnnounce": "카메라가 켜져 있어요",
+      "camOffAnnounce": "카메라가 꺼져 있어요",
+      "camera": "카메라",
+      "videoHidden": "영상 숨김",
+      "showVideo": "영상 보기",
+      "hideVideo": "숨기기"
     }
   }
 }

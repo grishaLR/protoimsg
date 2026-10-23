@@ -150,7 +150,16 @@
       "camOff": "Kyamara a kashe",
       "camDenied": "An toshe kyamara — duba izinin burauza",
       "you": "Kai",
-      "videoStrip": "Bidiyo daga mutanen da ke kusa"
+      "videoStrip": "Bidiyo daga mutanen da ke kusa",
+      "camStarting": "Ana kunna kyamara…",
+      "camLive": "● Kyamara na aiki",
+      "camAutoOff": "An kashe kyamara — wani ya shiga tattaunawar",
+      "camOnAnnounce": "Kyamararka a kunne take",
+      "camOffAnnounce": "Kyamararka a kashe take",
+      "camera": "Kyamara",
+      "videoHidden": "An ɓoye bidiyo",
+      "showVideo": "Nuna bidiyo",
+      "hideVideo": "Ɓoye"
     }
   }
 }

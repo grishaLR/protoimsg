@@ -152,7 +152,16 @@
       "camOff": "Ceamara as",
       "camDenied": "Ceamara blocáilte — seiceáil ceadanna an bhrabhsálaí",
       "you": "Tusa",
-      "videoStrip": "Físeán ó dhaoine in aice láimhe"
+      "videoStrip": "Físeán ó dhaoine in aice láimhe",
+      "camStarting": "Ceamara á thosú…",
+      "camLive": "● Ceamara beo",
+      "camAutoOff": "Múchadh an ceamara — tháinig duine isteach sa chomhrá",
+      "camOnAnnounce": "Tá do cheamara air",
+      "camOffAnnounce": "Tá do cheamara as",
+      "camera": "Ceamara",
+      "videoHidden": "Físeán i bhfolach",
+      "showVideo": "Taispeáin físeán",
+      "hideVideo": "Folaigh"
     }
   }
 }

@@ -152,7 +152,16 @@
       "camOff": "Kamera aus",
       "camDenied": "Kamera blockiert – Browserberechtigungen prüfen",
       "you": "Du",
-      "videoStrip": "Video von Leuten in der Nähe"
+      "videoStrip": "Video von Leuten in der Nähe",
+      "camStarting": "Kamera startet…",
+      "camLive": "● Kamera live",
+      "camAutoOff": "Kamera ausgeschaltet – jemand ist dem Gespräch beigetreten",
+      "camOnAnnounce": "Deine Kamera ist an",
+      "camOffAnnounce": "Deine Kamera ist aus",
+      "camera": "Kamera",
+      "videoHidden": "Video ausgeblendet",
+      "showVideo": "Video zeigen",
+      "hideVideo": "Ausblenden"
     }
   }
 }

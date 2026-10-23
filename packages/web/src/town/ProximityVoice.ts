@@ -4,8 +4,11 @@ import {
   RoomEvent,
   Track,
   VideoPresets,
+  createLocalVideoTrack,
+  type LocalVideoTrack,
   type Participant,
   type RemoteTrack,
+  type TrackPublication,
   type VideoTrack,
 } from 'livekit-client';
 import type { TownProximityEvent } from '@protoimsg/shared';
@@ -40,8 +43,12 @@ export class ProximityVoice {
   private pidToDid = new Map<string, string>();
   private audioEls = new Set<HTMLMediaElement>();
   private micEnabled: boolean;
-  /** Per conversation only — always starts off, and leaving the room turns it off. */
+  /** Camera is live (published, unmuted). Per conversation only — always starts off. */
   private cameraOn = false;
+  /** What the user asked for; a start in flight checks this before going live. */
+  private cameraWanted = false;
+  /** A camera track created but not yet published — stopped if we leave first. */
+  private pendingCamera: LocalVideoTrack | null = null;
   private seq = 0;
   private destroyed = false;
   private retryTimer: ReturnType<typeof setTimeout> | null = null;
@@ -61,10 +68,18 @@ export class ProximityVoice {
   onRequestRefresh?: () => void;
   /** Camera feeds currently showing in your conversation. */
   onVideoChange?: (videos: ProximityVideo[]) => void;
-  /** Your camera turned on/off (including automatically when the conversation ends). */
-  onCameraChange?: (on: boolean) => void;
+  /**
+   * Your camera turned on/off. `reason` says why when it went off on its own:
+   * someone new joined, or the conversation ended/changed.
+   */
+  onCameraChange?: (on: boolean, reason?: 'joined' | 'ended') => void;
   /** Camera permission was denied or no device is available. */
   onCameraError?: () => void;
+  /** A camera start is in flight (asked for, not live yet). */
+  onCameraPendingChange?: (pending: boolean) => void;
+  private cameraPending = false;
+  /** Bumped per camera start; only the latest start may settle the state. */
+  private cameraStart = 0;
 
   constructor(
     private audioHost: HTMLElement,
@@ -86,18 +101,26 @@ export class ProximityVoice {
       return;
     }
 
+    const before = new Set(this.pidToDid.keys());
     this.pidToDid = new Map(next.members.map((m) => [m.pid, m.did]));
     this.onMembersChange?.([...new Set(next.members.map((m) => m.did))]);
 
     // Same room, same identity, still alive → roster refresh only.
-    const state = this.room?.state;
+    const room0 = this.room;
     if (
-      this.room &&
+      room0 &&
       next.roomId === this.roomId &&
       next.selfPid === this.selfPid &&
-      state !== ConnectionState.Disconnected
+      room0.state !== ConnectionState.Disconnected
     ) {
-      this.applyPermissions(this.room);
+      // Someone new is joining the conversation: your camera goes off BEFORE
+      // they're allowed to subscribe — they never see video you didn't
+      // choose to show them.
+      const joined = next.members.some(
+        (m) => m.pid !== next.selfPid && m.did !== this.selfDid && !before.has(m.pid),
+      );
+      if (joined && (this.cameraOn || this.cameraWanted)) await this.stopCamera(room0, 'joined');
+      this.applyPermissions(room0);
       this.emitVideo();
       return;
     }
@@ -166,33 +189,78 @@ export class ProximityVoice {
   }
 
   /**
-   * Turn your camera on/off for the current conversation. Only works while
-   * you're in one — there's nobody to show it to otherwise.
+   * Turn your camera on/off for the current conversation. Turning it on only
+   * works while connected (there's nobody to show it to otherwise); turning it
+   * off always works, whatever state the connection is in.
    */
   async setCameraEnabled(on: boolean): Promise<void> {
     const room = this.room;
-    if (room?.state !== ConnectionState.Connected) return;
-    const seq = this.seq;
     if (!on) {
-      this.setCameraState(false);
-      await room.localParticipant.setCameraEnabled(false).catch(() => undefined);
-      this.emitVideo();
+      if (room) await this.stopCamera(room);
+      else this.setWanted(false);
       return;
     }
+    if (room?.state !== ConnectionState.Connected) return;
+    this.setWanted(true);
+    const seq = this.seq;
+    const start = ++this.cameraStart;
+    const live = (): boolean =>
+      !this.isStale(seq) && this.room === room && this.cameraWanted && start === this.cameraStart;
     try {
-      await room.localParticipant.setCameraEnabled(true);
-    } catch {
-      this.setCameraState(false);
-      this.onCameraError?.();
+      await this.startCamera(room, live);
+    } finally {
+      // An overtaken or failed start must not leave the button stuck on "starting".
+      if (start === this.cameraStart && !this.cameraOn) this.setWanted(false);
+    }
+  }
+
+  private async startCamera(room: Room, live: () => boolean): Promise<void> {
+    const existing = room.localParticipant.getTrackPublication(Track.Source.Camera);
+    try {
+      if (existing?.track) {
+        await room.localParticipant.setCameraEnabled(true);
+      } else {
+        // Create the track ourselves so a start that's overtaken (left the
+        // conversation, clicked off again) can stop the device immediately.
+        const track = await createLocalVideoTrack({
+          resolution: VideoPresets.h360.resolution,
+        });
+        if (!live()) {
+          track.stop();
+          return;
+        }
+        this.pendingCamera = track;
+        try {
+          await room.localParticipant.publishTrack(track, { source: Track.Source.Camera });
+        } finally {
+          if (this.pendingCamera === track) this.pendingCamera = null;
+        }
+        if (!live()) {
+          await room.localParticipant.unpublishTrack(track).catch(() => undefined);
+          track.stop();
+          return;
+        }
+      }
+    } catch (err) {
+      // Only a real permission/device failure is worth telling the user about.
+      if (live()) {
+        this.setWanted(false);
+        const name = err instanceof Error ? err.name : '';
+        if (name === 'NotAllowedError' || name === 'NotFoundError') this.onCameraError?.();
+      }
       return;
     }
-    // Conversation changed while the camera was starting — don't leave it on.
-    if (this.isStale(seq) || this.room !== room) {
+    if (!live()) {
       await room.localParticipant.setCameraEnabled(false).catch(() => undefined);
       return;
     }
     this.setCameraState(true);
     this.emitVideo();
+  }
+
+  /** Flip the camera from what the user last asked for — safe to spam-click. */
+  toggleCamera(): Promise<void> {
+    return this.setCameraEnabled(!(this.cameraOn || this.cameraWanted));
   }
 
   /** Per-member volume (0–1), e.g. by distance. Called on an interval. */
@@ -225,6 +293,7 @@ export class ProximityVoice {
     this.onVideoChange = undefined;
     this.onCameraChange = undefined;
     this.onCameraError = undefined;
+    this.onCameraPendingChange = undefined;
     void this.leaveRoom();
   }
 
@@ -252,8 +321,21 @@ export class ProximityVoice {
           this.audioEls.delete(el);
         }
       })
-      .on(RoomEvent.TrackMuted, () => {
-        if (this.room === room) this.emitVideo();
+      .on(RoomEvent.TrackMuted, (pub: TrackPublication, participant: Participant) => {
+        if (this.room !== room) return;
+        // Your own camera stopped outside our control (unplugged, OS revoked,
+        // backgrounded) — don't keep claiming it's on.
+        if (participant === room.localParticipant && pub.source === Track.Source.Camera) {
+          this.setWanted(false);
+          this.setCameraState(false);
+        }
+        this.emitVideo();
+      })
+      .on(RoomEvent.LocalTrackUnpublished, (pub: TrackPublication) => {
+        if (this.room !== room || pub.source !== Track.Source.Camera) return;
+        this.setWanted(false);
+        this.setCameraState(false);
+        this.emitVideo();
       })
       .on(RoomEvent.TrackUnmuted, () => {
         if (this.room === room) this.emitVideo();
@@ -293,7 +375,9 @@ export class ProximityVoice {
    * old token) from hearing you before the server reconciles them out.
    */
   private applyPermissions(room: Room): void {
-    if (room.state !== ConnectionState.Connected) return;
+    // LiveKit stores the list and (re)sends it once connected — don't skip it
+    // while reconnecting, or an evicted pid keeps access after resume.
+    if (room.state === ConnectionState.Disconnected) return;
     const allowed = [...this.pidToDid.keys()]
       .filter((pid) => pid !== this.selfPid)
       .map((pid) => ({ participantIdentity: pid, allowAll: true }));
@@ -316,10 +400,35 @@ export class ProximityVoice {
     this.onLiveChange?.(true);
   }
 
-  private setCameraState(on: boolean): void {
-    if (this.cameraOn === on) return;
-    this.cameraOn = on;
-    this.onCameraChange?.(on);
+  private setCameraState(on: boolean, reason?: 'joined' | 'ended'): void {
+    if (this.cameraOn !== on) {
+      this.cameraOn = on;
+      this.onCameraChange?.(on, reason);
+    }
+    this.syncPending();
+  }
+
+  private setWanted(wanted: boolean): void {
+    this.cameraWanted = wanted;
+    this.syncPending();
+  }
+
+  private syncPending(): void {
+    const pending = this.cameraWanted && !this.cameraOn;
+    if (pending === this.cameraPending) return;
+    this.cameraPending = pending;
+    this.onCameraPendingChange?.(pending);
+  }
+
+  /** Camera off now: cancel any start in flight and release the device. */
+  private async stopCamera(room: Room, reason?: 'joined' | 'ended'): Promise<void> {
+    this.setWanted(false);
+    this.pendingCamera?.stop();
+    this.pendingCamera = null;
+    this.setCameraState(false, reason);
+    // Muting a camera stops its MediaStreamTrack locally, signal or not.
+    await room.localParticipant.setCameraEnabled(false).catch(() => undefined);
+    this.emitVideo();
   }
 
   /** Rebuild the list of visible camera feeds: yours, then each roster member's. */
@@ -347,7 +456,10 @@ export class ProximityVoice {
   }
 
   private clearVideo(): void {
-    this.setCameraState(false);
+    this.setWanted(false);
+    this.pendingCamera?.stop();
+    this.pendingCamera = null;
+    this.setCameraState(false, 'ended');
     this.onVideoChange?.([]);
   }
 

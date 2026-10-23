@@ -150,7 +150,16 @@
       "camOff": "Kamera imezimwa",
       "camDenied": "Kamera imezuiwa — angalia ruhusa za kivinjari",
       "you": "Wewe",
-      "videoStrip": "Video kutoka kwa watu walio karibu"
+      "videoStrip": "Video kutoka kwa watu walio karibu",
+      "camStarting": "Inawasha kamera…",
+      "camLive": "● Kamera iko hewani",
+      "camAutoOff": "Kamera imezimwa — mtu amejiunga na mazungumzo",
+      "camOnAnnounce": "Kamera yako imewashwa",
+      "camOffAnnounce": "Kamera yako imezimwa",
+      "camera": "Kamera",
+      "videoHidden": "Video imefichwa",
+      "showVideo": "Onyesha video",
+      "hideVideo": "Ficha"
     }
   }
 }

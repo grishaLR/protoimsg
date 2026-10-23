@@ -161,7 +161,6 @@
   justify-content: center;
   gap: var(--cm-space-3);
   overflow-x: auto;
-  pointer-events: none;
 }
 
 .videoTile {
@@ -174,7 +173,6 @@
   border: var(--cm-space-0.5) solid var(--color-primary);
   border-radius: var(--cm-radius-md);
   box-shadow: var(--cm-raised);
-  pointer-events: auto;
 }
 
 .video {
@@ -189,10 +187,47 @@
   transform: scaleX(-1);
 }
 
+.videoHidden {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--cm-space-2);
+  block-size: 100%;
+  padding-block-end: var(--cm-space-8);
+  font-size: var(--cm-text-xs);
+  color: var(--color-base-content);
+}
+
+.hideVideo {
+  margin-inline-start: auto;
+  padding: var(--cm-space-0) var(--cm-space-2);
+  font-size: var(--cm-text-xs);
+  color: inherit;
+  background: none;
+  border: var(--cm-space-0.5) solid var(--color-base-300);
+  border-radius: var(--cm-radius-sm);
+  cursor: pointer;
+}
+
+.hideVideo:focus-visible {
+  outline: var(--cm-focus-thin) solid var(--cm-focus);
+  outline-offset: var(--cm-focus-offset);
+}
+
+/* Unmissable: you are on camera right now. */
+.camLive {
+  color: var(--color-error-content);
+  background: var(--color-error);
+}
+
 .videoName {
   position: absolute;
   inset-inline: var(--cm-space-0);
   inset-block-end: var(--cm-space-0);
+  display: flex;
+  align-items: center;
+  gap: var(--cm-space-2);
   padding: var(--cm-space-1) var(--cm-space-3);
   overflow: hidden;
   font-size: var(--cm-text-xs);

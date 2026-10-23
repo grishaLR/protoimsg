@@ -152,7 +152,16 @@
       "camOff": "Câmera desligada",
       "camDenied": "Câmera bloqueada — verifique as permissões do navegador",
       "you": "Você",
-      "videoStrip": "Vídeo das pessoas por perto"
+      "videoStrip": "Vídeo das pessoas por perto",
+      "camStarting": "Iniciando câmera…",
+      "camLive": "● Câmera ao vivo",
+      "camAutoOff": "Câmera desligada — alguém entrou na conversa",
+      "camOnAnnounce": "Sua câmera está ligada",
+      "camOffAnnounce": "Sua câmera está desligada",
+      "camera": "Câmera",
+      "videoHidden": "Vídeo oculto",
+      "showVideo": "Mostrar vídeo",
+      "hideVideo": "Ocultar"
     }
   }
 }

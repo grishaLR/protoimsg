@@ -152,7 +152,16 @@
       "camOff": "Camera tắt",
       "camDenied": "Camera bị chặn — kiểm tra quyền của trình duyệt",
       "you": "Bạn",
-      "videoStrip": "Video từ những người ở gần"
+      "videoStrip": "Video từ những người ở gần",
+      "camStarting": "Đang bật camera…",
+      "camLive": "● Camera đang phát",
+      "camAutoOff": "Đã tắt camera — có người tham gia cuộc trò chuyện",
+      "camOnAnnounce": "Camera của bạn đang bật",
+      "camOffAnnounce": "Camera của bạn đang tắt",
+      "camera": "Camera",
+      "videoHidden": "Video đã ẩn",
+      "showVideo": "Hiện video",
+      "hideVideo": "Ẩn"
     }
   }
 }

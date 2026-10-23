@@ -152,7 +152,16 @@
       "camOff": "Kamera kapalı",
       "camDenied": "Kamera engellendi — tarayıcı izinlerini kontrol et",
       "you": "Sen",
-      "videoStrip": "Yakındakilerin videosu"
+      "videoStrip": "Yakındakilerin videosu",
+      "camStarting": "Kamera başlatılıyor…",
+      "camLive": "● Kamera canlı",
+      "camAutoOff": "Kamera kapatıldı — sohbete biri katıldı",
+      "camOnAnnounce": "Kameran açık",
+      "camOffAnnounce": "Kameran kapalı",
+      "camera": "Kamera",
+      "videoHidden": "Video gizli",
+      "showVideo": "Videoyu göster",
+      "hideVideo": "Gizle"
     }
   }
 }

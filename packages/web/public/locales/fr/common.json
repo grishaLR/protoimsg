@@ -152,7 +152,16 @@
       "camOff": "Caméra coupée",
       "camDenied": "Caméra bloquée — vérifiez les autorisations du navigateur",
       "you": "Vous",
-      "videoStrip": "Vidéo des personnes à proximité"
+      "videoStrip": "Vidéo des personnes à proximité",
+      "camStarting": "Démarrage de la caméra…",
+      "camLive": "● Caméra en direct",
+      "camAutoOff": "Caméra coupée — quelqu’un a rejoint la conversation",
+      "camOnAnnounce": "Ta caméra est activée",
+      "camOffAnnounce": "Ta caméra est coupée",
+      "camera": "Caméra",
+      "videoHidden": "Vidéo masquée",
+      "showVideo": "Afficher la vidéo",
+      "hideVideo": "Masquer"
     }
   }
 }
