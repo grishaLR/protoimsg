@@ -67,6 +67,7 @@ jobs:
       web: ${{ steps.filter.outputs.web }}
       mobile: ${{ steps.filter.outputs.mobile }}
       coturn: ${{ steps.filter.outputs.coturn }}
+      livekit: ${{ steps.filter.outputs.livekit }}
       pds: ${{ steps.filter.outputs.pds }}
     steps:
       - uses: actions/checkout@v6
@@ -89,6 +90,9 @@ jobs:
             coturn:
               - 'docker/coturn/**'
               - 'fly.coturn.toml'
+            livekit:
+              - 'docker/livekit/**'
+              - 'fly.livekit.toml'
             mobile:
               - 'packages/mobile/**'
               - 'packages/shared/**'
@@ -170,6 +174,23 @@ jobs:
 
       - name: Deploy coturn to Fly.io
         run: flyctl deploy --remote-only --config fly.coturn.toml
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+
+  # Restarts the SFU — live town/group calls drop and reconnect. Only runs when
+  # LiveKit's own config changes, and only from main: there's one LiveKit app
+  # shared by staging and production.
+  deploy-livekit:
+    needs: changes
+    if: needs.changes.outputs.livekit == 'true' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: superfly/flyctl-actions/setup-flyctl@master
+
+      - name: Deploy LiveKit to Fly.io
+        run: flyctl deploy --remote-only --config fly.livekit.toml
         env:
           FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
 

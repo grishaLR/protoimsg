@@ -137,6 +137,68 @@
     "chat": {
       "placeholder": "Say something to the town…",
       "send": "Send"
+    },
+    "voice": {
+      "micOn": "Micrófono activado",
+      "micOff": "Micrófono desactivado",
+      "enableAudio": "Haz clic para escuchar a la gente cercana",
+      "micDenied": "Micrófono bloqueado: revisa los permisos del navegador",
+      "nearby": "Cerca: {{count}}",
+      "live": "En vivo · {{count}} pueden oírte",
+      "announceJoined": "Hay alguien cerca: voz conectada",
+      "announceEnded": "Voz finalizada",
+      "homeOff": "La voz está desactivada en tu cuarto: solo estás tú",
+      "camOn": "Cámara activada",
+      "camOff": "Cámara desactivada",
+      "camDenied": "Cámara bloqueada: revisa los permisos del navegador",
+      "you": "Tú",
+      "videoStrip": "Video de la gente cercana",
+      "camStarting": "Iniciando cámara…",
+      "camLive": "● Cámara en vivo",
+      "camAutoOff": "Cámara apagada: alguien se unió a la conversación",
+      "camOnAnnounce": "Tu cámara está encendida",
+      "camOffAnnounce": "Tu cámara está apagada",
+      "camera": "Cámara",
+      "videoHidden": "Video oculto",
+      "showVideo": "Mostrar video",
+      "hideVideo": "Ocultar",
+      "videoTitle": "Video · {{count}}",
+      "collapseVideo": "Minimizar",
+      "expandVideo": "Mostrar",
+      "videoPaused": "Video en pausa · conexión débil"
+    },
+    "areas": {
+      "home": {
+        "label": "Casa · círculo cercano",
+        "tooltip": "Tu casa. Aquí nadie puede verte ni oírte. Pronto: tus amigos tocarán la puerta, y dejar entrar a alguien lo añade a tu círculo cercano.",
+        "enter": "Estás en casa: aquí nadie puede verte ni oírte."
+      },
+      "neighborhood": {
+        "label": "Vecindario",
+        "tooltip": "Tu vecindario cerrado. Pronto solo la gente de tu comunidad podrá verte aquí y cruzar la reja. Por ahora está abierto, como el mundo de afuera.",
+        "enter": "Vecindario: abierto a todos por ahora (pronto solo para tu comunidad)."
+      },
+      "public": {
+        "enter": "Mundo público: cualquiera puede verte y pueden hablar cuando están cerca."
+      }
+    },
+    "beta": {
+      "message": "🚧 El pueblo está en construcción: ¡algunas cosas funcionan!",
+      "more": "¿Qué funciona?",
+      "dismiss": "Descartar",
+      "chip": "BETA · ¿qué funciona?",
+      "title": "proto town (beta)",
+      "worksHeading": "Ya funciona",
+      "work1": "Pasea como tu personaje de rpg.actor",
+      "work2": "Burbujas de chat que ve todo el que esté cerca",
+      "work3": "Acércate a alguien: un aura morada los une y pueden hablar (micrófono y cámara son opcionales)",
+      "work4": "Tu casa en el centro es privada: nadie te ve ni te oye ahí",
+      "soonHeading": "Próximamente",
+      "soon1": "Tocar puertas para dejar entrar a tus amigos",
+      "soon2": "Tu propio vecindario cerrado para tu comunidad",
+      "soon3": "Casas, decoración, el arcade y más",
+      "feedback": "¿Algo roto o un deseo? Cuéntaselo a ProtoBuddy: /feedback tu mensaje",
+      "close": "Entendido"
     }
   }
 }

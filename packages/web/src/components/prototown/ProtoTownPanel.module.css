@@ -10,10 +10,19 @@
   inset: 0;
 }
 
-.hud {
+.topBar {
   position: absolute;
-  left: var(--cm-space-6);
-  top: var(--cm-space-6);
+  inset-block-start: var(--cm-space-6);
+  inset-inline: var(--cm-space-6);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--cm-space-3);
+  pointer-events: none;
+}
+
+.hud {
   padding: var(--cm-space-2) var(--cm-space-5);
   font-size: var(--cm-text-xs);
   color: var(--color-base-content);
@@ -27,9 +36,8 @@
 
 .chatBar {
   position: absolute;
-  left: var(--cm-space-6);
-  right: var(--cm-space-6);
-  bottom: var(--cm-space-6);
+  inset-inline: var(--cm-space-6);
+  inset-block-end: var(--cm-space-6);
   margin: var(--cm-space-0) auto;
   max-width: var(--cm-panel-width-dm);
   display: flex;
@@ -64,4 +72,214 @@
 
 .chatSend:active {
   box-shadow: var(--cm-pressed);
+}
+
+.voiceBar {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  align-items: center;
+  gap: var(--cm-space-3);
+  margin-inline-start: auto;
+}
+
+.voiceBar > * {
+  pointer-events: auto;
+}
+
+.nearby,
+.micError {
+  padding: var(--cm-space-2) var(--cm-space-5);
+  font-size: var(--cm-text-xs);
+  color: var(--color-base-content);
+  background: var(--color-base-100);
+  border: var(--cm-space-0.5) solid var(--color-base-300);
+  border-radius: var(--cm-radius-sm);
+  box-shadow: var(--cm-raised);
+}
+
+.micError {
+  max-inline-size: var(--cm-panel-width-dm);
+  color: var(--color-error);
+}
+
+.voiceButton {
+  padding: var(--cm-space-2) var(--cm-space-5);
+  font-size: var(--cm-text-xs);
+  color: var(--color-base-content);
+  background: var(--color-base-100);
+  border: var(--cm-space-0.5) solid var(--color-base-300);
+  border-radius: var(--cm-radius-md);
+  box-shadow: var(--cm-raised);
+  cursor: pointer;
+}
+
+.voiceButton:active {
+  box-shadow: var(--cm-pressed);
+}
+
+.voiceButton:focus-visible {
+  outline: var(--cm-focus-thin) solid var(--cm-focus);
+  outline-offset: var(--cm-focus-offset);
+}
+
+/* 44px touch target on phones/tablets: space-16 (32) + space-6 (12). */
+@media (pointer: coarse) {
+  .voiceButton {
+    min-block-size: calc(var(--cm-space-16) + var(--cm-space-6));
+  }
+}
+
+.micOn {
+  color: var(--color-primary-content);
+  background: var(--color-primary);
+}
+
+.live {
+  color: var(--color-primary-content);
+  background: var(--color-primary);
+}
+
+.srOnly {
+  position: absolute;
+  inline-size: var(--cm-space-0.5);
+  block-size: var(--cm-space-0.5);
+  margin: calc(-1 * var(--cm-space-0.5));
+  padding: var(--cm-space-0);
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: var(--cm-space-0);
+}
+
+.videoTile {
+  position: relative;
+  margin: var(--cm-space-0);
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  background: var(--color-base-300);
+  border: var(--cm-space-0.5) solid var(--color-primary);
+  border-radius: var(--cm-radius-md);
+  box-shadow: var(--cm-raised);
+}
+
+.video {
+  display: block;
+  inline-size: 100%;
+  block-size: 100%;
+  object-fit: cover;
+}
+
+/* Your own preview reads naturally as a mirror. */
+.mirror {
+  transform: scaleX(-1);
+}
+
+.videoHidden {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--cm-space-2);
+  block-size: 100%;
+  padding-block-end: var(--cm-space-8);
+  font-size: var(--cm-text-xs);
+  color: var(--color-base-content);
+}
+
+.hideVideo {
+  margin-inline-start: auto;
+  padding: var(--cm-space-0) var(--cm-space-2);
+  font-size: var(--cm-text-xs);
+  color: inherit;
+  background: none;
+  border: var(--cm-space-0.5) solid var(--color-base-300);
+  border-radius: var(--cm-radius-sm);
+  cursor: pointer;
+}
+
+.hideVideo:focus-visible {
+  outline: var(--cm-focus-thin) solid var(--cm-focus);
+  outline-offset: var(--cm-focus-offset);
+}
+
+/* Unmissable: you are on camera right now. */
+.camLive {
+  color: var(--color-error-content);
+  background: var(--color-error);
+}
+
+.videoName {
+  position: absolute;
+  inset-inline: var(--cm-space-0);
+  inset-block-end: var(--cm-space-0);
+  display: flex;
+  align-items: center;
+  gap: var(--cm-space-2);
+  padding: var(--cm-space-1) var(--cm-space-3);
+  overflow: hidden;
+  font-size: var(--cm-text-xs);
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  color: var(--color-base-content);
+  background: var(--color-base-100);
+}
+
+/* Room for the town beta banner above the HUD row. */
+.belowBanner {
+  inset-block-start: calc(var(--cm-space-6) + var(--cm-space-12));
+}
+
+/* Area label tooltip — anchored just below the pointer/tap point. */
+.areaTip {
+  position: absolute;
+  z-index: var(--cm-z-local-top);
+  display: flex;
+  flex-direction: column;
+  gap: var(--cm-space-1);
+  max-inline-size: var(--cm-tooltip-max-w);
+  padding: var(--cm-space-2) var(--cm-space-4);
+  font-size: var(--cm-text-xs);
+  line-height: var(--cm-leading-snug);
+  color: var(--color-base-content);
+  background: var(--color-base-100);
+  border: var(--cm-space-0.5) solid var(--color-base-300);
+  border-radius: var(--cm-radius-sm);
+  box-shadow: var(--cm-raised);
+  transform: translate(-50%, var(--cm-space-6));
+  pointer-events: none;
+}
+
+/* "You're entering…" note, centred under the HUD row. */
+.zoneNote {
+  position: absolute;
+  inset-inline: var(--cm-space-0);
+  inset-block-start: calc(var(--cm-space-6) + var(--cm-space-16) + var(--cm-space-12));
+  margin-inline: auto;
+  inline-size: fit-content;
+  max-inline-size: min(calc(100% - var(--cm-space-16)), var(--cm-panel-width-dm));
+  padding: var(--cm-space-2) var(--cm-space-5);
+  font-size: var(--cm-text-xs);
+  text-align: center;
+  color: var(--color-base-content);
+  background: var(--color-base-100);
+  border: var(--cm-space-0.5) solid var(--color-base-300);
+  border-radius: var(--cm-radius-sm);
+  box-shadow: var(--cm-raised);
+  pointer-events: none;
+}
+
+/* Server paused this feed (weak connection) — say so instead of freezing. */
+.videoPaused {
+  position: absolute;
+  inset: var(--cm-space-0);
+  z-index: var(--cm-z-local-raised);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--cm-space-3);
+  font-size: var(--cm-text-xs);
+  text-align: center;
+  color: var(--color-base-content);
+  background: color-mix(in srgb, var(--color-base-100) 80%, transparent);
 }

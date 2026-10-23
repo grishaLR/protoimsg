@@ -2,9 +2,20 @@
 // Ground is a uniform grass layer; objects are placed sprites from the
 // ansimuz "RPG Town" CC0 pack with per-type collision footprints.
 
-export const TILE = 48;
-export const MAP_W = 40;
-export const MAP_H = 30;
+import {
+  TOWN_MAP_H,
+  TOWN_MAP_W,
+  TOWN_TILE,
+  TOWN_ZONE_RECTS,
+  townBarrierAtTile,
+  townZoneAtPixel,
+  townZoneAtTile,
+} from '@protoimsg/shared';
+import type { TownZone as SharedTownZone, TownZoneRect } from '@protoimsg/shared';
+
+export const TILE = TOWN_TILE;
+export const MAP_W = TOWN_MAP_W;
+export const MAP_H = TOWN_MAP_H;
 export const OBJ_SCALE = 2; // collage objects are 16-px base art
 
 export const ASSET_BASE = '/assets/town/town_rpg_pack';
@@ -52,45 +63,13 @@ function buildObjects(): PlacedObject[] {
 
 export const OBJECTS: PlacedObject[] = buildObjects();
 
-// Concentric visibility zones — your position in town is who can see you.
-// Innermost is most private; the engine stacks them outer→inner so the
-// smaller rings draw on top.
-export type TownZone = 'everyone' | 'community' | 'inner' | 'bedroom';
-
-export interface ZoneRect {
-  zone: TownZone;
-  x: number;
-  y: number;
-  w: number;
-  h: number;
-}
-
-function centeredZone(
-  halfW: number,
-  halfH: number,
-): { x: number; y: number; w: number; h: number } {
-  return { x: MAP_W / 2 - halfW, y: MAP_H / 2 - halfH, w: halfW * 2, h: halfH * 2 };
-}
-
-export const ZONE_RECTS: ZoneRect[] = [
-  { zone: 'everyone', x: 0, y: 0, w: MAP_W, h: MAP_H },
-  { zone: 'community', ...centeredZone(15, 11) },
-  { zone: 'inner', ...centeredZone(8, 6) },
-  { zone: 'bedroom', ...centeredZone(5, 4) },
-];
-
-/** Innermost zone containing a tile — later (smaller) rects win. */
-export function zoneAtTile(tx: number, ty: number): TownZone {
-  let zone: TownZone = 'everyone';
-  for (const r of ZONE_RECTS) {
-    if (tx >= r.x && tx < r.x + r.w && ty >= r.y && ty < r.y + r.h) zone = r.zone;
-  }
-  return zone;
-}
-
-export function zoneAtPixel(px: number, py: number): TownZone {
-  return zoneAtTile(Math.floor(px / TILE), Math.floor(py / TILE));
-}
+// Zones and barriers live in @protoimsg/shared so the server sees the same
+// layout (home is private; walls/fence block movement).
+export type TownZone = SharedTownZone;
+export type ZoneRect = TownZoneRect;
+export const ZONE_RECTS = TOWN_ZONE_RECTS;
+export const zoneAtTile = townZoneAtTile;
+export const zoneAtPixel = townZoneAtPixel;
 
 // Tile footprint of an object, anchored at its placement tile.
 function footprint(o: PlacedObject): Array<[number, number]> {
@@ -106,6 +85,12 @@ function footprint(o: PlacedObject): Array<[number, number]> {
 const BLOCKED = new Set<string>();
 for (const o of OBJECTS) {
   for (const [x, y] of footprint(o)) BLOCKED.add(`${x},${y}`);
+}
+// Home walls and neighborhood fence — the door and gate are the way through.
+for (let x = 0; x < MAP_W; x++) {
+  for (let y = 0; y < MAP_H; y++) {
+    if (townBarrierAtTile(x, y)) BLOCKED.add(`${x},${y}`);
+  }
 }
 
 export function isBlockedTile(tx: number, ty: number): boolean {

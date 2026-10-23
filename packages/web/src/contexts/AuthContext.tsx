@@ -47,6 +47,8 @@ export interface AuthContextValue {
   grantedScopes: string[];
   login: (handle: string, turnstileToken?: string) => Promise<void>;
   logout: () => void;
+  /** Re-check for pending gifts (e.g. after a score that hits the leaderboard). */
+  refreshGifts: () => void;
 }
 
 export const AuthContext = createContext<AuthContextValue | null>(null);
@@ -332,7 +334,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, [did, clearAuth]);
 
-  const { current: pendingGift, dismiss: dismissGift } = useGiftAcceptance(agent, did);
+  const {
+    current: pendingGift,
+    dismiss: dismissGift,
+    refresh: refreshGifts,
+  } = useGiftAcceptance(agent, did);
 
   const value = useMemo<AuthContextValue>(
     () => ({
@@ -347,6 +353,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       grantedScopes,
       login,
       logout,
+      refreshGifts,
     }),
     [
       session,
@@ -360,6 +367,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       grantedScopes,
       login,
       logout,
+      refreshGifts,
     ],
   );
 

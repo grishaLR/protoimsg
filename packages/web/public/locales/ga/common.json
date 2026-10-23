@@ -137,6 +137,68 @@
     "chat": {
       "placeholder": "Say something to the town…",
       "send": "Send"
+    },
+    "voice": {
+      "micOn": "Micreafón air",
+      "micOff": "Micreafón as",
+      "enableAudio": "Cliceáil chun daoine in aice láimhe a chloisteáil",
+      "micDenied": "Micreafón blocáilte — seiceáil ceadanna an bhrabhsálaí",
+      "nearby": "In aice láimhe: {{count}}",
+      "live": "Beo · is féidir le {{count}} tú a chloisteáil",
+      "announceJoined": "Tá duine éigin in aice láimhe — guth ceangailte",
+      "announceEnded": "Guth críochnaithe",
+      "homeOff": "Tá an guth as i do sheomra — níl ann ach tú",
+      "camOn": "Ceamara air",
+      "camOff": "Ceamara as",
+      "camDenied": "Ceamara blocáilte — seiceáil ceadanna an bhrabhsálaí",
+      "you": "Tusa",
+      "videoStrip": "Físeán ó dhaoine in aice láimhe",
+      "camStarting": "Ceamara á thosú…",
+      "camLive": "● Ceamara beo",
+      "camAutoOff": "Múchadh an ceamara — tháinig duine isteach sa chomhrá",
+      "camOnAnnounce": "Tá do cheamara air",
+      "camOffAnnounce": "Tá do cheamara as",
+      "camera": "Ceamara",
+      "videoHidden": "Físeán i bhfolach",
+      "showVideo": "Taispeáin físeán",
+      "hideVideo": "Folaigh",
+      "videoTitle": "Físeán · {{count}}",
+      "collapseVideo": "Íoslaghdaigh",
+      "expandVideo": "Taispeáin",
+      "videoPaused": "Físeán ar sos · nasc lag"
+    },
+    "areas": {
+      "home": {
+        "label": "Baile · ciorcal istigh",
+        "tooltip": "Do bhaile. Ní féidir le haon duine tú a fheiceáil ná a chloisteáil anseo. Go luath: buailfidh cairde ar an doras, agus má ligeann tú duine isteach cuirfear le do chiorcal istigh é.",
+        "enter": "Tá tú sa bhaile — ní féidir le haon duine tú a fheiceáil ná a chloisteáil anseo."
+      },
+      "neighborhood": {
+        "label": "Comharsanacht",
+        "tooltip": "Do chomharsanacht faoi gheata. Go luath ní fheicfidh ach daoine i do phobal tú anseo agus ní rachaidh ach iadsan tríd an ngeata. Faoi láthair tá sí oscailte, cosúil leis an saol lasmuigh.",
+        "enter": "Comharsanacht — oscailte do chách faoi láthair (don phobal amháin go luath)."
+      },
+      "public": {
+        "enter": "An saol poiblí — is féidir le duine ar bith tú a fheiceáil, agus is féidir libh labhairt nuair atá sibh gar dá chéile."
+      }
+    },
+    "beta": {
+      "message": "🚧 Tá an baile á thógáil — oibríonn roinnt rudaí!",
+      "more": "Cad a oibríonn?",
+      "dismiss": "Dún",
+      "chip": "BÉITE · cad a oibríonn?",
+      "title": "proto town (béite)",
+      "worksHeading": "Ag obair anois",
+      "work1": "Siúil timpeall mar do charachtar rpg.actor",
+      "work2": "Bolgáin chomhrá a fheiceann gach duine in aice láimhe",
+      "work3": "Siúil chuig duine — nascann aura corcra sibh agus is féidir libh labhairt (micreafón agus ceamara roghnach)",
+      "work4": "Tá do bhaile sa lár príobháideach — ní fheiceann ná ní chloiseann aon duine tú ansin",
+      "soonHeading": "Ag teacht go luath",
+      "soon1": "Bualadh ar dhoirse chun cairde a ligean isteach",
+      "soon2": "Do chomharsanacht faoi gheata féin do do phobal",
+      "soon3": "Tithe, maisiú, an stuara agus tuilleadh",
+      "feedback": "Rud briste nó mian? Inis do ProtoBuddy: /feedback do theachtaireacht",
+      "close": "Tuigim"
     }
   }
 }

@@ -157,6 +157,8 @@ export async function handleClientMessage(
     case 'sync_blocks': {
       log.info({ did, count: data.blockedDids.length }, 'sync_blocks');
       blockService.sync(did, data.blockedDids);
+      // Split any proximity voice cluster that now contains a blocked pair.
+      townRoom.refreshProximity();
       // Re-notify all watchers with block-filtered presence
       // (newly blocked get offline, newly unblocked get real status)
       const blockPresence = await service.getPresence(did);
@@ -803,6 +805,11 @@ export async function handleClientMessage(
 
     case 'town_chat': {
       townRoom.chat(ws, data.text);
+      break;
+    }
+
+    case 'town_voice_refresh': {
+      townRoom.refreshVoice(ws);
       break;
     }
 

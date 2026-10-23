@@ -137,6 +137,68 @@
     "chat": {
       "placeholder": "Say something to the town…",
       "send": "Send"
+    },
+    "voice": {
+      "micOn": "Mic bật",
+      "micOff": "Mic tắt",
+      "enableAudio": "Nhấn để nghe những người ở gần",
+      "micDenied": "Micrô bị chặn — kiểm tra quyền của trình duyệt",
+      "nearby": "Ở gần: {{count}}",
+      "live": "Trực tiếp · {{count}} người nghe được bạn",
+      "announceJoined": "Có người ở gần — đã kết nối giọng nói",
+      "announceEnded": "Giọng nói đã kết thúc",
+      "homeOff": "Giọng nói tắt trong phòng của bạn — chỉ có mình bạn",
+      "camOn": "Camera bật",
+      "camOff": "Camera tắt",
+      "camDenied": "Camera bị chặn — kiểm tra quyền của trình duyệt",
+      "you": "Bạn",
+      "videoStrip": "Video từ những người ở gần",
+      "camStarting": "Đang bật camera…",
+      "camLive": "● Camera đang phát",
+      "camAutoOff": "Đã tắt camera — có người tham gia cuộc trò chuyện",
+      "camOnAnnounce": "Camera của bạn đang bật",
+      "camOffAnnounce": "Camera của bạn đang tắt",
+      "camera": "Camera",
+      "videoHidden": "Video đã ẩn",
+      "showVideo": "Hiện video",
+      "hideVideo": "Ẩn",
+      "videoTitle": "Video · {{count}}",
+      "collapseVideo": "Thu nhỏ",
+      "expandVideo": "Hiện",
+      "videoPaused": "Video tạm dừng · kết nối yếu"
+    },
+    "areas": {
+      "home": {
+        "label": "Nhà · vòng thân thiết",
+        "tooltip": "Nhà của bạn. Ở đây không ai có thể thấy hay nghe bạn. Sắp có: bạn bè gõ cửa, và cho ai vào sẽ thêm họ vào vòng thân thiết của bạn.",
+        "enter": "Bạn đang ở nhà — ở đây không ai thấy hay nghe bạn."
+      },
+      "neighborhood": {
+        "label": "Khu phố",
+        "tooltip": "Khu phố có rào của bạn. Sắp tới chỉ người trong cộng đồng của bạn mới thấy bạn ở đây và đi qua cổng. Hiện tại nó vẫn mở như thế giới bên ngoài.",
+        "enter": "Khu phố — hiện mở cho mọi người (sắp chỉ dành cho cộng đồng)."
+      },
+      "public": {
+        "enter": "Thế giới công cộng — ai cũng thấy bạn, và có thể nói chuyện khi ở gần nhau."
+      }
+    },
+    "beta": {
+      "message": "🚧 Thị trấn đang xây dựng — một vài thứ đã dùng được!",
+      "more": "Có gì dùng được?",
+      "dismiss": "Ẩn",
+      "chip": "BETA · có gì dùng được?",
+      "title": "proto town (beta)",
+      "worksHeading": "Dùng được rồi",
+      "work1": "Đi dạo bằng nhân vật rpg.actor của bạn",
+      "work2": "Bong bóng chat mà mọi người ở gần đều thấy",
+      "work3": "Đến gần ai đó — một vầng hào quang tím nối hai người và có thể nói chuyện (mic và camera là tùy chọn)",
+      "work4": "Nhà bạn ở giữa là riêng tư — ở đó không ai thấy hay nghe bạn",
+      "soonHeading": "Sắp có",
+      "soon1": "Gõ cửa để cho bạn bè vào",
+      "soon2": "Khu phố có rào riêng cho cộng đồng của bạn",
+      "soon3": "Nhà, trang trí, khu trò chơi và hơn thế",
+      "feedback": "Có gì hỏng hay mong muốn gì? Nói với ProtoBuddy: /feedback tin nhắn của bạn",
+      "close": "Đã hiểu"
     }
   }
 }

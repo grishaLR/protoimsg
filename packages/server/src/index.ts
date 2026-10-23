@@ -27,6 +27,7 @@ import { EmailService } from './email/service.js';
 import { createBotService } from './bot/service.js';
 import { createNotificationService } from './notifications/service.js';
 import { createGroupCallService, type GroupCallService } from './calls/service.js';
+import { createTownVoice, type TownVoice } from './calls/town-voice.js';
 import { createGameService } from './games/service.js';
 import { RunStore } from './games/run-store.js';
 
@@ -141,7 +142,13 @@ async function main() {
 
   // Group call service (optional — requires all three LiveKit env vars)
   let groupCallService: GroupCallService | null = null;
+  let townVoice: TownVoice | null = null;
   if (config.LIVEKIT_URL && config.LIVEKIT_API_KEY && config.LIVEKIT_API_SECRET) {
+    townVoice = createTownVoice(
+      config.LIVEKIT_URL,
+      config.LIVEKIT_API_KEY,
+      config.LIVEKIT_API_SECRET,
+    );
     groupCallService = createGroupCallService(
       config.LIVEKIT_URL,
       config.LIVEKIT_API_KEY,
@@ -195,6 +202,7 @@ async function main() {
     botService,
     notificationService,
     groupCallService,
+    townVoice,
   );
   log.info('WebSocket server attached');
 

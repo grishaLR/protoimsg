@@ -52,6 +52,7 @@ export const HELP_INDEX = `Here's what I know about:
 /help richtext — Text formatting
 /help portability — Account portability
 /help feed — Feed view
+/help town — proto town (beta)
 /help createroom — Making a room (paused)
 /help addbuddy — Adding people
 
@@ -120,6 +121,12 @@ export const TOPIC_ALIASES: Record<string, string> = {
   identity: 'portability',
   feed: 'feed',
   timeline: 'feed',
+  town: 'town',
+  prototown: 'town',
+  world: 'town',
+  aura: 'town',
+  proximity: 'town',
+  knock: 'town',
   createroom: 'createroom',
   newroom: 'createroom',
   addbuddy: 'addbuddy',
@@ -128,6 +135,14 @@ export const TOPIC_ALIASES: Record<string, string> = {
 
 /** Help topic content — keyed by canonical topic name. Chat-length, warm, opinionated. */
 export const TOPICS: Record<string, string> = {
+  town: `proto town is our little world — walk around as your rpg.actor character. It's in beta (under construction!), but some of it already works:
+
+Walk up to someone and a purple aura links you — once it lights up you can talk. Your mic and camera are off until you turn them on, and other people's video starts hidden.
+
+Your home is the walled room in the middle: nobody can see or hear you in there. The fenced neighborhood around it is open for now; soon it becomes your gated community, and friends will knock on your door to come in (letting them in adds them to your inner circle).
+
+Blocks always apply — blocked people can't see or hear you in town. Something broken? /feedback your message.`,
+
   ims: `IMs are live and ephemeral. Both people online, browser-to-browser, nothing saved anywhere. Old-school AIM energy.
 
 When you close the window, the conversation's gone. That's the point — quick private chats that don't leave a trail.

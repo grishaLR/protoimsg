@@ -184,6 +184,11 @@ export interface TownLeaveMessage extends WsMessageBase {
   type: 'town_leave';
 }
 
+/** Client lost (or never made) its voice connection — ask for a fresh token. */
+export interface TownVoiceRefreshMessage extends WsMessageBase {
+  type: 'town_voice_refresh';
+}
+
 export type ClientMessage =
   | AuthMessage
   | StatusChangeMessage
@@ -212,7 +217,8 @@ export type ClientMessage =
   | TownJoinMessage
   | TownMoveMessage
   | TownChatMessage
-  | TownLeaveMessage;
+  | TownLeaveMessage
+  | TownVoiceRefreshMessage;
 
 // Server → Client messages
 
@@ -381,7 +387,21 @@ export interface TownPeer {
 
 export interface TownStateEvent extends WsMessageBase {
   type: 'town_state';
-  data: { peers: TownPeer[] };
+  /**
+   * `voice` is false when the server has no LiveKit — no proximity audio.
+   * `voiceUrl` lets the client warm up its LiveKit connection early.
+   */
+  data: { peers: TownPeer[]; voice: boolean; voiceUrl?: string };
+}
+
+/**
+ * Batched changes to what you can see (sent at most every ~100ms): avatars
+ * that appeared or moved within your view, and DIDs that left it (walked
+ * out of view, went home, or left town). Replaces per-move broadcasts.
+ */
+export interface TownViewEvent extends WsMessageBase {
+  type: 'town_view';
+  data: { upsert: TownPeer[]; remove: string[] };
 }
 
 export interface TownPeerJoinEvent extends WsMessageBase {
@@ -402,6 +422,33 @@ export interface TownPeerLeaveEvent extends WsMessageBase {
 export interface TownChatEvent extends WsMessageBase {
   type: 'town_chat';
   data: { did: string; text: string };
+}
+
+/** One avatar in your proximity cluster, with its anonymous LiveKit identity. */
+export interface TownVoiceMember {
+  did: string;
+  /** LiveKit participant identity (random, carries no DID). */
+  pid: string;
+}
+
+/**
+ * Your proximity voice assignment. `room` is null when nobody is near you.
+ * A same `roomId` + `selfPid` while connected is a roster refresh; anything
+ * else means (re)connect with `token`. Clients must only grant track
+ * subscriptions to `members` — the server reconciles stragglers out.
+ */
+export interface TownProximityEvent extends WsMessageBase {
+  type: 'town_proximity';
+  data: {
+    room: {
+      roomId: string;
+      url: string;
+      token: string;
+      /** Your own LiveKit identity in this room. */
+      selfPid: string;
+      members: TownVoiceMember[];
+    } | null;
+  };
 }
 
 export type ServerMessage =
@@ -428,4 +475,6 @@ export type ServerMessage =
   | TownPeerJoinEvent
   | TownPeerMoveEvent
   | TownPeerLeaveEvent
-  | TownChatEvent;
+  | TownChatEvent
+  | TownProximityEvent
+  | TownViewEvent;

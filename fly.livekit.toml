@@ -9,7 +9,8 @@ app = 'protoimsg-livekit'
 primary_region = 'iad'
 
 [build]
-  image = 'livekit/livekit-server:latest'
+  # Pinned — bump deliberately (test group calls + town voice on staging first).
+  image = 'livekit/livekit-server:v1.9.12'
 
 [env]
   LIVEKIT_LOG_LEVEL = 'info'
@@ -53,8 +54,10 @@ primary_region = 'iad'
     port = 7881
 
 [[vm]]
-  size = 'shared-cpu-2x'
-  memory = '1gb'
+  # Dedicated CPU: shared vCPUs run on burst credit, and when throttled the
+  # SFU's packet pacing/forwarding gets jittery — video stutters under load.
+  size = 'performance-1x'
+  memory = '2gb'
 
 # Secrets to set via `fly secrets set -c fly.livekit.toml`:
 #   LIVEKIT_KEYS="<api_key>: <api_secret>"
