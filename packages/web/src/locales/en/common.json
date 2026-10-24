@@ -320,7 +320,6 @@
       "live": "Live · {{count}} can hear you",
       "announceJoined": "Someone is nearby — voice connected",
       "announceEnded": "Voice ended",
-      "homeOff": "Voice is off in your room — it's just you",
       "camOn": "Camera on",
       "camOff": "Camera off",
       "camDenied": "Camera blocked — check browser permissions",
@@ -340,20 +339,113 @@
       "expandVideo": "Show",
       "videoPaused": "Video paused · weak connection"
     },
-    "areas": {
+    "scenes": {
       "home": {
-        "label": "Home · inner circle",
-        "tooltip": "Your home. Nobody can see or hear you in here. Soon: friends knock on the door, and letting someone in adds them to your inner circle.",
-        "enter": "You're home — nobody can see or hear you here."
+        "chip": "Your home · inner circle sees you online",
+        "enter": "You're home. Nobody comes in unless you let them."
       },
       "neighborhood": {
-        "label": "Neighborhood",
-        "tooltip": "Your gated neighborhood. Soon only people in your community will see you here and get through the gate. For now it's open, like the world outside.",
-        "enter": "Neighborhood — open to everyone for now (community-only soon)."
+        "chip": "Your neighborhood · community only",
+        "enter": "Your neighborhood. People in your community can visit; they see you and their mutuals."
       },
-      "public": {
-        "enter": "Public world — anyone can see you, and you can talk when you're close."
+      "square": {
+        "chip": "Town square · everyone",
+        "enter": "Town square. Anyone can see you, and you can talk when you're close.",
+        "chipFof": "Town square · friends of friends"
+      },
+      "error": {
+        "closed": "That door is closed.",
+        "timeout": "Couldn't get there. Try again.",
+        "outdated": "proto town is updating. Reload the page in a minute."
+      },
+      "visiting": {
+        "chip": "{{name}}'s neighborhood · you see mutuals",
+        "enter": "{{name}}'s neighborhood. You see {{name}} and your mutuals here; everyone else stays hidden."
+      },
+      "guestHome": {
+        "chip": "{{name}}'s home · guest",
+        "enter": "You're inside {{name}}'s home."
+      },
+      "notice": {
+        "removed": "You've left {{name}}'s neighborhood.",
+        "privateHouse": "This is {{name}}'s house.",
+        "visitOver": "The visit's over.",
+        "noAnswer": "No answer."
       }
+    },
+    "doors": {
+      "home": {
+        "label": "Home",
+        "tooltip": "Your house. Walk in through the front door. Your inner circle can knock, and you decide who comes in."
+      },
+      "neighborhood": {
+        "label": "Your neighborhood",
+        "tooltip": "Your neighborhood, behind your own gate. Only people in your community can come in."
+      },
+      "square": {
+        "label": "Town square",
+        "tooltip": "Out the gate to the town square, where everyone can see you."
+      },
+      "houseOf": {
+        "label": "{{name}}'s house",
+        "tooltip": "{{name}}'s house."
+      },
+      "gateOf": {
+        "tooltip": "{{name}}'s neighborhood. You're in their community, so the gate opens for you."
+      },
+      "neighborhoodOf": {
+        "label": "{{name}}'s neighborhood",
+        "tooltip": "Out the front door to {{name}}'s neighborhood."
+      }
+    },
+    "lots": {
+      "arcade": "Arcade (soon)",
+      "theater": "Theater (soon)",
+      "tooltip": "This lot is waiting for a building. Coming soon."
+    },
+    "signpost": {
+      "label": "More neighborhoods",
+      "tooltip": "Step onto the signpost to see every neighborhood you can visit.",
+      "title": "Neighborhoods you can visit",
+      "close": "Close"
+    },
+    "fof": {
+      "off": "Friends of friends: off",
+      "on": "Friends of friends: on",
+      "hint": "When on, only your mutuals and their mutuals can see you here, and you only see them.",
+      "announceOn": "Friends-of-friends mode on. Only your mutuals and their mutuals can see you here.",
+      "announceOff": "Friends-of-friends mode off. Everyone in the square can see you."
+    },
+    "knock": {
+      "prompt": "Knock on {{name}}'s door?",
+      "knock": "Knock",
+      "cancel": "Cancel",
+      "knocking": "Knocking…",
+      "atDoor": "{{name}} is at the door.",
+      "atDoorAgain": "{{name}} is knocking again.",
+      "letIn": "Let in",
+      "notNow": "Not now",
+      "tabTitle": "Knock knock",
+      "notifyMe": "Notify me about knocks"
+    },
+    "guests": {
+      "title": "Guests",
+      "askToLeave": "Ask to leave"
+    },
+    "door": {
+      "open": "Door: open to knocks",
+      "closed": "Door: closed to knocks",
+      "hint": "When your door is closed, knocks go unanswered. Nobody can tell it's closed."
+    },
+    "join": {
+      "ask": "Ask to join",
+      "asking": "Asking to join…",
+      "askHint": "Some people in this conversation aren't your mutuals. Ask, and if they all agree you can join for as long as you stay.",
+      "request": "{{name}} would like to join your conversation.",
+      "requestSomeone": "Someone would like to join your conversation.",
+      "accept": "Let them join",
+      "decline": "Not now",
+      "accepted": "You're in. Say hi!"
     },
     "beta": {
       "message": "🚧 The town is under construction — some things work!",
@@ -365,10 +457,10 @@
       "work1": "Walk around as your rpg.actor character",
       "work2": "Chat bubbles everyone nearby can see",
       "work3": "Walk up to someone — a purple aura links you and you can talk (mic and camera are opt-in)",
-      "work4": "Your home in the middle is private — nobody sees or hears you there",
+      "work4": "Your home is private, and friends in your community can visit your neighborhood",
       "soonHeading": "Coming soon",
-      "soon1": "Knocking on doors to let friends in",
-      "soon2": "Your own gated neighborhood for your community",
+      "soon1": "Decorating your home",
+      "soon2": "The arcade and the theater in the town square",
       "soon3": "Houses, decorating, the arcade and more",
       "feedback": "Something broken or a wish? Tell ProtoBuddy: /feedback your message",
       "close": "Got it"

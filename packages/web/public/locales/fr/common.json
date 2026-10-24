@@ -147,7 +147,6 @@
       "live": "En direct · {{count}} peuvent vous entendre",
       "announceJoined": "Quelqu’un est à proximité — voix connectée",
       "announceEnded": "Voix terminée",
-      "homeOff": "La voix est coupée dans ta chambre — tu es seul·e ici",
       "camOn": "Caméra activée",
       "camOff": "Caméra coupée",
       "camDenied": "Caméra bloquée — vérifiez les autorisations du navigateur",
@@ -167,20 +166,113 @@
       "expandVideo": "Afficher",
       "videoPaused": "Vidéo en pause · connexion faible"
     },
-    "areas": {
+    "scenes": {
       "home": {
-        "label": "Maison · cercle proche",
-        "tooltip": "Ta maison. Personne ne peut te voir ni t’entendre ici. Bientôt : tes amis frapperont à la porte, et laisser entrer quelqu’un l’ajoute à ton cercle proche.",
-        "enter": "Tu es chez toi — personne ne peut te voir ni t’entendre ici."
+        "chip": "Ta maison · ton cercle intime te voit en ligne",
+        "enter": "Tu es chez toi. Personne n’entre sans ton accord."
       },
       "neighborhood": {
-        "label": "Quartier",
-        "tooltip": "Ton quartier clôturé. Bientôt, seules les personnes de ta communauté te verront ici et passeront le portail. Pour l’instant, il est ouvert comme le monde extérieur.",
-        "enter": "Quartier — ouvert à tous pour l’instant (bientôt réservé à ta communauté)."
+        "chip": "Ton quartier · communauté seulement",
+        "enter": "Ton quartier. Les personnes de ta communauté peuvent te rendre visite ; elles te voient, toi et leurs contacts mutuels."
       },
-      "public": {
-        "enter": "Monde public — tout le monde peut te voir, et vous pouvez parler quand vous êtes proches."
+      "square": {
+        "chip": "Grand-place · tout le monde",
+        "enter": "Grand-place. Tout le monde peut te voir, et vous pouvez parler quand vous êtes proches.",
+        "chipFof": "Grand-place · amis d’amis"
+      },
+      "error": {
+        "closed": "Cette porte est fermée.",
+        "timeout": "Impossible d’y aller. Réessaie.",
+        "outdated": "proto town est en cours de mise à jour. Recharge la page dans une minute."
+      },
+      "visiting": {
+        "chip": "Quartier de {{name}} · tu vois les contacts mutuels",
+        "enter": "Quartier de {{name}}. Ici, tu vois {{name}} et tes contacts mutuels ; les autres restent cachés."
+      },
+      "guestHome": {
+        "chip": "Maison de {{name}} · en visite",
+        "enter": "Tu es chez {{name}}."
+      },
+      "notice": {
+        "removed": "Tu as quitté le quartier de {{name}}.",
+        "privateHouse": "C’est la maison de {{name}}.",
+        "visitOver": "La visite est terminée.",
+        "noAnswer": "Pas de réponse."
       }
+    },
+    "doors": {
+      "home": {
+        "label": "Maison",
+        "tooltip": "Ta maison. Entre par la porte d’entrée. Ton cercle intime peut frapper, et c’est toi qui décides qui entre."
+      },
+      "neighborhood": {
+        "label": "Ton quartier",
+        "tooltip": "Ton quartier, derrière ton propre portail. Seules les personnes de ta communauté peuvent entrer."
+      },
+      "square": {
+        "label": "Grand-place",
+        "tooltip": "Passe le portail pour rejoindre la grand-place, où tout le monde peut te voir."
+      },
+      "houseOf": {
+        "label": "Maison de {{name}}",
+        "tooltip": "Maison de {{name}}."
+      },
+      "gateOf": {
+        "tooltip": "Quartier de {{name}}. Tu fais partie de sa communauté, alors le portail s’ouvre pour toi."
+      },
+      "neighborhoodOf": {
+        "label": "Quartier de {{name}}",
+        "tooltip": "Sors par la porte d’entrée : Quartier de {{name}}"
+      }
+    },
+    "lots": {
+      "arcade": "Salle d’arcade (bientôt)",
+      "theater": "Cinéma (bientôt)",
+      "tooltip": "Ce terrain attend un bâtiment. Bientôt disponible."
+    },
+    "signpost": {
+      "label": "Plus de quartiers",
+      "tooltip": "Monte sur le panneau pour voir tous les quartiers que tu peux visiter.",
+      "title": "Quartiers que tu peux visiter",
+      "close": "Fermer"
+    },
+    "fof": {
+      "off": "Amis d’amis : désactivé",
+      "on": "Amis d’amis : activé",
+      "hint": "Une fois activé, seuls tes contacts mutuels et leurs contacts mutuels peuvent te voir ici, et tu ne vois qu’eux.",
+      "announceOn": "Mode amis d’amis activé. Seuls tes contacts mutuels et leurs contacts mutuels peuvent te voir ici.",
+      "announceOff": "Mode amis d’amis désactivé. Tout le monde sur la grand-place peut te voir."
+    },
+    "knock": {
+      "prompt": "Frapper à la porte de {{name}} ?",
+      "knock": "Frapper",
+      "cancel": "Annuler",
+      "knocking": "On frappe…",
+      "atDoor": "{{name}} est à la porte.",
+      "atDoorAgain": "{{name}} frappe à nouveau.",
+      "letIn": "Faire entrer",
+      "notNow": "Pas maintenant",
+      "tabTitle": "Toc toc",
+      "notifyMe": "Me prévenir quand on frappe"
+    },
+    "guests": {
+      "title": "En visite",
+      "askToLeave": "Demander de partir"
+    },
+    "door": {
+      "open": "Porte : ouverte à qui frappe",
+      "closed": "Porte : fermée à qui frappe",
+      "hint": "Quand ta porte est fermée, personne ne répond quand on frappe. Personne ne peut savoir qu’elle est fermée."
+    },
+    "join": {
+      "ask": "Demander à rejoindre",
+      "asking": "Demande en cours…",
+      "askHint": "Certaines personnes dans cette conversation ne font pas partie de tes contacts mutuels. Demande, et si tout le monde accepte, tu peux rejoindre la conversation tant que tu restes là.",
+      "request": "{{name}} aimerait rejoindre votre conversation.",
+      "requestSomeone": "Quelqu’un aimerait rejoindre ta conversation.",
+      "accept": "Accueillir",
+      "decline": "Pas maintenant",
+      "accepted": "Tu es dans la conversation. Dis bonjour !"
     },
     "beta": {
       "message": "🚧 La ville est en construction — certaines choses marchent déjà !",
@@ -192,10 +284,10 @@
       "work1": "Promène-toi avec ton personnage rpg.actor",
       "work2": "Des bulles de discussion visibles par tout le monde à proximité",
       "work3": "Approche-toi de quelqu’un — une aura violette vous relie et vous pouvez parler (micro et caméra sur demande)",
-      "work4": "Ta maison au centre est privée — personne ne t’y voit ni ne t’y entend",
+      "work4": "Ta maison est privée, et les amis de ta communauté peuvent visiter ton quartier",
       "soonHeading": "Bientôt",
-      "soon1": "Frapper aux portes pour laisser entrer tes amis",
-      "soon2": "Ton propre quartier clôturé pour ta communauté",
+      "soon1": "Décorer ton chez-toi",
+      "soon2": "La salle d’arcade et le cinéma sur la grand-place",
       "soon3": "Des maisons, de la déco, la salle d’arcade et plus",
       "feedback": "Un bug ou une envie ? Dis-le à ProtoBuddy : /feedback ton message",
       "close": "Compris"

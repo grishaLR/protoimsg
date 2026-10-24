@@ -6,49 +6,36 @@ import {
   Application,
   Container,
   Graphics,
+  Rectangle,
   Sprite,
   Text,
   Texture,
   TilingSprite,
   type FederatedPointerEvent,
 } from 'pixi.js';
-import { TOWN_PROXIMITY } from '@protoimsg/shared';
-import type { TownPeer } from '@protoimsg/shared';
+import {
+  TOWN_PROXIMITY,
+  TOWN_SQUARE_LAYOUT,
+  townArrival,
+  townDoorwayAtTile,
+} from '@protoimsg/shared';
+import type { TownDoorway, TownGate, TownPeer, TownSceneKind, TownSpawn } from '@protoimsg/shared';
 import { GAME_MASTER_DID, RPG_ACTOR_API_URL } from '../lib/config';
 import { resolveDisplayNameForDid } from '../lib/resolve-pds';
 import {
   Avatar,
   DIR_BACK,
   DIR_FORWARD,
+  FRAME,
   DIR_LEFT,
   DIR_RIGHT,
   SPRITE_H,
   buildFrames,
 } from './Avatar';
-import type { TownZone } from './map';
-import { AREA_LABEL_POS, buildStructures } from './structures';
+import { buildStructures, buildWindowGlow, sceneSigns, type SignId } from './structures';
+import { ASSET_BASE, OBJ_SCALE, SCENE_MAPS, TILE, gateSlotAt, type SceneMap } from './map';
 
-/** Areas with a floating label + tooltip. */
-export type TownArea = keyof typeof AREA_LABEL_POS;
-import {
-  ASSET_BASE,
-  MAP_H,
-  MAP_W,
-  OBJECTS,
-  OBJ_SCALE,
-  TILE,
-  ZONE_RECTS,
-  isBlockedAtPixel,
-  zoneAtPixel,
-} from './map';
-
-// One seamless grass tile, tinted per zone — the darker centre square is your
-// (interim) home, where nobody can see or hear you.
-const ZONE_TINT: Record<TownZone, number> = {
-  public: 0xffffff,
-  neighborhood: 0xd2e3b4,
-  home: 0x9c8a6e, // floorboards-ish — reads as indoors
-};
+export type { SignId };
 
 const SCALE = 2; // world zoom
 const SPEED = 132; // px/sec
@@ -65,6 +52,7 @@ const AURA_COLOR = 0xb794ff;
 const AURA_SPEAKING = 0xf0e6ff;
 const AURA_R = 15; // world px around the body centre
 const MESH_Z = -4000; // above ground + pond, below y-sorted avatars/trees
+const SIGN_Z = 9000; // door signs float over everything that walks
 
 function spriteUrl(did: string): string {
   return `${RPG_ACTOR_API_URL}/api/sprite/normalized?did=${encodeURIComponent(did)}`;
@@ -109,6 +97,15 @@ function clamp(v: number, lo: number, hi: number): number {
 }
 
 /**
+ * World offset on one axis: follow the player, but stop at the map's edges —
+ * and centre a map smaller than the screen (a room) instead of scrolling it.
+ */
+function cameraOffset(screen: number, mapSize: number, player: number): number {
+  if (mapSize <= screen) return Math.round((screen - mapSize) / 2);
+  return Math.round(clamp(screen / 2 - player, screen - mapSize, 0));
+}
+
+/**
  * PixiJS renderer for proto town: grass ground + objects + a keyboard-driven
  * local player and interpolated remote peers, with chat bubbles.
  */
@@ -130,9 +127,41 @@ export class WorldEngine {
   private nearby = new Set<string>();
   private nearbyUnlinked = 0;
 
-  private px = MAP_W * TILE * 0.5;
-  private py = MAP_H * TILE * 0.5;
-  private currentZone = zoneAtPixel(this.px, this.py);
+  /** Current scene: its map, and every display object built for it. */
+  private map: SceneMap = SCENE_MAPS.home;
+  private sceneNodes: Container[] = [];
+  private textures: { grass: Texture | null; pine: Texture | null; pond: Texture | null } = {
+    grass: null,
+    pine: null,
+    pond: null,
+  };
+  private signTexts = new Map<SignId, Text>();
+  /** Text for each sign — supplied by the panel (it owns i18n and names). */
+  private signText: (id: SignId) => string = () => '';
+  /** The square's gate row: open slots are doorways, the rest stay fence. */
+  private gates: TownGate[] = [];
+  private openSlots = new Set<number>();
+  private hasMoreGates = false;
+  private onSignpostTile = false;
+  /** Each gate owner's front-facing frame, loaded once per DID. */
+  private gateFrames = new Map<string, Promise<Texture | null>>();
+  /** The default sprite sheet, shared by every owner without one. */
+  private defaultSheet: Promise<Texture | null> | null = null;
+  /** Frame sub-textures we made (destroyed before their sheets). */
+  private frameTextures: Texture[] = [];
+  /** The neighborhood house's lit windows (shown while its owner is home to you). */
+  private windowGlow: Container | null = null;
+  private windowLit = false;
+  /** Bumped per scene build: async work from an older build drops its result. */
+  private sceneGen = 0;
+  /** Doorways fire only when walked onto — not when you arrive standing on one. */
+  private doorArmed = false;
+  /** Waiting on a doorway hand-off: movement and further doorways are paused. */
+  private atDoor = false;
+  private lastSafe = { x: 0, y: 0 };
+
+  private px = 0;
+  private py = 0;
   private sentX = -1;
   private sentY = -1;
   private sentDir = -1;
@@ -147,19 +176,20 @@ export class WorldEngine {
   /** Called (throttled) when the local player moves. */
   onMove?: (x: number, y: number, dir: number) => void;
 
-  /** Called when the local player crosses into a different visibility zone. */
-  onZoneChange?: (zone: TownZone) => void;
+  /** Called when the local player steps onto a doorway into another scene. */
+  onDoorway?: (door: TownDoorway) => void;
+
+  /** Stepped onto (true) or off (false) the square's signpost. */
+  onSignpost?: (on: boolean) => void;
 
   /** Count of nearby avatars you are NOT in a voice room with changed. */
   onNearbyUnlinkedChange?: (count: number) => void;
 
   /**
-   * Pointer over / tapped an area label (screen px relative to the canvas),
+   * Pointer over / tapped a door sign (screen px relative to the canvas),
    * or null when the pointer leaves it.
    */
-  onAreaHover?: (area: TownArea | null, x: number, y: number) => void;
-
-  private areaLabels = new Map<TownArea, Text>();
+  onSignHover?: (sign: SignId | null, x: number, y: number) => void;
 
   constructor() {
     this.readyPromise = new Promise<void>((resolve) => {
@@ -167,11 +197,16 @@ export class WorldEngine {
     });
   }
 
-  async init(container: HTMLElement, did: string): Promise<void> {
+  async init(container: HTMLElement, did: string, kind: TownSceneKind): Promise<void> {
     this.selfDid = did;
+    this.map = SCENE_MAPS[kind];
+    const spawn = townArrival(kind, null);
+    this.px = spawn.x;
+    this.py = spawn.y;
+    this.player.dir = spawn.dir;
     await this.app.init({
       resizeTo: container,
-      background: 0x6b8f3a,
+      background: this.map.background,
       antialias: false,
       roundPixels: true,
     });
@@ -190,12 +225,17 @@ export class WorldEngine {
     this.world.sortableChildren = true;
     this.app.stage.addChild(this.world);
 
-    this.fallbackTex = this.makePortalTexture();
+    const fallback = this.makePortalTexture();
+    this.fallbackTex = fallback;
 
     this.mesh.zIndex = MESH_Z;
     this.world.addChild(this.mesh);
 
-    await this.buildScene(did);
+    if (!(await this.loadAssets())) return;
+    this.player.setFallbackTexture(fallback);
+    this.world.addChild(this.player.container);
+    void this.dressAvatar(this.player, did);
+    this.buildScene();
 
     window.addEventListener('keydown', this.onKeyDown);
     window.addEventListener('keyup', this.onKeyUp);
@@ -211,16 +251,73 @@ export class WorldEngine {
     return { x: this.px, y: this.py, dir: this.player.dir };
   }
 
-  /** Set the (localized) text of each area label. */
-  setAreaLabels(labels: Record<TownArea, string>): void {
-    for (const [area, text] of this.areaLabels) text.text = labels[area];
+  /** How to label signs; call `refreshSigns` when the answers change. */
+  setSignText(fn: (id: SignId) => string): void {
+    this.signText = fn;
+    this.refreshSigns();
   }
 
-  private buildAreaLabels(): void {
-    for (const area of Object.keys(AREA_LABEL_POS) as TownArea[]) {
-      const pos = AREA_LABEL_POS[area];
+  /** Re-read every sign's text (language changed, a name resolved, …). */
+  refreshSigns(): void {
+    for (const [id, text] of this.signTexts) text.text = this.signText(id);
+  }
+
+  /** Light (or darken) the windows of the house you're outside. */
+  setWindowLit(lit: boolean): void {
+    this.windowLit = lit;
+    if (this.windowGlow) this.windowGlow.visible = lit;
+  }
+
+  /** The square's gate row (and whether the signpost lists more). */
+  setGates(gates: TownGate[], hasMore: boolean): void {
+    this.gates = gates;
+    this.openSlots = new Set(gates.map((g) => g.slot));
+    this.hasMoreGates = hasMore;
+    if (!this.ready || this.destroyed || this.map.kind !== 'square') return;
+    // Redraw the square around the player — they may be mid-doorway or
+    // reading the signpost list, which a scene entry would reset.
+    this.buildScene(false);
+    if (!hasMore && this.onSignpostTile) {
+      this.onSignpostTile = false;
+      this.onSignpost?.(false);
+    }
+  }
+
+  /**
+   * Swap to another scene: tear down the old one (and its peers — they belong
+   * to that scene), build the new one and stand the player at `spawn`.
+   */
+  enterScene(kind: TownSceneKind, spawn: TownSpawn): void {
+    if (!this.ready || this.destroyed) return;
+    this.setPeers([]);
+    this.nearby.clear();
+    this.cluster = [];
+    this.map = SCENE_MAPS[kind];
+    this.app.renderer.background.color = this.map.background;
+    this.px = spawn.x;
+    this.py = spawn.y;
+    this.player.dir = spawn.dir;
+    this.sentX = this.px;
+    this.sentY = this.py;
+    this.sentDir = this.player.dir;
+    this.buildScene();
+  }
+
+  /** The doorway hand-off failed — step back off the doorway and walk on. */
+  leaveDoorway(): void {
+    this.atDoor = false;
+    this.keys.clear(); // a key held through the wait shouldn't walk you straight back
+    this.doorArmed = false;
+    this.px = this.lastSafe.x;
+    this.py = this.lastSafe.y;
+  }
+
+  private buildSignLabels(): void {
+    this.signTexts.clear();
+    for (const pos of sceneSigns(this.map.kind, this.gates, this.hasMoreGates)) {
+      const sign = pos.id;
       const label = new Text({
-        text: '',
+        text: this.signText(sign),
         style: {
           fontFamily: 'monospace',
           fontSize: 10,
@@ -230,23 +327,77 @@ export class WorldEngine {
           letterSpacing: 1,
         },
       });
-      label.anchor.set(0.5, 0);
+      label.anchor.set(0.5, pos.anchorY);
       label.position.set(pos.x, pos.y);
-      label.zIndex = -4000; // on the ground — avatars walk over it
-      // Hover (desktop) or tap (touch) explains what the area is.
+      label.zIndex = SIGN_Z;
+      // Hover (desktop) or tap (touch) explains where the door goes.
       label.eventMode = 'static';
       label.cursor = 'help';
       const show = (e: FederatedPointerEvent): void => {
-        this.onAreaHover?.(area, e.global.x, e.global.y);
+        this.onSignHover?.(sign, e.global.x, e.global.y);
       };
       label.on('pointerover', show);
       label.on('pointertap', show);
       label.on('pointerout', () => {
-        this.onAreaHover?.(null, 0, 0);
+        this.onSignHover?.(null, 0, 0);
       });
-      this.areaLabels.set(area, label);
-      this.world.addChild(label);
+      this.signTexts.set(sign, label);
+      this.addSceneNode(label);
+      // Someone else's gate also shows them, standing above their name.
+      const owner = sign.startsWith('gate:') ? sign.slice(5) : null;
+      if (owner && owner !== this.selfDid) void this.addGateAvatar(owner, pos.x, pos.y - 14);
     }
+  }
+
+  private async addGateAvatar(owner: string, x: number, y: number): Promise<void> {
+    const gen = this.sceneGen;
+    let frame = this.gateFrames.get(owner);
+    if (!frame) {
+      frame = this.loadGateFrame(owner);
+      this.gateFrames.set(owner, frame);
+    }
+    const tex = await frame;
+    // The square was rebuilt (or left) while it loaded — that build has its own.
+    if (!tex || this.destroyed || gen !== this.sceneGen) return;
+    const s = new Sprite(tex);
+    s.anchor.set(0.5, 1);
+    s.scale.set(0.5);
+    s.position.set(x, y);
+    s.zIndex = SIGN_Z;
+    this.addSceneNode(s);
+  }
+
+  /** One front-facing frame of `owner`'s sheet (the default sheet if they have none). */
+  private async loadGateFrame(owner: string): Promise<Texture | null> {
+    let sheet = await loadTexture(spriteUrl(owner));
+    if (sheet) this.ownedTextures.push(sheet);
+    else {
+      this.defaultSheet ??= loadTexture(spriteUrl(GAME_MASTER_DID)).then((t) => {
+        if (t) this.ownedTextures.push(t);
+        return t;
+      });
+      sheet = await this.defaultSheet;
+    }
+    if (!sheet || this.destroyed) return null;
+    const tex = new Texture({
+      source: sheet.source,
+      frame: new Rectangle(0, DIR_FORWARD * FRAME, FRAME, FRAME),
+    });
+    this.frameTextures.push(tex);
+    return tex;
+  }
+
+  /** Blocked for walking: the map's own collision, plus closed gate slots. */
+  private isBlocked(tx: number, ty: number): boolean {
+    if (this.map.isBlockedTile(tx, ty)) return true;
+    if (this.map.kind !== 'square') return false;
+    const slot = gateSlotAt(tx, ty);
+    return slot !== null && !this.openSlots.has(slot);
+  }
+
+  private addSceneNode(node: Container): void {
+    this.sceneNodes.push(node);
+    this.world.addChild(node);
   }
 
   /** DIDs sharing your voice room (including you); [] clears the mesh. */
@@ -275,45 +426,63 @@ export class WorldEngine {
     if (!enabled) this.keys.clear();
   }
 
-  private async buildScene(did: string): Promise<void> {
+  /** Load shared textures; false if the engine was destroyed meanwhile. */
+  private async loadAssets(): Promise<boolean> {
     const [grass, pine, pond] = await Promise.all([
       loadTexture(`${ASSET_BASE}/graphics/grass-tile.png`),
       loadTexture(`${ASSET_BASE}/objects/pine.png`),
       loadTexture(`${ASSET_BASE}/objects/pond.png`),
     ]);
-    if (this.destroyed) return;
     for (const t of [grass, pine, pond]) {
       if (t) this.ownedTextures.push(t);
     }
+    this.textures = { grass, pine, pond };
+    return !this.destroyed;
+  }
 
-    if (grass) {
-      // Concentric visibility zones, stacked outer→inner. Each is the same
-      // seamless tile tinted per ring, with a soft outline marking the border.
-      ZONE_RECTS.forEach((r, i) => {
-        const ground = new TilingSprite({
-          texture: grass,
-          width: r.w * TILE,
-          height: r.h * TILE,
-        });
-        ground.position.set(r.x * TILE, r.y * TILE);
-        ground.tint = ZONE_TINT[r.zone];
-        ground.zIndex = -10000 + i;
-        this.world.addChild(ground);
+  /**
+   * Build the current scene's ground, structures, objects and signs.
+   * `enter` = a fresh arrival: also reset the player's doorway/signpost state.
+   */
+  private buildScene(enter = true): void {
+    this.sceneGen++;
+    // `context: true` frees each Graphics' geometry; textures are shared, keep them.
+    for (const node of this.sceneNodes) node.destroy({ children: true, context: true });
+    this.sceneNodes = [];
+    this.onSignHover?.(null, 0, 0);
+    const { grass, pine, pond } = this.textures;
+    const map = this.map;
+
+    if (grass && map.grassTint !== null) {
+      const ground = new TilingSprite({
+        texture: grass,
+        width: map.w * TILE,
+        height: map.h * TILE,
       });
+      ground.tint = map.grassTint;
+      ground.zIndex = -10000;
+      this.addSceneNode(ground);
     }
 
-    // Home walls, neighborhood fence, door, gate and the path between.
-    for (const piece of buildStructures()) this.world.addChild(piece);
-    this.buildAreaLabels();
+    for (const piece of buildStructures(map.kind, this.openSlots, this.hasMoreGates)) {
+      this.addSceneNode(piece);
+    }
+    this.windowGlow = null;
+    if (map.kind === 'neighborhood') {
+      this.windowGlow = buildWindowGlow();
+      this.windowGlow.visible = this.windowLit;
+      this.addSceneNode(this.windowGlow);
+    }
+    this.buildSignLabels();
 
-    for (const o of OBJECTS) {
+    for (const o of map.objects) {
       if (o.type === 'pond' && pond) {
         const s = new Sprite(pond);
         s.anchor.set(0, 0);
         s.scale.set(OBJ_SCALE);
         s.position.set(o.tx * TILE, o.ty * TILE);
         s.zIndex = -5000;
-        this.world.addChild(s);
+        this.addSceneNode(s);
       } else if (o.type === 'pine' && pine) {
         const s = new Sprite(pine);
         s.anchor.set(0.5, 1);
@@ -321,14 +490,25 @@ export class WorldEngine {
         const baseY = o.ty * TILE + TILE;
         s.position.set(o.tx * TILE + TILE / 2, baseY);
         s.zIndex = baseY;
-        this.world.addChild(s);
+        this.addSceneNode(s);
       }
     }
 
-    if (this.fallbackTex) this.player.setFallbackTexture(this.fallbackTex);
     this.player.setPosition(this.px, this.py);
-    this.world.addChild(this.player.container);
-    void this.dressAvatar(this.player, did);
+    if (!enter) return;
+    this.lastSafe = { x: this.px, y: this.py };
+    this.doorArmed = false;
+    this.atDoor = false;
+    if (this.onSignpostTile) {
+      this.onSignpostTile = false;
+      this.onSignpost?.(false);
+    }
+  }
+
+  /** Hold still while a hand-off not started from a doorway (the signpost) runs. */
+  freeze(): void {
+    this.atDoor = true;
+    this.keys.clear();
   }
 
   /**
@@ -489,7 +669,7 @@ export class WorldEngine {
     if (this.keys.has('ArrowUp') || this.keys.has('w')) dy -= 1;
     if (this.keys.has('ArrowDown') || this.keys.has('s')) dy += 1;
 
-    const moving = dx !== 0 || dy !== 0;
+    const moving = !this.atDoor && (dx !== 0 || dy !== 0);
     if (moving) {
       if (Math.abs(dx) > Math.abs(dy)) this.player.dir = dx < 0 ? DIR_LEFT : DIR_RIGHT;
       else this.player.dir = dy < 0 ? DIR_BACK : DIR_FORWARD;
@@ -498,17 +678,17 @@ export class WorldEngine {
       const step = (SPEED * dt) / len;
       const nx = this.px + dx * step;
       const ny = this.py + dy * step;
-      if (!isBlockedAtPixel(nx, this.py)) this.px = clamp(nx, TILE, (MAP_W - 1) * TILE);
-      if (!isBlockedAtPixel(this.px, ny)) this.py = clamp(ny, TILE, (MAP_H - 1) * TILE);
+      const map = this.map;
+      if (!this.isBlocked(Math.floor(nx / TILE), Math.floor(this.py / TILE))) {
+        this.px = clamp(nx, TILE, (map.w - 1) * TILE);
+      }
+      if (!this.isBlocked(Math.floor(this.px / TILE), Math.floor(ny / TILE))) {
+        this.py = clamp(ny, TILE, (map.h - 1) * TILE);
+      }
     }
     this.player.tick(dtMs, moving);
     this.player.setPosition(this.px, this.py);
-
-    const zone = zoneAtPixel(this.px, this.py);
-    if (zone !== this.currentZone) {
-      this.currentZone = zone;
-      this.onZoneChange?.(zone);
-    }
+    this.checkDoorway();
 
     // Throttled position broadcast (sends the resting position too, since the
     // changed-check stays true until the latest pose is acknowledged).
@@ -550,10 +730,32 @@ export class WorldEngine {
     this.drawMesh(dtMs);
 
     this.world.position.set(
-      this.app.screen.width / 2 - this.px * SCALE,
-      this.app.screen.height / 2 - this.py * SCALE,
+      cameraOffset(this.app.screen.width, this.map.w * TILE * SCALE, this.px * SCALE),
+      cameraOffset(this.app.screen.height, this.map.h * TILE * SCALE, this.py * SCALE),
     );
   };
+
+  private checkDoorway(): void {
+    const tx = Math.floor(this.px / TILE);
+    const ty = Math.floor(this.py / TILE);
+    const sp = TOWN_SQUARE_LAYOUT.signpost;
+    const onPost = this.map.kind === 'square' && this.hasMoreGates && tx === sp.x && ty === sp.y;
+    if (onPost !== this.onSignpostTile) {
+      this.onSignpostTile = onPost;
+      this.onSignpost?.(onPost);
+    }
+
+    const door = townDoorwayAtTile(this.map.kind, tx, ty);
+    if (!door) {
+      this.doorArmed = true;
+      this.lastSafe = { x: this.px, y: this.py };
+      return;
+    }
+    if (!this.doorArmed || this.atDoor) return;
+    this.atDoor = true;
+    this.keys.clear();
+    this.onDoorway?.(door);
+  }
 
   private updateNearby(): void {
     const { joinRadius, leaveRadius } = TOWN_PROXIMITY;
@@ -653,6 +855,8 @@ export class WorldEngine {
     }
     // Free GPU memory — these base textures are shared by frame sub-textures
     // and are not released by app.destroy({ texture: false }).
+    for (const t of this.frameTextures) t.destroy();
+    this.frameTextures = [];
     for (const t of this.ownedTextures) t.destroy(true);
     this.ownedTextures = [];
     this.fallbackTex?.destroy(true);

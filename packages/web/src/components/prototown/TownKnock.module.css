@@ -1,0 +1,148 @@
+.prompt,
+.card,
+.guests {
+  color: var(--color-base-content);
+  background: var(--color-base-100);
+  border: var(--cm-space-0.5) solid var(--color-base-300);
+  border-radius: var(--cm-radius-md);
+  box-shadow: var(--cm-raised);
+}
+
+/* Your knock prompt: above the chat bar, like the signpost list. */
+.prompt {
+  position: absolute;
+  z-index: var(--cm-z-local-top);
+  inset-inline: var(--cm-space-0);
+  inset-block-end: calc(var(--cm-space-6) + var(--cm-space-16));
+  margin-inline: auto;
+  inline-size: min(calc(100% - var(--cm-space-12)), var(--cm-panel-width-dm));
+  padding: var(--cm-space-4) var(--cm-space-5);
+}
+
+/* Someone at your door: bottom centre, above the chat bar — the spot your
+   own knock prompt uses elsewhere, clear of the top bar and the scene note.
+   Knock cards and that prompt never show at once; join cards can, and lift
+   with .abovePrompt. */
+.cards {
+  position: absolute;
+  z-index: var(--cm-z-local-top);
+  inset-inline: var(--cm-space-0);
+  inset-block-end: calc(var(--cm-space-6) + var(--cm-space-16));
+  margin-inline: auto;
+  inline-size: min(calc(100% - var(--cm-space-12)), var(--cm-panel-width-dm));
+  display: flex;
+  flex-direction: column;
+  gap: var(--cm-space-3);
+  pointer-events: none;
+}
+
+/* A knock prompt is up in the same spot: stack above it. */
+.abovePrompt {
+  inset-block-end: calc(var(--cm-space-6) + var(--cm-space-16) * 4);
+}
+
+.card {
+  padding: var(--cm-space-4) var(--cm-space-5);
+  pointer-events: auto;
+}
+
+/* Your guests: inline-end side, below the top bar even when it wraps on a
+   phone (chip, hint and door toggle stack there), and never taller than
+   the space above the chat bar. */
+.guests {
+  position: absolute;
+  z-index: var(--cm-z-local-raised);
+  inset-inline-end: var(--cm-space-6);
+  inset-block-start: calc(var(--cm-space-6) + var(--cm-space-16) * 4);
+  inline-size: min(calc(100% - var(--cm-space-12)), var(--cm-panel-width-sidebar));
+  max-block-size: 40%;
+  overflow-y: auto;
+  padding: var(--cm-space-3) var(--cm-space-4);
+}
+
+.title {
+  margin: var(--cm-space-0) var(--cm-space-0) var(--cm-space-2);
+  font-size: var(--cm-text-xs);
+  font-weight: 700;
+}
+
+.list {
+  margin: var(--cm-space-0);
+  padding: var(--cm-space-0);
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: var(--cm-space-2);
+}
+
+.guest {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--cm-space-3);
+}
+
+.name {
+  overflow: hidden;
+  font-size: var(--cm-text-sm);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.text {
+  margin: var(--cm-space-0);
+  font-size: var(--cm-text-sm);
+}
+
+.actions {
+  display: flex;
+  gap: var(--cm-space-3);
+  margin-block-start: var(--cm-space-3);
+}
+
+.primary,
+.secondary {
+  padding: var(--cm-space-2) var(--cm-space-5);
+  font-size: var(--cm-text-xs);
+  border-radius: var(--cm-radius-sm);
+  box-shadow: var(--cm-raised);
+  cursor: pointer;
+}
+
+/* The main action is framed in the text colour: the primary colour alone
+   is too faint against the card in some themes. */
+.primary {
+  color: var(--color-base-content);
+  background: var(--color-base-100);
+  border: var(--cm-space-1) solid var(--color-base-content);
+  font-weight: 700;
+}
+
+.secondary {
+  color: var(--color-base-content);
+  background: var(--cm-surface-button);
+  border: var(--cm-space-0.5) solid var(--color-base-300);
+}
+
+.primary:hover,
+.secondary:hover {
+  background: var(--color-base-200);
+}
+
+.primary:active,
+.secondary:active {
+  box-shadow: var(--cm-pressed);
+}
+
+.primary:focus-visible,
+.secondary:focus-visible {
+  outline: var(--cm-focus-thin) solid var(--cm-focus);
+  outline-offset: var(--cm-focus-offset);
+}
+
+@media (pointer: coarse) {
+  .primary,
+  .secondary {
+    min-block-size: calc(var(--cm-space-16) + var(--cm-space-6));
+  }
+}

@@ -150,3 +150,20 @@ describe('assignRooms', () => {
     expect(assignRooms([b, a], fresh())).toEqual(['new1', 'r']);
   });
 });
+
+describe('buildClusters keeps conversations stable', () => {
+  it('a newcomer never pushes an existing member out of their conversation', () => {
+    // 1 is new (lowest id) and compatible with 2 but not 3; 2 and 3 already talk.
+    const nodes = [
+      { id: 1, did: 'did:plc:new', x: 0, y: 0, roomId: null },
+      { id: 2, did: 'did:plc:b', x: 20, y: 0, roomId: 'r' },
+      { id: 3, did: 'did:plc:d', x: 40, y: 0, roomId: 'r' },
+    ];
+    const clusters = buildClusters(nodes, {
+      eligible: () => true,
+      compatible: (a, b) => !(a.id === 1 && b.id === 3) && !(a.id === 3 && b.id === 1),
+      newLinkReady: () => true,
+    });
+    expect(clusters.map((c) => c.map((n) => n.id).sort())).toEqual([[2, 3]]);
+  });
+});

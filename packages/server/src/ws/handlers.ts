@@ -90,6 +90,8 @@ export async function handleClientMessage(
     case 'status_change': {
       const visibleTo = data.visibleTo as PresenceVisibility | undefined;
       await service.handleStatusChange(did, data.status, data.awayMessage, visibleTo);
+      // Town: whether this person's window glows follows the same setting.
+      townRoom.setVisibility(did, visibleTo);
       // Notify community watchers (visibility-aware)
       await communityWatchers.notify(did, data.status, data.awayMessage, visibleTo);
       break;
@@ -157,8 +159,8 @@ export async function handleClientMessage(
     case 'sync_blocks': {
       log.info({ did, count: data.blockedDids.length }, 'sync_blocks');
       blockService.sync(did, data.blockedDids);
-      // Split any proximity voice cluster that now contains a blocked pair.
-      townRoom.refreshProximity();
+      // Hide newly blocked avatars and split any voice cluster with a blocked pair.
+      townRoom.refreshBlocks();
       // Re-notify all watchers with block-filtered presence
       // (newly blocked get offline, newly unblocked get real status)
       const blockPresence = await service.getPresence(did);
@@ -176,6 +178,12 @@ export async function handleClientMessage(
       const allMembers = data.groups.flatMap((g) => g.members);
       await syncCommunityMembers(sql, did, allMembers);
       await upsertCommunityList(sql, { did, groups: data.groups });
+      // Gates, neighborhood access and mutuals in town follow the new list.
+      townRoom.communityChanged(
+        did,
+        allMembers.map((m) => m.did),
+        data.groups.filter((g) => g.isInnerCircle).flatMap((g) => g.members.map((m) => m.did)),
+      );
       // Re-notify watchers: inner circle changes affect who can see us
       const syncPresence = await service.getPresence(did);
       const syncVisibleTo = await service.getVisibleTo(did);
@@ -794,7 +802,7 @@ export async function handleClientMessage(
     }
 
     case 'town_join': {
-      townRoom.join(ws, did, data.x, data.y, data.dir);
+      await townRoom.enter(ws, did, data.scene, data.x, data.y, data.dir, data.fof);
       break;
     }
 
@@ -805,6 +813,41 @@ export async function handleClientMessage(
 
     case 'town_chat': {
       townRoom.chat(ws, data.text);
+      break;
+    }
+
+    case 'town_fof': {
+      townRoom.setFof(ws, data.on);
+      break;
+    }
+
+    case 'town_knock': {
+      townRoom.knock(ws);
+      break;
+    }
+
+    case 'town_knock_answer': {
+      townRoom.answerKnock(ws, data.knockId, data.letIn);
+      break;
+    }
+
+    case 'town_kick': {
+      townRoom.kick(ws, data.did);
+      break;
+    }
+
+    case 'town_knocking': {
+      townRoom.setKnocking(ws, data.open);
+      break;
+    }
+
+    case 'town_join_ask': {
+      townRoom.askToJoin(ws);
+      break;
+    }
+
+    case 'town_join_answer': {
+      townRoom.answerJoin(ws, data.requestId, data.accept);
       break;
     }
 

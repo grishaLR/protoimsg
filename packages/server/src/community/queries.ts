@@ -176,3 +176,19 @@ export async function batchCheckInnerCircle(
   `;
   return new Set(rows.map((r) => r.did));
 }
+
+/** Everyone in `ownerDid`'s community (any group). */
+export async function getCommunityMemberDids(sql: Sql, ownerDid: string): Promise<Set<string>> {
+  const rows = await sql<Array<{ member_did: string }>>`
+    SELECT member_did FROM community_members WHERE owner_did = ${ownerDid}
+  `;
+  return new Set(rows.map((r) => r.member_did));
+}
+
+/** Everyone whose community includes `memberDid` (the reverse lookup). */
+export async function getCommunityOwnerDids(sql: Sql, memberDid: string): Promise<Set<string>> {
+  const rows = await sql<Array<{ owner_did: string }>>`
+    SELECT owner_did FROM community_members WHERE member_did = ${memberDid}
+  `;
+  return new Set(rows.map((r) => r.owner_did));
+}

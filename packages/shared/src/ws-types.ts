@@ -1,4 +1,5 @@
 /** WebSocket message types — shared contract between server and client */
+import type { TownGate } from './town.js';
 
 /** Portable ICE candidate — mirrors browser RTCIceCandidateInit without DOM dep */
 export interface IceCandidateInit {
@@ -161,8 +162,16 @@ export interface GroupCallLeaveMessage extends WsMessageBase {
 
 // Town (spatial world) Client → Server messages
 
+/**
+ * Enter a scene (also re-sent on reconnect). `scene` is a `townSceneId`; the
+ * server checks admission and answers `town_state` or `town_denied`. Missing
+ * `scene` means your own home — fail closed, never somewhere public.
+ */
 export interface TownJoinMessage extends WsMessageBase {
   type: 'town_join';
+  scene?: string;
+  /** Friends-of-friends mode, applied before your first view is built. */
+  fof?: boolean;
   x: number;
   y: number;
   dir: number;
@@ -182,6 +191,60 @@ export interface TownChatMessage extends WsMessageBase {
 
 export interface TownLeaveMessage extends WsMessageBase {
   type: 'town_leave';
+}
+
+/**
+ * Friends-of-friends mode (square only): while on, you see and are seen only
+ * by people within two steps of you on the mutual graph.
+ */
+export interface TownFofMessage extends WsMessageBase {
+  type: 'town_fof';
+  on: boolean;
+}
+
+/**
+ * Knock on the door of the neighborhood you're visiting. Only the owner's
+ * inner circle can; the answer is `town_state` (let in) or
+ * `town_knock_result` (no answer — the same for declined, away or anything
+ * else, after the same wait).
+ */
+export interface TownKnockMessage extends WsMessageBase {
+  type: 'town_knock';
+}
+
+/** The owner answers a knock (`town_knock_request`). */
+export interface TownKnockAnswerMessage extends WsMessageBase {
+  type: 'town_knock_answer';
+  knockId: string;
+  letIn: boolean;
+}
+
+/** The owner asks a guest to leave their home (they stay in the inner circle). */
+export interface TownKickMessage extends WsMessageBase {
+  type: 'town_kick';
+  did: string;
+}
+
+/** The owner opens or closes their door to knocks. */
+export interface TownKnockingMessage extends WsMessageBase {
+  type: 'town_knocking';
+  open: boolean;
+}
+
+/**
+ * Ask to join the conversation you're standing next to (in a neighborhood),
+ * when some of its people aren't your mutuals. They're asked; if all of them
+ * agree you get temporary passes for as long as you stay in it.
+ */
+export interface TownJoinAskMessage extends WsMessageBase {
+  type: 'town_join_ask';
+}
+
+/** Answer someone's request to join your conversation (`town_join_request`). */
+export interface TownJoinAnswerMessage extends WsMessageBase {
+  type: 'town_join_answer';
+  requestId: string;
+  accept: boolean;
 }
 
 /** Client lost (or never made) its voice connection — ask for a fresh token. */
@@ -218,7 +281,14 @@ export type ClientMessage =
   | TownMoveMessage
   | TownChatMessage
   | TownLeaveMessage
-  | TownVoiceRefreshMessage;
+  | TownVoiceRefreshMessage
+  | TownFofMessage
+  | TownKnockMessage
+  | TownKnockAnswerMessage
+  | TownKickMessage
+  | TownKnockingMessage
+  | TownJoinAskMessage
+  | TownJoinAnswerMessage;
 
 // Server → Client messages
 
@@ -391,7 +461,122 @@ export interface TownStateEvent extends WsMessageBase {
    * `voice` is false when the server has no LiveKit — no proximity audio.
    * `voiceUrl` lets the client warm up its LiveKit connection early.
    */
-  data: { peers: TownPeer[]; voice: boolean; voiceUrl?: string };
+  data: {
+    /** The scene you're now in (`townSceneId`). */
+    scene: string;
+    /** Your position, as the server placed it (clamped to the scene). */
+    self: { x: number; y: number; dir: number };
+    peers: TownPeer[];
+    voice: boolean;
+    voiceUrl?: string;
+    /** Square only: the gate row, and owners beyond it (listed on the signpost). */
+    gates?: TownGate[];
+    moreGates?: string[];
+    /**
+     * Visiting someone's neighborhood: whether you may knock on their door
+     * (you're in their inner circle).
+     */
+    canKnock?: boolean;
+    /** Your own home: whether your door takes knocks (shared by all your tabs). */
+    knockingOpen?: boolean;
+    /**
+     * Someone's neighborhood: whether their window glows — they're home, and
+     * their own visibility setting already shows them online to you.
+     */
+    windowLit?: boolean;
+    /**
+     * Set when the server moved you without being asked: `removed` (the owner
+     * took you off their list, or a block), `letIn` (your knock was answered),
+     * `visitOver` (the owner asked you to leave, or left home themselves).
+     */
+    reason?: 'removed' | 'letIn' | 'visitOver';
+  };
+}
+
+/** Someone is knocking on your door (you're home). */
+export interface TownKnockRequestEvent extends WsMessageBase {
+  type: 'town_knock_request';
+  /** `again`: you said "not now" to them recently — they're back. */
+  data: { knockId: string; from: string; again?: boolean };
+}
+
+/** A knock card can go: answered (maybe in another tab), withdrawn or expired. */
+export interface TownKnockEndEvent extends WsMessageBase {
+  type: 'town_knock_end';
+  data: { knockId: string };
+}
+
+/** Your knock went unanswered (declined, away, or closed — indistinguishable). */
+export interface TownKnockResultEvent extends WsMessageBase {
+  type: 'town_knock_result';
+  data: { outcome: 'noAnswer' };
+}
+
+/**
+ * Whether "ask to join" applies right now: a conversation next to you has
+ * people you can't see, and there's room for you. Server-computed — only it
+ * knows who's in which conversation.
+ */
+export interface TownJoinAvailableEvent extends WsMessageBase {
+  type: 'town_join_available';
+  data: { available: boolean };
+}
+
+/** Someone you can't see would like to join your conversation. */
+export interface TownJoinRequestEvent extends WsMessageBase {
+  type: 'town_join_request';
+  data: { requestId: string; from: string };
+}
+
+/** A join request card can go (answered elsewhere, withdrawn or expired). */
+export interface TownJoinRequestEndEvent extends WsMessageBase {
+  type: 'town_join_request_end';
+  data: { requestId: string };
+}
+
+/**
+ * How your request to join went: `accepted` (you'll be connected), or
+ * `noAnswer` — declined, timed out or not possible look the same.
+ */
+export interface TownJoinResultEvent extends WsMessageBase {
+  type: 'town_join_result';
+  data: { outcome: 'accepted' | 'noAnswer' };
+}
+
+/** Whether you may knock here changed (the owner edited their inner circle). */
+export interface TownKnockAccessEvent extends WsMessageBase {
+  type: 'town_knock_access';
+  data: { canKnock: boolean };
+}
+
+/** The window of the house you're outside started or stopped glowing. */
+export interface TownWindowEvent extends WsMessageBase {
+  type: 'town_window';
+  data: { lit: boolean };
+}
+
+/** Your door was opened or closed to knocks (maybe from another tab). */
+export interface TownDoorEvent extends WsMessageBase {
+  type: 'town_door';
+  data: { open: boolean };
+}
+
+/** Who's visiting your home right now (sent to you while you're home). */
+export interface TownGuestsEvent extends WsMessageBase {
+  type: 'town_guests';
+  data: { guests: string[] };
+}
+
+/** Your gate row changed (someone added or removed you from their community). */
+export interface TownGatesEvent extends WsMessageBase {
+  type: 'town_gates';
+  data: { gates: TownGate[]; moreGates: string[] };
+}
+
+/** You weren't let into `scene` — you stay where you were. */
+export interface TownDeniedEvent extends WsMessageBase {
+  type: 'town_denied';
+  data: { scene: string };
 }
 
 /**
@@ -477,4 +662,17 @@ export type ServerMessage =
   | TownPeerLeaveEvent
   | TownChatEvent
   | TownProximityEvent
+  | TownDeniedEvent
+  | TownGatesEvent
+  | TownKnockRequestEvent
+  | TownKnockEndEvent
+  | TownKnockResultEvent
+  | TownGuestsEvent
+  | TownKnockAccessEvent
+  | TownJoinAvailableEvent
+  | TownJoinRequestEvent
+  | TownJoinRequestEndEvent
+  | TownJoinResultEvent
+  | TownDoorEvent
+  | TownWindowEvent
   | TownViewEvent;

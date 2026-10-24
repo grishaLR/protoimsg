@@ -1,0 +1,60 @@
+import { useEffect, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
+import styles from './TownSignpost.module.css';
+
+interface TownSignpostProps {
+  /** Owners of neighborhoods you can visit that didn't fit on the gate row. */
+  owners: readonly string[];
+  nameOf: (did: string) => string;
+  onVisit: (owner: string) => void;
+  onClose: () => void;
+}
+
+/**
+ * The square's signpost: every neighborhood you can visit beyond the gate
+ * row. Opens while you stand on the signpost; walking off (or Escape) closes it.
+ */
+export function TownSignpost({ owners, nameOf, onVisit, onClose }: TownSignpostProps) {
+  const { t } = useTranslation('common');
+  const firstRef = useRef<HTMLButtonElement>(null);
+
+  // Keyboard users land on the first neighborhood straight away.
+  useEffect(() => {
+    firstRef.current?.focus();
+  }, []);
+
+  return (
+    <section
+      className={styles.signpost}
+      aria-labelledby="town-signpost-title"
+      onKeyDown={(e) => {
+        if (e.key === 'Escape') onClose();
+      }}
+    >
+      <div className={styles.header}>
+        <h2 id="town-signpost-title" className={styles.title}>
+          {t('town.signpost.title')}
+        </h2>
+        <button type="button" className={styles.close} onClick={onClose}>
+          {t('town.signpost.close')}
+        </button>
+      </div>
+      <ul className={styles.list}>
+        {owners.map((owner, i) => (
+          <li key={owner}>
+            <button
+              ref={i === 0 ? firstRef : undefined}
+              type="button"
+              className={styles.item}
+              onClick={() => {
+                onVisit(owner);
+              }}
+            >
+              {nameOf(owner)}
+            </button>
+          </li>
+        ))}
+      </ul>
+    </section>
+  );
+}

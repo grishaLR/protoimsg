@@ -147,7 +147,6 @@
       "live": "Trực tiếp · {{count}} người nghe được bạn",
       "announceJoined": "Có người ở gần — đã kết nối giọng nói",
       "announceEnded": "Giọng nói đã kết thúc",
-      "homeOff": "Giọng nói tắt trong phòng của bạn — chỉ có mình bạn",
       "camOn": "Camera bật",
       "camOff": "Camera tắt",
       "camDenied": "Camera bị chặn — kiểm tra quyền của trình duyệt",
@@ -167,20 +166,113 @@
       "expandVideo": "Hiện",
       "videoPaused": "Video tạm dừng · kết nối yếu"
     },
-    "areas": {
+    "scenes": {
       "home": {
-        "label": "Nhà · vòng thân thiết",
-        "tooltip": "Nhà của bạn. Ở đây không ai có thể thấy hay nghe bạn. Sắp có: bạn bè gõ cửa, và cho ai vào sẽ thêm họ vào vòng thân thiết của bạn.",
-        "enter": "Bạn đang ở nhà — ở đây không ai thấy hay nghe bạn."
+        "chip": "Nhà bạn · bạn thân thấy bạn online",
+        "enter": "Bạn đang ở nhà. Không ai vào được nếu bạn không cho."
       },
       "neighborhood": {
-        "label": "Khu phố",
-        "tooltip": "Khu phố có rào của bạn. Sắp tới chỉ người trong cộng đồng của bạn mới thấy bạn ở đây và đi qua cổng. Hiện tại nó vẫn mở như thế giới bên ngoài.",
-        "enter": "Khu phố — hiện mở cho mọi người (sắp chỉ dành cho cộng đồng)."
+        "chip": "Khu phố của bạn · chỉ cộng đồng",
+        "enter": "Khu phố của bạn. Người trong cộng đồng của bạn có thể ghé thăm; họ thấy bạn và bạn bè hai chiều của họ."
       },
-      "public": {
-        "enter": "Thế giới công cộng — ai cũng thấy bạn, và có thể nói chuyện khi ở gần nhau."
+      "square": {
+        "chip": "Quảng trường thị trấn · mọi người",
+        "enter": "Quảng trường thị trấn. Ai cũng thấy bạn, và có thể nói chuyện khi ở gần nhau.",
+        "chipFof": "Quảng trường thị trấn · bạn của bạn bè"
+      },
+      "error": {
+        "closed": "Cánh cửa đó đang đóng.",
+        "timeout": "Không đến đó được. Hãy thử lại.",
+        "outdated": "proto town đang được cập nhật. Hãy tải lại trang sau một phút."
+      },
+      "visiting": {
+        "chip": "Khu phố của {{name}} · bạn thấy bạn bè hai chiều",
+        "enter": "Khu phố của {{name}}. Ở đây bạn thấy {{name}} và bạn bè hai chiều của bạn; những người khác đều bị ẩn."
+      },
+      "guestHome": {
+        "chip": "Nhà của {{name}} · khách",
+        "enter": "Bạn đang ở trong nhà của {{name}}."
+      },
+      "notice": {
+        "removed": "Bạn đã rời khu phố của {{name}}.",
+        "privateHouse": "Đây là nhà của {{name}}.",
+        "visitOver": "Chuyến ghé thăm đã kết thúc.",
+        "noAnswer": "Không ai trả lời."
       }
+    },
+    "doors": {
+      "home": {
+        "label": "Nhà",
+        "tooltip": "Ngôi nhà của bạn. Đi vào bằng cửa trước. Bạn thân có thể gõ cửa, và bạn quyết định ai được vào."
+      },
+      "neighborhood": {
+        "label": "Khu phố của bạn",
+        "tooltip": "Khu phố của bạn, sau cánh cổng riêng của bạn. Chỉ người trong cộng đồng của bạn mới vào được."
+      },
+      "square": {
+        "label": "Quảng trường thị trấn",
+        "tooltip": "Ra khỏi cổng đến quảng trường thị trấn, nơi mọi người đều thấy bạn."
+      },
+      "houseOf": {
+        "label": "Nhà của {{name}}",
+        "tooltip": "Nhà của {{name}}."
+      },
+      "gateOf": {
+        "tooltip": "Khu phố của {{name}}. Bạn ở trong cộng đồng của {{name}}, nên cổng mở cho bạn."
+      },
+      "neighborhoodOf": {
+        "label": "Khu phố của {{name}}",
+        "tooltip": "Ra cửa trước: Khu phố của {{name}}"
+      }
+    },
+    "lots": {
+      "arcade": "Khu trò chơi (sắp có)",
+      "theater": "Rạp chiếu phim (sắp có)",
+      "tooltip": "Lô đất này đang chờ một tòa nhà. Sắp có."
+    },
+    "signpost": {
+      "label": "Thêm khu phố",
+      "tooltip": "Bước lên biển chỉ đường để xem mọi khu phố bạn có thể ghé thăm.",
+      "title": "Khu phố bạn có thể ghé thăm",
+      "close": "Đóng"
+    },
+    "fof": {
+      "off": "Bạn của bạn bè: tắt",
+      "on": "Bạn của bạn bè: bật",
+      "hint": "Khi bật, chỉ bạn bè hai chiều của bạn và bạn bè hai chiều của họ mới thấy bạn ở đây, và bạn cũng chỉ thấy họ.",
+      "announceOn": "Đã bật chế độ bạn của bạn bè. Chỉ bạn bè hai chiều của bạn và bạn bè hai chiều của họ mới thấy bạn ở đây.",
+      "announceOff": "Đã tắt chế độ bạn của bạn bè. Mọi người trong quảng trường đều thấy bạn."
+    },
+    "knock": {
+      "prompt": "Gõ cửa nhà của {{name}}?",
+      "knock": "Gõ cửa",
+      "cancel": "Hủy",
+      "knocking": "Đang gõ cửa…",
+      "atDoor": "{{name}} đang ở trước cửa.",
+      "atDoorAgain": "{{name}} lại gõ cửa.",
+      "letIn": "Cho vào",
+      "notNow": "Để sau",
+      "tabTitle": "Cốc cốc",
+      "notifyMe": "Báo cho tôi khi có người gõ cửa"
+    },
+    "guests": {
+      "title": "Khách",
+      "askToLeave": "Mời về"
+    },
+    "door": {
+      "open": "Cửa: mở cho người gõ",
+      "closed": "Cửa: đóng với người gõ",
+      "hint": "Khi cửa của bạn đóng, tiếng gõ cửa sẽ không có ai trả lời. Không ai biết là cửa đang đóng."
+    },
+    "join": {
+      "ask": "Xin tham gia",
+      "asking": "Đang xin tham gia…",
+      "askHint": "Một số người trong cuộc trò chuyện này không phải bạn bè hai chiều của bạn. Hãy hỏi, và nếu tất cả đồng ý, bạn có thể tham gia chừng nào bạn còn ở đây.",
+      "request": "{{name}} muốn tham gia cuộc trò chuyện của các bạn.",
+      "requestSomeone": "Có người muốn tham gia cuộc trò chuyện của bạn.",
+      "accept": "Cho tham gia",
+      "decline": "Để sau",
+      "accepted": "Bạn đã vào rồi. Chào mọi người nhé!"
     },
     "beta": {
       "message": "🚧 Thị trấn đang xây dựng — một vài thứ đã dùng được!",
@@ -192,10 +284,10 @@
       "work1": "Đi dạo bằng nhân vật rpg.actor của bạn",
       "work2": "Bong bóng chat mà mọi người ở gần đều thấy",
       "work3": "Đến gần ai đó — một vầng hào quang tím nối hai người và có thể nói chuyện (mic và camera là tùy chọn)",
-      "work4": "Nhà bạn ở giữa là riêng tư — ở đó không ai thấy hay nghe bạn",
+      "work4": "Nhà bạn là riêng tư, và bạn bè trong cộng đồng của bạn có thể ghé thăm khu phố của bạn",
       "soonHeading": "Sắp có",
-      "soon1": "Gõ cửa để cho bạn bè vào",
-      "soon2": "Khu phố có rào riêng cho cộng đồng của bạn",
+      "soon1": "Trang trí nhà của bạn",
+      "soon2": "Khu trò chơi và rạp chiếu phim ở quảng trường thị trấn",
       "soon3": "Nhà, trang trí, khu trò chơi và hơn thế",
       "feedback": "Có gì hỏng hay mong muốn gì? Nói với ProtoBuddy: /feedback tin nhắn của bạn",
       "close": "Đã hiểu"

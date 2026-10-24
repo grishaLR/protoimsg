@@ -15,6 +15,12 @@
   --cm-town-video-w: 160px;
   --cm-panel-width-thread: 340px;
 
+  /* ── proto town ──────────────────────────────────── */
+  /* Scene fades. Theme-invariant on purpose: the world canvas keeps its own
+     palette in every theme. */
+  --cm-town-fade-outdoors: oklch(0.28 0.04 135);
+  --cm-town-fade-indoors: oklch(0.22 0.03 55);
+
   /* ── Spacing ─────────────────────────────────────── */
   --cm-space-0: 0px;
   --cm-space-0.5: 1px;
@@ -106,6 +112,11 @@
   --cm-duration-slow: 0.2s;
   --cm-duration-slower: 0.3s;
   --cm-duration-progress: 2.5s;
+  /* Controls that are present but inert (waiting, unavailable). */
+  --cm-opacity-disabled: 0.5;
+
+  /* Exponential ease-out (quart): quick to respond, soft to settle. */
+  --cm-ease-out: cubic-bezier(0.25, 1, 0.5, 1);
 
   /* ── z-index layers ─────────────────────────────────── */
   --cm-z-submenu: 10;

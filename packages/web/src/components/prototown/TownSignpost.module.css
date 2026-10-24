@@ -1,0 +1,90 @@
+.signpost {
+  position: absolute;
+  /* Over the beta chip it would otherwise share a corner with on phones. */
+  z-index: var(--cm-z-local-top);
+  inset-inline: var(--cm-space-0);
+  inset-block-end: calc(var(--cm-space-6) + var(--cm-space-16));
+  margin-inline: auto;
+  inline-size: min(calc(100% - var(--cm-space-12)), var(--cm-panel-width-dm));
+  max-block-size: 50%;
+  display: flex;
+  flex-direction: column;
+  color: var(--color-base-content);
+  background: var(--color-base-100);
+  border: var(--cm-space-0.5) solid var(--color-base-300);
+  border-radius: var(--cm-radius-md);
+  box-shadow: var(--cm-raised);
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--cm-space-3);
+  padding: var(--cm-space-3) var(--cm-space-5);
+  border-block-end: var(--cm-space-0.5) solid var(--color-base-300);
+}
+
+.title {
+  margin: var(--cm-space-0);
+  font-size: var(--cm-text-sm);
+  font-weight: 700;
+}
+
+.close {
+  padding: var(--cm-space-1) var(--cm-space-4);
+  font-size: var(--cm-text-xs);
+  color: var(--color-base-content);
+  background: var(--cm-surface-button);
+  border: var(--cm-space-0.5) solid var(--color-base-300);
+  border-radius: var(--cm-radius-sm);
+  box-shadow: var(--cm-raised);
+  cursor: pointer;
+}
+
+.close:hover {
+  background: var(--color-base-200);
+}
+
+.close:active {
+  box-shadow: var(--cm-pressed);
+}
+
+.list {
+  margin: var(--cm-space-0);
+  padding: var(--cm-space-2);
+  overflow-y: auto;
+  list-style: none;
+}
+
+.item {
+  inline-size: 100%;
+  padding: var(--cm-space-2) var(--cm-space-4);
+  font-size: var(--cm-text-sm);
+  text-align: start;
+  color: var(--color-base-content);
+  background: transparent;
+  border: none;
+  border-radius: var(--cm-radius-sm);
+  cursor: pointer;
+}
+
+.item:hover,
+.item:focus-visible {
+  /* base-300: base-200 barely differs from base-100 in dark themes. */
+  background: var(--color-base-300);
+}
+
+.close:focus-visible,
+.item:focus-visible {
+  outline: var(--cm-focus-thin) solid var(--cm-focus);
+  outline-offset: var(--cm-focus-offset);
+}
+
+/* 44px touch targets — you open this standing on the signpost, often on a phone. */
+@media (pointer: coarse) {
+  .item,
+  .close {
+    min-block-size: calc(var(--cm-space-16) + var(--cm-space-6));
+  }
+}

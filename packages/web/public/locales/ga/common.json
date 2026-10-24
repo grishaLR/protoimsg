@@ -147,7 +147,6 @@
       "live": "Beo · is féidir le {{count}} tú a chloisteáil",
       "announceJoined": "Tá duine éigin in aice láimhe — guth ceangailte",
       "announceEnded": "Guth críochnaithe",
-      "homeOff": "Tá an guth as i do sheomra — níl ann ach tú",
       "camOn": "Ceamara air",
       "camOff": "Ceamara as",
       "camDenied": "Ceamara blocáilte — seiceáil ceadanna an bhrabhsálaí",
@@ -167,20 +166,113 @@
       "expandVideo": "Taispeáin",
       "videoPaused": "Físeán ar sos · nasc lag"
     },
-    "areas": {
+    "scenes": {
       "home": {
-        "label": "Baile · ciorcal istigh",
-        "tooltip": "Do bhaile. Ní féidir le haon duine tú a fheiceáil ná a chloisteáil anseo. Go luath: buailfidh cairde ar an doras, agus má ligeann tú duine isteach cuirfear le do chiorcal istigh é.",
-        "enter": "Tá tú sa bhaile — ní féidir le haon duine tú a fheiceáil ná a chloisteáil anseo."
+        "chip": "Do bhaile · feiceann do chiorcal inmheánach ar líne tú",
+        "enter": "Tá tú sa bhaile. Ní thagann aon duine isteach mura ligeann tú isteach é."
       },
       "neighborhood": {
-        "label": "Comharsanacht",
-        "tooltip": "Do chomharsanacht faoi gheata. Go luath ní fheicfidh ach daoine i do phobal tú anseo agus ní rachaidh ach iadsan tríd an ngeata. Faoi láthair tá sí oscailte, cosúil leis an saol lasmuigh.",
-        "enter": "Comharsanacht — oscailte do chách faoi láthair (don phobal amháin go luath)."
+        "chip": "Do chomharsanacht · an pobal amháin",
+        "enter": "Do chomharsanacht. Is féidir le daoine i do phobal cuairt a thabhairt; feiceann siad thú agus a gcomhchairde féin."
       },
-      "public": {
-        "enter": "An saol poiblí — is féidir le duine ar bith tú a fheiceáil, agus is féidir libh labhairt nuair atá sibh gar dá chéile."
+      "square": {
+        "chip": "Cearnóg an bhaile · cách",
+        "enter": "Cearnóg an bhaile. Is féidir le duine ar bith tú a fheiceáil, agus is féidir libh labhairt nuair atá sibh gar dá chéile.",
+        "chipFof": "Cearnóg an bhaile · cairde cairde"
+      },
+      "error": {
+        "closed": "Tá an doras sin dúnta.",
+        "timeout": "Níorbh fhéidir dul ann. Bain triail eile as.",
+        "outdated": "Tá proto town á nuashonrú. Athlódáil an leathanach i gceann nóiméid."
+      },
+      "visiting": {
+        "chip": "Comharsanacht {{name}} · feiceann tú comhchairde",
+        "enter": "Comharsanacht {{name}}. Feiceann tú {{name}} agus do chomhchairde anseo; fanann gach duine eile i bhfolach."
+      },
+      "guestHome": {
+        "chip": "Teach {{name}} · aoi",
+        "enter": "Tá tú istigh i dteach {{name}}."
+      },
+      "notice": {
+        "removed": "D'fhág tú comharsanacht {{name}}.",
+        "privateHouse": "Seo teach {{name}}.",
+        "visitOver": "Tá an chuairt thart.",
+        "noAnswer": "Níl freagra ann."
       }
+    },
+    "doors": {
+      "home": {
+        "label": "Do theach",
+        "tooltip": "Do theach. Siúil isteach tríd an bpríomhdhoras. Is féidir le do chiorcal inmheánach cnag a bhualadh, agus is tusa a shocraíonn cé a thagann isteach."
+      },
+      "neighborhood": {
+        "label": "Do chomharsanacht",
+        "tooltip": "Do chomharsanacht, taobh thiar de do gheata féin. Ní féidir ach le daoine i do phobal teacht isteach."
+      },
+      "square": {
+        "label": "Cearnóg an bhaile",
+        "tooltip": "Amach an geata go cearnóg an bhaile, áit a bhfeiceann cách tú."
+      },
+      "houseOf": {
+        "label": "Teach {{name}}",
+        "tooltip": "Teach {{name}}."
+      },
+      "gateOf": {
+        "tooltip": "Comharsanacht {{name}}. Tá tú i bpobal {{name}}, mar sin osclaíonn an geata duit."
+      },
+      "neighborhoodOf": {
+        "label": "Comharsanacht {{name}}",
+        "tooltip": "Amach an príomhdhoras: Comharsanacht {{name}}"
+      }
+    },
+    "lots": {
+      "arcade": "Stuara (go luath)",
+      "theater": "Pictiúrlann (go luath)",
+      "tooltip": "Tá an suíomh seo ag fanacht le foirgneamh. Ag teacht go luath."
+    },
+    "signpost": {
+      "label": "Tuilleadh comharsanachtaí",
+      "tooltip": "Seas ar an gcomhartha bóthair chun gach comharsanacht ar féidir leat cuairt a thabhairt uirthi a fheiceáil.",
+      "title": "Comharsanachtaí ar féidir leat cuairt a thabhairt orthu",
+      "close": "Dún"
+    },
+    "fof": {
+      "off": "Cairde cairde: as",
+      "on": "Cairde cairde: ar siúl",
+      "hint": "Nuair atá sé ar siúl, ní fheiceann ach do chomhchairde agus a gcomhchairde siúd tú anseo, agus ní fheiceann tú ach iad.",
+      "announceOn": "Mód cairde cairde ar siúl. Ní fheiceann ach do chomhchairde agus a gcomhchairde siúd tú anseo.",
+      "announceOff": "Mód cairde cairde as. Feiceann gach duine sa chearnóg tú."
+    },
+    "knock": {
+      "prompt": "Cnag a bhualadh ar dhoras {{name}}?",
+      "knock": "Cnag",
+      "cancel": "Cealaigh",
+      "knocking": "Ag cnagadh…",
+      "atDoor": "Tá {{name}} ag an doras.",
+      "atDoorAgain": "Tá {{name}} ag cnagadh arís.",
+      "letIn": "Lig isteach",
+      "notNow": "Ní anois",
+      "tabTitle": "Cnag cnag",
+      "notifyMe": "Cuir in iúl dom faoi chnaga"
+    },
+    "guests": {
+      "title": "Aíonna",
+      "askToLeave": "Iarr imeacht"
+    },
+    "door": {
+      "open": "Doras: oscailte do chnagadh",
+      "closed": "Doras: dúnta do chnagadh",
+      "hint": "Nuair a bhíonn do dhoras dúnta, ní fhreagraítear cnagadh. Ní féidir le duine ar bith a fheiceáil go bhfuil sé dúnta."
+    },
+    "join": {
+      "ask": "Iarr páirt a ghlacadh",
+      "asking": "Ag iarraidh cead…",
+      "askHint": "Níl roinnt daoine sa chomhrá seo ina gcomhchairde agat. Iarr, agus má aontaíonn siad go léir, is féidir leat páirt a ghlacadh fad a fhanann tú.",
+      "request": "Ba mhaith le {{name}} páirt a ghlacadh in bhur gcomhrá.",
+      "requestSomeone": "Ba mhaith le duine éigin páirt a ghlacadh i do chomhrá.",
+      "accept": "Lig isteach",
+      "decline": "Ní anois",
+      "accepted": "Tá tú istigh. Abair haigh!"
     },
     "beta": {
       "message": "🚧 Tá an baile á thógáil — oibríonn roinnt rudaí!",
@@ -192,10 +284,10 @@
       "work1": "Siúil timpeall mar do charachtar rpg.actor",
       "work2": "Bolgáin chomhrá a fheiceann gach duine in aice láimhe",
       "work3": "Siúil chuig duine — nascann aura corcra sibh agus is féidir libh labhairt (micreafón agus ceamara roghnach)",
-      "work4": "Tá do bhaile sa lár príobháideach — ní fheiceann ná ní chloiseann aon duine tú ansin",
+      "work4": "Tá do bhaile príobháideach, agus is féidir le cairde i do phobal cuairt a thabhairt ar do chomharsanacht",
       "soonHeading": "Ag teacht go luath",
-      "soon1": "Bualadh ar dhoirse chun cairde a ligean isteach",
-      "soon2": "Do chomharsanacht faoi gheata féin do do phobal",
+      "soon1": "Do theach a mhaisiú",
+      "soon2": "An stuara agus an phictiúrlann i gcearnóg an bhaile",
       "soon3": "Tithe, maisiú, an stuara agus tuilleadh",
       "feedback": "Rud briste nó mian? Inis do ProtoBuddy: /feedback do theachtaireacht",
       "close": "Tuigim"

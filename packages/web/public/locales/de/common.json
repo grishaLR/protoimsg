@@ -147,7 +147,6 @@
       "live": "Live · {{count}} können dich hören",
       "announceJoined": "Jemand ist in der Nähe – Sprache verbunden",
       "announceEnded": "Sprache beendet",
-      "homeOff": "In deinem Zimmer ist Sprache aus – nur du bist hier",
       "camOn": "Kamera an",
       "camOff": "Kamera aus",
       "camDenied": "Kamera blockiert – Browserberechtigungen prüfen",
@@ -167,20 +166,113 @@
       "expandVideo": "Anzeigen",
       "videoPaused": "Video pausiert · schwache Verbindung"
     },
-    "areas": {
+    "scenes": {
       "home": {
-        "label": "Zuhause · engster Kreis",
-        "tooltip": "Dein Zuhause. Hier kann dich niemand sehen oder hören. Bald: Freunde klopfen an die Tür, und wer reindarf, kommt in deinen engsten Kreis.",
-        "enter": "Du bist zuhause – hier sieht oder hört dich niemand."
+        "chip": "Dein Zuhause · dein engster Kreis sieht dich online",
+        "enter": "Du bist zuhause. Niemand kommt rein, wenn du es nicht willst."
       },
       "neighborhood": {
-        "label": "Nachbarschaft",
-        "tooltip": "Deine eingezäunte Nachbarschaft. Bald sehen dich hier nur Leute aus deiner Community, und nur sie kommen durchs Tor. Im Moment ist sie offen wie die Welt draußen.",
-        "enter": "Nachbarschaft – vorerst für alle offen (bald nur Community)."
+        "chip": "Deine Nachbarschaft · nur Community",
+        "enter": "Deine Nachbarschaft. Leute aus deiner Community können vorbeikommen; sie sehen dich und ihre gegenseitigen Kontakte."
       },
-      "public": {
-        "enter": "Öffentliche Welt – alle können dich sehen, und in der Nähe könnt ihr reden."
+      "square": {
+        "chip": "Marktplatz · alle",
+        "enter": "Marktplatz. Alle können dich sehen, und in der Nähe könnt ihr reden.",
+        "chipFof": "Marktplatz · Freunde von Freunden"
+      },
+      "error": {
+        "closed": "Diese Tür ist zu.",
+        "timeout": "Hat nicht geklappt. Versuch es noch mal.",
+        "outdated": "proto town wird gerade aktualisiert. Lade die Seite in einer Minute neu."
+      },
+      "visiting": {
+        "chip": "Nachbarschaft von {{name}} · du siehst gegenseitige Kontakte",
+        "enter": "Nachbarschaft von {{name}}. Hier siehst du {{name}} und deine gegenseitigen Kontakte; alle anderen bleiben verborgen."
+      },
+      "guestHome": {
+        "chip": "Zuhause von {{name}} · Gast",
+        "enter": "Du bist bei {{name}} zu Hause."
+      },
+      "notice": {
+        "removed": "Du hast die Nachbarschaft von {{name}} verlassen.",
+        "privateHouse": "Das ist das Haus von {{name}}.",
+        "visitOver": "Der Besuch ist vorbei.",
+        "noAnswer": "Keine Antwort."
       }
+    },
+    "doors": {
+      "home": {
+        "label": "Zuhause",
+        "tooltip": "Dein Haus. Geh durch die Haustür rein. Dein engster Kreis kann anklopfen, und du entscheidest, wer reinkommt."
+      },
+      "neighborhood": {
+        "label": "Deine Nachbarschaft",
+        "tooltip": "Deine Nachbarschaft, hinter deinem eigenen Tor. Nur Leute aus deiner Community können reinkommen."
+      },
+      "square": {
+        "label": "Marktplatz",
+        "tooltip": "Durchs Tor raus zum Marktplatz, wo dich alle sehen können."
+      },
+      "houseOf": {
+        "label": "Haus von {{name}}",
+        "tooltip": "Haus von {{name}}."
+      },
+      "gateOf": {
+        "tooltip": "Nachbarschaft von {{name}}. Du bist in der Community von {{name}}, deshalb öffnet sich das Tor für dich."
+      },
+      "neighborhoodOf": {
+        "label": "Nachbarschaft von {{name}}",
+        "tooltip": "Durch die Haustür raus: Nachbarschaft von {{name}}"
+      }
+    },
+    "lots": {
+      "arcade": "Spielhalle (bald)",
+      "theater": "Kino (bald)",
+      "tooltip": "Dieses Grundstück wartet auf ein Gebäude. Kommt bald."
+    },
+    "signpost": {
+      "label": "Weitere Nachbarschaften",
+      "tooltip": "Stell dich auf den Wegweiser, um alle Nachbarschaften zu sehen, die du besuchen kannst.",
+      "title": "Nachbarschaften, die du besuchen kannst",
+      "close": "Schließen"
+    },
+    "fof": {
+      "off": "Freunde von Freunden: aus",
+      "on": "Freunde von Freunden: an",
+      "hint": "Wenn an, sehen dich hier nur deine gegenseitigen Kontakte und deren gegenseitige Kontakte, und du siehst nur sie.",
+      "announceOn": "Freunde-von-Freunden-Modus an. Hier sehen dich nur deine gegenseitigen Kontakte und deren gegenseitige Kontakte.",
+      "announceOff": "Freunde-von-Freunden-Modus aus. Alle auf dem Marktplatz können dich sehen."
+    },
+    "knock": {
+      "prompt": "Bei {{name}} anklopfen?",
+      "knock": "Anklopfen",
+      "cancel": "Abbrechen",
+      "knocking": "Klopfe an…",
+      "atDoor": "{{name}} steht vor der Tür.",
+      "atDoorAgain": "{{name}} klopft noch einmal an.",
+      "letIn": "Reinlassen",
+      "notNow": "Jetzt nicht",
+      "tabTitle": "Klopf, klopf",
+      "notifyMe": "Bei Anklopfen benachrichtigen"
+    },
+    "guests": {
+      "title": "Gäste",
+      "askToLeave": "Bitten zu gehen"
+    },
+    "door": {
+      "open": "Tür: offen fürs Anklopfen",
+      "closed": "Tür: geschlossen fürs Anklopfen",
+      "hint": "Wenn deine Tür geschlossen ist, bleibt Anklopfen unbeantwortet. Niemand kann sehen, dass sie geschlossen ist."
+    },
+    "join": {
+      "ask": "Mitmachen anfragen",
+      "asking": "Anfrage läuft…",
+      "askHint": "Einige Leute in diesem Gespräch sind keine gegenseitigen Kontakte von dir. Frag einfach, und wenn alle zustimmen, kannst du mitmachen, solange du bleibst.",
+      "request": "{{name}} möchte bei eurem Gespräch mitmachen.",
+      "requestSomeone": "Jemand möchte bei eurem Gespräch mitmachen.",
+      "accept": "Mitmachen lassen",
+      "decline": "Jetzt nicht",
+      "accepted": "Du bist dabei. Sag hallo!"
     },
     "beta": {
       "message": "🚧 Die Stadt ist im Aufbau – manches funktioniert schon!",
@@ -192,10 +284,10 @@
       "work1": "Lauf als dein rpg.actor-Charakter herum",
       "work2": "Chat-Blasen, die alle in der Nähe sehen",
       "work3": "Geh zu jemandem hin – eine lila Aura verbindet euch und ihr könnt reden (Mikro und Kamera nur auf Wunsch)",
-      "work4": "Dein Zuhause in der Mitte ist privat – dort sieht oder hört dich niemand",
+      "work4": "Dein Zuhause ist privat, und Freunde aus deiner Community können deine Nachbarschaft besuchen",
       "soonHeading": "Bald",
-      "soon1": "An Türen klopfen, um Freunde reinzulassen",
-      "soon2": "Deine eigene eingezäunte Nachbarschaft für deine Community",
+      "soon1": "Dein Zuhause einrichten",
+      "soon2": "Die Spielhalle und das Kino auf dem Marktplatz",
       "soon3": "Häuser, Einrichten, die Spielhalle und mehr",
       "feedback": "Etwas kaputt oder ein Wunsch? Sag es ProtoBuddy: /feedback deine Nachricht",
       "close": "Verstanden"
