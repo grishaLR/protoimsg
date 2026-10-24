@@ -18,12 +18,13 @@ export interface FirehoseEvent {
   operation: 'create' | 'update' | 'delete';
 }
 
-export function createHandlers(db: Sql, _wss: WsServer, _labelerService: LabelerService) {
+export function createHandlers(db: Sql, wss: WsServer, _labelerService: LabelerService) {
   const handlers: Record<string, (event: FirehoseEvent) => Promise<void>> = {
     [NSID.Community]: async (event) => {
       if (event.operation === 'delete') {
         // Community record deleted — clear the member list for this DID
         await syncCommunityMembers(db, event.did, []);
+        wss.communityChanged(event.did, [], []);
         log.info({ did: event.did }, 'Community list cleared');
         return;
       }
@@ -44,6 +45,12 @@ export function createHandlers(db: Sql, _wss: WsServer, _labelerService: Labeler
         }
       }
       await syncCommunityMembers(db, event.did, allMembers);
+      // Town access follows at once (removing someone walks them out).
+      wss.communityChanged(
+        event.did,
+        allMembers.map((m) => m.did),
+        record.groups.filter((g) => g.isInnerCircle).flatMap((g) => g.members.map((m) => m.did)),
+      );
       log.info({ did: event.did, memberCount: allMembers.length }, 'Community list indexed');
     },
   };

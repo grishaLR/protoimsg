@@ -132,7 +132,7 @@
   },
   "town": {
     "hud": {
-      "controls": "WASD / arrows to move"
+      "controls": "Hareket için WASD / oklar · Koşmak için Boşluk"
     },
     "chat": {
       "placeholder": "Say something to the town…",
@@ -147,7 +147,6 @@
       "live": "Canlı · {{count}} kişi seni duyabiliyor",
       "announceJoined": "Yakınlarda biri var — ses bağlandı",
       "announceEnded": "Ses sona erdi",
-      "homeOff": "Odanda ses kapalı — burada sadece sen varsın",
       "camOn": "Kamera açık",
       "camOff": "Kamera kapalı",
       "camDenied": "Kamera engellendi — tarayıcı izinlerini kontrol et",
@@ -167,20 +166,113 @@
       "expandVideo": "Göster",
       "videoPaused": "Video duraklatıldı · zayıf bağlantı"
     },
-    "areas": {
+    "scenes": {
       "home": {
-        "label": "Ev · yakın çevre",
-        "tooltip": "Evin. Burada kimse seni göremez ya da duyamaz. Yakında: arkadaşlar kapıyı çalacak ve birini içeri almak onu yakın çevrene ekleyecek.",
-        "enter": "Evdesin — burada kimse seni göremez ya da duyamaz."
+        "chip": "Evin · yakın çevren seni çevrimiçi görür",
+        "enter": "Evdesin. Sen izin vermedikçe kimse giremez."
       },
       "neighborhood": {
-        "label": "Mahalle",
-        "tooltip": "Çitle çevrili mahallen. Yakında burada seni yalnızca topluluğundakiler görecek ve kapıdan geçebilecek. Şimdilik dışarıdaki dünya gibi açık.",
-        "enter": "Mahalle — şimdilik herkese açık (yakında yalnızca topluluk)."
+        "chip": "Mahallen · yalnızca topluluk",
+        "enter": "Mahallen. Topluluğundakiler ziyarete gelebilir; seni ve kendi karşılıklı arkadaşlarını görürler."
       },
-      "public": {
-        "enter": "Herkese açık dünya — herkes seni görebilir, yakınken konuşabilirsiniz."
+      "square": {
+        "chip": "Kasaba meydanı · herkes",
+        "enter": "Kasaba meydanı. Herkes seni görebilir, yakınken konuşabilirsiniz.",
+        "chipFof": "Kasaba meydanı · arkadaşların arkadaşları"
+      },
+      "error": {
+        "closed": "Bu kapı kapalı.",
+        "timeout": "Oraya ulaşılamadı. Tekrar dene.",
+        "outdated": "proto town güncelleniyor. Sayfayı bir dakika sonra yenile."
+      },
+      "visiting": {
+        "chip": "{{name}} kullanıcısının mahallesi · karşılıklı arkadaşları görürsün",
+        "enter": "{{name}} kullanıcısının mahallesi. Burada {{name}} ve karşılıklı arkadaşlarını görürsün; diğer herkes gizli kalır."
+      },
+      "guestHome": {
+        "chip": "{{name}} kullanıcısının evi · misafir",
+        "enter": "{{name}} kullanıcısının evinin içindesin."
+      },
+      "notice": {
+        "removed": "{{name}} kullanıcısının mahallesinden ayrıldın.",
+        "privateHouse": "Burası {{name}} kullanıcısının evi.",
+        "visitOver": "Ziyaret sona erdi.",
+        "noAnswer": "Cevap yok."
       }
+    },
+    "doors": {
+      "home": {
+        "label": "Ev",
+        "tooltip": "Evin. Ön kapıdan içeri gir. Yakın çevren kapını çalabilir ve kimin gireceğine sen karar verirsin."
+      },
+      "neighborhood": {
+        "label": "Mahallen",
+        "tooltip": "Kendi bahçe kapının ardındaki mahallen. Yalnızca topluluğundakiler içeri girebilir."
+      },
+      "square": {
+        "label": "Kasaba meydanı",
+        "tooltip": "Bahçe kapısından çıkıp herkesin seni görebildiği kasaba meydanına git."
+      },
+      "houseOf": {
+        "label": "{{name}} kullanıcısının evi",
+        "tooltip": "{{name}} kullanıcısının evi."
+      },
+      "gateOf": {
+        "tooltip": "{{name}} kullanıcısının mahallesi. Onun topluluğundasın, bu yüzden bahçe kapısı sana açılır."
+      },
+      "neighborhoodOf": {
+        "label": "{{name}} kullanıcısının mahallesi",
+        "tooltip": "Ön kapıdan dışarı: {{name}} kullanıcısının mahallesi"
+      }
+    },
+    "lots": {
+      "arcade": "Oyun salonu (yakında)",
+      "theater": "Sinema (yakında)",
+      "tooltip": "Bu arsa bir bina bekliyor. Yakında."
+    },
+    "signpost": {
+      "label": "Diğer mahalleler",
+      "tooltip": "Ziyaret edebileceğin tüm mahalleleri görmek için tabelanın üstüne çık.",
+      "title": "Ziyaret edebileceğin mahalleler",
+      "close": "Kapat"
+    },
+    "fof": {
+      "off": "Arkadaşların arkadaşları: kapalı",
+      "on": "Arkadaşların arkadaşları: açık",
+      "hint": "Açıkken burada seni yalnızca karşılıklı arkadaşların ve onların karşılıklı arkadaşları görebilir, sen de yalnızca onları görürsün.",
+      "announceOn": "Arkadaşların arkadaşları modu açık. Burada seni yalnızca karşılıklı arkadaşların ve onların karşılıklı arkadaşları görebilir.",
+      "announceOff": "Arkadaşların arkadaşları modu kapalı. Meydandaki herkes seni görebilir."
+    },
+    "knock": {
+      "prompt": "{{name}} kullanıcısının kapısını çalmak ister misin?",
+      "knock": "Kapıyı çal",
+      "cancel": "Vazgeç",
+      "knocking": "Kapı çalınıyor…",
+      "atDoor": "{{name}} kapıda.",
+      "atDoorAgain": "{{name}} yine kapıyı çalıyor.",
+      "letIn": "İçeri al",
+      "notNow": "Şimdi değil",
+      "tabTitle": "Tak tak",
+      "notifyMe": "Kapı çalınınca bildir"
+    },
+    "guests": {
+      "title": "Misafirler",
+      "askToLeave": "Ayrılmasını iste"
+    },
+    "door": {
+      "open": "Kapı: çalınmaya açık",
+      "closed": "Kapı: çalınmaya kapalı",
+      "hint": "Kapın kapalıyken kapı çalınsa da cevap verilmez. Kimse kapalı olduğunu anlayamaz."
+    },
+    "join": {
+      "ask": "Katılmak için izin iste",
+      "asking": "İzin isteniyor…",
+      "askHint": "Bu sohbetteki bazı kişiler karşılıklı arkadaşın değil. İzin iste; hepsi kabul ederse, burada kaldığın sürece katılabilirsin.",
+      "request": "{{name}} sohbetinize katılmak istiyor.",
+      "requestSomeone": "Biri sohbetinize katılmak istiyor.",
+      "accept": "Katılsın",
+      "decline": "Şimdi değil",
+      "accepted": "Artık sohbettesin. Merhaba de!"
     },
     "beta": {
       "message": "🚧 Kasaba yapım aşamasında — bazı şeyler çalışıyor!",
@@ -192,10 +284,10 @@
       "work1": "rpg.actor karakterinle dolaş",
       "work2": "Yakındaki herkesin gördüğü sohbet balonları",
       "work3": "Birine yaklaş — mor bir aura sizi bağlar ve konuşabilirsiniz (mikrofon ve kamera isteğe bağlı)",
-      "work4": "Ortadaki evin özel — orada kimse seni göremez ya da duyamaz",
+      "work4": "Evin özel, topluluğundaki arkadaşlar da mahallene gelebilir",
       "soonHeading": "Yakında",
-      "soon1": "Arkadaşlarını içeri almak için kapı çalma",
-      "soon2": "Topluluğun için kendi çitli mahallen",
+      "soon1": "Evini dekore etmek",
+      "soon2": "Kasaba meydanında oyun salonu ve sinema",
       "soon3": "Evler, dekorasyon, oyun salonu ve daha fazlası",
       "feedback": "Bozuk bir şey ya da bir dilek mi? ProtoBuddy'ye söyle: /feedback mesajın",
       "close": "Anladım"

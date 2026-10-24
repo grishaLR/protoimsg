@@ -148,6 +148,9 @@ const facing = z.number().int().min(0).max(3);
 
 const townJoin = z.object({
   type: z.literal('town_join'),
+  // Parsed and admission-checked by TownRoom; here only bounded.
+  scene: z.string().min(1).max(2100).optional(),
+  fof: z.boolean().optional(),
   x: coord,
   y: coord,
   dir: facing,
@@ -158,6 +161,7 @@ const townMove = z.object({
   x: coord,
   y: coord,
   dir: facing,
+  sprint: z.boolean().optional(),
 });
 
 const townChat = z.object({
@@ -168,6 +172,28 @@ const townChat = z.object({
 const townLeave = z.object({ type: z.literal('town_leave') });
 
 const townVoiceRefresh = z.object({ type: z.literal('town_voice_refresh') });
+
+const townFof = z.object({ type: z.literal('town_fof'), on: z.boolean() });
+
+const townKnock = z.object({ type: z.literal('town_knock') });
+
+const townKnockAnswer = z.object({
+  type: z.literal('town_knock_answer'),
+  knockId: z.string().min(1).max(64),
+  letIn: z.boolean(),
+});
+
+const townKick = z.object({ type: z.literal('town_kick'), did: z.string().min(1).max(2048) });
+
+const townKnocking = z.object({ type: z.literal('town_knocking'), open: z.boolean() });
+
+const townJoinAsk = z.object({ type: z.literal('town_join_ask') });
+
+const townJoinAnswer = z.object({
+  type: z.literal('town_join_answer'),
+  requestId: z.string().min(1).max(64),
+  accept: z.boolean(),
+});
 
 const clientMessage = z.discriminatedUnion('type', [
   statusChange,
@@ -195,6 +221,13 @@ const clientMessage = z.discriminatedUnion('type', [
   groupCallLeave,
   townJoin,
   townMove,
+  townFof,
+  townKnock,
+  townKnockAnswer,
+  townKick,
+  townKnocking,
+  townJoinAsk,
+  townJoinAnswer,
   townChat,
   townLeave,
   townVoiceRefresh,

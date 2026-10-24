@@ -27,7 +27,8 @@ jobs:
           FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
 
   deploy-web:
-    needs: check-label
+    # After the server: a new client must never talk to an old server.
+    needs: [check-label, deploy-server]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6

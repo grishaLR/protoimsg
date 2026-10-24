@@ -22,6 +22,57 @@
   pointer-events: none;
 }
 
+.hudGroup {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--cm-space-2);
+}
+
+/* The top bar ignores the pointer (the world shows through); this opts back in. */
+.fofToggle {
+  pointer-events: auto;
+}
+
+/* Where you are and who can see you — always on screen. Body colours (not
+   primary-on-primary, which falls short of AA in several themes), with the
+   primary colour as its frame so it stands apart from the controls hint. */
+.sceneChip {
+  padding: var(--cm-space-2) var(--cm-space-5);
+  font-size: var(--cm-text-xs);
+  font-weight: 700;
+  color: var(--color-base-content);
+  background: var(--color-base-100);
+  border: var(--cm-space-0.5) solid var(--color-primary);
+  border-radius: var(--cm-radius-sm);
+  box-shadow: var(--cm-raised);
+  user-select: none;
+}
+
+/* Scene hand-off: covers the world while the next scene loads. */
+.fade {
+  position: absolute;
+  inset: var(--cm-space-0);
+  background: var(--cm-town-fade-outdoors);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--cm-duration-slower) var(--cm-ease-out);
+}
+
+.fadeIndoors {
+  background: var(--cm-town-fade-indoors);
+}
+
+.fadeOn {
+  opacity: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fade {
+    transition: none;
+  }
+}
+
 .hud {
   padding: var(--cm-space-2) var(--cm-space-5);
   font-size: var(--cm-text-xs);
@@ -124,6 +175,13 @@
 }
 
 /* 44px touch target on phones/tablets: space-16 (32) + space-6 (12). */
+/* Waiting on an answer: still focusable (so focus isn't lost), visibly inert. */
+.voiceButton[aria-disabled='true'] {
+  opacity: var(--cm-opacity-disabled);
+  cursor: default;
+  box-shadow: none;
+}
+
 @media (pointer: coarse) {
   .voiceButton {
     min-block-size: calc(var(--cm-space-16) + var(--cm-space-6));
