@@ -132,7 +132,8 @@
   },
   "town": {
     "hud": {
-      "controls": "WASD / phím mũi tên để đi · Space để chạy"
+      "controls": "WASD / phím mũi tên để đi · Space để chạy",
+      "controlsTouch": "Cần điều khiển để đi"
     },
     "chat": {
       "placeholder": "Say something to the town…",

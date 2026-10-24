@@ -43,27 +43,29 @@ export interface TownBuiltin {
 
 /** Starter objects every space can use, until rpg.actor world objects arrive. */
 export const TOWN_BUILTINS = {
-  bed: { w: 2, h: 3, solid: true, spaces: ['home'], rotates: true },
+  // Drawn from OpenPixels (Silveira Neto, CC BY-SA 4.0); footprints match the art.
+  bed: { w: 2, h: 2, solid: true, spaces: ['home'], rotates: true },
   nightstand: { w: 1, h: 1, solid: true, spaces: ['home'], rotates: false },
-  couch: { w: 3, h: 1, solid: true, spaces: ['home'], rotates: true },
-  armchair: { w: 1, h: 1, solid: true, spaces: ['home'], rotates: true },
-  table: { w: 2, h: 1, solid: true, spaces: ['home', 'yard'], rotates: true },
-  bookshelf: { w: 1, h: 2, solid: true, spaces: ['home'], rotates: true },
+  couch: { w: 2, h: 1, solid: true, spaces: ['home'], rotates: true },
+  armchair: { w: 1, h: 1, solid: true, spaces: ['home'], rotates: false },
+  table: { w: 2, h: 2, solid: true, spaces: ['home', 'yard'], rotates: true },
+  bookshelf: { w: 2, h: 2, solid: true, spaces: ['home'], rotates: false },
   plant: { w: 1, h: 1, solid: true, spaces: ['home', 'yard'], rotates: false },
-  rug: { w: 6, h: 3, solid: false, spaces: ['home'], rotates: true },
+  rug: { w: 4, h: 3, solid: false, spaces: ['home'], rotates: true },
   pine: { w: 1, h: 1, solid: true, spaces: ['yard'], rotates: false },
   bush: { w: 1, h: 1, solid: true, spaces: ['yard'], rotates: false },
   flowerbed: { w: 2, h: 1, solid: false, spaces: ['yard'], rotates: true },
-  bench: { w: 2, h: 1, solid: true, spaces: ['yard'], rotates: true },
-  lamppost: { w: 1, h: 1, solid: true, spaces: ['yard'], rotates: false },
-  // From the ansimuz "RPG Town" pack (CC0), like the pines and the pond.
-  pumpkins: { w: 1, h: 1, solid: true, spaces: ['yard'], rotates: false },
   garden: { w: 2, h: 2, solid: false, spaces: ['yard'], rotates: false },
   boulder: { w: 1, h: 1, solid: true, spaces: ['yard'], rotates: false },
   stone: { w: 1, h: 1, solid: false, spaces: ['yard'], rotates: false },
   chest: { w: 1, h: 1, solid: true, spaces: ['home', 'yard'], rotates: false },
   barrel: { w: 1, h: 1, solid: true, spaces: ['home', 'yard'], rotates: false },
   wildflowers: { w: 1, h: 1, solid: false, spaces: ['yard'], rotates: false },
+  // Hand-drawn until open art turns up for them.
+  bench: { w: 2, h: 1, solid: true, spaces: ['yard'], rotates: true },
+  lamppost: { w: 1, h: 1, solid: true, spaces: ['yard'], rotates: false },
+  // From the ansimuz "RPG Town" pack (CC0).
+  pumpkins: { w: 1, h: 1, solid: true, spaces: ['yard'], rotates: false },
 } as const satisfies Record<string, TownBuiltin>;
 
 export type TownBuiltinId = keyof typeof TOWN_BUILTINS;
@@ -201,11 +203,11 @@ function allReachable(space: TownSpace, solid: ReadonlySet<string>): boolean {
 /** What a space looks like before its owner has designed it. */
 export const TOWN_DEFAULT_LAYOUT: Record<TownSpace, TownPlacement[]> = {
   home: [
-    { builtin: 'rug', x: 4, y: 4 },
+    { builtin: 'rug', x: 5, y: 4 },
     { builtin: 'bed', x: 1, y: 2 },
     { builtin: 'nightstand', x: 3, y: 2 },
     { builtin: 'couch', x: 8, y: 2 },
-    { builtin: 'bookshelf', x: 12, y: 2 },
+    { builtin: 'bookshelf', x: 11, y: 2 },
     { builtin: 'plant', x: 12, y: 8 },
     { builtin: 'plant', x: 1, y: 8 },
   ],

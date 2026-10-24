@@ -41,6 +41,7 @@ import { playDoorOpen, playImNotify } from '../../lib/sounds';
 import { ProximityVoice, type ProximityVideo } from '../../town/ProximityVoice';
 import { TownVideoWindow } from './TownVideoWindow';
 import { TownBetaNotice } from './TownBetaNotice';
+import { TownJoystick } from './TownJoystick';
 import styles from './ProtoTownPanel.module.css';
 
 // Visibility-IS-location: the scene you're in decides who sees you online.
@@ -100,8 +101,9 @@ function writeKnockingOpen(open: boolean): void {
 const FOF_STORAGE_KEY = 'protoimsg:townFof';
 // The signpost resolves names for at most this many neighborhoods.
 const SIGNPOST_NAMES = 100;
-// Gate signs sit 192 world px apart; longer names would run into the next one.
-const GATE_NAME_MAX = 18;
+// Gate signs sit four tiles (128 world px) apart; longer names would run into
+// the next one.
+const GATE_NAME_MAX = 12;
 
 /** `did:plc:abcd1234…` — something to show while (or if) a profile won't load. */
 function shortDid(did: string): string {
@@ -110,6 +112,11 @@ function shortDid(did: string): string {
 
 function clip(text: string, max: number): string {
   return text.length > max ? `${text.slice(0, max - 1)}…` : text;
+}
+
+/** A phone or tablet: you walk by tapping, not with keys. */
+function isTouchFirst(): boolean {
+  return window.matchMedia('(pointer: coarse)').matches;
 }
 
 function prefersReducedMotion(): boolean {
@@ -281,6 +288,7 @@ export function ProtoTownPanel() {
   const [cameraEvent, setCameraEvent] = useState<'on' | 'off' | 'joined' | null>(null);
   // Other people's video starts hidden; you reveal each feed yourself.
   const [revealed, setRevealed] = useState<Set<string>>(() => new Set());
+  const [touchFirst] = useState(isTouchFirst);
   // Designing your own home or yard: the tray's state, and the permission
   // prompt for sessions that can't save designs yet.
   const [buildView, setBuildView] = useState<TownBuildView | null>(null);
@@ -339,9 +347,10 @@ export function ProtoTownPanel() {
       const here = sceneRef.current;
       if (id.startsWith('gate:')) {
         const owner = id.slice('gate:'.length);
-        return owner === did
-          ? tt('town.doors.neighborhood.label')
-          : clip(nameOfRef.current(owner), GATE_NAME_MAX);
+        return clip(
+          owner === did ? tt('town.doors.neighborhood.label') : nameOfRef.current(owner),
+          GATE_NAME_MAX,
+        );
       }
       if (id === 'door:home' && here?.kind === 'neighborhood' && here.owner !== did) {
         return tt('town.doors.houseOf.label', { name: nameOfRef.current(here.owner) });
@@ -1307,7 +1316,9 @@ export function ProtoTownPanel() {
       <div className={`${styles.topBar} ${bannerShown ? styles.belowBanner : ''}`}>
         <div className={styles.hudGroup}>
           {scene && <div className={styles.sceneChip}>{chipText}</div>}
-          <div className={styles.hud}>{t('town.hud.controls')}</div>
+          <div className={styles.hud}>
+            {t(touchFirst ? 'town.hud.controlsTouch' : 'town.hud.controls')}
+          </div>
           {scene?.kind === 'square' && (
             <button
               type="button"
@@ -1516,6 +1527,10 @@ export function ProtoTownPanel() {
             setConsentOpen(false);
           }}
         />
+      )}
+      {/* Walking on a touch screen; out of the way while the build tray is up. */}
+      {touchFirst && !buildView && (
+        <TownJoystick onMove={(x, y) => engineRef.current?.setStick(x, y)} />
       )}
       {videos.length > 0 && (
         <TownVideoWindow videos={videos} isRevealed={isRevealed} onToggleReveal={toggleReveal} />

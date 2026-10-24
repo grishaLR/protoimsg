@@ -132,7 +132,8 @@
   },
   "town": {
     "hud": {
-      "controls": "WASD / ลูกศร เพื่อเดิน · Space เพื่อวิ่ง"
+      "controls": "WASD / ลูกศร เพื่อเดิน · Space เพื่อวิ่ง",
+      "controlsTouch": "จอยสติ๊กเพื่อเดิน"
     },
     "chat": {
       "placeholder": "Say something to the town…",

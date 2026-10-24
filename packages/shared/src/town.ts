@@ -3,7 +3,7 @@
 // see you falls out of which scene you're in. The server needs the scene
 // shapes too, to clamp positions and place arrivals.
 
-export const TOWN_TILE = 48;
+export const TOWN_TILE = 32;
 
 /**
  * - `home` — your private room. You spawn here; guests need you to let them in.
@@ -91,7 +91,7 @@ export const TOWN_NEIGHBORHOOD_LAYOUT = {
   h: 24,
   fence: { x: 1, y: 1, w: 30, h: 22 },
   gate: { x: 15, y: 22, w: 2, h: 1 },
-  house: { x: 12, y: 7, w: 8, h: 5 },
+  house: { x: 12, y: 8, w: 8, h: 4 },
   door: { x: 15, y: 11, w: 2, h: 1 },
 } as const;
 
@@ -109,7 +109,7 @@ export const TOWN_SQUARE_LAYOUT = {
   /** Your own neighborhood's gate. */
   ownSlot: 4,
   plaza: { x: 10, y: 8, w: 20, h: 14 },
-  fountain: { x: 18, y: 13, w: 4, h: 4 },
+  fountain: { x: 19, y: 14, w: 2, h: 2 },
   benches: [
     { x: 12, y: 10, w: 2, h: 1 },
     { x: 26, y: 10, w: 2, h: 1 },

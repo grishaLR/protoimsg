@@ -1,8 +1,7 @@
-// Per-scene maps for proto town. Ground is a uniform layer per scene; objects
-// are placed sprites from the ansimuz "RPG Town" CC0 pack, and structures
-// (walls, fence, house, furniture) are procedural pixel art from
-// structures.ts. Scene sizes and doorways live in @protoimsg/shared so the
-// server sees the same shapes.
+// Per-scene maps for proto town: size, collision, and the fixed scenery (the
+// forest edge, the yard's well). Everything is drawn from the OpenPixels
+// sheet (openpixels.ts, structures.ts). Scene sizes and doorways live in
+// @protoimsg/shared so the server sees the same shapes.
 
 import {
   TOWN_HOME_LAYOUT,
@@ -17,20 +16,12 @@ import {
 import type { TownPlacement, TownSceneKind, TownSpace } from '@protoimsg/shared';
 
 export const TILE = TOWN_TILE;
-export const OBJ_SCALE = 2; // collage objects are 16-px base art
+export const OBJ_SCALE = 2; // the ansimuz pack's 16-px sprites (the pumpkins)
 
 export const ASSET_BASE = '/assets/town/town_rpg_pack';
 
-/** Placeable pieces drawn from the pack's own art (one PNG each, in objects/). */
-export const SPRITE_PIECES = [
-  'pumpkins',
-  'garden',
-  'boulder',
-  'stone',
-  'chest',
-  'barrel',
-  'wildflowers',
-] as const;
+/** Placeable pieces with a pack sprite of their own (one PNG each, in objects/). */
+export const SPRITE_PIECES = ['pumpkins'] as const;
 
 export type TownObjectType = 'pine' | 'pond';
 
@@ -39,12 +30,6 @@ export interface PlacedObject {
   tx: number;
   ty: number;
 }
-
-// Native crop sizes of each object PNG (pre-OBJ_SCALE).
-export const OBJECT_ART: Record<TownObjectType, { w: number; h: number }> = {
-  pine: { w: 15, h: 82 },
-  pond: { w: 60, h: 46 },
-};
 
 interface Rect {
   x: number;
@@ -144,8 +129,8 @@ export interface SceneMap {
   h: number;
   /** Canvas colour around the map. */
   background: number;
-  /** Grass tint (null = indoor floor, drawn by structures). */
-  grassTint: number | null;
+  /** Grass underfoot (false = an indoor floor, drawn by structures). */
+  outdoors: boolean;
   objects: PlacedObject[];
   isBlockedTile(tx: number, ty: number): boolean;
 }
@@ -153,7 +138,7 @@ export interface SceneMap {
 function buildSceneMap(
   kind: TownSceneKind,
   background: number,
-  grassTint: number | null,
+  outdoors: boolean,
   objects: PlacedObject[],
 ): SceneMap {
   const { w, h } = TOWN_LAYOUTS[kind];
@@ -189,7 +174,7 @@ function buildSceneMap(
     w,
     h,
     background,
-    grassTint,
+    outdoors,
     objects,
     isBlockedTile: (tx, ty) =>
       tx < 0 || tx >= w || ty < 0 || ty >= h || blocked.has(`${String(tx)},${String(ty)}`),
@@ -199,16 +184,22 @@ function buildSceneMap(
 const N = TOWN_NEIGHBORHOOD_LAYOUT;
 const S = TOWN_SQUARE_LAYOUT;
 
+/** Around an outdoor map: a deeper shade of the sheet's grass. */
+const GRASS_EDGE = 0x5f9446;
+
 export const SCENE_MAPS: Record<TownSceneKind, SceneMap> = {
   // Lamplit evening indoors — the warm dark beyond the walls frames the room.
-  home: buildSceneMap('home', 0x241a14, null, []),
-  neighborhood: buildSceneMap('neighborhood', 0x4f6b2c, 0xd2e3b4, [
+  home: buildSceneMap('home', 0x241a14, false, []),
+  neighborhood: buildSceneMap('neighborhood', GRASS_EDGE, true, [
     // Inside the fence is the owner's to design (their layout); the pond stays.
     ...perimeterForest(N.w, N.h, true),
     { type: 'pond', tx: 23, ty: 15 },
   ]),
-  square: buildSceneMap('square', 0x6b8f3a, 0xffffff, [
-    ...perimeterForest(S.w, S.h),
+  square: buildSceneMap('square', GRASS_EDGE, true, [
+    // No tree right behind a gate: its opening has to read as a way through.
+    ...perimeterForest(S.w, S.h).filter(
+      (o) => !(o.ty === 0 && S.gateSlots.some((x) => o.tx >= x && o.tx <= x + 1)),
+    ),
     ...pines([
       [4, 22],
       [7, 25],

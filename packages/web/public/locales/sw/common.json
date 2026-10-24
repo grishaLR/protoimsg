@@ -130,7 +130,8 @@
   },
   "town": {
     "hud": {
-      "controls": "WASD / mishale kusogea · Space kukimbia"
+      "controls": "WASD / mishale kusogea · Space kukimbia",
+      "controlsTouch": "Joystick kutembea"
     },
     "chat": {
       "placeholder": "Say something to the town…",

@@ -1,0 +1,48 @@
+/* Bottom-left, above the chat bar; touch screens only. */
+.joystick {
+  position: absolute;
+  z-index: var(--cm-z-local-top);
+  inset-inline-start: max(var(--cm-space-6), env(safe-area-inset-left));
+  inset-block-end: calc(var(--cm-space-16) * 2);
+  inline-size: calc(var(--cm-space-16) * 4);
+  block-size: calc(var(--cm-space-16) * 4);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--color-base-100) 55%, transparent);
+  border: var(--cm-space-0.5) solid var(--color-base-300);
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+  transition: border-color var(--cm-duration-fast) var(--cm-ease-out);
+}
+
+.active {
+  border-color: var(--color-primary);
+}
+
+.knob {
+  inline-size: calc(var(--cm-space-16) + var(--cm-space-12));
+  block-size: calc(var(--cm-space-16) + var(--cm-space-12));
+  border-radius: 50%;
+  pointer-events: none;
+  background: var(--color-primary);
+  opacity: 0.85;
+}
+
+.active .knob {
+  opacity: 1;
+}
+
+@media (pointer: coarse) {
+  .joystick {
+    display: flex;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .joystick {
+    transition: none;
+  }
+}

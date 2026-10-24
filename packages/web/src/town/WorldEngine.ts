@@ -10,7 +10,6 @@ import {
   Sprite,
   Text,
   Texture,
-  TilingSprite,
   type FederatedPointerEvent,
 } from 'pixi.js';
 import {
@@ -55,6 +54,7 @@ import {
   sceneSigns,
   type SignId,
 } from './structures';
+import { OPENPIXELS_SHEET, OpenPixels } from './openpixels';
 import {
   ASSET_BASE,
   OBJ_SCALE,
@@ -245,11 +245,8 @@ export class WorldEngine {
   /** Current scene: its map, and every display object built for it. */
   private map: SceneMap = SCENE_MAPS.home;
   private sceneNodes: Container[] = [];
-  private textures: { grass: Texture | null; pine: Texture | null; pond: Texture | null } = {
-    grass: null,
-    pine: null,
-    pond: null,
-  };
+  /** The OpenPixels sheet everything in the world is drawn from. */
+  private art: OpenPixels | null = null;
   /** Pack art for placeable pieces, by builtin id. */
   private pieceTextures = new Map<string, Texture>();
   private signTexts = new Map<SignId, Text>();
@@ -293,6 +290,8 @@ export class WorldEngine {
     /** Picked up to move: the layout as it was, to put it back on Escape. */
     carrying: { piece: TownPlacement; before: TownPlacement[] } | null;
   } | null = null;
+  /** The on-screen joystick's push (touch), -1..1 each way, y up. */
+  private stick = { x: 0, y: 0 };
   /** The tile under the mouse (or last tap) in build mode; null = aim in front of you. */
   private pointerTile: { x: number; y: number } | null = null;
   private buildGrid: Graphics | null = null;
@@ -383,6 +382,8 @@ export class WorldEngine {
     this.app.stage.hitArea = this.app.screen;
     this.app.stage.on('pointermove', this.onStagePointerMove);
     this.app.stage.on('pointerdown', this.onStagePointerDown);
+    // Touches drive the avatar, not the page.
+    this.app.canvas.style.touchAction = 'none';
     this.app.canvas.addEventListener('pointerleave', this.onCanvasPointerLeave);
     this.app.canvas.addEventListener('contextmenu', this.onCanvasContextMenu);
 
@@ -717,6 +718,14 @@ export class WorldEngine {
   };
 
   /**
+   * The on-screen joystick (touch): -1..1 each way, y up. Walks like the
+   * arrow keys, slower when it's only partly pushed.
+   */
+  setStick(x: number, y: number): void {
+    this.stick = { x, y };
+  }
+
+  /**
    * Click or tap in build mode: pick up the piece there, or put down the one
    * in hand. Right-click takes the piece there away.
    */
@@ -835,19 +844,8 @@ export class WorldEngine {
     this.onBuildChange?.(view);
   }
 
-  /** One placed piece as a display object (pines are sprites; the rest pixel art). */
+  /** One placed piece as a display object (sheet art, or a pack sprite of its own). */
   private placementNode(p: TownPlacement): Container | null {
-    if (p.builtin === 'pine') {
-      const pine = this.textures.pine;
-      if (!pine) return null;
-      const s = new Sprite(pine);
-      s.anchor.set(0.5, 1);
-      s.scale.set(OBJ_SCALE);
-      const baseY = p.y * TILE + TILE;
-      s.position.set(p.x * TILE + TILE / 2, baseY);
-      s.zIndex = baseY;
-      return s;
-    }
     const tex = p.builtin ? this.pieceTextures.get(p.builtin) : undefined;
     const def = townBuiltin(p.builtin);
     if (tex && def) {
@@ -864,7 +862,7 @@ export class WorldEngine {
       s.zIndex = def.solid ? p.y * TILE + h - 1 : -4400;
       return s;
     }
-    return drawPlacement(p);
+    return drawPlacement(this.art, p);
   }
 
   /** Draw the scene's design (and its lamplight indoors). */
@@ -1042,16 +1040,19 @@ export class WorldEngine {
 
   /** Load shared textures; false if the engine was destroyed meanwhile. */
   private async loadAssets(): Promise<boolean> {
-    const [grass, pine, pond, ...pieces] = await Promise.all([
-      loadTexture(`${ASSET_BASE}/graphics/grass-tile.png`),
-      loadTexture(`${ASSET_BASE}/objects/pine.png`),
-      loadTexture(`${ASSET_BASE}/objects/pond.png`),
+    const [sheet, ...pieces] = await Promise.all([
+      loadImage(OPENPIXELS_SHEET).catch(() => null),
       ...SPRITE_PIECES.map((id) => loadTexture(`${ASSET_BASE}/objects/${id}.png`)),
     ]);
-    for (const t of [grass, pine, pond, ...pieces]) {
+    for (const t of pieces) {
       if (t) this.ownedTextures.push(t);
     }
-    this.textures = { grass, pine, pond };
+    if (sheet) {
+      const base = Texture.from(sheet);
+      base.source.scaleMode = 'nearest';
+      this.ownedTextures.push(base);
+      this.art = new OpenPixels(base, sheet);
+    }
     SPRITE_PIECES.forEach((id, i) => {
       const t = pieces[i];
       if (t) this.pieceTextures.set(id, t);
@@ -1070,22 +1071,19 @@ export class WorldEngine {
     this.sceneNodes = [];
     this.drawLayout();
     this.onSignHover?.(null, 0, 0);
-    const { grass, pine, pond } = this.textures;
+    const art = this.art;
     const map = this.map;
 
-    if (grass && map.grassTint !== null) {
-      const ground = new TilingSprite({
-        texture: grass,
-        width: map.w * TILE,
-        height: map.h * TILE,
-      });
-      ground.tint = map.grassTint;
+    if (art && map.outdoors) {
+      const ground = art.tiled('grass', 0, 0, map.w, map.h);
       ground.zIndex = -10000;
       this.addSceneNode(ground);
     }
 
-    for (const piece of buildStructures(map.kind, this.openSlots, this.hasMoreGates)) {
-      this.addSceneNode(piece);
+    if (art) {
+      for (const piece of buildStructures(art, map.kind, this.openSlots, this.hasMoreGates)) {
+        this.addSceneNode(piece);
+      }
     }
     this.windowGlow = null;
     if (map.kind === 'neighborhood') {
@@ -1095,21 +1093,19 @@ export class WorldEngine {
     }
     this.buildSignLabels();
 
-    for (const o of map.objects) {
-      if (o.type === 'pond' && pond) {
-        const s = new Sprite(pond);
-        s.anchor.set(0, 0);
-        s.scale.set(OBJ_SCALE);
-        s.position.set(o.tx * TILE, o.ty * TILE);
-        s.zIndex = -5000;
+    for (const o of art ? map.objects : []) {
+      if (!art) break;
+      if (o.type === 'pond') {
+        // The yard's water feature: the sheet's stone well, centred on its tiles.
+        const s = art.sprite('well', 0, 0);
+        s.position.set((o.tx + 1.5) * TILE - s.width / 2, (o.ty + 2) * TILE - s.height);
+        s.zIndex = (o.ty + 2) * TILE - 1;
         this.addSceneNode(s);
-      } else if (o.type === 'pine' && pine) {
-        const s = new Sprite(pine);
-        s.anchor.set(0.5, 1);
-        s.scale.set(OBJ_SCALE);
-        const baseY = o.ty * TILE + TILE;
-        s.position.set(o.tx * TILE + TILE / 2, baseY);
-        s.zIndex = baseY;
+      } else {
+        // The forest edge: trees standing on their tile, crowns spilling over.
+        const s = art.sprite('tree', 0, 0);
+        s.position.set((o.tx + 0.5) * TILE - s.width / 2, (o.ty + 1) * TILE - s.height + 6);
+        s.zIndex = (o.ty + 1) * TILE - 1;
         this.addSceneNode(s);
       }
     }
@@ -1361,6 +1357,13 @@ export class WorldEngine {
     if (this.keys.has('ArrowUp') || this.keys.has('w')) dy -= 1;
     if (this.keys.has('ArrowDown') || this.keys.has('s')) dy += 1;
 
+    // Keys win; otherwise the joystick, at the speed it's pushed to.
+    let throttle = 1;
+    if (dx === 0 && dy === 0 && (this.stick.x !== 0 || this.stick.y !== 0)) {
+      dx = this.stick.x;
+      dy = -this.stick.y;
+      throttle = Math.min(1, Math.hypot(dx, dy));
+    }
     const moving = !this.atDoor && (dx !== 0 || dy !== 0);
     if (moving) {
       if (Math.abs(dx) > Math.abs(dy)) this.player.dir = dx < 0 ? DIR_LEFT : DIR_RIGHT;
@@ -1368,7 +1371,7 @@ export class WorldEngine {
 
       const len = Math.hypot(dx, dy) || 1;
       const sprinting = this.keys.has(SPRINT_KEY);
-      const step = ((sprinting ? SPEED * SPRINT : SPEED) * dt) / len;
+      const step = ((sprinting ? SPEED * SPRINT : SPEED) * throttle * dt) / len;
       const nx = this.px + dx * step;
       const ny = this.py + dy * step;
       const map = this.map;
@@ -1567,6 +1570,8 @@ export class WorldEngine {
     }
     // Free GPU memory — these base textures are shared by frame sub-textures
     // and are not released by app.destroy({ texture: false }).
+    this.art?.destroy();
+    this.art = null;
     for (const t of this.frameTextures) t.destroy();
     this.frameTextures = [];
     for (const t of this.ownedTextures) t.destroy(true);

@@ -16,7 +16,8 @@ describe('designed spaces on the map', () => {
       { builtin: 'nope', x: 9, y: 9 },
     ]);
     expect(blocked.has('1,2')).toBe(true);
-    expect(blocked.has('2,4')).toBe(true); // bed is 2×3
+    expect(blocked.has('2,3')).toBe(true); // bed is 2×2
+    expect(blocked.has('2,4')).toBe(false);
     expect(blocked.has('3,2')).toBe(false);
     expect(blocked.has('5,5')).toBe(false); // rug: walk over it
     expect(blocked.has('9,9')).toBe(false); // unknown pieces are nothing

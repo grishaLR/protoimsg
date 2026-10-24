@@ -132,7 +132,8 @@
   },
   "town": {
     "hud": {
-      "controls": "WASD / saigheada le bogadh · Spás le rith"
+      "controls": "WASD / saigheada le bogadh · Spás le rith",
+      "controlsTouch": "Luamhán stiúrtha le siúl"
     },
     "chat": {
       "placeholder": "Say something to the town…",

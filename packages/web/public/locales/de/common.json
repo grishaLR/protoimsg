@@ -132,7 +132,8 @@
   },
   "town": {
     "hud": {
-      "controls": "WASD / Pfeiltasten zum Laufen · Leertaste zum Sprinten"
+      "controls": "WASD / Pfeiltasten zum Laufen · Leertaste zum Sprinten",
+      "controlsTouch": "Joystick zum Laufen"
     },
     "chat": {
       "placeholder": "Say something to the town…",

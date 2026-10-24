@@ -26,7 +26,7 @@ describe('validateTownLayout', () => {
     expect(
       validateTownLayout('home', [
         { builtin: 'plant', x: 3, y: 1 },
-        { builtin: 'couch', x: 11, y: 5 },
+        { builtin: 'couch', x: 12, y: 5 },
         { builtin: 'plant', x: 6, y: 8 },
       ]),
     ).toEqual([]);
@@ -78,12 +78,12 @@ describe('validateTownLayout', () => {
   });
 
   it('turns pieces that turn (swapping their footprint) and ignores turns on the rest', () => {
-    // A couch turned upright is 1 wide and 3 tall: it fits a 1-wide gap.
+    // A couch turned upright is 1 wide and 2 tall: it fits a 1-wide gap.
     expect(validateTownLayout('home', [{ builtin: 'couch', x: 6, y: 3, rotation: 1 }])).toEqual([
       { builtin: 'couch', x: 6, y: 3, rotation: 1 },
     ]);
-    expect(townFootprint({ builtin: 'couch', rotation: 3 })).toEqual({ w: 1, h: 3 });
-    expect(townFootprint({ builtin: 'couch', rotation: 2 })).toEqual({ w: 3, h: 1 });
+    expect(townFootprint({ builtin: 'couch', rotation: 3 })).toEqual({ w: 1, h: 2 });
+    expect(townFootprint({ builtin: 'couch', rotation: 2 })).toEqual({ w: 2, h: 1 });
     // A plant looks the same every way: its turn is dropped.
     expect(validateTownLayout('home', [{ builtin: 'plant', x: 6, y: 3, rotation: 2 }])).toEqual([
       { builtin: 'plant', x: 6, y: 3 },

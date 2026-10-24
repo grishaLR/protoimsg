@@ -132,7 +132,8 @@
   },
   "town": {
     "hud": {
-      "controls": "Hareket için WASD / oklar · Koşmak için Boşluk"
+      "controls": "Hareket için WASD / oklar · Koşmak için Boşluk",
+      "controlsTouch": "Yürümek için joystick"
     },
     "chat": {
       "placeholder": "Say something to the town…",

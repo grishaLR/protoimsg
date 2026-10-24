@@ -132,7 +132,8 @@
   },
   "town": {
     "hud": {
-      "controls": "WASD / flechas para moverte · Espacio para correr"
+      "controls": "WASD / flechas para moverte · Espacio para correr",
+      "controlsTouch": "Joystick para caminar"
     },
     "chat": {
       "placeholder": "Say something to the town…",

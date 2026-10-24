@@ -132,7 +132,8 @@
   },
   "town": {
     "hud": {
-      "controls": "WASD / 방향키로 이동 · 스페이스로 달리기"
+      "controls": "WASD / 방향키로 이동 · 스페이스로 달리기",
+      "controlsTouch": "조이스틱으로 걷기"
     },
     "chat": {
       "placeholder": "Say something to the town…",

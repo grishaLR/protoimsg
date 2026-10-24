@@ -132,7 +132,8 @@
   },
   "town": {
     "hud": {
-      "controls": "WASD / стрілки для руху · Пробіл, щоб бігти"
+      "controls": "WASD / стрілки для руху · Пробіл, щоб бігти",
+      "controlsTouch": "Джойстик для ходьби"
     },
     "chat": {
       "placeholder": "Say something to the town…",
