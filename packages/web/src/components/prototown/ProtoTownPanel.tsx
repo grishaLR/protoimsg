@@ -1229,38 +1229,39 @@ export function ProtoTownPanel() {
             {(canAskToJoin || asking) && (
               <span id="town-join-hint" className={styles.srOnly}>
                 {t('town.join.askHint')}
-                <button
-                  type="button"
-                  className={`${styles.voiceButton} ${micOn ? styles.micOn : ''}`}
-                  onClick={toggleMic}
-                >
-                  {micOn ? t('town.voice.micOn') : t('town.voice.micOff')}
-                </button>
-                {/* Never hide the off switch while the camera is live or starting. */}
-                {(nearbyCount > 0 || cameraOn || cameraPending) && (
-                  <button
-                    type="button"
-                    className={`${styles.voiceButton} ${cameraOn ? styles.micOn : ''}`}
-                    aria-busy={cameraPending}
-                    onClick={toggleCamera}
-                  >
-                    {cameraPending
-                      ? t('town.voice.camStarting')
-                      : cameraOn
-                        ? t('town.voice.camOn')
-                        : t('town.voice.camOff')}
-                  </button>
-                )}
-                {cameraOn && (
-                  <span className={`${styles.nearby} ${styles.camLive}`}>
-                    {t('town.voice.camLive')}
-                  </span>
-                )}
-                {cameraEvent === 'joined' && (
-                  <span className={styles.nearby}>{t('town.voice.camAutoOff')}</span>
-                )}
               </span>
             )}
+            <button
+              type="button"
+              className={`${styles.voiceButton} ${micOn ? styles.micOn : ''}`}
+              onClick={toggleMic}
+            >
+              {micOn ? t('town.voice.micOn') : t('town.voice.micOff')}
+            </button>
+            {/* Never hide the off switch while the camera is live or starting. */}
+            {(nearbyCount > 0 || cameraOn || cameraPending) && (
+              <button
+                type="button"
+                className={`${styles.voiceButton} ${cameraOn ? styles.micOn : ''}`}
+                aria-busy={cameraPending}
+                onClick={toggleCamera}
+              >
+                {cameraPending
+                  ? t('town.voice.camStarting')
+                  : cameraOn
+                    ? t('town.voice.camOn')
+                    : t('town.voice.camOff')}
+              </button>
+            )}
+            {cameraOn && (
+              <span className={`${styles.nearby} ${styles.camLive}`}>
+                {t('town.voice.camLive')}
+              </span>
+            )}
+            {cameraEvent === 'joined' && (
+              <span className={styles.nearby}>{t('town.voice.camAutoOff')}</span>
+            )}
+
             {micError && (
               <span className={styles.micError} role="alert">
                 {t('town.voice.micDenied')}
