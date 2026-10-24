@@ -127,6 +127,10 @@ export function HomePage() {
       });
       return;
     }
+    if (tab === 'town') {
+      if (TOWN_ENABLED) setView('town');
+      return;
+    }
     if (tab === 'meet' || tab === 'buddies' || tab === 'fun') {
       setView(tab === 'fun' ? 'games' : tab);
     }
@@ -246,7 +250,15 @@ export function HomePage() {
           )}
         </div>
         <MobileTabBar
-          activeTab={view === 'buddies' ? 'buddies' : view === 'games' ? 'fun' : 'meet'}
+          activeTab={
+            view === 'buddies'
+              ? 'buddies'
+              : view === 'games'
+                ? 'fun'
+                : view === 'town'
+                  ? 'town'
+                  : 'meet'
+          }
           onTabChange={handleTabChange}
         />
       </div>

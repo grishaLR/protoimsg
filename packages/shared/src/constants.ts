@@ -9,6 +9,8 @@ export const NSID = {
 
 /** Namespace prefix for all protoimsg Lexicon records */
 export const NSID_PREFIX = 'app.protoimsg.chat.';
+/** proto town records (designed spaces). */
+export const TOWN_NSID_PREFIX = 'app.protoimsg.town.';
 
 /** Server limits */
 export const LIMITS = {
@@ -63,4 +65,4 @@ export const DM_LIMITS = {
 /* -------------------------------------------------------------------------- */
 
 export const OAUTH_SCOPE =
-  'atproto include:app.protoimsg.chat.authFull repo:actor.rpg.stats repo:equipment.rpg.item';
+  'atproto include:app.protoimsg.chat.authFull repo:actor.rpg.stats repo:equipment.rpg.item repo:app.protoimsg.town.layout';

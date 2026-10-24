@@ -1,7 +1,9 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
+  TOWN_DEFAULT_LAYOUT,
   TOWN_JOIN_ASK_MS,
+  TOWN_LAYOUT_COLLECTION,
   TOWN_KNOCK_MS,
   TOWN_PROXIMITY,
   TOWN_SQUARE_LAYOUT,
@@ -10,13 +12,16 @@ import {
   townArrival,
   townDoorwayTarget,
   townSceneId,
+  validateTownLayout,
 } from '@protoimsg/shared';
 import type {
   PresenceVisibility,
   ServerMessage,
   TownGate,
+  TownPlacement,
   TownScene,
   TownSceneKind,
+  TownSpace,
 } from '@protoimsg/shared';
 import { useAuth } from '../../hooks/useAuth';
 import {
@@ -25,7 +30,10 @@ import {
   setTownVisibilityCap,
 } from '../../lib/presence-state';
 import { useWebSocket } from '../../contexts/WebSocketContext';
-import { WorldEngine, type SignId } from '../../town/WorldEngine';
+import { WorldEngine, type SignId, type TownBuildView } from '../../town/WorldEngine';
+import { sceneSpace } from '../../town/map';
+import { BuildConsent, BuildTray } from './TownBuild';
+import { canSaveLayouts, useLayoutSaver } from './useLayoutSaver';
 import { useProfiles } from '../../contexts/ProfileContext';
 import { TownSignpost } from './TownSignpost';
 import { GuestList, KnockPrompt, RequestCards, type PendingRequest } from './TownKnock';
@@ -33,6 +41,7 @@ import { playDoorOpen, playImNotify } from '../../lib/sounds';
 import { ProximityVoice, type ProximityVideo } from '../../town/ProximityVoice';
 import { TownVideoWindow } from './TownVideoWindow';
 import { TownBetaNotice } from './TownBetaNotice';
+import { TownJoystick } from './TownJoystick';
 import styles from './ProtoTownPanel.module.css';
 
 // Visibility-IS-location: the scene you're in decides who sees you online.
@@ -66,7 +75,8 @@ type SceneError =
   | 'removed'
   | 'privateHouse'
   | 'visitOver'
-  | 'noAnswer';
+  | 'noAnswer'
+  | 'buildLoad';
 type NoticeKey = 'removed' | 'privateHouse' | 'visitOver' | 'noAnswer';
 const NOTICE_KEYS = new Set<SceneError>(['removed', 'privateHouse', 'visitOver', 'noAnswer']);
 
@@ -91,8 +101,9 @@ function writeKnockingOpen(open: boolean): void {
 const FOF_STORAGE_KEY = 'protoimsg:townFof';
 // The signpost resolves names for at most this many neighborhoods.
 const SIGNPOST_NAMES = 100;
-// Gate signs sit 192 world px apart; longer names would run into the next one.
-const GATE_NAME_MAX = 18;
+// Gate signs sit four tiles (128 world px) apart; longer names would run into
+// the next one.
+const GATE_NAME_MAX = 12;
 
 /** `did:plc:abcd1234…` — something to show while (or if) a profile won't load. */
 function shortDid(did: string): string {
@@ -101,6 +112,11 @@ function shortDid(did: string): string {
 
 function clip(text: string, max: number): string {
   return text.length > max ? `${text.slice(0, max - 1)}…` : text;
+}
+
+/** A phone or tablet: you walk by tapping, not with keys. */
+function isTouchFirst(): boolean {
+  return window.matchMedia('(pointer: coarse)').matches;
 }
 
 function prefersReducedMotion(): boolean {
@@ -180,6 +196,16 @@ function writeMicPref(on: boolean): void {
   }
 }
 
+/**
+ * What a home or yard looks like: the design the server sent, or — from a
+ * server that predates designs — the default, so the room isn't bare.
+ */
+function layoutFor(kind: TownSceneKind, sent: TownPlacement[] | undefined): TownPlacement[] {
+  const space = sceneSpace(kind);
+  if (!space) return [];
+  return sent ?? TOWN_DEFAULT_LAYOUT[space];
+}
+
 function volumeAt(dist: number | null): number {
   if (dist === null) return MIN_VOLUME;
   const { joinRadius } = TOWN_PROXIMITY;
@@ -190,7 +216,7 @@ function volumeAt(dist: number | null): number {
 
 export function ProtoTownPanel() {
   const { t } = useTranslation('common');
-  const { did } = useAuth();
+  const { did, agent, grantedScopes, requestScopes } = useAuth();
   const { send, subscribe, connected } = useWebSocket();
   const containerRef = useRef<HTMLDivElement>(null);
   const engineRef = useRef<WorldEngine | null>(null);
@@ -262,6 +288,18 @@ export function ProtoTownPanel() {
   const [cameraEvent, setCameraEvent] = useState<'on' | 'off' | 'joined' | null>(null);
   // Other people's video starts hidden; you reveal each feed yourself.
   const [revealed, setRevealed] = useState<Set<string>>(() => new Set());
+  const [touchFirst] = useState(isTouchFirst);
+  // Designing your own home or yard: the tray's state, and the permission
+  // prompt for sessions that can't save designs yet.
+  const [buildView, setBuildView] = useState<TownBuildView | null>(null);
+  const [consentOpen, setConsentOpen] = useState(false);
+  const canSave = canSaveLayouts(grantedScopes);
+  const saver = useLayoutSaver(agent, did, send);
+  const saverRef = useRef(saver);
+  saverRef.current = saver;
+  const designButtonRef = useRef<HTMLButtonElement>(null);
+  // Reading your own design before building: no double starts.
+  const buildLoadingRef = useRef(false);
   // Screen-reader announcement on voice transitions only, not every roster tick.
   const [announcement, setAnnouncement] = useState('');
   // A repeated message (same door, same signpost) must still be read out:
@@ -309,9 +347,10 @@ export function ProtoTownPanel() {
       const here = sceneRef.current;
       if (id.startsWith('gate:')) {
         const owner = id.slice('gate:'.length);
-        return owner === did
-          ? tt('town.doors.neighborhood.label')
-          : clip(nameOfRef.current(owner), GATE_NAME_MAX);
+        return clip(
+          owner === did ? tt('town.doors.neighborhood.label') : nameOfRef.current(owner),
+          GATE_NAME_MAX,
+        );
       }
       if (id === 'door:home' && here?.kind === 'neighborhood' && here.owner !== did) {
         return tt('town.doors.houseOf.label', { name: nameOfRef.current(here.owner) });
@@ -529,6 +568,35 @@ export function ProtoTownPanel() {
       setSignpostOpen(on);
       if (on) announce(tRef.current('town.signpost.title'));
     };
+    let building = false;
+    let heldItem: string | null = null;
+    engine.onBuildChange = (view) => {
+      if (building !== (view !== null)) {
+        building = view !== null;
+        announce(tRef.current(view ? 'town.build.announceOn' : 'town.build.announceOff'));
+      } else if (view && view.item !== heldItem) {
+        // Switched pieces: say which one is in hand now.
+        announce(tRef.current(`town.build.items.${view.item}`));
+      }
+      heldItem = view?.item ?? null;
+      setBuildView(view);
+      if (view) return;
+      // Done designing: save now rather than after the quiet moment.
+      saverRef.current.flush();
+      // Focus was in the tray that's about to go: keep it on the Design button.
+      if (document.activeElement?.closest('[data-town-build]')) {
+        requestAnimationFrame(() => designButtonRef.current?.focus());
+      }
+    };
+    engine.onBuildRequest = () => {
+      void startBuildingRef.current();
+    };
+    engine.onBuildAction = (action) => {
+      announce(tRef.current(`town.build.announce.${action}`));
+    };
+    engine.onLayoutEdit = (space, placements) => {
+      saverRef.current.queue(space, placements);
+    };
     void engine.init(container, did, home.kind).then(() => {
       if (engineRef.current === engine) setEngineEpoch((e) => e + 1);
     });
@@ -561,6 +629,8 @@ export function ProtoTownPanel() {
       setVideos([]);
       setRevealed(new Set());
       setMicError(false);
+      setBuildView(null);
+      setConsentOpen(false);
       sendRef.current({ type: 'town_leave' });
       // Leaving town: lift the cap and restore your own setting.
       setTownVisibilityCap(null);
@@ -655,7 +725,7 @@ export function ProtoTownPanel() {
             const left = cur && cur.kind !== 'square' ? cur.owner : null;
             e.setWindowLit(msg.data.windowLit ?? false);
             arriveIn(next); // first, so the new scene's signs read right
-            e.enterScene(next.kind, msg.data.self);
+            e.enterScene(next.kind, msg.data.self, layoutFor(next.kind, msg.data.layout));
             endTransition();
             if (msg.data.reason === 'visitOver') setSceneError('visitOver');
             else if (msg.data.reason === 'removed' && left) {
@@ -666,7 +736,7 @@ export function ProtoTownPanel() {
             // Let in: swap scenes behind the fade, then lift it.
             e.setWindowLit(msg.data.windowLit ?? false);
             arriveIn(next);
-            e.enterScene(next.kind, msg.data.self);
+            e.enterScene(next.kind, msg.data.self, layoutFor(next.kind, msg.data.layout));
             endTransition();
             pendingSceneRef.current = null;
           } else if (!cur || msg.data.scene !== townSceneId(cur)) {
@@ -679,6 +749,9 @@ export function ProtoTownPanel() {
           // Otherwise a (re)join confirming the scene we're in: refresh peers,
           // leave any doorway hand-off in flight alone.
           e.setWindowLit(msg.data.windowLit ?? false);
+          if (next && !(next.kind !== 'square' && next.owner === did && saverRef.current.busy())) {
+            e.setLayout(layoutFor(next.kind, msg.data.layout));
+          }
           e.setPeers(msg.data.peers);
           setVoiceSupported(msg.data.voice);
           // Warm up DNS/TLS to LiveKit before anyone walks up to you.
@@ -725,6 +798,15 @@ export function ProtoTownPanel() {
         case 'town_window':
           e.setWindowLit(msg.data.lit);
           break;
+        case 'town_layout': {
+          const here = sceneRef.current;
+          if (!here || sceneSpace(here.kind) !== msg.data.space) break;
+          // Your own space with a save still to land: this echo is older
+          // than what you see. The last save's echo brings it in line.
+          if (here.kind !== 'square' && here.owner === did && saverRef.current.busy()) break;
+          e.setLayout(msg.data.placements);
+          break;
+        }
         case 'town_join_available':
           setJoinAvailable(msg.data.available);
           if (!msg.data.available) setJoinAnswered(false);
@@ -1056,6 +1138,83 @@ export function ProtoTownPanel() {
     [startTransition],
   );
 
+  // Your own home or yard is yours to design; only with a session that can
+  // save it (otherwise the button asks for that permission first).
+  const ownSpace =
+    scene && scene.kind !== 'square' && scene.owner === did ? sceneSpace(scene.kind) : null;
+  useEffect(() => {
+    if (engineEpoch === 0) return;
+    // B works without the permission too: it opens the prompt for it.
+    engineRef.current?.setBuildable(ownSpace);
+  }, [ownSpace, canSave, engineEpoch]);
+  useEffect(() => {
+    setConsentOpen(false);
+  }, [ownSpace]);
+
+  /**
+   * Begin designing your own space, from your own record read fresh from
+   * your repo (or a save of yours that hasn't landed yet) — never from what
+   * the server happened to show, which may be the default after a hiccup.
+   */
+  const startBuilding = useCallback(async () => {
+    const space: TownSpace | null = ownSpace;
+    const engine = engineRef.current;
+    if (!space || !engine || engine.isBuilding() || buildLoadingRef.current) return;
+    if (!canSave || !agent || !did) {
+      setConsentOpen(true);
+      return;
+    }
+    buildLoadingRef.current = true;
+    try {
+      let placements = saver.pendingFor(space);
+      if (!placements) {
+        try {
+          const res = await agent.com.atproto.repo.getRecord({
+            repo: did,
+            collection: TOWN_LAYOUT_COLLECTION,
+            rkey: space,
+          });
+          const value = res.data.value as { space?: unknown; placements?: unknown };
+          placements =
+            value.space === space
+              ? validateTownLayout(space, value.placements)
+              : TOWN_DEFAULT_LAYOUT[space];
+        } catch (err: unknown) {
+          // Never designed: start from the default. Anything else: don't guess.
+          if ((err as { error?: unknown }).error !== 'RecordNotFound') throw err;
+          placements = TOWN_DEFAULT_LAYOUT[space];
+        }
+      }
+      // You may have walked out while it loaded.
+      if (
+        engineRef.current !== engine ||
+        sceneSpace(sceneRef.current?.kind ?? 'square') !== space
+      ) {
+        return;
+      }
+      engine.beginBuild(placements);
+    } catch {
+      setSceneError('buildLoad');
+    } finally {
+      buildLoadingRef.current = false;
+    }
+  }, [ownSpace, canSave, agent, did, saver, announce, t]);
+  const startBuildingRef = useRef(startBuilding);
+  startBuildingRef.current = startBuilding;
+
+  const toggleBuild = useCallback(() => {
+    const engine = engineRef.current;
+    if (engine?.isBuilding()) engine.endBuild();
+    else if (!canSave) setConsentOpen((open) => !open);
+    else void startBuilding();
+  }, [canSave, startBuilding]);
+
+  const allowSaving = useCallback(() => {
+    void requestScopes().catch(() => {
+      setConsentOpen(false);
+    });
+  }, [requestScopes]);
+
   // Where you are, in words: the chip and the arrival note.
   const visitingName =
     scene?.kind === 'neighborhood' && scene.owner !== did ? nameOf(scene.owner) : null;
@@ -1071,11 +1230,13 @@ export function ProtoTownPanel() {
           ? t('town.scenes.square.chipFof')
           : t(`town.scenes.${scene.kind}.chip`);
   const noteText = sceneError
-    ? NOTICE_KEYS.has(sceneError)
-      ? t(`town.scenes.notice.${sceneError as NoticeKey}`, {
-          name: noticeOwner ? nameOf(noticeOwner) : '…',
-        })
-      : t(`town.scenes.error.${sceneError as 'closed' | 'timeout' | 'outdated'}`)
+    ? sceneError === 'buildLoad'
+      ? t('town.build.loadFailed')
+      : NOTICE_KEYS.has(sceneError)
+        ? t(`town.scenes.notice.${sceneError as NoticeKey}`, {
+            name: noticeOwner ? nameOf(noticeOwner) : '…',
+          })
+        : t(`town.scenes.error.${sceneError as 'closed' | 'timeout' | 'outdated'}`)
     : sceneNote
       ? visitingName && sceneNote === 'neighborhood'
         ? t('town.scenes.visiting.enter', { name: visitingName })
@@ -1131,7 +1292,7 @@ export function ProtoTownPanel() {
   }, [send]);
 
   return (
-    <div className={styles.panel}>
+    <div className={styles.panel} data-town-root>
       <div className={styles.world} ref={containerRef} />
       <div ref={audioHostRef} hidden />
       <div className={styles.srOnly} aria-live="polite">
@@ -1155,7 +1316,9 @@ export function ProtoTownPanel() {
       <div className={`${styles.topBar} ${bannerShown ? styles.belowBanner : ''}`}>
         <div className={styles.hudGroup}>
           {scene && <div className={styles.sceneChip}>{chipText}</div>}
-          <div className={styles.hud}>{t('town.hud.controls')}</div>
+          <div className={styles.hud}>
+            {t(touchFirst ? 'town.hud.controlsTouch' : 'town.hud.controls')}
+          </div>
           {scene?.kind === 'square' && (
             <button
               type="button"
@@ -1188,6 +1351,30 @@ export function ProtoTownPanel() {
             <span id="town-door-hint" className={styles.srOnly}>
               {t('town.door.hint')}
             </span>
+          )}
+          {ownSpace && (
+            <button
+              ref={designButtonRef}
+              data-town-build
+              type="button"
+              className={`${styles.voiceButton} ${styles.fofToggle} ${buildView ? styles.micOn : ''}`}
+              aria-keyshortcuts="B"
+              aria-expanded={canSave ? undefined : consentOpen}
+              title={t('town.build.buttonHint')}
+              onClick={toggleBuild}
+            >
+              {t(buildView ? 'town.build.stop' : 'town.build.start')}
+            </button>
+          )}
+          {/* Out of build mode with a save that failed: still say so. */}
+          {!buildView && saver.status === 'error' && (
+            <button
+              type="button"
+              className={`${styles.voiceButton} ${styles.fofToggle}`}
+              onClick={saver.flush}
+            >
+              {`${t('town.build.saveFailed')} · ${t('town.build.retry')}`}
+            </button>
           )}
           {atOwnHome && canAskNotify && knockingOpen && (
             <button
@@ -1318,6 +1505,32 @@ export function ProtoTownPanel() {
             setSignpostOpen(false);
           }}
         />
+      )}
+      {/* A knock outranks the tray (they share a spot): answer, then carry on. */}
+      {buildView && !(atOwnHome && knocks.length > 0) && (
+        <BuildTray
+          view={buildView}
+          status={saver.status}
+          onSelect={(id) => engineRef.current?.selectBuildItem(id)}
+          onPlace={() => engineRef.current?.placeAtCursor()}
+          onRotate={() => engineRef.current?.rotateBuildItem()}
+          onPickUp={() => engineRef.current?.pickUpAtCursor()}
+          onRemove={() => engineRef.current?.removeAtCursor()}
+          onRetry={saver.flush}
+          onDone={() => engineRef.current?.endBuild()}
+        />
+      )}
+      {consentOpen && ownSpace && !canSave && (
+        <BuildConsent
+          onAllow={allowSaving}
+          onCancel={() => {
+            setConsentOpen(false);
+          }}
+        />
+      )}
+      {/* Walking on a touch screen; out of the way while the build tray is up. */}
+      {touchFirst && !buildView && (
+        <TownJoystick onMove={(x, y) => engineRef.current?.setStick(x, y)} />
       )}
       {videos.length > 0 && (
         <TownVideoWindow videos={videos} isRevealed={isRevealed} onToggleReveal={toggleReveal} />

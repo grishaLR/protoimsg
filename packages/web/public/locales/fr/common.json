@@ -132,7 +132,8 @@
   },
   "town": {
     "hud": {
-      "controls": "WASD / flèches pour bouger · Espace pour courir"
+      "controls": "WASD / flèches pour bouger · Espace pour courir",
+      "controlsTouch": "Joystick pour marcher"
     },
     "chat": {
       "placeholder": "Say something to the town…",
@@ -291,6 +292,66 @@
       "soon3": "Des maisons, de la déco, la salle d’arcade et plus",
       "feedback": "Un bug ou une envie ? Dis-le à ProtoBuddy : /feedback ton message",
       "close": "Compris"
+    },
+    "build": {
+      "start": "Décorer",
+      "stop": "Terminer",
+      "buttonHint": "Arrange ton espace (B). Tous ceux qui te rendent visite voient ton aménagement.",
+      "titleHome": "Aménagement de ton chez-toi",
+      "titleYard": "Aménagement de ton jardin",
+      "pieces": "Objets",
+      "place": "Placer",
+      "rotate": "Pivoter",
+      "pickUp": "Déplacer",
+      "remove": "Retirer",
+      "done": "Terminé",
+      "retry": "Réessayer",
+      "hint": "Clique pour placer, ou clique sur un objet pour le déplacer. Le clic droit retire. Touches : R tourne, E prend, Entrée place, Suppr retire, [ ] change d’objet.",
+      "hintCarrying": "Clique là où il va (ou appuie sur Entrée). R le tourne, Suppr le retire, Échap le remet en place.",
+      "full": "Un espace ne peut pas contenir plus d’objets. Retires-en un pour en placer un autre.",
+      "saving": "Enregistrement…",
+      "saved": "Enregistré sur ton compte",
+      "saveFailed": "Échec de l’enregistrement",
+      "loadFailed": "Impossible de charger ton aménagement. Réessaie dans un instant.",
+      "announceOn": "Aménagement en cours. Clique sur un emplacement, ou tourne-toi vers lui et appuie sur Entrée, pour placer un objet.",
+      "announceOff": "Aménagement terminé.",
+      "announce": {
+        "placed": "Placé.",
+        "removed": "Retiré.",
+        "blocked": "Ça ne rentre pas ici.",
+        "full": "Plus de place pour d’autres objets.",
+        "pickedUp": "Objet pris. Pose-le là où il va, ou appuie sur Échap pour le remettre en place.",
+        "putBack": "Remis en place.",
+        "rotated": "Tourné."
+      },
+      "items": {
+        "bed": "Lit",
+        "nightstand": "Table de chevet",
+        "couch": "Canapé",
+        "armchair": "Fauteuil",
+        "table": "Table",
+        "bookshelf": "Bibliothèque",
+        "plant": "Plante",
+        "rug": "Tapis",
+        "pine": "Pin",
+        "bush": "Buisson",
+        "flowerbed": "Parterre de fleurs",
+        "bench": "Banc",
+        "lamppost": "Lampadaire",
+        "pumpkins": "Citrouilles",
+        "garden": "Potager",
+        "boulder": "Rocher",
+        "stone": "Pierre",
+        "chest": "Coffre",
+        "barrel": "Tonneau",
+        "wildflowers": "Fleurs sauvages"
+      },
+      "consent": {
+        "title": "Enregistre tes aménagements",
+        "body": "Ton aménagement est enregistré sur ton propre compte, où tout le monde peut le voir, comme tes publications. Il faut pour cela une autorisation de plus. Tu la confirmeras avec ton compte et tu reviendras tout de suite.",
+        "allow": "Continuer",
+        "notNow": "Pas maintenant"
+      }
     }
   }
 }

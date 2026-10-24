@@ -16,7 +16,7 @@
     "dev": "tsc --watch",
     "lint": "eslint src/",
     "typecheck": "tsc --noEmit",
-    "codegen": "lex gen-api --yes ./generated ./schemas/app/protoimsg/chat/*.json",
+    "codegen": "lex gen-api --yes ./generated ./schemas/app/protoimsg/chat/*.json ./schemas/app/protoimsg/town/*.json",
     "codegen:check": "pnpm codegen && prettier --write 'generated/**/*.ts' && node -e \"const { execSync } = require('child_process'); const path = require('path'); const root = path.resolve(process.cwd(), '../..'); try { execSync('git diff --exit-code -- packages/lexicon/generated', { cwd: root }); } catch (e) { console.error('Generated lexicon files changed. Commit them after schema changes.'); process.exit(1); }\""
   },
   "devDependencies": {

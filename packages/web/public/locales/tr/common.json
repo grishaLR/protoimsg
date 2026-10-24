@@ -132,7 +132,8 @@
   },
   "town": {
     "hud": {
-      "controls": "Hareket için WASD / oklar · Koşmak için Boşluk"
+      "controls": "Hareket için WASD / oklar · Koşmak için Boşluk",
+      "controlsTouch": "Yürümek için joystick"
     },
     "chat": {
       "placeholder": "Say something to the town…",
@@ -291,6 +292,66 @@
       "soon3": "Evler, dekorasyon, oyun salonu ve daha fazlası",
       "feedback": "Bozuk bir şey ya da bir dilek mi? ProtoBuddy'ye söyle: /feedback mesajın",
       "close": "Anladım"
+    },
+    "build": {
+      "start": "Dekore et",
+      "stop": "Dekorasyonu bitir",
+      "buttonHint": "Alanını düzenle (B). Seni ziyaret eden herkes tasarımını görür.",
+      "titleHome": "Evini düzenliyorsun",
+      "titleYard": "Bahçeni düzenliyorsun",
+      "pieces": "Eşyalar",
+      "place": "Yerleştir",
+      "rotate": "Döndür",
+      "pickUp": "Taşı",
+      "remove": "Kaldır",
+      "done": "Bitti",
+      "retry": "Tekrar dene",
+      "hint": "Yerleştirmek için tıkla ya da taşımak için bir eşyaya tıkla. Sağ tık kaldırır. Tuşlar: R döndürür, E eline alır, Enter yerleştirir, Delete kaldırır, [ ] eşya değiştirir.",
+      "hintCarrying": "Gideceği yere tıkla (ya da Enter'a bas). R döndürür, Delete kaldırır, Esc yerine geri koyar.",
+      "full": "Bir alana sığabilecek eşya bu kadar. Başka birini koymak için birini kaldır.",
+      "saving": "Kaydediliyor…",
+      "saved": "Hesabına kaydedildi",
+      "saveFailed": "Kaydedilemedi",
+      "loadFailed": "Tasarımın yüklenemedi. Birazdan tekrar dene.",
+      "announceOn": "Düzenleme modu. Eşya yerleştirmek için bir yere tıkla ya da o yere dönüp Enter'a bas.",
+      "announceOff": "Düzenleme bitti.",
+      "announce": {
+        "placed": "Yerleştirildi.",
+        "removed": "Kaldırıldı.",
+        "blocked": "Oraya sığmıyor.",
+        "full": "Daha fazla eşyaya yer yok.",
+        "pickedUp": "Eline aldın. Gideceği yere bırak ya da yerine geri koymak için Esc'ye bas.",
+        "putBack": "Yerine kondu.",
+        "rotated": "Döndürüldü."
+      },
+      "items": {
+        "bed": "Yatak",
+        "nightstand": "Komodin",
+        "couch": "Kanepe",
+        "armchair": "Koltuk",
+        "table": "Masa",
+        "bookshelf": "Kitaplık",
+        "plant": "Bitki",
+        "rug": "Halı",
+        "pine": "Çam",
+        "bush": "Çalı",
+        "flowerbed": "Çiçek tarhı",
+        "bench": "Bank",
+        "lamppost": "Sokak lambası",
+        "pumpkins": "Balkabakları",
+        "garden": "Bahçe tarhı",
+        "boulder": "Kaya",
+        "stone": "Taş",
+        "chest": "Sandık",
+        "barrel": "Fıçı",
+        "wildflowers": "Kır çiçekleri"
+      },
+      "consent": {
+        "title": "Tasarımlarını kaydet",
+        "body": "Tasarımın kendi hesabına kaydedilir ve gönderilerin gibi herkes onu görebilir. Bunun için bir izin daha gerekiyor. Hesabınla onaylayıp hemen geri döneceksin.",
+        "allow": "Devam et",
+        "notNow": "Şimdi değil"
+      }
     }
   }
 }

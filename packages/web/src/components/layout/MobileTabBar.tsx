@@ -1,9 +1,10 @@
 import { useMemo } from 'react';
-import { Video } from 'lucide-react';
-import { CHAT_ROOMS_ENABLED, GAMES_ENABLED } from '../../lib/config';
+import { useTranslation } from 'react-i18next';
+import { Map as MapIcon, Video } from 'lucide-react';
+import { CHAT_ROOMS_ENABLED, GAMES_ENABLED, TOWN_ENABLED } from '../../lib/config';
 import styles from './MobileTabBar.module.css';
 
-export type MobileTab = 'meet' | 'buddies' | 'rooms' | 'fun';
+export type MobileTab = 'meet' | 'buddies' | 'town' | 'rooms' | 'fun';
 
 // game-icons.net — CC BY 3.0, authors: lorc, skoll, delapouite
 const PATHS = {
@@ -42,16 +43,19 @@ const ALL_TABS: {
 }[] = [
   { id: 'meet', label: 'Video Chat', icon: <Video size={18} /> },
   { id: 'buddies', label: 'Community', icon: <GameIcon icon="telepathy" /> },
+  { id: 'town', label: 'Town', icon: <MapIcon size={18} /> },
   { id: 'rooms', label: 'Rooms', icon: null, featureFlag: true },
   { id: 'fun', label: 'Fun', icon: <GameIcon icon="chessKnight" viewBox="40 75 430 415" /> },
 ];
 
 export function MobileTabBar({ activeTab, onTabChange }: MobileTabBarProps) {
+  const { t } = useTranslation('common');
   const tabs = useMemo(
     () =>
       ALL_TABS.filter((tab) => {
         if (tab.id === 'rooms' && !CHAT_ROOMS_ENABLED) return false;
         if (tab.id === 'fun' && !GAMES_ENABLED) return false;
+        if (tab.id === 'town' && !TOWN_ENABLED) return false;
         return true;
       }),
     [],
@@ -68,7 +72,7 @@ export function MobileTabBar({ activeTab, onTabChange }: MobileTabBarProps) {
           }}
         >
           {tab.icon && <span className={styles.tabIcon}>{tab.icon}</span>}
-          {tab.label}
+          {tab.id === 'town' ? t('buddyList.footer.town', 'Town') : tab.label}
         </button>
       ))}
     </nav>

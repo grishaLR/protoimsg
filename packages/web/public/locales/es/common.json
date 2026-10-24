@@ -132,7 +132,8 @@
   },
   "town": {
     "hud": {
-      "controls": "WASD / flechas para moverte · Espacio para correr"
+      "controls": "WASD / flechas para moverte · Espacio para correr",
+      "controlsTouch": "Joystick para caminar"
     },
     "chat": {
       "placeholder": "Say something to the town…",
@@ -291,6 +292,66 @@
       "soon3": "Casas, decoración, el arcade y más",
       "feedback": "¿Algo roto o un deseo? Cuéntaselo a ProtoBuddy: /feedback tu mensaje",
       "close": "Entendido"
+    },
+    "build": {
+      "start": "Decorar",
+      "stop": "Terminar",
+      "buttonHint": "Organiza tu espacio (B). Todos los que te visiten verán tu diseño.",
+      "titleHome": "Decorando tu casa",
+      "titleYard": "Decorando tu jardín",
+      "pieces": "Piezas",
+      "place": "Colocar",
+      "rotate": "Girar",
+      "pickUp": "Mover",
+      "remove": "Quitar",
+      "done": "Listo",
+      "retry": "Reintentar",
+      "hint": "Haz clic para colocar, o haz clic en una pieza para moverla. El clic derecho quita. Teclas: R gira, E levanta, Enter coloca, Supr quita, [ ] cambia de pieza.",
+      "hintCarrying": "Haz clic donde va (o pulsa Enter). R la gira, Supr la quita, Esc la devuelve a su sitio.",
+      "full": "Ese es el máximo de piezas que caben en un espacio. Quita una para colocar otra.",
+      "saving": "Guardando…",
+      "saved": "Guardado en tu cuenta",
+      "saveFailed": "No se pudo guardar",
+      "loadFailed": "No se pudo cargar tu diseño. Inténtalo de nuevo en un momento.",
+      "announceOn": "Decorando. Haz clic en un sitio, o mira hacia uno y pulsa Enter, para colocar una pieza.",
+      "announceOff": "Terminaste de decorar.",
+      "announce": {
+        "placed": "Colocada.",
+        "removed": "Quitada.",
+        "blocked": "Eso no cabe ahí.",
+        "full": "No hay espacio para más piezas.",
+        "pickedUp": "Levantada. Déjala donde va, o pulsa Esc para devolverla a su sitio.",
+        "putBack": "Devuelta a su sitio.",
+        "rotated": "Girada."
+      },
+      "items": {
+        "bed": "Cama",
+        "nightstand": "Mesita de noche",
+        "couch": "Sofá",
+        "armchair": "Sillón",
+        "table": "Mesa",
+        "bookshelf": "Librero",
+        "plant": "Planta",
+        "rug": "Alfombra",
+        "pine": "Pino",
+        "bush": "Arbusto",
+        "flowerbed": "Macizo de flores",
+        "bench": "Banco",
+        "lamppost": "Farola",
+        "pumpkins": "Calabazas",
+        "garden": "Huerto",
+        "boulder": "Roca",
+        "stone": "Piedra",
+        "chest": "Cofre",
+        "barrel": "Barril",
+        "wildflowers": "Flores silvestres"
+      },
+      "consent": {
+        "title": "Guarda tus diseños",
+        "body": "Tu diseño se guarda en tu propia cuenta, donde cualquiera puede verlo, como tus publicaciones. Para eso hace falta un permiso más. Lo confirmarás con tu cuenta y volverás enseguida.",
+        "allow": "Continuar",
+        "notNow": "Ahora no"
+      }
     }
   }
 }

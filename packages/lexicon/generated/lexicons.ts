@@ -723,6 +723,102 @@ export const schemaDict = {
       },
     },
   },
+  AppProtoimsgTownLayout: {
+    lexicon: 1,
+    id: 'app.protoimsg.town.layout',
+    defs: {
+      main: {
+        type: 'record',
+        description:
+          "A space you've designed in proto town: what's placed where in your home or your neighborhood yard. Record key is the space: 'home' or 'yard'. Public, like every record: it holds item references and positions only.",
+        key: 'any',
+        record: {
+          type: 'object',
+          required: ['space', 'placements', 'updatedAt'],
+          properties: {
+            space: {
+              type: 'string',
+              description: 'Which space this layout furnishes. Matches the record key.',
+              knownValues: ['home', 'yard'],
+            },
+            placements: {
+              type: 'array',
+              description: 'Objects placed in the space.',
+              maxLength: 200,
+              items: {
+                type: 'ref',
+                ref: 'lex:app.protoimsg.town.layout#placement',
+              },
+            },
+            updatedAt: {
+              type: 'string',
+              format: 'datetime',
+            },
+          },
+        },
+      },
+      placement: {
+        type: 'object',
+        description:
+          'One placed object. Set exactly one of `item` (an object you own) or `builtin` (a starter object every space has).',
+        required: ['x', 'y'],
+        properties: {
+          item: {
+            type: 'string',
+            format: 'at-uri',
+            description: "An equipment.rpg.item world object in the layout owner's own repo.",
+          },
+          builtin: {
+            type: 'string',
+            maxLength: 64,
+            description:
+              "A starter object id from the app's built-in catalog (e.g. 'couch', 'pine').",
+            knownValues: [
+              'bed',
+              'nightstand',
+              'couch',
+              'armchair',
+              'table',
+              'bookshelf',
+              'plant',
+              'rug',
+              'pine',
+              'bush',
+              'flowerbed',
+              'bench',
+              'lamppost',
+              'pumpkins',
+              'garden',
+              'boulder',
+              'stone',
+              'chest',
+              'barrel',
+              'wildflowers',
+            ],
+          },
+          x: {
+            type: 'integer',
+            minimum: 0,
+            maximum: 63,
+            description: "Tile column of the object's top-left footprint tile.",
+          },
+          y: {
+            type: 'integer',
+            minimum: 0,
+            maximum: 63,
+            description: "Tile row of the object's top-left footprint tile.",
+          },
+          rotation: {
+            type: 'integer',
+            minimum: 0,
+            maximum: 3,
+            default: 0,
+            description: 'Facing: 0 down, 1 left, 2 right, 3 up (within what the object supports).',
+          },
+        },
+      },
+    },
+  },
 } as const satisfies Record<string, LexiconDoc>;
 
 export const schemas = Object.values(schemaDict);
@@ -738,4 +834,5 @@ export const ids = {
   AppProtoimsgChatRole: 'app.protoimsg.chat.role',
   AppProtoimsgChatRoom: 'app.protoimsg.chat.room',
   AppProtoimsgChatVote: 'app.protoimsg.chat.vote',
+  AppProtoimsgTownLayout: 'app.protoimsg.town.layout',
 };

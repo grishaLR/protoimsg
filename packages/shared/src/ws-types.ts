@@ -1,5 +1,6 @@
 /** WebSocket message types — shared contract between server and client */
 import type { TownGate } from './town.js';
+import type { TownPlacement, TownSpace } from './town-build.js';
 
 /** Portable ICE candidate — mirrors browser RTCIceCandidateInit without DOM dep */
 export interface IceCandidateInit {
@@ -249,6 +250,12 @@ export interface TownJoinAnswerMessage extends WsMessageBase {
   accept: boolean;
 }
 
+/** You just saved one of your designed spaces to your repo: show it to everyone there. */
+export interface TownLayoutSavedMessage extends WsMessageBase {
+  type: 'town_layout_saved';
+  space: TownSpace;
+}
+
 /** Client lost (or never made) its voice connection — ask for a fresh token. */
 export interface TownVoiceRefreshMessage extends WsMessageBase {
   type: 'town_voice_refresh';
@@ -290,7 +297,8 @@ export type ClientMessage =
   | TownKickMessage
   | TownKnockingMessage
   | TownJoinAskMessage
-  | TownJoinAnswerMessage;
+  | TownJoinAnswerMessage
+  | TownLayoutSavedMessage;
 
 // Server → Client messages
 
@@ -480,6 +488,8 @@ export interface TownStateEvent extends WsMessageBase {
      * (you're in their inner circle).
      */
     canKnock?: boolean;
+    /** A home or neighborhood: its owner's design (validated), or the default. */
+    layout?: TownPlacement[];
     /** Your own home: whether your door takes knocks (shared by all your tabs). */
     knockingOpen?: boolean;
     /**
@@ -544,6 +554,12 @@ export interface TownJoinRequestEndEvent extends WsMessageBase {
 export interface TownJoinResultEvent extends WsMessageBase {
   type: 'town_join_result';
   data: { outcome: 'accepted' | 'noAnswer' };
+}
+
+/** The space you're in was redesigned by its owner. */
+export interface TownLayoutEvent extends WsMessageBase {
+  type: 'town_layout';
+  data: { space: TownSpace; placements: TownPlacement[] };
 }
 
 /** Whether you may knock here changed (the owner edited their inner circle). */
@@ -672,6 +688,7 @@ export type ServerMessage =
   | TownKnockResultEvent
   | TownGuestsEvent
   | TownKnockAccessEvent
+  | TownLayoutEvent
   | TownJoinAvailableEvent
   | TownJoinRequestEvent
   | TownJoinRequestEndEvent

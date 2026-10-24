@@ -78,6 +78,14 @@ See [CONTRIBUTING.md](./CONTRIBUTING.md) for setup instructions, development wor
 
 TypeScript monorepo (Turborepo + pnpm workspaces). Vite + React 19 web client. Node.js server with WebSocket. WebRTC for P2P video/voice/data. Tauri v2 desktop app. PostgreSQL + Redis. NLLB + LibreTranslate translation servers. Deployed on Fly.io (server, TURN, translation) + Vercel (web). Full CI/CD via GitHub Actions.
 
+## Art
+
+proto town is built on open pixel art. Thank you:
+
+- [OpenPixels](https://github.com/silveira/openpixels) by Silveira Neto, [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/): the ground, walls, house, fence, trees, the well and the furniture and yard pieces. The sheet ships unmodified in `packages/web/public/assets/town/openpixels/`.
+- RPG Town by Luis Zuno ([@ansimuz](https://ansimuz.com)), CC0: the pumpkins.
+- Avatars come from each person's own [rpg.actor](https://rpg.actor) character.
+
 ## License
 
 MIT

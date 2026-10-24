@@ -1,6 +1,8 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import type { WebSocket } from 'ws';
 import {
+  TOWN_DEFAULT_LAYOUT,
+  TOWN_TILE,
   TOWN_VIEW,
   parseTownSceneId,
   townArrival,
@@ -355,9 +357,9 @@ describe('TownRoom views (scene privacy, area of interest, batching)', () => {
   });
 
   it('clamps moves to the bounds of the scene you are in', () => {
-    // Square is 40×30 tiles: the far corner you can stand on is 39×48, 29×48.
-    const edgeX = 39 * 48;
-    const edgeY = 29 * 48;
+    // Square is 40×30 tiles: the far corner you can stand on is tile 39, 29.
+    const edgeX = 39 * TOWN_TILE;
+    const edgeY = 29 * TOWN_TILE;
     const a = fakeWs();
     const b = fakeWs();
     town.join(a.ws, A, SQ, edgeX - 100, edgeY - 100, 0);
@@ -394,7 +396,7 @@ describe('TownRoom views (scene privacy, area of interest, batching)', () => {
     const a = fakeWs();
     town.join(a.ws, A, homeOf(A), 5000, 5000, 0);
     // Home is 14×10 tiles; you stay one tile in from the edge.
-    expect(lastState(a)?.self).toMatchObject({ x: 13 * 48, y: 9 * 48 });
+    expect(lastState(a)?.self).toMatchObject({ x: 13 * TOWN_TILE, y: 9 * TOWN_TILE });
   });
 
   it('only sends avatars within your view, and removes them when they walk out', () => {
@@ -944,10 +946,10 @@ describe('TownRoom with relationships (visiting, mutuals, gates, friends of frie
       const a = fakeWs();
       const b = fakeWs();
       const c = fakeWs();
-      await enter(a, A, nbhd(A), 300, 300);
-      await enter(b, B, nbhd(A), 330, 300);
+      await enter(a, A, nbhd(A), 60, 60);
+      await enter(b, B, nbhd(A), 90, 60);
       await settle();
-      await enter(c, C, nbhd(A), 300, 340);
+      await enter(c, C, nbhd(A), 60, 100);
       await settle();
       return { a, b, c };
     }
@@ -976,11 +978,11 @@ describe('TownRoom with relationships (visiting, mutuals, gates, friends of frie
       town.askToJoin(c.ws);
       town.answerJoin(b.ws, joinRequests(b).at(-1)?.requestId ?? '', true);
       await settle();
-      town.move(c.ws, 900, 900, 0);
+      town.move(c.ws, 1000, 760, 0);
       await settle();
       await settle();
       expect(removed(b)).toContain(C);
-      town.move(c.ws, 300, 340, 0);
+      town.move(c.ws, 60, 100, 0);
       await settle();
       expect(lastRoom(c)).toBeNull(); // no pass any more
     });
@@ -1016,7 +1018,7 @@ describe('TownRoom with relationships (visiting, mutuals, gates, friends of frie
       lists[B] = [...(lists[B] ?? []), D];
       for (const o of [A, B, D]) town.communityChanged(o, lists[o] ?? [], inner[o] ?? []);
       const d = fakeWs();
-      await enter(d, D, nbhd(A), 330, 320);
+      await enter(d, D, nbhd(A), 90, 80);
       await settle();
       const roomBefore = lastRoom(d)?.roomId;
       expect(roomBefore).toBe(lastRoom(b)?.roomId);
@@ -1041,7 +1043,7 @@ describe('TownRoom with relationships (visiting, mutuals, gates, friends of frie
       town.askToJoin(c.ws);
       town.answerJoin(b.ws, joinRequests(b).at(-1)?.requestId ?? '', true);
       // Walks off before ever connecting: still in B's view, out of voice range.
-      town.move(c.ws, 330, 650, 0);
+      town.move(c.ws, 90, 410, 0);
       await vi.advanceTimersByTimeAsync(300);
       expect(seen(b)).toContain(C); // the pass shows them for now
       await vi.advanceTimersByTimeAsync(11_000);
@@ -1064,7 +1066,7 @@ describe('TownRoom with relationships (visiting, mutuals, gates, friends of frie
     it('tells you when asking to join applies, and when it stops', async () => {
       const { c } = await setup();
       expect(sent(c, 'town_join_available').at(-1)?.data).toEqual({ available: true });
-      town.move(c.ws, 900, 900, 0);
+      town.move(c.ws, 1000, 760, 0);
       await settle();
       expect(sent(c, 'town_join_available').at(-1)?.data).toEqual({ available: false });
     });
@@ -1175,10 +1177,61 @@ describe('TownRoom with relationships (visiting, mutuals, gates, friends of frie
       town = new TownRoom(blocks, null, graph, ownerBlocks);
       const b = fakeWs();
       const entering = town.enter(b.ws, B, nbhd(A), 300, 300, 0);
-      expect(ownerBlocks.ensure).toHaveBeenCalledWith(A);
+      await vi.waitFor(() => {
+        expect(ownerBlocks.ensure).toHaveBeenCalledWith(A);
+      });
       release();
       await entering;
       expect(lastState(b)?.scene).toBe(nbhd(A)); // not bounced home
+    });
+  });
+
+  describe('designed spaces', () => {
+    const designed = [{ builtin: 'armchair', x: 3, y: 4 }];
+    function fakeLayouts() {
+      const store = new Map<string, Array<{ builtin: string; x: number; y: number }>>();
+      const layouts = {
+        get: (owner: string, space: 'home' | 'yard') =>
+          store.get(`${owner}|${space}`) ?? TOWN_DEFAULT_LAYOUT[space],
+        load: vi.fn(() => Promise.resolve()),
+        apply: () => Promise.resolve(),
+        refresh: vi.fn((owner: string, space: 'home' | 'yard') => {
+          store.set(`${owner}|${space}`, designed);
+          layouts.onChange?.(owner, space);
+          return Promise.resolve();
+        }),
+        onChange: undefined as ((owner: string, space: 'home' | 'yard') => void) | undefined,
+      };
+      return layouts;
+    }
+
+    it("sends a space's design with the scene, loading it first", async () => {
+      const layouts = fakeLayouts();
+      town.dispose();
+      town = new TownRoom(blocks, null, graph, undefined, layouts);
+      const b = fakeWs();
+      await enter(b, B, nbhd(A));
+      expect(layouts.load).toHaveBeenCalledWith(A, 'yard');
+      expect((lastState(b) as unknown as { layout: unknown }).layout).toEqual(
+        TOWN_DEFAULT_LAYOUT.yard,
+      );
+    });
+
+    it("a saved design is read from the owner's repo and shown to everyone in that space", async () => {
+      const layouts = fakeLayouts();
+      town.dispose();
+      town = new TownRoom(blocks, null, graph, undefined, layouts);
+      const a = fakeWs();
+      const b = fakeWs();
+      const c = fakeWs();
+      await enter(a, A, `home:${A}`);
+      await enter(b, B, nbhd(A)); // A's yard, not A's home
+      await enter(c, C, 'square');
+      town.layoutSaved(a.ws, 'home');
+      expect(layouts.refresh).toHaveBeenCalledWith(A, 'home');
+      expect(sent(a, 'town_layout').at(-1)?.data).toEqual({ space: 'home', placements: designed });
+      expect(sent(b, 'town_layout')).toHaveLength(0);
+      expect(sent(c, 'town_layout')).toHaveLength(0);
     });
   });
 });

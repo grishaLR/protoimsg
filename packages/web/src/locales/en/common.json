@@ -305,7 +305,8 @@
   },
   "town": {
     "hud": {
-      "controls": "WASD / arrows to move · Space to sprint"
+      "controls": "WASD / arrows to move · Space to sprint",
+      "controlsTouch": "Joystick to walk"
     },
     "chat": {
       "placeholder": "Say something to the town…",
@@ -464,6 +465,66 @@
       "soon3": "Houses, decorating, the arcade and more",
       "feedback": "Something broken or a wish? Tell ProtoBuddy: /feedback your message",
       "close": "Got it"
+    },
+    "build": {
+      "start": "Design",
+      "stop": "Done designing",
+      "buttonHint": "Arrange your space (B). Everyone who visits sees your design.",
+      "titleHome": "Designing your home",
+      "titleYard": "Designing your yard",
+      "pieces": "Pieces",
+      "place": "Place",
+      "rotate": "Rotate",
+      "pickUp": "Move",
+      "remove": "Remove",
+      "done": "Done",
+      "retry": "Try again",
+      "hint": "Click to place, or click a piece to move it. Right-click removes. Keys: R turns, E picks up, Enter places, Delete removes, [ ] switches pieces.",
+      "hintCarrying": "Click where it goes (or press Enter). R turns it, Delete removes it, Escape puts it back.",
+      "full": "That's as many pieces as a space can hold. Remove one to place another.",
+      "saving": "Saving…",
+      "saved": "Saved to your account",
+      "saveFailed": "Couldn't save",
+      "loadFailed": "Couldn't load your design. Try again in a moment.",
+      "announceOn": "Designing. Click a spot, or face one and press Enter, to place a piece.",
+      "announceOff": "Done designing.",
+      "announce": {
+        "placed": "Placed.",
+        "removed": "Removed.",
+        "blocked": "That doesn't fit there.",
+        "full": "No room for more pieces.",
+        "pickedUp": "Picked up. Put it down where it goes, or press Escape to put it back.",
+        "putBack": "Put back.",
+        "rotated": "Turned."
+      },
+      "items": {
+        "bed": "Bed",
+        "nightstand": "Nightstand",
+        "couch": "Couch",
+        "armchair": "Armchair",
+        "table": "Table",
+        "bookshelf": "Bookshelf",
+        "plant": "Plant",
+        "rug": "Rug",
+        "pine": "Pine",
+        "bush": "Bush",
+        "flowerbed": "Flower bed",
+        "bench": "Bench",
+        "lamppost": "Lamppost",
+        "pumpkins": "Pumpkins",
+        "garden": "Garden plot",
+        "boulder": "Boulder",
+        "stone": "Stone",
+        "chest": "Chest",
+        "barrel": "Barrel",
+        "wildflowers": "Wildflowers"
+      },
+      "consent": {
+        "title": "Save your designs",
+        "body": "Your design is saved to your own account, where anyone can see it, like your posts. That needs one more permission. You'll confirm it with your account and come right back.",
+        "allow": "Continue",
+        "notNow": "Not now"
+      }
     }
   }
 }

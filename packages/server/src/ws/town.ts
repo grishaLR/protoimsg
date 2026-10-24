@@ -19,6 +19,7 @@ import type {
   TownGate,
   TownScene,
   TownSceneKind,
+  TownSpace,
   TownSpawn,
   TownVoiceMember,
 } from '@protoimsg/shared';
@@ -26,6 +27,7 @@ import type { BlockService } from '../moderation/block-service.js';
 import type { TownVoice } from '../calls/town-voice.js';
 import { createLogger } from '../logger.js';
 import { EMPTY_TOWN_GRAPH, type TownGraph } from './town-graph.js';
+import { defaultTownLayouts, type TownLayouts } from '../town/layouts.js';
 import type { OwnerBlocks } from './town-blocks.js';
 
 /** Knows no offline owner's blocks: every offline owner's gate stays shut. */
@@ -190,6 +192,11 @@ const MAX_MORE_GATES = 100;
 // Most open first.
 const VISIBILITY_ORDER: PresenceVisibility[] = ['everyone', 'community', 'inner-circle', 'no-one'];
 
+/** The designable space a scene kind shows. */
+function spaceOf(kind: 'home' | 'neighborhood'): TownSpace {
+  return kind === 'home' ? 'home' : 'yard';
+}
+
 function didPair(a: string, b: string): string {
   return a < b ? `${a}|${b}` : `${b}|${a}`;
 }
@@ -261,7 +268,11 @@ export class TownRoom {
     private voice: TownVoice | null = null,
     private graph: TownGraph = { ...EMPTY_TOWN_GRAPH },
     private ownerBlockLists: OwnerBlocks = { ...UNKNOWN_OWNER_BLOCKS },
+    private layouts: TownLayouts = defaultTownLayouts(),
   ) {
+    layouts.onChange = (owner, space) => {
+      this.layoutChanged(owner, space);
+    };
     graph.onChange = () => {
       this.recheckAll();
     };
@@ -302,6 +313,13 @@ export class TownRoom {
     fof?: boolean,
   ): Promise<void> {
     const existing = this.members.get(ws);
+    // The space's design must be in hand before its state is sent.
+    const designed =
+      sceneId === undefined ? ({ kind: 'home', owner: did } as const) : parseTownSceneId(sceneId);
+    if (designed && designed.kind !== 'square') {
+      await this.layouts.load(designed.owner, spaceOf(designed.kind));
+      if (this.disposed || ws.readyState !== ws.OPEN) return;
+    }
     // Rejoining an offline owner's neighborhood: give their block list a
     // moment to load, so a reconnect isn't bounced home just because we
     // didn't know yet.
@@ -582,6 +600,9 @@ export class TownRoom {
         ...(row ? { gates: row.gates, moreGates: row.more } : {}),
         ...(canKnock !== undefined ? { canKnock } : {}),
         ...(knockingOpen !== undefined ? { knockingOpen } : {}),
+        ...(scene.kind !== 'square'
+          ? { layout: this.layouts.get(scene.owner, spaceOf(scene.kind)) }
+          : {}),
         ...(scene.kind === 'neighborhood' && scene.owner !== did ? { windowLit } : {}),
         ...(reason ? { reason } : {}),
       },
@@ -975,6 +996,26 @@ export class TownRoom {
         m.windowLit = lit;
         this.sendTo(m.ws, { type: 'town_window', data: { lit } });
       }
+    }
+  }
+
+  // ── Designed spaces ───────────────────────────────────────────────────
+
+  /** The owner saved a design: read it from their repo and show it. */
+  layoutSaved(ws: WebSocket, space: TownSpace): void {
+    const m = this.members.get(ws);
+    if (!m) return;
+    this.layouts.refresh(m.did, space).catch((err: unknown) => {
+      log.warn({ err, space }, 'Could not refresh a saved town layout');
+    });
+  }
+
+  /** A design changed: redraw it for everyone standing in that space. */
+  private layoutChanged(owner: string, space: TownSpace): void {
+    const id = townSceneId({ kind: space === 'home' ? 'home' : 'neighborhood', owner });
+    const placements = this.layouts.get(owner, space);
+    for (const m of this.members.values()) {
+      if (m.scene === id) this.sendTo(m.ws, { type: 'town_layout', data: { space, placements } });
     }
   }
 

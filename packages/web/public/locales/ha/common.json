@@ -130,7 +130,8 @@
   },
   "town": {
     "hud": {
-      "controls": "WASD / kibiyoyi don motsi · Space don gudu"
+      "controls": "WASD / kibiyoyi don motsi · Space don gudu",
+      "controlsTouch": "Joystick don tafiya"
     },
     "chat": {
       "placeholder": "Say something to the town…",
@@ -289,6 +290,66 @@
       "soon3": "Gidaje, ado, wurin wasanni da ƙari",
       "feedback": "Wani abu ya lalace ko kana da buri? Faɗa wa ProtoBuddy: /feedback saƙonka",
       "close": "Na gane"
+    },
+    "build": {
+      "start": "Ƙawata",
+      "stop": "Na gama ƙawata",
+      "buttonHint": "Shirya wurinka (B). Duk wanda ya ziyarce ka zai ga tsarinka.",
+      "titleHome": "Ana ƙawata gidanka",
+      "titleYard": "Ana ƙawata harabarka",
+      "pieces": "Kayayyaki",
+      "place": "Sanya",
+      "rotate": "Juya",
+      "pickUp": "Matsar",
+      "remove": "Cire",
+      "done": "An gama",
+      "retry": "Sake gwadawa",
+      "hint": "Danna don sanyawa, ko danna kaya don matsar da shi. Danna dama yana cirewa. Maɓallai: R don juyawa, E don ɗauka, Enter don sanyawa, Delete don cirewa, [ ] don sauya kaya.",
+      "hintCarrying": "Danna inda zai tafi (ko danna Enter). R don juya shi, Delete don cire shi, Escape don mayar da shi.",
+      "full": "Wannan shi ne iyakar kayan da wuri zai iya ɗauka. Cire ɗaya don sanya wani.",
+      "saving": "Ana adanawa…",
+      "saved": "An adana a asusunka",
+      "saveFailed": "Ba a iya adanawa ba",
+      "loadFailed": "Ba a iya loda tsarinka ba. Sake gwadawa nan da ɗan lokaci.",
+      "announceOn": "Ana ƙawata. Danna wani wuri, ko fuskance shi sannan ka danna Enter, don sanya kaya.",
+      "announceOff": "An gama ƙawata.",
+      "announce": {
+        "placed": "An sanya.",
+        "removed": "An cire.",
+        "blocked": "Bai dace a nan ba.",
+        "full": "Babu wuri don ƙarin kaya.",
+        "pickedUp": "An ɗauka. Ajiye shi inda zai tafi, ko danna Escape don mayar da shi.",
+        "putBack": "An mayar.",
+        "rotated": "An juya."
+      },
+      "items": {
+        "bed": "Gado",
+        "nightstand": "Ƙaramin teburin gefen gado",
+        "couch": "Kujera mai faɗi",
+        "armchair": "Kujerar hannu",
+        "table": "Tebur",
+        "bookshelf": "Shiryayyen littattafai",
+        "plant": "Shuka",
+        "rug": "Darduma",
+        "pine": "Fir",
+        "bush": "Ɗan daji",
+        "flowerbed": "Lambun furanni",
+        "bench": "Benci",
+        "lamppost": "Fitilar titi",
+        "pumpkins": "Kabewa",
+        "garden": "Gonar lambu",
+        "boulder": "Babban dutse",
+        "stone": "Dutse",
+        "chest": "Akwati",
+        "barrel": "Ganga",
+        "wildflowers": "Furannin daji"
+      },
+      "consent": {
+        "title": "Adana tsarinka",
+        "body": "Ana adana tsarinka a asusunka na kanka, inda kowa zai iya gani, kamar rubuce-rubucenka. Hakan na buƙatar ƙarin izini ɗaya. Za ka tabbatar da shi da asusunka sannan ka dawo nan take.",
+        "allow": "Ci gaba",
+        "notNow": "Ba yanzu ba"
+      }
     }
   }
 }

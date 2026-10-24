@@ -5,6 +5,7 @@ export {
   USER_AGENT,
   NSID,
   NSID_PREFIX,
+  TOWN_NSID_PREFIX,
   LIMITS,
   DM_LIMITS,
   BOT,
@@ -77,6 +78,7 @@ export type {
   TownKnockingMessage,
   TownJoinAskMessage,
   TownJoinAnswerMessage,
+  TownLayoutSavedMessage,
   TownPeer,
   TownStateEvent,
   TownPeerJoinEvent,
@@ -93,6 +95,7 @@ export type {
   TownKnockResultEvent,
   TownGuestsEvent,
   TownKnockAccessEvent,
+  TownLayoutEvent,
   TownJoinAvailableEvent,
   TownJoinRequestEvent,
   TownJoinRequestEndEvent,
@@ -120,6 +123,19 @@ export {
   townDoorwayTarget,
   townClamp,
 } from './town.js';
+export {
+  TOWN_LAYOUT_COLLECTION,
+  TOWN_MAX_PLACEMENTS,
+  TOWN_BUILTINS,
+  TOWN_BUILD_AREA,
+  TOWN_KEEP_CLEAR,
+  TOWN_DEFAULT_LAYOUT,
+  townBuiltin,
+  townFootprint,
+  townRotation,
+  validateTownLayout,
+} from './town-build.js';
+export type { TownSpace, TownPlacement, TownBuiltin, TownBuiltinId } from './town-build.js';
 export type {
   TownScene,
   TownSceneKind,
