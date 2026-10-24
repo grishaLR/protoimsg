@@ -291,6 +291,53 @@
       "soon3": "Casas, decoración, el arcade y más",
       "feedback": "¿Algo roto o un deseo? Cuéntaselo a ProtoBuddy: /feedback tu mensaje",
       "close": "Entendido"
+    },
+    "build": {
+      "start": "Decorar",
+      "stop": "Terminar",
+      "buttonHint": "Organiza tu espacio (B). Todos los que te visiten verán tu diseño.",
+      "titleHome": "Decorando tu casa",
+      "titleYard": "Decorando tu jardín",
+      "pieces": "Piezas",
+      "place": "Colocar",
+      "remove": "Quitar",
+      "done": "Listo",
+      "retry": "Reintentar",
+      "hint": "Mira hacia donde va. [ ] cambia de pieza, Enter coloca, Supr quita.",
+      "full": "Ese es el máximo de piezas que caben en un espacio. Quita una para colocar otra.",
+      "saving": "Guardando…",
+      "saved": "Guardado en tu cuenta",
+      "saveFailed": "No se pudo guardar",
+      "loadFailed": "No se pudo cargar tu diseño. Inténtalo de nuevo en un momento.",
+      "announceOn": "Decorando. Mira hacia donde va una pieza y pulsa Enter para colocarla.",
+      "announceOff": "Terminaste de decorar.",
+      "announce": {
+        "placed": "Colocada.",
+        "removed": "Quitada.",
+        "blocked": "Eso no cabe ahí.",
+        "full": "No hay espacio para más piezas."
+      },
+      "items": {
+        "bed": "Cama",
+        "nightstand": "Mesita de noche",
+        "couch": "Sofá",
+        "armchair": "Sillón",
+        "table": "Mesa",
+        "bookshelf": "Librero",
+        "plant": "Planta",
+        "rug": "Alfombra",
+        "pine": "Pino",
+        "bush": "Arbusto",
+        "flowerbed": "Macizo de flores",
+        "bench": "Banco",
+        "lamppost": "Farola"
+      },
+      "consent": {
+        "title": "Guarda tus diseños",
+        "body": "Tu diseño se guarda en tu propia cuenta, donde cualquiera puede verlo, como tus publicaciones. Para eso hace falta un permiso más. Lo confirmarás con tu cuenta y volverás enseguida.",
+        "allow": "Continuar",
+        "notNow": "Ahora no"
+      }
     }
   }
 }

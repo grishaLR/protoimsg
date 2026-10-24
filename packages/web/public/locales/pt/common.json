@@ -291,6 +291,53 @@
       "soon3": "Casas, decoração, o fliperama e mais",
       "feedback": "Algo quebrado ou um desejo? Conte ao ProtoBuddy: /feedback sua mensagem",
       "close": "Entendi"
+    },
+    "build": {
+      "start": "Decorar",
+      "stop": "Terminar",
+      "buttonHint": "Arrume seu espaço (B). Todo mundo que visitar vê sua decoração.",
+      "titleHome": "Decorando sua casa",
+      "titleYard": "Decorando seu quintal",
+      "pieces": "Peças",
+      "place": "Colocar",
+      "remove": "Remover",
+      "done": "Pronto",
+      "retry": "Tentar de novo",
+      "hint": "Vire para onde ela vai. [ ] troca de peça, Enter coloca, Delete remove.",
+      "full": "Esse é o máximo de peças que cabem num espaço. Remova uma para colocar outra.",
+      "saving": "Salvando…",
+      "saved": "Salvo na sua conta",
+      "saveFailed": "Não foi possível salvar",
+      "loadFailed": "Não foi possível carregar sua decoração. Tente de novo daqui a pouco.",
+      "announceOn": "Decorando. Vire para onde a peça vai e aperte Enter para colocá-la.",
+      "announceOff": "Decoração concluída.",
+      "announce": {
+        "placed": "Colocada.",
+        "removed": "Removida.",
+        "blocked": "Isso não cabe aí.",
+        "full": "Não há espaço para mais peças."
+      },
+      "items": {
+        "bed": "Cama",
+        "nightstand": "Criado-mudo",
+        "couch": "Sofá",
+        "armchair": "Poltrona",
+        "table": "Mesa",
+        "bookshelf": "Estante",
+        "plant": "Planta",
+        "rug": "Tapete",
+        "pine": "Pinheiro",
+        "bush": "Arbusto",
+        "flowerbed": "Canteiro de flores",
+        "bench": "Banco",
+        "lamppost": "Poste de luz"
+      },
+      "consent": {
+        "title": "Salve suas decorações",
+        "body": "Sua decoração fica salva na sua própria conta, onde qualquer pessoa pode vê-la, como seus posts. Para isso é preciso mais uma permissão. Você vai confirmar com sua conta e voltar logo em seguida.",
+        "allow": "Continuar",
+        "notNow": "Agora não"
+      }
     }
   }
 }

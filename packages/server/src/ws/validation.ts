@@ -189,6 +189,11 @@ const townKnocking = z.object({ type: z.literal('town_knocking'), open: z.boolea
 
 const townJoinAsk = z.object({ type: z.literal('town_join_ask') });
 
+const townLayoutSaved = z.object({
+  type: z.literal('town_layout_saved'),
+  space: z.enum(['home', 'yard']),
+});
+
 const townJoinAnswer = z.object({
   type: z.literal('town_join_answer'),
   requestId: z.string().min(1).max(64),
@@ -227,6 +232,7 @@ const clientMessage = z.discriminatedUnion('type', [
   townKick,
   townKnocking,
   townJoinAsk,
+  townLayoutSaved,
   townJoinAnswer,
   townChat,
   townLeave,

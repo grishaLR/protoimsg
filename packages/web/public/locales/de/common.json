@@ -291,6 +291,53 @@
       "soon3": "Häuser, Einrichten, die Spielhalle und mehr",
       "feedback": "Etwas kaputt oder ein Wunsch? Sag es ProtoBuddy: /feedback deine Nachricht",
       "close": "Verstanden"
+    },
+    "build": {
+      "start": "Einrichten",
+      "stop": "Fertig",
+      "buttonHint": "Gestalte deinen Raum (B). Alle, die dich besuchen, sehen dein Design.",
+      "titleHome": "Dein Zuhause einrichten",
+      "titleYard": "Deinen Garten gestalten",
+      "pieces": "Teile",
+      "place": "Platzieren",
+      "remove": "Entfernen",
+      "done": "Fertig",
+      "retry": "Erneut versuchen",
+      "hint": "Schau dahin, wo es hin soll. [ ] wechselt Teile, Enter platziert, Entf entfernt.",
+      "full": "Mehr Teile passen nicht in einen Raum. Entferne eins, um ein anderes zu platzieren.",
+      "saving": "Wird gespeichert…",
+      "saved": "In deinem Account gespeichert",
+      "saveFailed": "Speichern fehlgeschlagen",
+      "loadFailed": "Dein Design konnte nicht geladen werden. Versuch es gleich noch einmal.",
+      "announceOn": "Einrichtungsmodus. Schau dahin, wo ein Teil hin soll, und drück Enter, um es zu platzieren.",
+      "announceOff": "Fertig eingerichtet.",
+      "announce": {
+        "placed": "Platziert.",
+        "removed": "Entfernt.",
+        "blocked": "Das passt da nicht hin.",
+        "full": "Kein Platz für weitere Teile."
+      },
+      "items": {
+        "bed": "Bett",
+        "nightstand": "Nachttisch",
+        "couch": "Sofa",
+        "armchair": "Sessel",
+        "table": "Tisch",
+        "bookshelf": "Bücherregal",
+        "plant": "Pflanze",
+        "rug": "Teppich",
+        "pine": "Kiefer",
+        "bush": "Busch",
+        "flowerbed": "Blumenbeet",
+        "bench": "Bank",
+        "lamppost": "Laterne"
+      },
+      "consent": {
+        "title": "Speichere deine Designs",
+        "body": "Dein Design wird in deinem eigenen Account gespeichert, wo es alle sehen können, wie deine Posts. Dafür braucht es noch eine Berechtigung. Du bestätigst sie mit deinem Account und bist gleich wieder da.",
+        "allow": "Weiter",
+        "notNow": "Jetzt nicht"
+      }
     }
   }
 }

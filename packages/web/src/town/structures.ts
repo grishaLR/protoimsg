@@ -5,10 +5,12 @@ import {
   TOWN_SQUARE_LAYOUT,
   TOWN_TILE,
 } from '@protoimsg/shared';
-import type { TownGate, TownSceneKind } from '@protoimsg/shared';
-import { HOME_FURNITURE, HOME_LAMP, barrierAt, gateSlotAt, type PlacedFurniture } from './map';
+import { townBuiltin } from '@protoimsg/shared';
+import type { TownGate, TownPlacement, TownSceneKind } from '@protoimsg/shared';
+import { barrierAt, gateSlotAt } from './map';
 
-// Procedural pixel art for each scene's walls, fence, house and furniture,
+// Procedural pixel art for each scene's walls, fence, house and furniture
+// (the pieces people place in their own spaces),
 // drawn on a 16-px grid scaled 3× so it matches the CC0 town pack (48-px tiles).
 const U = TOWN_TILE / 16;
 
@@ -48,6 +50,11 @@ const RUG = 0xa4473f;
 const RUG_BORDER = 0xd8a35a;
 const BOOKS = [0x8b5cf6, 0xc7553e, 0x3f7cac, 0xd8a35a, 0x5f9a4e];
 const LAMP_SHADE = 0xf5d48f;
+const ARMCHAIR = 0xc0794a;
+const ARMCHAIR_SHADE = 0x9a5c35;
+const BLOOMS = [0xe86f8a, 0xf2c14e, 0xf4f0e6, 0x9b7be0];
+const IRON = 0x3a3646;
+const IRON_LIGHT = 0x58536a;
 const LAMP_GLOW = 0xffc477;
 const WINDOW_LIT = 0xf2c46b;
 const WINDOW_LIT_HOT = 0xfbe3a4;
@@ -312,10 +319,18 @@ function drawDoorFrame(g: Graphics, tx: number, ty: number, side: 'left' | 'righ
   px(g, tx, ty, side === 'left' ? 13 : 2, 0, 1, 16, WOOD_DARK);
 }
 
-function drawFurniture(f: PlacedFurniture): Graphics {
-  const g = f.solid ? rowPiece(f.y + f.h - 1) : groundPiece(-4400);
+/**
+ * One placed piece, drawn at its tiles. Solid pieces depth-sort at their
+ * bottom row; walk-over ones (rugs, flower beds) lie on the ground. Pines are
+ * sprites, drawn by the engine: null here.
+ */
+export function drawPlacement(p: TownPlacement): Graphics | null {
+  const def = townBuiltin(p.builtin);
+  if (!def || p.builtin === 'pine') return null;
+  const f = { x: p.x, y: p.y, w: def.w, h: def.h };
+  const g = def.solid ? rowPiece(f.y + f.h - 1) : groundPiece(-4400);
   const { x, y } = f;
-  switch (f.type) {
+  switch (p.builtin) {
     case 'bed': {
       // Headboard at the wall, pillow, then the quilt.
       for (let i = 0; i < f.w; i++) {
@@ -378,6 +393,61 @@ function drawFurniture(f: PlacedFurniture): Graphics {
       px(g, x, y, 9, 3, 3, 3, LEAF_DARK);
       break;
     }
+    case 'armchair': {
+      px(g, x, y, 2, 1, 12, 7, ARMCHAIR_SHADE); // back
+      px(g, x, y, 2, 8, 12, 7, ARMCHAIR); // seat
+      px(g, x, y, 1, 4, 3, 11, ARMCHAIR_SHADE); // arms
+      px(g, x, y, 12, 4, 3, 11, ARMCHAIR_SHADE);
+      px(g, x, y, 4, 14, 8, 1, ARMCHAIR_SHADE);
+      break;
+    }
+    case 'table': {
+      for (let i = 0; i < f.w; i++) {
+        const l = i === 0 ? 1 : 0;
+        const r = i === f.w - 1 ? 15 : 16;
+        px(g, x + i, y, l, 3, r - l, 8, WOOD);
+        px(g, x + i, y, l, 3, r - l, 1, MAT_STRIPE);
+        px(g, x + i, y, l, 11, r - l, 1, WOOD_DARK);
+      }
+      px(g, x, y, 2, 12, 2, 4, WOOD_DARK); // legs
+      px(g, x + f.w - 1, y, 12, 12, 2, 4, WOOD_DARK);
+      px(g, x + f.w - 1, y, 0, 5, 3, 3, LAMP_SHADE); // a cup, where the halves meet
+      break;
+    }
+    case 'bench':
+      drawBench(g, f);
+      break;
+    case 'bush': {
+      px(g, x, y, 2, 5, 12, 10, LEAF_DARK);
+      px(g, x, y, 1, 7, 14, 6, LEAF_DARK);
+      px(g, x, y, 3, 4, 10, 8, LEAF);
+      px(g, x, y, 5, 2, 6, 4, LEAF);
+      px(g, x, y, 5, 5, 2, 2, 0x7cb866); // highlights
+      px(g, x, y, 9, 8, 2, 2, 0x7cb866);
+      break;
+    }
+    case 'flowerbed': {
+      for (let i = 0; i < f.w; i++) {
+        px(g, x + i, y, 0, 3, 16, 12, DIRT);
+        px(g, x + i, y, 0, 3, 16, 1, DIRT_DARK);
+        for (let b = 0; b < 3; b++) {
+          const bx = 2 + b * 5;
+          const by = 5 + ((b + i) % 2) * 4;
+          px(g, x + i, y, bx + 1, by + 2, 1, 3, LEAF_DARK);
+          px(g, x + i, y, bx, by, 3, 3, BLOOMS[(b + i * 3) % BLOOMS.length] ?? LINEN);
+        }
+      }
+      break;
+    }
+    case 'lamppost': {
+      // A tall post: the lantern stands well above its tile.
+      px(g, x, y, 5, 13, 6, 3, IRON); // foot
+      px(g, x, y, 7, -12, 2, 25, IRON);
+      px(g, x, y, 4, -18, 8, 7, IRON);
+      px(g, x, y, 5, -17, 6, 5, LAMP_SHADE);
+      px(g, x, y, 6, -20, 4, 2, IRON_LIGHT);
+      break;
+    }
     case 'rug': {
       for (let i = 0; i < f.w; i++) {
         for (let j = 0; j < f.h; j++) {
@@ -427,18 +497,30 @@ function buildHome(): Container[] {
     out.push(g);
   }
 
-  for (const f of HOME_FURNITURE) out.push(drawFurniture(f));
+  return out;
+}
 
-  // Lamplight: many faint stacked pools, so the falloff reads as a glow
-  // rather than rings.
+// More lamps than this add no light, only work.
+const MAX_LAMPS = 8;
+
+/**
+ * Lamplight from every nightstand in a home: many faint stacked pools, so
+ * the falloff reads as a glow rather than rings. Null when there's no lamp.
+ */
+export function buildLampGlow(placements: readonly TownPlacement[]): Container | null {
+  const lamps = placements.filter((p) => p.builtin === 'nightstand').slice(0, MAX_LAMPS);
+  if (lamps.length === 0) return null;
   const glow = new Graphics();
-  for (let r = 160; r > 20; r -= 14) {
-    glow.circle(HOME_LAMP.x, HOME_LAMP.y, r).fill({ color: LAMP_GLOW, alpha: 0.022 });
+  for (const lamp of lamps) {
+    const lx = lamp.x * TOWN_TILE + TOWN_TILE / 2;
+    const ly = lamp.y * TOWN_TILE + TOWN_TILE / 3;
+    for (let r = 160; r > 20; r -= 14) {
+      glow.circle(lx, ly, r).fill({ color: LAMP_GLOW, alpha: 0.022 });
+    }
   }
   glow.zIndex = 100_000; // over everything, it's light
   glow.eventMode = 'none';
-  out.push(glow);
-  return out;
+  return glow;
 }
 
 function buildNeighborhood(): Container[] {

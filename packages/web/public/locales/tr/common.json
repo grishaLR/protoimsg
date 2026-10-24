@@ -291,6 +291,53 @@
       "soon3": "Evler, dekorasyon, oyun salonu ve daha fazlası",
       "feedback": "Bozuk bir şey ya da bir dilek mi? ProtoBuddy'ye söyle: /feedback mesajın",
       "close": "Anladım"
+    },
+    "build": {
+      "start": "Dekore et",
+      "stop": "Dekorasyonu bitir",
+      "buttonHint": "Alanını düzenle (B). Seni ziyaret eden herkes tasarımını görür.",
+      "titleHome": "Evini düzenliyorsun",
+      "titleYard": "Bahçeni düzenliyorsun",
+      "pieces": "Eşyalar",
+      "place": "Yerleştir",
+      "remove": "Kaldır",
+      "done": "Bitti",
+      "retry": "Tekrar dene",
+      "hint": "Koyacağın yere dön. [ ] eşya değiştirir, Enter yerleştirir, Delete kaldırır.",
+      "full": "Bir alana sığabilecek eşya bu kadar. Başka birini koymak için birini kaldır.",
+      "saving": "Kaydediliyor…",
+      "saved": "Hesabına kaydedildi",
+      "saveFailed": "Kaydedilemedi",
+      "loadFailed": "Tasarımın yüklenemedi. Birazdan tekrar dene.",
+      "announceOn": "Düzenleme modu. Eşyanın gideceği yere dön ve yerleştirmek için Enter'a bas.",
+      "announceOff": "Düzenleme bitti.",
+      "announce": {
+        "placed": "Yerleştirildi.",
+        "removed": "Kaldırıldı.",
+        "blocked": "Oraya sığmıyor.",
+        "full": "Daha fazla eşyaya yer yok."
+      },
+      "items": {
+        "bed": "Yatak",
+        "nightstand": "Komodin",
+        "couch": "Kanepe",
+        "armchair": "Koltuk",
+        "table": "Masa",
+        "bookshelf": "Kitaplık",
+        "plant": "Bitki",
+        "rug": "Halı",
+        "pine": "Çam",
+        "bush": "Çalı",
+        "flowerbed": "Çiçek tarhı",
+        "bench": "Bank",
+        "lamppost": "Sokak lambası"
+      },
+      "consent": {
+        "title": "Tasarımlarını kaydet",
+        "body": "Tasarımın kendi hesabına kaydedilir ve gönderilerin gibi herkes onu görebilir. Bunun için bir izin daha gerekiyor. Hesabınla onaylayıp hemen geri döneceksin.",
+        "allow": "Devam et",
+        "notNow": "Şimdi değil"
+      }
     }
   }
 }

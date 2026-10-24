@@ -291,6 +291,53 @@
       "soon3": "Tithe, maisiú, an stuara agus tuilleadh",
       "feedback": "Rud briste nó mian? Inis do ProtoBuddy: /feedback do theachtaireacht",
       "close": "Tuigim"
+    },
+    "build": {
+      "start": "Maisigh",
+      "stop": "Críochnaithe",
+      "buttonHint": "Socraigh do spás (B). Feiceann gach duine a thagann ar cuairt do dhearadh.",
+      "titleHome": "Do theach a mhaisiú",
+      "titleYard": "Do chlós a mhaisiú",
+      "pieces": "Píosaí",
+      "place": "Cuir",
+      "remove": "Bain",
+      "done": "Déanta",
+      "retry": "Bain triail eile as",
+      "hint": "Tabhair aghaidh ar an áit a dtéann sé. [ ] chun píosaí a athrú, Enter chun cur, Delete chun baint.",
+      "full": "Sin an méid píosaí is féidir le spás a choinneáil. Bain ceann chun ceann eile a chur.",
+      "saving": "Á shábháil…",
+      "saved": "Sábháilte i do chuntas",
+      "saveFailed": "Níorbh fhéidir sábháil",
+      "loadFailed": "Níorbh fhéidir do dhearadh a lódáil. Bain triail eile as i gceann nóiméid.",
+      "announceOn": "Ag maisiú. Tabhair aghaidh ar an áit a dtéann píosa agus brúigh Enter chun é a chur.",
+      "announceOff": "Críochnaithe ag maisiú.",
+      "announce": {
+        "placed": "Curtha.",
+        "removed": "Bainte.",
+        "blocked": "Ní oireann sé ansin.",
+        "full": "Níl spás do thuilleadh píosaí."
+      },
+      "items": {
+        "bed": "Leaba",
+        "nightstand": "Bord cois leapa",
+        "couch": "Tolg",
+        "armchair": "Cathaoir uilleach",
+        "table": "Bord",
+        "bookshelf": "Seilf leabhar",
+        "plant": "Planda",
+        "rug": "Ruga",
+        "pine": "Péine",
+        "bush": "Tor",
+        "flowerbed": "Ceapach bláthanna",
+        "bench": "Binse",
+        "lamppost": "Cuaille lampa"
+      },
+      "consent": {
+        "title": "Sábháil do dhearthaí",
+        "body": "Sábháiltear do dhearadh i do chuntas féin, áit ar féidir le duine ar bith é a fheiceáil, cosúil le do phostálacha. Teastaíonn cead amháin eile chuige sin. Deimhneoidh tú é le do chuntas agus beidh tú ar ais láithreach.",
+        "allow": "Lean ar aghaidh",
+        "notNow": "Ní anois"
+      }
     }
   }
 }

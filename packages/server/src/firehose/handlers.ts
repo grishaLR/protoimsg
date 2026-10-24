@@ -1,4 +1,4 @@
-import { NSID } from '@protoimsg/shared';
+import { NSID, TOWN_LAYOUT_COLLECTION } from '@protoimsg/shared';
 import type { Sql } from '../db/client.js';
 import { upsertCommunityList, syncCommunityMembers } from '../community/queries.js';
 import type { WsServer } from '../ws/server.js';
@@ -20,6 +20,16 @@ export interface FirehoseEvent {
 
 export function createHandlers(db: Sql, wss: WsServer, _labelerService: LabelerService) {
   const handlers: Record<string, (event: FirehoseEvent) => Promise<void>> = {
+    // A designed space: rkey is the space. Validation happens on the way in.
+    [TOWN_LAYOUT_COLLECTION]: async (event) => {
+      if (event.rkey !== 'home' && event.rkey !== 'yard') return;
+      await wss.townLayoutChanged(
+        event.did,
+        event.rkey,
+        event.operation === 'delete' ? null : event.record,
+        event.cid,
+      );
+    },
     [NSID.Community]: async (event) => {
       if (event.operation === 'delete') {
         // Community record deleted — clear the member list for this DID

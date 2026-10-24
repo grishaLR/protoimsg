@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import type { WebSocket } from 'ws';
 import {
+  TOWN_DEFAULT_LAYOUT,
   TOWN_VIEW,
   parseTownSceneId,
   townArrival,
@@ -1175,10 +1176,61 @@ describe('TownRoom with relationships (visiting, mutuals, gates, friends of frie
       town = new TownRoom(blocks, null, graph, ownerBlocks);
       const b = fakeWs();
       const entering = town.enter(b.ws, B, nbhd(A), 300, 300, 0);
-      expect(ownerBlocks.ensure).toHaveBeenCalledWith(A);
+      await vi.waitFor(() => {
+        expect(ownerBlocks.ensure).toHaveBeenCalledWith(A);
+      });
       release();
       await entering;
       expect(lastState(b)?.scene).toBe(nbhd(A)); // not bounced home
+    });
+  });
+
+  describe('designed spaces', () => {
+    const designed = [{ builtin: 'armchair', x: 3, y: 4 }];
+    function fakeLayouts() {
+      const store = new Map<string, Array<{ builtin: string; x: number; y: number }>>();
+      const layouts = {
+        get: (owner: string, space: 'home' | 'yard') =>
+          store.get(`${owner}|${space}`) ?? TOWN_DEFAULT_LAYOUT[space],
+        load: vi.fn(() => Promise.resolve()),
+        apply: () => Promise.resolve(),
+        refresh: vi.fn((owner: string, space: 'home' | 'yard') => {
+          store.set(`${owner}|${space}`, designed);
+          layouts.onChange?.(owner, space);
+          return Promise.resolve();
+        }),
+        onChange: undefined as ((owner: string, space: 'home' | 'yard') => void) | undefined,
+      };
+      return layouts;
+    }
+
+    it("sends a space's design with the scene, loading it first", async () => {
+      const layouts = fakeLayouts();
+      town.dispose();
+      town = new TownRoom(blocks, null, graph, undefined, layouts);
+      const b = fakeWs();
+      await enter(b, B, nbhd(A));
+      expect(layouts.load).toHaveBeenCalledWith(A, 'yard');
+      expect((lastState(b) as unknown as { layout: unknown }).layout).toEqual(
+        TOWN_DEFAULT_LAYOUT.yard,
+      );
+    });
+
+    it("a saved design is read from the owner's repo and shown to everyone in that space", async () => {
+      const layouts = fakeLayouts();
+      town.dispose();
+      town = new TownRoom(blocks, null, graph, undefined, layouts);
+      const a = fakeWs();
+      const b = fakeWs();
+      const c = fakeWs();
+      await enter(a, A, `home:${A}`);
+      await enter(b, B, nbhd(A)); // A's yard, not A's home
+      await enter(c, C, 'square');
+      town.layoutSaved(a.ws, 'home');
+      expect(layouts.refresh).toHaveBeenCalledWith(A, 'home');
+      expect(sent(a, 'town_layout').at(-1)?.data).toEqual({ space: 'home', placements: designed });
+      expect(sent(b, 'town_layout')).toHaveLength(0);
+      expect(sent(c, 'town_layout')).toHaveLength(0);
     });
   });
 });

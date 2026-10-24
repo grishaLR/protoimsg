@@ -3,7 +3,7 @@
   "client_name": "proto instant messenger",
   "client_uri": "https://protoimsg.app",
   "redirect_uris": ["app.protoimsg:/auth/callback"],
-  "scope": "atproto include:app.protoimsg.chat.authFull",
+  "scope": "atproto include:app.protoimsg.chat.authFull repo:actor.rpg.stats repo:equipment.rpg.item repo:app.protoimsg.town.layout",
   "grant_types": ["authorization_code", "refresh_token"],
   "response_types": ["code"],
   "token_endpoint_auth_method": "none",

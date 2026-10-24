@@ -289,6 +289,53 @@
       "soon3": "Nyumba, mapambo, ukumbi wa michezo na zaidi",
       "feedback": "Kitu kimeharibika au una ombi? Mwambie ProtoBuddy: /feedback ujumbe wako",
       "close": "Nimeelewa"
+    },
+    "build": {
+      "start": "Pamba",
+      "stop": "Maliza kupamba",
+      "buttonHint": "Panga nafasi yako (B). Kila anayekutembelea ataona mpangilio wako.",
+      "titleHome": "Unapamba nyumba yako",
+      "titleYard": "Unapamba uwanja wako",
+      "pieces": "Vitu",
+      "place": "Weka",
+      "remove": "Ondoa",
+      "done": "Tayari",
+      "retry": "Jaribu tena",
+      "hint": "Elekea mahali kinapokwenda. [ ] kubadilisha vitu, Enter kuweka, Delete kuondoa.",
+      "full": "Hivyo ndivyo vitu vingi zaidi ambavyo nafasi inaweza kubeba. Ondoa kimoja ili uweke kingine.",
+      "saving": "Inahifadhi…",
+      "saved": "Imehifadhiwa kwenye akaunti yako",
+      "saveFailed": "Imeshindwa kuhifadhi",
+      "loadFailed": "Imeshindwa kupakia mpangilio wako. Jaribu tena baada ya muda mfupi.",
+      "announceOn": "Unapamba. Elekea mahali kitu kinapokwenda kisha bonyeza Enter kukiweka.",
+      "announceOff": "Umemaliza kupamba.",
+      "announce": {
+        "placed": "Kimewekwa.",
+        "removed": "Kimeondolewa.",
+        "blocked": "Hakitoshi hapo.",
+        "full": "Hakuna nafasi ya vitu zaidi."
+      },
+      "items": {
+        "bed": "Kitanda",
+        "nightstand": "Meza ya kando ya kitanda",
+        "couch": "Kochi",
+        "armchair": "Kiti cha mikono",
+        "table": "Meza",
+        "bookshelf": "Kabati la vitabu",
+        "plant": "Mmea",
+        "rug": "Zulia",
+        "pine": "Msonobari",
+        "bush": "Kichaka",
+        "flowerbed": "Kitalu cha maua",
+        "bench": "Benchi",
+        "lamppost": "Nguzo ya taa"
+      },
+      "consent": {
+        "title": "Hifadhi mipangilio yako",
+        "body": "Mpangilio wako unahifadhiwa kwenye akaunti yako mwenyewe, ambapo mtu yeyote anaweza kuuona, kama machapisho yako. Hilo linahitaji ruhusa moja zaidi. Utaithibitisha kwa akaunti yako na kurudi hapa mara moja.",
+        "allow": "Endelea",
+        "notNow": "Si sasa"
+      }
     }
   }
 }

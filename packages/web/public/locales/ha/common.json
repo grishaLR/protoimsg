@@ -289,6 +289,53 @@
       "soon3": "Gidaje, ado, wurin wasanni da ƙari",
       "feedback": "Wani abu ya lalace ko kana da buri? Faɗa wa ProtoBuddy: /feedback saƙonka",
       "close": "Na gane"
+    },
+    "build": {
+      "start": "Ƙawata",
+      "stop": "Na gama ƙawata",
+      "buttonHint": "Shirya wurinka (B). Duk wanda ya ziyarce ka zai ga tsarinka.",
+      "titleHome": "Ana ƙawata gidanka",
+      "titleYard": "Ana ƙawata harabarka",
+      "pieces": "Kayayyaki",
+      "place": "Sanya",
+      "remove": "Cire",
+      "done": "An gama",
+      "retry": "Sake gwadawa",
+      "hint": "Fuskanci inda zai tafi. [ ] don sauya kaya, Enter don sanyawa, Delete don cirewa.",
+      "full": "Wannan shi ne iyakar kayan da wuri zai iya ɗauka. Cire ɗaya don sanya wani.",
+      "saving": "Ana adanawa…",
+      "saved": "An adana a asusunka",
+      "saveFailed": "Ba a iya adanawa ba",
+      "loadFailed": "Ba a iya loda tsarinka ba. Sake gwadawa nan da ɗan lokaci.",
+      "announceOn": "Ana ƙawata. Fuskanci inda kaya zai tafi sannan ka danna Enter don sanya shi.",
+      "announceOff": "An gama ƙawata.",
+      "announce": {
+        "placed": "An sanya.",
+        "removed": "An cire.",
+        "blocked": "Bai dace a nan ba.",
+        "full": "Babu wuri don ƙarin kaya."
+      },
+      "items": {
+        "bed": "Gado",
+        "nightstand": "Ƙaramin teburin gefen gado",
+        "couch": "Kujera mai faɗi",
+        "armchair": "Kujerar hannu",
+        "table": "Tebur",
+        "bookshelf": "Shiryayyen littattafai",
+        "plant": "Shuka",
+        "rug": "Darduma",
+        "pine": "Fir",
+        "bush": "Ɗan daji",
+        "flowerbed": "Lambun furanni",
+        "bench": "Benci",
+        "lamppost": "Fitilar titi"
+      },
+      "consent": {
+        "title": "Adana tsarinka",
+        "body": "Ana adana tsarinka a asusunka na kanka, inda kowa zai iya gani, kamar rubuce-rubucenka. Hakan na buƙatar ƙarin izini ɗaya. Za ka tabbatar da shi da asusunka sannan ka dawo nan take.",
+        "allow": "Ci gaba",
+        "notNow": "Ba yanzu ba"
+      }
     }
   }
 }

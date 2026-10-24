@@ -291,6 +291,53 @@
       "soon3": "집, 꾸미기, 오락실 등",
       "feedback": "고장 났거나 바라는 게 있나요? ProtoBuddy에게: /feedback 메시지",
       "close": "알겠어요"
+    },
+    "build": {
+      "start": "꾸미기",
+      "stop": "꾸미기 끝내기",
+      "buttonHint": "내 공간을 꾸며 보세요 (B). 놀러 오는 모든 사람이 내 디자인을 볼 수 있어요.",
+      "titleHome": "내 집 꾸미는 중",
+      "titleYard": "내 마당 꾸미는 중",
+      "pieces": "아이템",
+      "place": "놓기",
+      "remove": "치우기",
+      "done": "완료",
+      "retry": "다시 시도",
+      "hint": "놓을 곳을 바라보세요. [ ] 아이템 바꾸기, Enter 놓기, Delete 치우기.",
+      "full": "한 공간에 놓을 수 있는 아이템은 여기까지예요. 다른 걸 놓으려면 하나를 치워 주세요.",
+      "saving": "저장하는 중…",
+      "saved": "내 계정에 저장했어요",
+      "saveFailed": "저장하지 못했어요",
+      "loadFailed": "디자인을 불러오지 못했어요. 잠시 후 다시 시도해 주세요.",
+      "announceOn": "꾸미는 중이에요. 아이템을 놓을 곳을 바라보고 Enter를 누르면 놓여요.",
+      "announceOff": "꾸미기를 끝냈어요.",
+      "announce": {
+        "placed": "놓았어요.",
+        "removed": "치웠어요.",
+        "blocked": "거기에는 안 들어가요.",
+        "full": "더 놓을 자리가 없어요."
+      },
+      "items": {
+        "bed": "침대",
+        "nightstand": "협탁",
+        "couch": "소파",
+        "armchair": "안락의자",
+        "table": "테이블",
+        "bookshelf": "책장",
+        "plant": "화분",
+        "rug": "러그",
+        "pine": "소나무",
+        "bush": "덤불",
+        "flowerbed": "꽃밭",
+        "bench": "벤치",
+        "lamppost": "가로등"
+      },
+      "consent": {
+        "title": "디자인 저장하기",
+        "body": "디자인은 내 계정에 저장되며, 내 게시물처럼 누구나 볼 수 있어요. 이를 위해 권한이 하나 더 필요해요. 계정에서 확인하면 바로 돌아와요.",
+        "allow": "계속",
+        "notNow": "나중에"
+      }
     }
   }
 }

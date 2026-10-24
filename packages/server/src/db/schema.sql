@@ -111,3 +111,15 @@ CREATE TABLE IF NOT EXISTS dm_messages (
 
 CREATE INDEX IF NOT EXISTS idx_dm_messages_conversation_created ON dm_messages(conversation_id, created_at);
 CREATE INDEX IF NOT EXISTS idx_dm_messages_created ON dm_messages(created_at);
+
+-- town_layouts: indexed from app.protoimsg.town.layout records (rkey = space)
+CREATE TABLE IF NOT EXISTS town_layouts (
+  did         TEXT NOT NULL,
+  space       TEXT NOT NULL CHECK (space IN ('home', 'yard')),
+  placements  JSONB NOT NULL DEFAULT '[]',
+  cid         TEXT,
+  updated_at  TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  indexed_at  TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  PRIMARY KEY (did, space)
+);
+

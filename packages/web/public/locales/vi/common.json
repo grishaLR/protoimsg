@@ -291,6 +291,53 @@
       "soon3": "Nhà, trang trí, khu trò chơi và hơn thế",
       "feedback": "Có gì hỏng hay mong muốn gì? Nói với ProtoBuddy: /feedback tin nhắn của bạn",
       "close": "Đã hiểu"
+    },
+    "build": {
+      "start": "Trang trí",
+      "stop": "Xong trang trí",
+      "buttonHint": "Sắp xếp không gian của bạn (B). Ai ghé thăm cũng thấy thiết kế của bạn.",
+      "titleHome": "Đang trang trí nhà của bạn",
+      "titleYard": "Đang trang trí sân của bạn",
+      "pieces": "Đồ vật",
+      "place": "Đặt",
+      "remove": "Gỡ",
+      "done": "Xong",
+      "retry": "Thử lại",
+      "hint": "Quay mặt về chỗ muốn đặt. [ ] đổi đồ vật, Enter để đặt, Delete để gỡ.",
+      "full": "Một không gian chỉ chứa được chừng này đồ vật. Gỡ bớt một món để đặt món khác.",
+      "saving": "Đang lưu…",
+      "saved": "Đã lưu vào tài khoản của bạn",
+      "saveFailed": "Không lưu được",
+      "loadFailed": "Không tải được thiết kế của bạn. Hãy thử lại sau giây lát.",
+      "announceOn": "Đang trang trí. Quay mặt về chỗ muốn đặt đồ vật rồi nhấn Enter để đặt.",
+      "announceOff": "Đã xong trang trí.",
+      "announce": {
+        "placed": "Đã đặt.",
+        "removed": "Đã gỡ.",
+        "blocked": "Chỗ đó không vừa.",
+        "full": "Không còn chỗ cho thêm đồ vật."
+      },
+      "items": {
+        "bed": "Giường",
+        "nightstand": "Tủ đầu giường",
+        "couch": "Ghế sofa",
+        "armchair": "Ghế bành",
+        "table": "Bàn",
+        "bookshelf": "Kệ sách",
+        "plant": "Cây cảnh",
+        "rug": "Thảm",
+        "pine": "Cây thông",
+        "bush": "Bụi cây",
+        "flowerbed": "Bồn hoa",
+        "bench": "Ghế dài",
+        "lamppost": "Cột đèn"
+      },
+      "consent": {
+        "title": "Lưu thiết kế của bạn",
+        "body": "Thiết kế của bạn được lưu vào tài khoản của chính bạn, nơi ai cũng có thể xem, giống như bài đăng của bạn. Việc này cần thêm một quyền nữa. Bạn sẽ xác nhận bằng tài khoản của mình và quay lại ngay.",
+        "allow": "Tiếp tục",
+        "notNow": "Để sau"
+      }
     }
   }
 }

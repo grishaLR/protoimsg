@@ -14,12 +14,26 @@ import {
   type FederatedPointerEvent,
 } from 'pixi.js';
 import {
+  TOWN_BUILD_AREA,
+  TOWN_BUILTINS,
+  TOWN_MAX_PLACEMENTS,
   TOWN_PROXIMITY,
   TOWN_SQUARE_LAYOUT,
   townArrival,
+  townBuiltin,
   townDoorwayAtTile,
+  validateTownLayout,
 } from '@protoimsg/shared';
-import type { TownDoorway, TownGate, TownPeer, TownSceneKind, TownSpawn } from '@protoimsg/shared';
+import type {
+  TownBuiltinId,
+  TownDoorway,
+  TownGate,
+  TownPeer,
+  TownPlacement,
+  TownSceneKind,
+  TownSpace,
+  TownSpawn,
+} from '@protoimsg/shared';
 import { GAME_MASTER_DID, RPG_ACTOR_API_URL } from '../lib/config';
 import { resolveDisplayNameForDid } from '../lib/resolve-pds';
 import {
@@ -32,8 +46,24 @@ import {
   SPRITE_H,
   buildFrames,
 } from './Avatar';
-import { buildStructures, buildWindowGlow, sceneSigns, type SignId } from './structures';
-import { ASSET_BASE, OBJ_SCALE, SCENE_MAPS, TILE, gateSlotAt, type SceneMap } from './map';
+import {
+  buildLampGlow,
+  buildStructures,
+  buildWindowGlow,
+  drawPlacement,
+  sceneSigns,
+  type SignId,
+} from './structures';
+import {
+  ASSET_BASE,
+  OBJ_SCALE,
+  SCENE_MAPS,
+  TILE,
+  gateSlotAt,
+  layoutBlocks,
+  sceneSpace,
+  type SceneMap,
+} from './map';
 
 export type { SignId };
 
@@ -55,6 +85,53 @@ const AURA_SPEAKING = 0xf0e6ff;
 const AURA_R = 15; // world px around the body centre
 const MESH_Z = -4000; // above ground + pond, below y-sorted avatars/trees
 const SIGN_Z = 9000; // door signs float over everything that walks
+
+// Build mode: the grid, the piece you're about to place, the piece you'd remove.
+const GRID_Z = -4300; // over the floor and rugs, under everything solid
+const GRID_COLOR = 0xffffff;
+const GHOST_OK = 0x7ee08a;
+const GHOST_BAD = 0xff6b6b;
+const REMOVE_COLOR = 0xffc14d;
+
+/** What build mode shows the panel: where, and which piece is in hand. */
+export interface TownBuildView {
+  space: TownSpace;
+  items: TownBuiltinId[];
+  item: TownBuiltinId;
+  /** The piece in hand fits in front of you. */
+  canPlace: boolean;
+  /** There's a piece in front of you to take away. */
+  canRemove: boolean;
+  full: boolean;
+}
+
+export type TownBuildAction = 'placed' | 'removed' | 'blocked' | 'full';
+
+const BUILD_KEY = 'b';
+
+/**
+ * Build keys belong to the town: the page itself, or anywhere in the town
+ * panel except its cards and lists (the signpost, a knock), which keep their
+ * own Escape and Delete. The tray (`data-town-build`) is the town's.
+ */
+function buildKeysApply(target: EventTarget | null): boolean {
+  if (!(target instanceof HTMLElement) || target === document.body) return true;
+  if (!target.closest('[data-town-root]')) return false;
+  const card = target.closest('section, dialog, [role="dialog"]');
+  return !card || card.hasAttribute('data-town-build');
+}
+
+/** The starter pieces that fit a space, in catalog order. */
+function buildItems(space: TownSpace): TownBuiltinId[] {
+  return (Object.keys(TOWN_BUILTINS) as TownBuiltinId[]).filter((id) =>
+    (TOWN_BUILTINS[id].spaces as readonly TownSpace[]).includes(space),
+  );
+}
+
+function covers(p: TownPlacement, tx: number, ty: number): boolean {
+  const def = townBuiltin(p.builtin);
+  return !!def && tx >= p.x && tx < p.x + def.w && ty >= p.y && ty < p.y + def.h;
+}
 
 function spriteUrl(did: string): string {
   return `${RPG_ACTOR_API_URL}/api/sprite/normalized?did=${encodeURIComponent(did)}`;
@@ -181,6 +258,23 @@ export class WorldEngine {
   private atDoor = false;
   private lastSafe = { x: 0, y: 0 };
 
+  /** The current scene's design (homes and yards), and what it blocks. */
+  private layout: TownPlacement[] = [];
+  private layoutBlocked = new Set<string>();
+  private layoutNodes: Container[] = [];
+  /** The space you may design here (your own home or yard), if any. */
+  private buildable: TownSpace | null = null;
+  /** Build mode: which piece is in hand (null = not building). */
+  private build: { space: TownSpace; items: TownBuiltinId[]; index: number } | null = null;
+  private buildGrid: Graphics | null = null;
+  private buildGhost: Container | null = null;
+  /** What the ghost was last drawn for, so it's only redrawn on change. */
+  private ghostKey = '';
+  /** Bumped whenever the layout changes (part of the ghost's key). */
+  private layoutVersion = 0;
+  /** The last view sent to the panel. */
+  private lastView: TownBuildView | null = null;
+
   private px = 0;
   private py = 0;
   private sentX = -1;
@@ -203,6 +297,15 @@ export class WorldEngine {
 
   /** Stepped onto (true) or off (false) the square's signpost. */
   onSignpost?: (on: boolean) => void;
+
+  /** Build mode started, changed (piece, what's in front of you) or ended (null). */
+  onBuildChange?: (view: TownBuildView | null) => void;
+
+  /** Something happened in build mode worth saying out loud. */
+  onBuildAction?: (action: TownBuildAction) => void;
+
+  /** You changed your design: save it. */
+  onLayoutEdit?: (space: TownSpace, placements: TownPlacement[]) => void;
 
   /** Count of nearby avatars you are NOT in a voice room with changed. */
   onNearbyUnlinkedChange?: (count: number) => void;
@@ -310,12 +413,14 @@ export class WorldEngine {
    * Swap to another scene: tear down the old one (and its peers — they belong
    * to that scene), build the new one and stand the player at `spawn`.
    */
-  enterScene(kind: TownSceneKind, spawn: TownSpawn): void {
+  enterScene(kind: TownSceneKind, spawn: TownSpawn, layout: TownPlacement[] = []): void {
     if (!this.ready || this.destroyed) return;
+    this.endBuild();
     this.setPeers([]);
     this.nearby.clear();
     this.cluster = [];
     this.map = SCENE_MAPS[kind];
+    this.setLayoutData(layout);
     this.app.renderer.background.color = this.map.background;
     this.px = spawn.x;
     this.py = spawn.y;
@@ -324,6 +429,318 @@ export class WorldEngine {
     this.sentY = this.py;
     this.sentDir = this.player.dir;
     this.buildScene();
+  }
+
+  /**
+   * The scene's design changed (its owner saved). Ignored while you're
+   * designing it yourself: your edits are newer than any echo of a save.
+   */
+  setLayout(placements: TownPlacement[]): void {
+    if (this.build) return;
+    this.setLayoutData(placements);
+    if (!this.ready || this.destroyed) return;
+    this.drawLayout();
+    this.unstick();
+  }
+
+  private setLayoutData(placements: TownPlacement[]): void {
+    const space = sceneSpace(this.map.kind);
+    this.layout = space ? placements : [];
+    this.layoutBlocked = layoutBlocks(this.layout);
+    this.layoutVersion++;
+  }
+
+  /** B pressed where you may design: the panel loads your design and begins. */
+  onBuildRequest?: () => void;
+
+  /** Where you may design right now (null: nowhere — not your space). */
+  setBuildable(space: TownSpace | null): void {
+    this.buildable = space;
+    if (this.build && this.build.space !== space) this.endBuild();
+  }
+
+  isBuilding(): boolean {
+    return this.build !== null;
+  }
+
+  /**
+   * Start designing with `placements` (the owner's own record, read fresh, so
+   * a stale or default view is never what gets saved over their design).
+   */
+  beginBuild(placements: TownPlacement[]): void {
+    if (this.build) return;
+    this.setLayoutData(placements);
+    if (this.ready && !this.destroyed) this.drawLayout();
+    this.startBuild();
+  }
+
+  private startBuild(): void {
+    const space = this.buildable;
+    if (!space || space !== sceneSpace(this.map.kind) || !this.ready) return;
+    this.build = { space, items: buildItems(space), index: 0 };
+    const grid = new Graphics();
+    const area = TOWN_BUILD_AREA[space];
+    for (let x = area.x; x <= area.x + area.w; x++) {
+      grid.moveTo(x * TILE, area.y * TILE).lineTo(x * TILE, (area.y + area.h) * TILE);
+    }
+    for (let y = area.y; y <= area.y + area.h; y++) {
+      grid.moveTo(area.x * TILE, y * TILE).lineTo((area.x + area.w) * TILE, y * TILE);
+    }
+    grid.stroke({ width: 1, color: GRID_COLOR, alpha: 0.18 });
+    grid.zIndex = GRID_Z;
+    grid.eventMode = 'none';
+    this.buildGrid = grid;
+    this.world.addChild(grid);
+    this.ghostKey = '';
+    this.updateGhost();
+  }
+
+  /** Leave build mode (no-op when not building). */
+  endBuild(): void {
+    if (!this.build) return;
+    this.build = null;
+    this.buildGrid?.destroy({ context: true });
+    this.buildGrid = null;
+    this.buildGhost?.destroy({ children: true, context: true });
+    this.buildGhost = null;
+    this.ghostKey = '';
+    this.lastView = null;
+    this.onBuildChange?.(null);
+  }
+
+  /** Pick up a different piece. */
+  selectBuildItem(id: TownBuiltinId): void {
+    if (!this.build) return;
+    const i = this.build.items.indexOf(id);
+    if (i < 0) return;
+    this.build.index = i;
+    this.updateGhost();
+  }
+
+  private cycleBuildItem(step: number): void {
+    if (!this.build) return;
+    const n = this.build.items.length;
+    this.build.index = (this.build.index + step + n) % n;
+    this.updateGhost();
+  }
+
+  /** The tile you're facing, one step ahead. */
+  private frontTile(): { x: number; y: number } {
+    const tx = Math.floor(this.px / TILE);
+    const ty = Math.floor(this.py / TILE);
+    const d = this.player.dir;
+    if (d === DIR_LEFT) return { x: tx - 1, y: ty };
+    if (d === DIR_RIGHT) return { x: tx + 1, y: ty };
+    if (d === DIR_BACK) return { x: tx, y: ty - 1 };
+    return { x: tx, y: ty + 1 };
+  }
+
+  /** Where the piece in hand would go: its footprint starts just in front of you. */
+  private candidate(): TownPlacement | null {
+    if (!this.build) return null;
+    const id = this.build.items[this.build.index];
+    const def = townBuiltin(id);
+    if (!id || !def) return null;
+    const tx = Math.floor(this.px / TILE);
+    const ty = Math.floor(this.py / TILE);
+    const d = this.player.dir;
+    const midW = Math.floor((def.w - 1) / 2);
+    const midH = Math.floor((def.h - 1) / 2);
+    if (d === DIR_LEFT) return { builtin: id, x: tx - def.w, y: ty - midH };
+    if (d === DIR_RIGHT) return { builtin: id, x: tx + 1, y: ty - midH };
+    if (d === DIR_BACK) return { builtin: id, x: tx - midW, y: ty - def.h };
+    return { builtin: id, x: tx - midW, y: ty + 1 };
+  }
+
+  /** The same rules the server applies to everyone's layouts. */
+  private fits(c: TownPlacement): boolean {
+    if (!this.build || this.layout.length >= TOWN_MAX_PLACEMENTS) return false;
+    const next = [...this.layout, c];
+    return validateTownLayout(this.build.space, next).length === next.length;
+  }
+
+  /** The topmost piece covering the tile in front of you. */
+  private pieceInFront(): number {
+    const f = this.frontTile();
+    for (let i = this.layout.length - 1; i >= 0; i--) {
+      const p = this.layout[i];
+      if (p && covers(p, f.x, f.y)) return i;
+    }
+    return -1;
+  }
+
+  /** Put the piece in hand down in front of you. */
+  placeAtCursor(): void {
+    if (!this.build) return;
+    const c = this.candidate();
+    if (!c) return;
+    if (this.layout.length >= TOWN_MAX_PLACEMENTS) {
+      this.onBuildAction?.('full');
+      return;
+    }
+    if (!this.fits(c)) {
+      this.onBuildAction?.('blocked');
+      return;
+    }
+    this.commitLayout([...this.layout, c]);
+    this.onBuildAction?.('placed');
+  }
+
+  /** Take away the piece in front of you. */
+  removeAtCursor(): void {
+    if (!this.build) return;
+    const i = this.pieceInFront();
+    if (i < 0) return;
+    this.commitLayout(this.layout.filter((_, j) => j !== i));
+    this.onBuildAction?.('removed');
+  }
+
+  private commitLayout(next: TownPlacement[]): void {
+    if (!this.build) return;
+    const space = this.build.space;
+    this.setLayoutData(next);
+    this.drawLayout();
+    this.ghostKey = '';
+    this.updateGhost();
+    this.onLayoutEdit?.(space, next);
+  }
+
+  /** Redraw the ghost (and tell the panel) when what's in front of you changes. */
+  private updateGhost(): void {
+    const build = this.build;
+    if (!build) return;
+    const c = this.candidate();
+    const front = this.frontTile();
+    // Cheap key first: the placement rules only run when something moved.
+    const key = `${String(build.index)}|${String(c?.x)}|${String(c?.y)}|${String(front.x)},${String(front.y)}|${String(this.layoutVersion)}`;
+    if (key === this.ghostKey) return;
+    this.ghostKey = key;
+    const removeAt = this.pieceInFront();
+    const ok = c ? this.fits(c) : false;
+
+    this.buildGhost?.destroy({ children: true, context: true });
+    const ghost = new Container();
+    ghost.zIndex = SIGN_Z - 1;
+    ghost.eventMode = 'none';
+    const marks = new Graphics();
+    const target = removeAt >= 0 ? this.layout[removeAt] : undefined;
+    const targetDef = townBuiltin(target?.builtin);
+    if (target && targetDef) {
+      marks
+        .rect(
+          target.x * TILE + 1,
+          target.y * TILE + 1,
+          targetDef.w * TILE - 2,
+          targetDef.h * TILE - 2,
+        )
+        .stroke({ width: 2, color: REMOVE_COLOR, alpha: 0.9 });
+    }
+    const def = townBuiltin(c?.builtin);
+    if (c && def) {
+      const color = ok ? GHOST_OK : GHOST_BAD;
+      marks
+        .rect(c.x * TILE, c.y * TILE, def.w * TILE, def.h * TILE)
+        .fill({ color, alpha: 0.18 })
+        .stroke({ width: 1, color, alpha: 0.85 });
+      const piece = this.placementNode(c);
+      if (piece) {
+        piece.zIndex = 0;
+        piece.alpha = ok ? 0.75 : 0.35;
+        ghost.addChild(piece);
+      }
+    }
+    ghost.addChild(marks);
+    this.buildGhost = ghost;
+    this.world.addChild(ghost);
+
+    const item = build.items[build.index];
+    if (!item) return;
+    const view: TownBuildView = {
+      space: build.space,
+      items: build.items,
+      item,
+      canPlace: ok,
+      canRemove: removeAt >= 0,
+      full: this.layout.length >= TOWN_MAX_PLACEMENTS,
+    };
+    // Tell the panel only when the tray would change, not on every step.
+    const last = this.lastView;
+    if (
+      last?.space === view.space &&
+      last.item === view.item &&
+      last.canPlace === view.canPlace &&
+      last.canRemove === view.canRemove &&
+      last.full === view.full
+    ) {
+      return;
+    }
+    this.lastView = view;
+    this.onBuildChange?.(view);
+  }
+
+  /** One placed piece as a display object (pines are sprites; the rest pixel art). */
+  private placementNode(p: TownPlacement): Container | null {
+    if (p.builtin === 'pine') {
+      const pine = this.textures.pine;
+      if (!pine) return null;
+      const s = new Sprite(pine);
+      s.anchor.set(0.5, 1);
+      s.scale.set(OBJ_SCALE);
+      const baseY = p.y * TILE + TILE;
+      s.position.set(p.x * TILE + TILE / 2, baseY);
+      s.zIndex = baseY;
+      return s;
+    }
+    return drawPlacement(p);
+  }
+
+  /** Draw the scene's design (and its lamplight indoors). */
+  private drawLayout(): void {
+    for (const node of this.layoutNodes) node.destroy({ children: true, context: true });
+    this.layoutNodes = [];
+    for (const p of this.layout) {
+      const node = this.placementNode(p);
+      if (node) this.layoutNodes.push(node);
+    }
+    if (this.map.kind === 'home') {
+      const glow = buildLampGlow(this.layout);
+      if (glow) this.layoutNodes.push(glow);
+    }
+    for (const node of this.layoutNodes) this.world.addChild(node);
+  }
+
+  /**
+   * Standing where a piece just appeared (the owner placed it on you): step
+   * to the nearest open tile rather than being stuck inside it.
+   */
+  private unstick(): void {
+    const sx = Math.floor(this.px / TILE);
+    const sy = Math.floor(this.py / TILE);
+    if (!this.isBlocked(sx, sy)) return;
+    const seen = new Set<string>([`${String(sx)},${String(sy)}`]);
+    const queue: Array<[number, number]> = [[sx, sy]];
+    while (queue.length > 0) {
+      const next = queue.shift();
+      if (!next) break;
+      const [x, y] = next;
+      if (!this.isBlocked(x, y)) {
+        this.px = x * TILE + TILE / 2;
+        this.py = y * TILE + TILE / 2;
+        this.player.setPosition(this.px, this.py);
+        return;
+      }
+      for (const [nx, ny] of [
+        [x + 1, y],
+        [x - 1, y],
+        [x, y + 1],
+        [x, y - 1],
+      ] as const) {
+        const k = `${String(nx)},${String(ny)}`;
+        if (seen.has(k) || nx < 0 || ny < 0 || nx >= this.map.w || ny >= this.map.h) continue;
+        seen.add(k);
+        queue.push([nx, ny]);
+      }
+    }
   }
 
   /** The doorway hand-off failed — step back off the doorway and walk on. */
@@ -413,6 +830,7 @@ export class WorldEngine {
   /** Blocked for walking: the map's own collision, plus closed gate slots. */
   private isBlocked(tx: number, ty: number): boolean {
     if (this.map.isBlockedTile(tx, ty)) return true;
+    if (this.layoutBlocked.has(`${String(tx)},${String(ty)}`)) return true;
     if (this.map.kind !== 'square') return false;
     const slot = gateSlotAt(tx, ty);
     return slot !== null && !this.openSlots.has(slot);
@@ -472,6 +890,7 @@ export class WorldEngine {
     // `context: true` frees each Graphics' geometry; textures are shared, keep them.
     for (const node of this.sceneNodes) node.destroy({ children: true, context: true });
     this.sceneNodes = [];
+    this.drawLayout();
     this.onSignHover?.(null, 0, 0);
     const { grass, pine, pond } = this.textures;
     const map = this.map;
@@ -519,6 +938,7 @@ export class WorldEngine {
 
     this.player.setPosition(this.px, this.py);
     if (!enter) return;
+    this.unstick();
     this.lastSafe = { x: this.px, y: this.py };
     this.doorArmed = false;
     this.atDoor = false;
@@ -677,6 +1097,7 @@ export class WorldEngine {
 
   private onKeyDown = (e: KeyboardEvent): void => {
     if (!this.inputEnabled) return;
+    if (this.onBuildKey(e)) return;
     if (e.key === SPRINT_KEY) {
       // Leave Space to a field or a keyboard-focused control; otherwise it's
       // the run key (and shouldn't scroll the page or click a stray button).
@@ -690,6 +1111,46 @@ export class WorldEngine {
     this.keys.add(e.key);
     e.preventDefault();
   };
+
+  /** Build mode's keys; true when the key was one of them. */
+  private onBuildKey(e: KeyboardEvent): boolean {
+    if (isTextEntry(e.target) || e.metaKey || e.ctrlKey || e.altKey) return false;
+    if (!buildKeysApply(e.target)) return false;
+    const key = e.key.length === 1 ? e.key.toLowerCase() : e.key;
+    if (key === BUILD_KEY && !e.repeat && this.buildable) {
+      if (this.build) this.endBuild();
+      else this.onBuildRequest?.();
+      e.preventDefault();
+      return true;
+    }
+    if (!this.build) return false;
+    // A control the keyboard focused keeps its own Enter; one you clicked
+    // with the mouse doesn't (same rule as Space).
+    const onControl = spaceBelongsToFocus(e.target);
+    switch (key) {
+      case 'Escape':
+        this.endBuild();
+        break;
+      case '[':
+        this.cycleBuildItem(-1);
+        break;
+      case ']':
+        this.cycleBuildItem(1);
+        break;
+      case 'Enter':
+        if (onControl) return false;
+        if (!e.repeat) this.placeAtCursor();
+        break;
+      case 'Delete':
+      case 'Backspace':
+        if (!e.repeat) this.removeAtCursor();
+        break;
+      default:
+        return false;
+    }
+    e.preventDefault();
+    return true;
+  }
 
   /** Switching windows mid-stride: keyups never arrive, so let go of everything. */
   private onBlur = (): void => {
@@ -736,6 +1197,7 @@ export class WorldEngine {
     this.player.tick(dtMs, moving, moving && this.keys.has(SPRINT_KEY) ? SPRINT : 1);
     this.player.setPosition(this.px, this.py);
     this.checkDoorway();
+    this.updateGhost();
 
     // Throttled position broadcast (sends the resting position too, since the
     // changed-check stays true until the latest pose is acknowledged).
@@ -900,6 +1362,8 @@ export class WorldEngine {
 
   destroy(): void {
     this.destroyed = true;
+    this.onBuildChange = undefined;
+    this.endBuild();
     window.removeEventListener('keydown', this.onKeyDown);
     window.removeEventListener('keyup', this.onKeyUp);
     window.removeEventListener('blur', this.onBlur);

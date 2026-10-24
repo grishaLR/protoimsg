@@ -291,6 +291,53 @@
       "soon3": "房子、装饰、游戏厅等等",
       "feedback": "有问题或愿望？告诉 ProtoBuddy：/feedback 你的留言",
       "close": "知道了"
+    },
+    "build": {
+      "start": "装饰",
+      "stop": "完成装饰",
+      "buttonHint": "布置你的空间（B）。来拜访的每个人都能看到你的设计。",
+      "titleHome": "正在装饰你的家",
+      "titleYard": "正在装饰你的院子",
+      "pieces": "物件",
+      "place": "放置",
+      "remove": "移除",
+      "done": "完成",
+      "retry": "重试",
+      "hint": "面向要放的位置。[ ] 切换物件，Enter 放置，Delete 移除。",
+      "full": "一个空间最多只能放这么多物件。移除一个才能再放。",
+      "saving": "正在保存…",
+      "saved": "已保存到你的账号",
+      "saveFailed": "保存失败",
+      "loadFailed": "无法加载你的设计。请稍后再试。",
+      "announceOn": "装饰中。面向物件要放的位置，按 Enter 放置。",
+      "announceOff": "装饰完成。",
+      "announce": {
+        "placed": "已放置。",
+        "removed": "已移除。",
+        "blocked": "那里放不下。",
+        "full": "没有空间放更多物件了。"
+      },
+      "items": {
+        "bed": "床",
+        "nightstand": "床头柜",
+        "couch": "沙发",
+        "armchair": "扶手椅",
+        "table": "桌子",
+        "bookshelf": "书架",
+        "plant": "盆栽",
+        "rug": "地毯",
+        "pine": "松树",
+        "bush": "灌木",
+        "flowerbed": "花坛",
+        "bench": "长椅",
+        "lamppost": "路灯"
+      },
+      "consent": {
+        "title": "保存你的设计",
+        "body": "你的设计会保存到你自己的账号里，和你的帖子一样，任何人都能看到。这需要再授予一项权限。你会在账号中确认，然后马上回来。",
+        "allow": "继续",
+        "notNow": "暂不"
+      }
     }
   }
 }

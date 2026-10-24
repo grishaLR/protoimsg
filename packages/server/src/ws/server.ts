@@ -7,6 +7,7 @@ import { handleClientMessage } from './handlers.js';
 import { TownRoom } from './town.js';
 import { CommunityTownGraph } from './town-graph.js';
 import { CachedOwnerBlocks } from './town-blocks.js';
+import { IndexedTownLayouts } from '../town/layouts.js';
 import {
   batchCheckInnerCircle,
   getCommunityMemberDids,
@@ -109,6 +110,13 @@ export class UserSockets {
 
 export interface WsServer {
   sendToUser: (did: string, message: ServerMessage) => void;
+  /** A designed space (town.layout record) changed — from the firehose. */
+  townLayoutChanged: (
+    owner: string,
+    space: 'home' | 'yard',
+    record: unknown,
+    cid: string | null,
+  ) => Promise<void>;
   /** A community list changed outside this server's WebSocket (the firehose). */
   communityChanged: (owner: string, members: string[], innerCircle: string[]) => void;
   close: () => Promise<void>;
@@ -161,11 +169,13 @@ export function createWsServer(
     loadOwners: (d) => getCommunityOwnerDids(sql, d),
     loadInnerOwners: (d, owners) => batchCheckInnerCircle(sql, [...owners], d),
   });
+  const townLayouts = new IndexedTownLayouts(sql);
   const townRoom = new TownRoom(
     blockService,
     townVoice ?? null,
     townGraph,
     new CachedOwnerBlocks(),
+    townLayouts,
   );
   const pendingCleanup = new Set<Promise<void>>();
 
@@ -417,6 +427,7 @@ export function createWsServer(
   });
 
   return {
+    townLayoutChanged: (owner, space, record, cid) => townLayouts.apply(owner, space, record, cid),
     communityChanged: (owner: string, members: string[], innerCircle: string[]) => {
       townRoom.communityChanged(owner, members, innerCircle);
     },

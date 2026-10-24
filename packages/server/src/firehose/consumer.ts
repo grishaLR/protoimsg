@@ -1,5 +1,5 @@
 import WebSocket from 'ws';
-import { NSID_PREFIX, USER_AGENT } from '@protoimsg/shared';
+import { NSID_PREFIX, TOWN_NSID_PREFIX, USER_AGENT } from '@protoimsg/shared';
 import type { Sql, JsonValue } from '../db/client.js';
 import { getCursor, saveCursor } from './cursor.js';
 import { createHandlers, type FirehoseEvent } from './handlers.js';
@@ -177,6 +177,8 @@ export function createFirehoseConsumer(
 
     const url = new URL(jetstreamUrl);
     url.searchParams.set('wantedCollections', NSID_PREFIX + '*');
+    // proto town designs (app.protoimsg.town.layout) are indexed too.
+    url.searchParams.append('wantedCollections', TOWN_NSID_PREFIX + '*');
     if (cursor) {
       url.searchParams.set('cursor', String(cursor));
     }

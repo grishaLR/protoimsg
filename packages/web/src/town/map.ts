@@ -10,9 +10,10 @@ import {
   TOWN_NEIGHBORHOOD_LAYOUT,
   TOWN_SQUARE_LAYOUT,
   TOWN_TILE,
+  townBuiltin,
   townDoorwayAtTile,
 } from '@protoimsg/shared';
-import type { TownSceneKind } from '@protoimsg/shared';
+import type { TownPlacement, TownSceneKind, TownSpace } from '@protoimsg/shared';
 
 export const TILE = TOWN_TILE;
 export const OBJ_SCALE = 2; // collage objects are 16-px base art
@@ -76,28 +77,25 @@ function pines(cells: Array<[number, number]>): PlacedObject[] {
   return cells.map(([tx, ty]) => ({ type: 'pine', tx, ty }));
 }
 
-// ── Furniture (home interior) ───────────────────────────────────────────
+// ── Designed spaces ─────────────────────────────────────────────────────
 
-export type FurnitureType = 'bed' | 'nightstand' | 'couch' | 'bookshelf' | 'plant' | 'rug';
-
-export interface PlacedFurniture extends Rect {
-  type: FurnitureType;
-  /** Walk-through (rugs) vs blocking. */
-  solid: boolean;
+/** The space a scene's owner designs, if any (the square is everyone's). */
+export function sceneSpace(kind: TownSceneKind): TownSpace | null {
+  return kind === 'home' ? 'home' : kind === 'neighborhood' ? 'yard' : null;
 }
 
-export const HOME_FURNITURE: PlacedFurniture[] = [
-  { type: 'bed', x: 1, y: 2, w: 2, h: 3, solid: true },
-  { type: 'nightstand', x: 3, y: 2, w: 1, h: 1, solid: true },
-  { type: 'couch', x: 8, y: 2, w: 3, h: 1, solid: true },
-  { type: 'bookshelf', x: 12, y: 2, w: 1, h: 2, solid: true },
-  { type: 'plant', x: 12, y: 8, w: 1, h: 1, solid: true },
-  { type: 'plant', x: 1, y: 8, w: 1, h: 1, solid: true },
-  { type: 'rug', x: 4, y: 4, w: 6, h: 3, solid: false },
-];
-
-/** The nightstand lamp — the room's warm light source, in world px. */
-export const HOME_LAMP = { x: 3 * TILE + TILE / 2, y: 2 * TILE + TILE / 3 };
+/** Tiles covered by solid placements in a layout. */
+export function layoutBlocks(placements: readonly TownPlacement[]): Set<string> {
+  const out = new Set<string>();
+  for (const p of placements) {
+    const def = townBuiltin(p.builtin);
+    if (!def?.solid) continue;
+    for (let dx = 0; dx < def.w; dx++) {
+      for (let dy = 0; dy < def.h; dy++) out.add(`${String(p.x + dx)},${String(p.y + dy)}`);
+    }
+  }
+  return out;
+}
 
 // ── Barriers ────────────────────────────────────────────────────────────
 
@@ -161,12 +159,6 @@ function buildSceneMap(
       for (let dx = 0; dx < r.w; dx++) for (let dy = 0; dy < r.h; dy++) block(r.x + dx, r.y + dy);
     }
   }
-  if (kind === 'home') {
-    for (const f of HOME_FURNITURE) {
-      if (!f.solid) continue;
-      for (let dx = 0; dx < f.w; dx++) for (let dy = 0; dy < f.h; dy++) block(f.x + dx, f.y + dy);
-    }
-  }
   for (let x = 0; x < w; x++) {
     for (let y = 0; y < h; y++) if (barrierAt(kind, x, y)) block(x, y);
   }
@@ -198,14 +190,8 @@ export const SCENE_MAPS: Record<TownSceneKind, SceneMap> = {
   // Lamplit evening indoors — the warm dark beyond the walls frames the room.
   home: buildSceneMap('home', 0x241a14, null, []),
   neighborhood: buildSceneMap('neighborhood', 0x4f6b2c, 0xd2e3b4, [
+    // Inside the fence is the owner's to design (their layout); the pond stays.
     ...perimeterForest(N.w, N.h, true),
-    ...pines([
-      [4, 4],
-      [6, 3],
-      [26, 4],
-      [27, 7],
-      [5, 18],
-    ]),
     { type: 'pond', tx: 23, ty: 15 },
   ]),
   square: buildSceneMap('square', 0x6b8f3a, 0xffffff, [
