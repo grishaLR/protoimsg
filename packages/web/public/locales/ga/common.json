@@ -300,22 +300,28 @@
       "titleYard": "Do chlós a mhaisiú",
       "pieces": "Píosaí",
       "place": "Cuir",
+      "rotate": "Rothlaigh",
+      "pickUp": "Bog",
       "remove": "Bain",
       "done": "Déanta",
       "retry": "Bain triail eile as",
-      "hint": "Tabhair aghaidh ar an áit a dtéann sé. [ ] chun píosaí a athrú, Enter chun cur, Delete chun baint.",
+      "hint": "Cliceáil chun cur, nó cliceáil ar phíosa chun é a bhogadh. Baineann deaschliceáil é. Eochracha: R chun casadh, E chun piocadh suas, Enter chun cur, Delete chun baint, [ ] chun píosaí a athrú.",
+      "hintCarrying": "Cliceáil an áit a dtéann sé (nó brúigh Enter). R chun é a chasadh, Delete chun é a bhaint, Escape chun é a chur ar ais.",
       "full": "Sin an méid píosaí is féidir le spás a choinneáil. Bain ceann chun ceann eile a chur.",
       "saving": "Á shábháil…",
       "saved": "Sábháilte i do chuntas",
       "saveFailed": "Níorbh fhéidir sábháil",
       "loadFailed": "Níorbh fhéidir do dhearadh a lódáil. Bain triail eile as i gceann nóiméid.",
-      "announceOn": "Ag maisiú. Tabhair aghaidh ar an áit a dtéann píosa agus brúigh Enter chun é a chur.",
+      "announceOn": "Ag maisiú. Cliceáil ar áit, nó tabhair aghaidh uirthi agus brúigh Enter, chun píosa a chur.",
       "announceOff": "Críochnaithe ag maisiú.",
       "announce": {
         "placed": "Curtha.",
         "removed": "Bainte.",
         "blocked": "Ní oireann sé ansin.",
-        "full": "Níl spás do thuilleadh píosaí."
+        "full": "Níl spás do thuilleadh píosaí.",
+        "pickedUp": "Piocadh suas é. Leag síos é san áit a dtéann sé, nó brúigh Escape chun é a chur ar ais.",
+        "putBack": "Curtha ar ais.",
+        "rotated": "Casta."
       },
       "items": {
         "bed": "Leaba",
@@ -330,7 +336,14 @@
         "bush": "Tor",
         "flowerbed": "Ceapach bláthanna",
         "bench": "Binse",
-        "lamppost": "Cuaille lampa"
+        "lamppost": "Cuaille lampa",
+        "pumpkins": "Puimcíní",
+        "garden": "Ceapach ghairdín",
+        "boulder": "Bollán",
+        "stone": "Cloch",
+        "chest": "Cófra",
+        "barrel": "Bairille",
+        "wildflowers": "Bláthanna fiáine"
       },
       "consent": {
         "title": "Sábháil do dhearthaí",

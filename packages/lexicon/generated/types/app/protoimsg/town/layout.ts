@@ -46,6 +46,13 @@ export interface Placement {
     | 'flowerbed'
     | 'bench'
     | 'lamppost'
+    | 'pumpkins'
+    | 'garden'
+    | 'boulder'
+    | 'stone'
+    | 'chest'
+    | 'barrel'
+    | 'wildflowers'
     | (string & {});
   /** Tile column of the object's top-left footprint tile. */
   x: number;

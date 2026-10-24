@@ -5,7 +5,7 @@ import {
   TOWN_SQUARE_LAYOUT,
   TOWN_TILE,
 } from '@protoimsg/shared';
-import { townBuiltin } from '@protoimsg/shared';
+import { townBuiltin, townFootprint, townRotation } from '@protoimsg/shared';
 import type { TownGate, TownPlacement, TownSceneKind } from '@protoimsg/shared';
 import { barrierAt, gateSlotAt } from './map';
 
@@ -326,9 +326,11 @@ function drawDoorFrame(g: Graphics, tx: number, ty: number, side: 'left' | 'righ
  */
 export function drawPlacement(p: TownPlacement): Graphics | null {
   const def = townBuiltin(p.builtin);
-  if (!def || p.builtin === 'pine') return null;
-  const f = { x: p.x, y: p.y, w: def.w, h: def.h };
-  const g = def.solid ? rowPiece(f.y + f.h - 1) : groundPiece(-4400);
+  const fp = townFootprint(p);
+  if (!def || !fp || p.builtin === 'pine') return null;
+  // Drawn unturned at the origin, then turned and moved onto its tiles.
+  const f = { x: 0, y: 0, w: def.w, h: def.h };
+  const g = def.solid ? rowPiece(p.y + fp.h - 1) : groundPiece(-4400);
   const { x, y } = f;
   switch (p.builtin) {
     case 'bed': {
@@ -462,6 +464,18 @@ export function drawPlacement(p: TownPlacement): Graphics | null {
       break;
     }
   }
+  const turns = townRotation(p);
+  g.rotation = (turns * Math.PI) / 2;
+  // Turning about the origin swings the drawing out of its box; shift it back.
+  const W = def.w * TOWN_TILE;
+  const Hh = def.h * TOWN_TILE;
+  const shift = [
+    [0, 0],
+    [Hh, 0],
+    [W, Hh],
+    [0, W],
+  ][turns] ?? [0, 0];
+  g.position.set(p.x * TOWN_TILE + (shift[0] ?? 0), p.y * TOWN_TILE + (shift[1] ?? 0));
   return g;
 }
 

@@ -298,22 +298,28 @@
       "titleYard": "Ana ƙawata harabarka",
       "pieces": "Kayayyaki",
       "place": "Sanya",
+      "rotate": "Juya",
+      "pickUp": "Matsar",
       "remove": "Cire",
       "done": "An gama",
       "retry": "Sake gwadawa",
-      "hint": "Fuskanci inda zai tafi. [ ] don sauya kaya, Enter don sanyawa, Delete don cirewa.",
+      "hint": "Danna don sanyawa, ko danna kaya don matsar da shi. Danna dama yana cirewa. Maɓallai: R don juyawa, E don ɗauka, Enter don sanyawa, Delete don cirewa, [ ] don sauya kaya.",
+      "hintCarrying": "Danna inda zai tafi (ko danna Enter). R don juya shi, Delete don cire shi, Escape don mayar da shi.",
       "full": "Wannan shi ne iyakar kayan da wuri zai iya ɗauka. Cire ɗaya don sanya wani.",
       "saving": "Ana adanawa…",
       "saved": "An adana a asusunka",
       "saveFailed": "Ba a iya adanawa ba",
       "loadFailed": "Ba a iya loda tsarinka ba. Sake gwadawa nan da ɗan lokaci.",
-      "announceOn": "Ana ƙawata. Fuskanci inda kaya zai tafi sannan ka danna Enter don sanya shi.",
+      "announceOn": "Ana ƙawata. Danna wani wuri, ko fuskance shi sannan ka danna Enter, don sanya kaya.",
       "announceOff": "An gama ƙawata.",
       "announce": {
         "placed": "An sanya.",
         "removed": "An cire.",
         "blocked": "Bai dace a nan ba.",
-        "full": "Babu wuri don ƙarin kaya."
+        "full": "Babu wuri don ƙarin kaya.",
+        "pickedUp": "An ɗauka. Ajiye shi inda zai tafi, ko danna Escape don mayar da shi.",
+        "putBack": "An mayar.",
+        "rotated": "An juya."
       },
       "items": {
         "bed": "Gado",
@@ -328,7 +334,14 @@
         "bush": "Ɗan daji",
         "flowerbed": "Lambun furanni",
         "bench": "Benci",
-        "lamppost": "Fitilar titi"
+        "lamppost": "Fitilar titi",
+        "pumpkins": "Kabewa",
+        "garden": "Gonar lambu",
+        "boulder": "Babban dutse",
+        "stone": "Dutse",
+        "chest": "Akwati",
+        "barrel": "Ganga",
+        "wildflowers": "Furannin daji"
       },
       "consent": {
         "title": "Adana tsarinka",

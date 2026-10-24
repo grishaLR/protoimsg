@@ -300,22 +300,28 @@
       "titleYard": "庭を模様替え中",
       "pieces": "アイテム",
       "place": "置く",
+      "rotate": "回転",
+      "pickUp": "移動",
       "remove": "片付ける",
       "done": "完了",
       "retry": "もう一度試す",
-      "hint": "置きたい場所の方を向いてください。[ ] でアイテム切り替え、Enter で置く、Delete で片付け。",
+      "hint": "クリックで置けます。置いたアイテムをクリックすると移動できます。右クリックで片付け。キー：R で回転、E で持ち上げ、Enter で置く、Delete で片付け、[ ] でアイテム切り替え。",
+      "hintCarrying": "置きたい場所をクリック（または Enter）。R で回転、Delete で片付け、Esc で元に戻す。",
       "full": "1つのスペースに置けるのはここまでです。別のものを置くには1つ片付けてください。",
       "saving": "保存中…",
       "saved": "アカウントに保存しました",
       "saveFailed": "保存できませんでした",
       "loadFailed": "デザインを読み込めませんでした。少し待ってからもう一度お試しください。",
-      "announceOn": "模様替え中。アイテムを置きたい場所の方を向いて Enter を押すと置けます。",
+      "announceOn": "模様替え中。場所をクリックするか、その方を向いて Enter を押すとアイテムを置けます。",
       "announceOff": "模様替えを終えました。",
       "announce": {
         "placed": "置きました。",
         "removed": "片付けました。",
         "blocked": "そこには置けません。",
-        "full": "これ以上置けません。"
+        "full": "これ以上置けません。",
+        "pickedUp": "持ち上げました。置きたい場所に置くか、Esc を押すと元に戻せます。",
+        "putBack": "元に戻しました。",
+        "rotated": "回転しました。"
       },
       "items": {
         "bed": "ベッド",
@@ -330,7 +336,14 @@
         "bush": "低木",
         "flowerbed": "花壇",
         "bench": "ベンチ",
-        "lamppost": "街灯"
+        "lamppost": "街灯",
+        "pumpkins": "カボチャ",
+        "garden": "菜園",
+        "boulder": "岩",
+        "stone": "石",
+        "chest": "宝箱",
+        "barrel": "樽",
+        "wildflowers": "野の花"
       },
       "consent": {
         "title": "デザインを保存",

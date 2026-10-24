@@ -298,22 +298,28 @@
       "titleYard": "Unapamba uwanja wako",
       "pieces": "Vitu",
       "place": "Weka",
+      "rotate": "Zungusha",
+      "pickUp": "Hamisha",
       "remove": "Ondoa",
       "done": "Tayari",
       "retry": "Jaribu tena",
-      "hint": "Elekea mahali kinapokwenda. [ ] kubadilisha vitu, Enter kuweka, Delete kuondoa.",
+      "hint": "Bofya kuweka, au bofya kitu kukihamisha. Kubofya kulia kunaondoa. Vitufe: R kuzungusha, E kunyanyua, Enter kuweka, Delete kuondoa, [ ] kubadilisha vitu.",
+      "hintCarrying": "Bofya mahali kinapokwenda (au bonyeza Enter). R kukizungusha, Delete kukiondoa, Escape kukirudisha.",
       "full": "Hivyo ndivyo vitu vingi zaidi ambavyo nafasi inaweza kubeba. Ondoa kimoja ili uweke kingine.",
       "saving": "Inahifadhi…",
       "saved": "Imehifadhiwa kwenye akaunti yako",
       "saveFailed": "Imeshindwa kuhifadhi",
       "loadFailed": "Imeshindwa kupakia mpangilio wako. Jaribu tena baada ya muda mfupi.",
-      "announceOn": "Unapamba. Elekea mahali kitu kinapokwenda kisha bonyeza Enter kukiweka.",
+      "announceOn": "Unapamba. Bofya mahali, au elekea huko kisha bonyeza Enter, kuweka kitu.",
       "announceOff": "Umemaliza kupamba.",
       "announce": {
         "placed": "Kimewekwa.",
         "removed": "Kimeondolewa.",
         "blocked": "Hakitoshi hapo.",
-        "full": "Hakuna nafasi ya vitu zaidi."
+        "full": "Hakuna nafasi ya vitu zaidi.",
+        "pickedUp": "Kimenyanyuliwa. Kiweke mahali kinapokwenda, au bonyeza Escape kukirudisha.",
+        "putBack": "Kimerudishwa.",
+        "rotated": "Kimezungushwa."
       },
       "items": {
         "bed": "Kitanda",
@@ -328,7 +334,14 @@
         "bush": "Kichaka",
         "flowerbed": "Kitalu cha maua",
         "bench": "Benchi",
-        "lamppost": "Nguzo ya taa"
+        "lamppost": "Nguzo ya taa",
+        "pumpkins": "Maboga",
+        "garden": "Shamba dogo",
+        "boulder": "Jabali",
+        "stone": "Jiwe",
+        "chest": "Sanduku",
+        "barrel": "Pipa",
+        "wildflowers": "Maua ya porini"
       },
       "consent": {
         "title": "Hifadhi mipangilio yako",

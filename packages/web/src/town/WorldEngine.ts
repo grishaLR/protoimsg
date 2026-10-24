@@ -22,6 +22,7 @@ import {
   townArrival,
   townBuiltin,
   townDoorwayAtTile,
+  townFootprint,
   validateTownLayout,
 } from '@protoimsg/shared';
 import type {
@@ -58,6 +59,7 @@ import {
   ASSET_BASE,
   OBJ_SCALE,
   SCENE_MAPS,
+  SPRITE_PIECES,
   TILE,
   gateSlotAt,
   layoutBlocks,
@@ -98,16 +100,31 @@ export interface TownBuildView {
   space: TownSpace;
   items: TownBuiltinId[];
   item: TownBuiltinId;
-  /** The piece in hand fits in front of you. */
+  /** The piece in hand fits where it's aimed. */
   canPlace: boolean;
-  /** There's a piece in front of you to take away. */
+  /** The piece in hand turns. */
+  canRotate: boolean;
+  /** There's a piece where you're aiming to pick up and move. */
+  canPickUp: boolean;
+  /** There's something to take away: the piece aimed at, or the one carried. */
   canRemove: boolean;
+  /** Carrying a piece you picked up (Escape puts it back). */
+  carrying: boolean;
   full: boolean;
 }
 
-export type TownBuildAction = 'placed' | 'removed' | 'blocked' | 'full';
+export type TownBuildAction =
+  | 'placed'
+  | 'removed'
+  | 'blocked'
+  | 'full'
+  | 'pickedUp'
+  | 'putBack'
+  | 'rotated';
 
 const BUILD_KEY = 'b';
+const ROTATE_KEY = 'r';
+const PICK_UP_KEY = 'e';
 
 /**
  * Build keys belong to the town: the page itself, or anywhere in the town
@@ -129,8 +146,8 @@ function buildItems(space: TownSpace): TownBuiltinId[] {
 }
 
 function covers(p: TownPlacement, tx: number, ty: number): boolean {
-  const def = townBuiltin(p.builtin);
-  return !!def && tx >= p.x && tx < p.x + def.w && ty >= p.y && ty < p.y + def.h;
+  const fp = townFootprint(p);
+  return !!fp && tx >= p.x && tx < p.x + fp.w && ty >= p.y && ty < p.y + fp.h;
 }
 
 function spriteUrl(did: string): string {
@@ -233,6 +250,8 @@ export class WorldEngine {
     pine: null,
     pond: null,
   };
+  /** Pack art for placeable pieces, by builtin id. */
+  private pieceTextures = new Map<string, Texture>();
   private signTexts = new Map<SignId, Text>();
   /** Text for each sign — supplied by the panel (it owns i18n and names). */
   private signText: (id: SignId) => string = () => '';
@@ -265,7 +284,17 @@ export class WorldEngine {
   /** The space you may design here (your own home or yard), if any. */
   private buildable: TownSpace | null = null;
   /** Build mode: which piece is in hand (null = not building). */
-  private build: { space: TownSpace; items: TownBuiltinId[]; index: number } | null = null;
+  private build: {
+    space: TownSpace;
+    items: TownBuiltinId[];
+    index: number;
+    /** Quarter turns for the piece in hand. */
+    rotation: number;
+    /** Picked up to move: the layout as it was, to put it back on Escape. */
+    carrying: { piece: TownPlacement; before: TownPlacement[] } | null;
+  } | null = null;
+  /** The tile under the mouse (or last tap) in build mode; null = aim in front of you. */
+  private pointerTile: { x: number; y: number } | null = null;
   private buildGrid: Graphics | null = null;
   private buildGhost: Container | null = null;
   /** What the ghost was last drawn for, so it's only redrawn on change. */
@@ -349,6 +378,13 @@ export class WorldEngine {
     this.world.scale.set(SCALE);
     this.world.sortableChildren = true;
     this.app.stage.addChild(this.world);
+    // Build mode aims and acts with the pointer too (mouse and touch).
+    this.app.stage.eventMode = 'static';
+    this.app.stage.hitArea = this.app.screen;
+    this.app.stage.on('pointermove', this.onStagePointerMove);
+    this.app.stage.on('pointerdown', this.onStagePointerDown);
+    this.app.canvas.addEventListener('pointerleave', this.onCanvasPointerLeave);
+    this.app.canvas.addEventListener('contextmenu', this.onCanvasContextMenu);
 
     const fallback = this.makePortalTexture();
     this.fallbackTex = fallback;
@@ -477,7 +513,8 @@ export class WorldEngine {
   private startBuild(): void {
     const space = this.buildable;
     if (!space || space !== sceneSpace(this.map.kind) || !this.ready) return;
-    this.build = { space, items: buildItems(space), index: 0 };
+    this.build = { space, items: buildItems(space), index: 0, rotation: 0, carrying: null };
+    this.pointerTile = null;
     const grid = new Graphics();
     const area = TOWN_BUILD_AREA[space];
     for (let x = area.x; x <= area.x + area.w; x++) {
@@ -495,10 +532,12 @@ export class WorldEngine {
     this.updateGhost();
   }
 
-  /** Leave build mode (no-op when not building). */
+  /** Leave build mode (no-op when not building). A carried piece goes back. */
   endBuild(): void {
     if (!this.build) return;
+    this.putBack();
     this.build = null;
+    this.pointerTile = null;
     this.buildGrid?.destroy({ context: true });
     this.buildGrid = null;
     this.buildGhost?.destroy({ children: true, context: true });
@@ -508,20 +547,33 @@ export class WorldEngine {
     this.onBuildChange?.(null);
   }
 
-  /** Pick up a different piece. */
+  /** Take a different piece in hand (a carried one goes back first). */
   selectBuildItem(id: TownBuiltinId): void {
     if (!this.build) return;
     const i = this.build.items.indexOf(id);
     if (i < 0) return;
+    this.putBack();
+    if (i !== this.build.index) this.build.rotation = 0;
     this.build.index = i;
     this.updateGhost();
   }
 
   private cycleBuildItem(step: number): void {
     if (!this.build) return;
+    this.putBack();
     const n = this.build.items.length;
     this.build.index = (this.build.index + step + n) % n;
+    this.build.rotation = 0;
     this.updateGhost();
+  }
+
+  /** Turn the piece in hand a quarter turn clockwise. */
+  rotateBuildItem(): void {
+    const build = this.build;
+    if (!build || !townBuiltin(build.items[build.index])?.rotates) return;
+    build.rotation = (build.rotation + 1) % 4;
+    this.updateGhost();
+    this.onBuildAction?.('rotated');
   }
 
   /** The tile you're facing, one step ahead. */
@@ -535,21 +587,37 @@ export class WorldEngine {
     return { x: tx, y: ty + 1 };
   }
 
-  /** Where the piece in hand would go: its footprint starts just in front of you. */
+  /** Where you're aiming: the tile under the pointer, else the one you face. */
+  private aimTile(): { x: number; y: number } {
+    return this.pointerTile ?? this.frontTile();
+  }
+
+  /**
+   * Where the piece in hand would go. Aimed with the pointer, it's centred
+   * on that tile; aimed on foot, its footprint starts just in front of you.
+   */
   private candidate(): TownPlacement | null {
-    if (!this.build) return null;
-    const id = this.build.items[this.build.index];
+    const build = this.build;
+    if (!build) return null;
+    const id = build.items[build.index];
     const def = townBuiltin(id);
     if (!id || !def) return null;
+    const rotation = def.rotates ? build.rotation : 0;
+    const piece = { builtin: id, ...(rotation ? { rotation } : {}) };
+    const fp = townFootprint(piece);
+    if (!fp) return null;
+    const midW = Math.floor((fp.w - 1) / 2);
+    const midH = Math.floor((fp.h - 1) / 2);
+    if (this.pointerTile) {
+      return { ...piece, x: this.pointerTile.x - midW, y: this.pointerTile.y - midH };
+    }
     const tx = Math.floor(this.px / TILE);
     const ty = Math.floor(this.py / TILE);
     const d = this.player.dir;
-    const midW = Math.floor((def.w - 1) / 2);
-    const midH = Math.floor((def.h - 1) / 2);
-    if (d === DIR_LEFT) return { builtin: id, x: tx - def.w, y: ty - midH };
-    if (d === DIR_RIGHT) return { builtin: id, x: tx + 1, y: ty - midH };
-    if (d === DIR_BACK) return { builtin: id, x: tx - midW, y: ty - def.h };
-    return { builtin: id, x: tx - midW, y: ty + 1 };
+    if (d === DIR_LEFT) return { ...piece, x: tx - fp.w, y: ty - midH };
+    if (d === DIR_RIGHT) return { ...piece, x: tx + 1, y: ty - midH };
+    if (d === DIR_BACK) return { ...piece, x: tx - midW, y: ty - fp.h };
+    return { ...piece, x: tx - midW, y: ty + 1 };
   }
 
   /** The same rules the server applies to everyone's layouts. */
@@ -559,9 +627,9 @@ export class WorldEngine {
     return validateTownLayout(this.build.space, next).length === next.length;
   }
 
-  /** The topmost piece covering the tile in front of you. */
-  private pieceInFront(): number {
-    const f = this.frontTile();
+  /** The topmost piece covering the tile you're aiming at. */
+  private pieceAimed(): number {
+    const f = this.aimTile();
     for (let i = this.layout.length - 1; i >= 0; i--) {
       const p = this.layout[i];
       if (p && covers(p, f.x, f.y)) return i;
@@ -569,9 +637,10 @@ export class WorldEngine {
     return -1;
   }
 
-  /** Put the piece in hand down in front of you. */
+  /** Put the piece in hand (new, or the one you're moving) down where you aim. */
   placeAtCursor(): void {
-    if (!this.build) return;
+    const build = this.build;
+    if (!build) return;
     const c = this.candidate();
     if (!c) return;
     if (this.layout.length >= TOWN_MAX_PLACEMENTS) {
@@ -582,18 +651,98 @@ export class WorldEngine {
       this.onBuildAction?.('blocked');
       return;
     }
+    build.carrying = null;
     this.commitLayout([...this.layout, c]);
     this.onBuildAction?.('placed');
   }
 
-  /** Take away the piece in front of you. */
+  /** Pick up the piece you're aiming at, to move it (it rides in your hand). */
+  pickUpAtCursor(): void {
+    const build = this.build;
+    if (!build || build.carrying) return;
+    const i = this.pieceAimed();
+    const piece = i >= 0 ? this.layout[i] : undefined;
+    const index = piece?.builtin ? build.items.indexOf(piece.builtin as TownBuiltinId) : -1;
+    if (!piece || index < 0) return;
+    build.carrying = { piece, before: this.layout };
+    build.index = index;
+    build.rotation = piece.rotation ?? 0;
+    // Shown lifted, not saved: Escape puts it back as it was.
+    this.setLayoutData(this.layout.filter((_, j) => j !== i));
+    this.drawLayout();
+    this.updateGhost();
+    this.onBuildAction?.('pickedUp');
+  }
+
+  /** Take away the piece you're carrying, or else the one you're aiming at. */
   removeAtCursor(): void {
-    if (!this.build) return;
-    const i = this.pieceInFront();
+    const build = this.build;
+    if (!build) return;
+    if (build.carrying) {
+      build.carrying = null;
+      this.commitLayout(this.layout);
+      this.onBuildAction?.('removed');
+      return;
+    }
+    const i = this.pieceAimed();
     if (i < 0) return;
     this.commitLayout(this.layout.filter((_, j) => j !== i));
     this.onBuildAction?.('removed');
   }
+
+  /** A carried piece goes back where it was (nothing to save). */
+  private putBack(): boolean {
+    const carrying = this.build?.carrying;
+    if (!this.build || !carrying) return false;
+    this.build.carrying = null;
+    this.setLayoutData(carrying.before);
+    this.drawLayout();
+    this.updateGhost();
+    this.onBuildAction?.('putBack');
+    return true;
+  }
+
+  /** Aim with the pointer (mouse or touch), in world tiles. */
+  private aimAt(e: FederatedPointerEvent): void {
+    const local = this.world.toLocal(e.global);
+    const x = Math.floor(local.x / TILE);
+    const y = Math.floor(local.y / TILE);
+    if (this.pointerTile?.x === x && this.pointerTile.y === y) return;
+    this.pointerTile = { x, y };
+    this.updateGhost();
+  }
+
+  private onStagePointerMove = (e: FederatedPointerEvent): void => {
+    if (this.build && e.pointerType === 'mouse') this.aimAt(e);
+  };
+
+  /**
+   * Click or tap in build mode: pick up the piece there, or put down the one
+   * in hand. Right-click takes the piece there away.
+   */
+  private onStagePointerDown = (e: FederatedPointerEvent): void => {
+    if (!this.build) return;
+    this.aimAt(e);
+    if (e.button === 2) {
+      this.removeAtCursor();
+      return;
+    }
+    if (e.button !== 0) return;
+    if (!this.build.carrying && this.pieceAimed() >= 0) this.pickUpAtCursor();
+    else this.placeAtCursor();
+  };
+
+  /** The pointer left the world: aim in front of you again. */
+  private onCanvasPointerLeave = (): void => {
+    if (!this.pointerTile) return;
+    this.pointerTile = null;
+    this.updateGhost();
+  };
+
+  /** No browser menu over the world while building: right-click removes. */
+  private onCanvasContextMenu = (e: MouseEvent): void => {
+    if (this.build) e.preventDefault();
+  };
 
   private commitLayout(next: TownPlacement[]): void {
     if (!this.build) return;
@@ -605,17 +754,17 @@ export class WorldEngine {
     this.onLayoutEdit?.(space, next);
   }
 
-  /** Redraw the ghost (and tell the panel) when what's in front of you changes. */
+  /** Redraw the ghost (and tell the panel) when what you're aiming at changes. */
   private updateGhost(): void {
     const build = this.build;
     if (!build) return;
     const c = this.candidate();
-    const front = this.frontTile();
+    const aim = this.aimTile();
     // Cheap key first: the placement rules only run when something moved.
-    const key = `${String(build.index)}|${String(c?.x)}|${String(c?.y)}|${String(front.x)},${String(front.y)}|${String(this.layoutVersion)}`;
+    const key = `${String(build.index)}|${String(build.rotation)}|${String(c?.x)}|${String(c?.y)}|${String(aim.x)},${String(aim.y)}|${String(this.layoutVersion)}|${String(!!build.carrying)}`;
     if (key === this.ghostKey) return;
     this.ghostKey = key;
-    const removeAt = this.pieceInFront();
+    const aimed = this.pieceAimed();
     const ok = c ? this.fits(c) : false;
 
     this.buildGhost?.destroy({ children: true, context: true });
@@ -623,23 +772,25 @@ export class WorldEngine {
     ghost.zIndex = SIGN_Z - 1;
     ghost.eventMode = 'none';
     const marks = new Graphics();
-    const target = removeAt >= 0 ? this.layout[removeAt] : undefined;
-    const targetDef = townBuiltin(target?.builtin);
-    if (target && targetDef) {
+    const target = aimed >= 0 && !build.carrying ? this.layout[aimed] : undefined;
+    const targetFp = target ? townFootprint(target) : null;
+    if (target && targetFp) {
       marks
         .rect(
           target.x * TILE + 1,
           target.y * TILE + 1,
-          targetDef.w * TILE - 2,
-          targetDef.h * TILE - 2,
+          targetFp.w * TILE - 2,
+          targetFp.h * TILE - 2,
         )
         .stroke({ width: 2, color: REMOVE_COLOR, alpha: 0.9 });
     }
-    const def = townBuiltin(c?.builtin);
-    if (c && def) {
+    const fp = c ? townFootprint(c) : null;
+    // Aiming at a piece (and not carrying one): the outline says "this one";
+    // a ghost on top of it would just be noise.
+    if (c && fp && !target) {
       const color = ok ? GHOST_OK : GHOST_BAD;
       marks
-        .rect(c.x * TILE, c.y * TILE, def.w * TILE, def.h * TILE)
+        .rect(c.x * TILE, c.y * TILE, fp.w * TILE, fp.h * TILE)
         .fill({ color, alpha: 0.18 })
         .stroke({ width: 1, color, alpha: 0.85 });
       const piece = this.placementNode(c);
@@ -660,7 +811,10 @@ export class WorldEngine {
       items: build.items,
       item,
       canPlace: ok,
-      canRemove: removeAt >= 0,
+      canRotate: townBuiltin(item)?.rotates ?? false,
+      canPickUp: !build.carrying && aimed >= 0,
+      canRemove: !!build.carrying || aimed >= 0,
+      carrying: !!build.carrying,
       full: this.layout.length >= TOWN_MAX_PLACEMENTS,
     };
     // Tell the panel only when the tray would change, not on every step.
@@ -669,7 +823,10 @@ export class WorldEngine {
       last?.space === view.space &&
       last.item === view.item &&
       last.canPlace === view.canPlace &&
+      last.canRotate === view.canRotate &&
+      last.canPickUp === view.canPickUp &&
       last.canRemove === view.canRemove &&
+      last.carrying === view.carrying &&
       last.full === view.full
     ) {
       return;
@@ -689,6 +846,22 @@ export class WorldEngine {
       const baseY = p.y * TILE + TILE;
       s.position.set(p.x * TILE + TILE / 2, baseY);
       s.zIndex = baseY;
+      return s;
+    }
+    const tex = p.builtin ? this.pieceTextures.get(p.builtin) : undefined;
+    const def = townBuiltin(p.builtin);
+    if (tex && def) {
+      // Centred on its tiles; anything taller than them stands on the bottom row.
+      const s = new Sprite(tex);
+      s.scale.set(OBJ_SCALE);
+      const w = def.w * TILE;
+      const h = def.h * TILE;
+      const top = Math.max(0, h - s.height) / 2;
+      s.anchor.set(0.5, 1);
+      const baseY = p.y * TILE + h - top;
+      s.position.set(p.x * TILE + w / 2, baseY);
+      // Walk-over pieces lie on the ground; the rest sort with whoever's near.
+      s.zIndex = def.solid ? p.y * TILE + h - 1 : -4400;
       return s;
     }
     return drawPlacement(p);
@@ -869,15 +1042,20 @@ export class WorldEngine {
 
   /** Load shared textures; false if the engine was destroyed meanwhile. */
   private async loadAssets(): Promise<boolean> {
-    const [grass, pine, pond] = await Promise.all([
+    const [grass, pine, pond, ...pieces] = await Promise.all([
       loadTexture(`${ASSET_BASE}/graphics/grass-tile.png`),
       loadTexture(`${ASSET_BASE}/objects/pine.png`),
       loadTexture(`${ASSET_BASE}/objects/pond.png`),
+      ...SPRITE_PIECES.map((id) => loadTexture(`${ASSET_BASE}/objects/${id}.png`)),
     ]);
-    for (const t of [grass, pine, pond]) {
+    for (const t of [grass, pine, pond, ...pieces]) {
       if (t) this.ownedTextures.push(t);
     }
     this.textures = { grass, pine, pond };
+    SPRITE_PIECES.forEach((id, i) => {
+      const t = pieces[i];
+      if (t) this.pieceTextures.set(id, t);
+    });
     return !this.destroyed;
   }
 
@@ -1129,7 +1307,14 @@ export class WorldEngine {
     const onControl = spaceBelongsToFocus(e.target);
     switch (key) {
       case 'Escape':
-        this.endBuild();
+        // Carrying a piece: put it back. Otherwise: done designing.
+        if (!this.putBack()) this.endBuild();
+        break;
+      case ROTATE_KEY:
+        this.rotateBuildItem();
+        break;
+      case PICK_UP_KEY:
+        if (!e.repeat) this.pickUpAtCursor();
         break;
       case '[':
         this.cycleBuildItem(-1);
@@ -1197,6 +1382,11 @@ export class WorldEngine {
     this.player.tick(dtMs, moving, moving && this.keys.has(SPRINT_KEY) ? SPRINT : 1);
     this.player.setPosition(this.px, this.py);
     this.checkDoorway();
+    // Walking aims in front of you again (until the mouse moves).
+    if (moving && this.pointerTile) {
+      this.pointerTile = null;
+      this.ghostKey = '';
+    }
     this.updateGhost();
 
     // Throttled position broadcast (sends the resting position too, since the
@@ -1367,6 +1557,10 @@ export class WorldEngine {
     window.removeEventListener('keydown', this.onKeyDown);
     window.removeEventListener('keyup', this.onKeyUp);
     window.removeEventListener('blur', this.onBlur);
+    if (this.ready) {
+      this.app.canvas.removeEventListener('pointerleave', this.onCanvasPointerLeave);
+      this.app.canvas.removeEventListener('contextmenu', this.onCanvasContextMenu);
+    }
     if (this.ready) {
       this.app.ticker.remove(this.tick);
       this.app.destroy({ removeView: true }, { children: true, texture: false });

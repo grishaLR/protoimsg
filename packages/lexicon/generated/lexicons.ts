@@ -787,6 +787,13 @@ export const schemaDict = {
               'flowerbed',
               'bench',
               'lamppost',
+              'pumpkins',
+              'garden',
+              'boulder',
+              'stone',
+              'chest',
+              'barrel',
+              'wildflowers',
             ],
           },
           x: {

@@ -300,22 +300,28 @@
       "titleYard": "Decorando tu jardín",
       "pieces": "Piezas",
       "place": "Colocar",
+      "rotate": "Girar",
+      "pickUp": "Mover",
       "remove": "Quitar",
       "done": "Listo",
       "retry": "Reintentar",
-      "hint": "Mira hacia donde va. [ ] cambia de pieza, Enter coloca, Supr quita.",
+      "hint": "Haz clic para colocar, o haz clic en una pieza para moverla. El clic derecho quita. Teclas: R gira, E levanta, Enter coloca, Supr quita, [ ] cambia de pieza.",
+      "hintCarrying": "Haz clic donde va (o pulsa Enter). R la gira, Supr la quita, Esc la devuelve a su sitio.",
       "full": "Ese es el máximo de piezas que caben en un espacio. Quita una para colocar otra.",
       "saving": "Guardando…",
       "saved": "Guardado en tu cuenta",
       "saveFailed": "No se pudo guardar",
       "loadFailed": "No se pudo cargar tu diseño. Inténtalo de nuevo en un momento.",
-      "announceOn": "Decorando. Mira hacia donde va una pieza y pulsa Enter para colocarla.",
+      "announceOn": "Decorando. Haz clic en un sitio, o mira hacia uno y pulsa Enter, para colocar una pieza.",
       "announceOff": "Terminaste de decorar.",
       "announce": {
         "placed": "Colocada.",
         "removed": "Quitada.",
         "blocked": "Eso no cabe ahí.",
-        "full": "No hay espacio para más piezas."
+        "full": "No hay espacio para más piezas.",
+        "pickedUp": "Levantada. Déjala donde va, o pulsa Esc para devolverla a su sitio.",
+        "putBack": "Devuelta a su sitio.",
+        "rotated": "Girada."
       },
       "items": {
         "bed": "Cama",
@@ -330,7 +336,14 @@
         "bush": "Arbusto",
         "flowerbed": "Macizo de flores",
         "bench": "Banco",
-        "lamppost": "Farola"
+        "lamppost": "Farola",
+        "pumpkins": "Calabazas",
+        "garden": "Huerto",
+        "boulder": "Roca",
+        "stone": "Piedra",
+        "chest": "Cofre",
+        "barrel": "Barril",
+        "wildflowers": "Flores silvestres"
       },
       "consent": {
         "title": "Guarda tus diseños",

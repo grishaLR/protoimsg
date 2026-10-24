@@ -12,6 +12,7 @@ import {
   TOWN_TILE,
   townBuiltin,
   townDoorwayAtTile,
+  townFootprint,
 } from '@protoimsg/shared';
 import type { TownPlacement, TownSceneKind, TownSpace } from '@protoimsg/shared';
 
@@ -19,6 +20,17 @@ export const TILE = TOWN_TILE;
 export const OBJ_SCALE = 2; // collage objects are 16-px base art
 
 export const ASSET_BASE = '/assets/town/town_rpg_pack';
+
+/** Placeable pieces drawn from the pack's own art (one PNG each, in objects/). */
+export const SPRITE_PIECES = [
+  'pumpkins',
+  'garden',
+  'boulder',
+  'stone',
+  'chest',
+  'barrel',
+  'wildflowers',
+] as const;
 
 export type TownObjectType = 'pine' | 'pond';
 
@@ -89,9 +101,10 @@ export function layoutBlocks(placements: readonly TownPlacement[]): Set<string> 
   const out = new Set<string>();
   for (const p of placements) {
     const def = townBuiltin(p.builtin);
-    if (!def?.solid) continue;
-    for (let dx = 0; dx < def.w; dx++) {
-      for (let dy = 0; dy < def.h; dy++) out.add(`${String(p.x + dx)},${String(p.y + dy)}`);
+    const fp = townFootprint(p);
+    if (!def?.solid || !fp) continue;
+    for (let dx = 0; dx < fp.w; dx++) {
+      for (let dy = 0; dy < fp.h; dy++) out.add(`${String(p.x + dx)},${String(p.y + dy)}`);
     }
   }
   return out;

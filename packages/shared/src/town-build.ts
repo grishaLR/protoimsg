@@ -25,6 +25,7 @@ export interface TownPlacement {
   item?: string;
   x: number;
   y: number;
+  /** Quarter turns clockwise (0–3); only pieces that `rotate` keep one. */
   rotation?: number;
 }
 
@@ -36,23 +37,33 @@ export interface TownBuiltin {
   solid: boolean;
   /** Where it can go. */
   spaces: readonly TownSpace[];
+  /** Can be turned (a lamp or a round bush looks the same every way). */
+  rotates: boolean;
 }
 
 /** Starter objects every space can use, until rpg.actor world objects arrive. */
 export const TOWN_BUILTINS = {
-  bed: { w: 2, h: 3, solid: true, spaces: ['home'] },
-  nightstand: { w: 1, h: 1, solid: true, spaces: ['home'] },
-  couch: { w: 3, h: 1, solid: true, spaces: ['home'] },
-  armchair: { w: 1, h: 1, solid: true, spaces: ['home'] },
-  table: { w: 2, h: 1, solid: true, spaces: ['home', 'yard'] },
-  bookshelf: { w: 1, h: 2, solid: true, spaces: ['home'] },
-  plant: { w: 1, h: 1, solid: true, spaces: ['home', 'yard'] },
-  rug: { w: 6, h: 3, solid: false, spaces: ['home'] },
-  pine: { w: 1, h: 1, solid: true, spaces: ['yard'] },
-  bush: { w: 1, h: 1, solid: true, spaces: ['yard'] },
-  flowerbed: { w: 2, h: 1, solid: false, spaces: ['yard'] },
-  bench: { w: 2, h: 1, solid: true, spaces: ['yard'] },
-  lamppost: { w: 1, h: 1, solid: true, spaces: ['yard'] },
+  bed: { w: 2, h: 3, solid: true, spaces: ['home'], rotates: true },
+  nightstand: { w: 1, h: 1, solid: true, spaces: ['home'], rotates: false },
+  couch: { w: 3, h: 1, solid: true, spaces: ['home'], rotates: true },
+  armchair: { w: 1, h: 1, solid: true, spaces: ['home'], rotates: true },
+  table: { w: 2, h: 1, solid: true, spaces: ['home', 'yard'], rotates: true },
+  bookshelf: { w: 1, h: 2, solid: true, spaces: ['home'], rotates: true },
+  plant: { w: 1, h: 1, solid: true, spaces: ['home', 'yard'], rotates: false },
+  rug: { w: 6, h: 3, solid: false, spaces: ['home'], rotates: true },
+  pine: { w: 1, h: 1, solid: true, spaces: ['yard'], rotates: false },
+  bush: { w: 1, h: 1, solid: true, spaces: ['yard'], rotates: false },
+  flowerbed: { w: 2, h: 1, solid: false, spaces: ['yard'], rotates: true },
+  bench: { w: 2, h: 1, solid: true, spaces: ['yard'], rotates: true },
+  lamppost: { w: 1, h: 1, solid: true, spaces: ['yard'], rotates: false },
+  // From the ansimuz "RPG Town" pack (CC0), like the pines and the pond.
+  pumpkins: { w: 1, h: 1, solid: true, spaces: ['yard'], rotates: false },
+  garden: { w: 2, h: 2, solid: false, spaces: ['yard'], rotates: false },
+  boulder: { w: 1, h: 1, solid: true, spaces: ['yard'], rotates: false },
+  stone: { w: 1, h: 1, solid: false, spaces: ['yard'], rotates: false },
+  chest: { w: 1, h: 1, solid: true, spaces: ['home', 'yard'], rotates: false },
+  barrel: { w: 1, h: 1, solid: true, spaces: ['home', 'yard'], rotates: false },
+  wildflowers: { w: 1, h: 1, solid: false, spaces: ['yard'], rotates: false },
 } as const satisfies Record<string, TownBuiltin>;
 
 export type TownBuiltinId = keyof typeof TOWN_BUILTINS;
@@ -67,6 +78,22 @@ interface Rect {
   y: number;
   w: number;
   h: number;
+}
+
+/** A placement's quarter turns, as the rules see it (0 for pieces that don't turn). */
+export function townRotation(p: Pick<TownPlacement, 'builtin' | 'rotation'>): number {
+  const def = townBuiltin(p.builtin);
+  if (!def?.rotates || !Number.isInteger(p.rotation)) return 0;
+  return (((p.rotation ?? 0) % 4) + 4) % 4;
+}
+
+/** Tiles a placement covers, turned: a quarter turn swaps width and height. */
+export function townFootprint(
+  p: Pick<TownPlacement, 'builtin' | 'rotation'>,
+): { w: number; h: number } | null {
+  const def = townBuiltin(p.builtin);
+  if (!def) return null;
+  return townRotation(p) % 2 === 1 ? { w: def.h, h: def.w } : { w: def.w, h: def.h };
 }
 
 const H = TOWN_HOME_LAYOUT;
@@ -89,26 +116,20 @@ function rectTiles(r: Rect): Array<[number, number]> {
 const key = (x: number, y: number) => `${String(x)},${String(y)}`;
 
 /**
- * Tiles that must stay walkable so nobody is ever walled in: in a home, the
- * strip in front of the door; in a yard, the house, the doormat, the path to
- * the gate and the pond.
+ * Tiles that must stay walkable: in a home, the floor just inside the door;
+ * in a yard, the house, the doormat, the path to the gate and the pond.
+ * Only the tiles themselves: right up against the path is fair game, since
+ * the reachability rule already keeps every open tile walkable.
  */
 export const TOWN_KEEP_CLEAR: Record<TownSpace, ReadonlySet<string>> = {
   home: new Set(
-    rectTiles({ x: H.door.x - 1, y: H.door.y - 1, w: H.door.w + 2, h: 1 }).map(([x, y]) =>
-      key(x, y),
-    ),
+    rectTiles({ x: H.door.x, y: H.door.y - 1, w: H.door.w, h: 1 }).map(([x, y]) => key(x, y)),
   ),
   yard: new Set(
     [
       ...rectTiles(N.house),
-      // Doormat, down the path to the gate (one tile either side to walk past).
-      ...rectTiles({
-        x: N.door.x - 1,
-        y: N.door.y + 1,
-        w: N.door.w + 2,
-        h: N.gate.y - N.door.y - 1,
-      }),
+      // Doormat, then the path down to the gate.
+      ...rectTiles({ x: N.door.x, y: N.door.y + 1, w: N.door.w, h: N.gate.y - N.door.y - 1 }),
       // The pond (a fixed feature of every yard).
       ...rectTiles({ x: 23, y: 15, w: 3, h: 2 }),
     ].map(([x, y]) => key(x, y)),
@@ -219,17 +240,15 @@ export function validateTownLayout(space: TownSpace, placements: unknown): TownP
     if (!Number.isInteger(x) || !Number.isInteger(y)) continue;
     const px = x as number;
     const py = y as number;
-    const def = townBuiltin(typeof p.builtin === 'string' ? p.builtin : undefined);
+    const builtin = typeof p.builtin === 'string' ? p.builtin : undefined;
+    const def = townBuiltin(builtin);
     if (!def?.spaces.includes(space)) continue;
-    if (
-      px < area.x ||
-      py < area.y ||
-      px + def.w > area.x + area.w ||
-      py + def.h > area.y + area.h
-    ) {
+    const rotation = townRotation({ builtin, rotation: p.rotation as number | undefined });
+    const fp = rotation % 2 === 1 ? { w: def.h, h: def.w } : { w: def.w, h: def.h };
+    if (px < area.x || py < area.y || px + fp.w > area.x + area.w || py + fp.h > area.y + area.h) {
       continue;
     }
-    const tiles = rectTiles({ x: px, y: py, w: def.w, h: def.h }).map(([tx, ty]) => key(tx, ty));
+    const tiles = rectTiles({ x: px, y: py, w: fp.w, h: fp.h }).map(([tx, ty]) => key(tx, ty));
     if (tiles.some((t) => clear.has(t))) continue;
     if (def.solid) {
       if (tiles.some((t) => solid.has(t))) continue;
@@ -238,9 +257,6 @@ export function validateTownLayout(space: TownSpace, placements: unknown): TownP
       if (!allReachable(space, next)) continue;
       for (const t of tiles) solid.add(t);
     }
-    const rotation = Number.isInteger(p.rotation)
-      ? Math.min(3, Math.max(0, p.rotation as number))
-      : 0;
     kept.push({ builtin: p.builtin as string, x: px, y: py, ...(rotation ? { rotation } : {}) });
   }
   return kept;

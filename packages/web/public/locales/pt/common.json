@@ -300,22 +300,28 @@
       "titleYard": "Decorando seu quintal",
       "pieces": "Peças",
       "place": "Colocar",
+      "rotate": "Girar",
+      "pickUp": "Mover",
       "remove": "Remover",
       "done": "Pronto",
       "retry": "Tentar de novo",
-      "hint": "Vire para onde ela vai. [ ] troca de peça, Enter coloca, Delete remove.",
+      "hint": "Clique para colocar, ou clique em uma peça para movê-la. O clique direito remove. Teclas: R gira, E pega, Enter coloca, Delete remove, [ ] troca de peça.",
+      "hintCarrying": "Clique onde ela vai (ou aperte Enter). R gira, Delete remove, Esc devolve ao lugar.",
       "full": "Esse é o máximo de peças que cabem num espaço. Remova uma para colocar outra.",
       "saving": "Salvando…",
       "saved": "Salvo na sua conta",
       "saveFailed": "Não foi possível salvar",
       "loadFailed": "Não foi possível carregar sua decoração. Tente de novo daqui a pouco.",
-      "announceOn": "Decorando. Vire para onde a peça vai e aperte Enter para colocá-la.",
+      "announceOn": "Decorando. Clique em um lugar, ou vire para ele e aperte Enter, para colocar uma peça.",
       "announceOff": "Decoração concluída.",
       "announce": {
         "placed": "Colocada.",
         "removed": "Removida.",
         "blocked": "Isso não cabe aí.",
-        "full": "Não há espaço para mais peças."
+        "full": "Não há espaço para mais peças.",
+        "pickedUp": "Peça pega. Coloque onde ela vai, ou aperte Esc para devolvê-la ao lugar.",
+        "putBack": "Devolvida ao lugar.",
+        "rotated": "Girada."
       },
       "items": {
         "bed": "Cama",
@@ -330,7 +336,14 @@
         "bush": "Arbusto",
         "flowerbed": "Canteiro de flores",
         "bench": "Banco",
-        "lamppost": "Poste de luz"
+        "lamppost": "Poste de luz",
+        "pumpkins": "Abóboras",
+        "garden": "Horta",
+        "boulder": "Pedregulho",
+        "stone": "Pedra",
+        "chest": "Baú",
+        "barrel": "Barril",
+        "wildflowers": "Flores silvestres"
       },
       "consent": {
         "title": "Salve suas decorações",

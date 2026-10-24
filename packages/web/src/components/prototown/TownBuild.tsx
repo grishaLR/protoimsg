@@ -9,6 +9,8 @@ interface BuildTrayProps {
   status: LayoutSaveStatus;
   onSelect: (id: TownBuiltinId) => void;
   onPlace: () => void;
+  onRotate: () => void;
+  onPickUp: () => void;
   onRemove: () => void;
   onRetry: () => void;
   onDone: () => void;
@@ -24,6 +26,8 @@ export function BuildTray({
   status,
   onSelect,
   onPlace,
+  onRotate,
+  onPickUp,
   onRemove,
   onRetry,
   onDone,
@@ -78,6 +82,30 @@ export function BuildTray({
         <button
           type="button"
           className={styles.button}
+          aria-disabled={!view.canRotate}
+          aria-keyshortcuts="R"
+          onClick={() => {
+            if (view.canRotate) onRotate();
+          }}
+        >
+          {t('town.build.rotate')}
+        </button>
+        {!view.carrying && (
+          <button
+            type="button"
+            className={styles.button}
+            aria-disabled={!view.canPickUp}
+            aria-keyshortcuts="E"
+            onClick={() => {
+              if (view.canPickUp) onPickUp();
+            }}
+          >
+            {t('town.build.pickUp')}
+          </button>
+        )}
+        <button
+          type="button"
+          className={styles.button}
           aria-disabled={!view.canRemove}
           onClick={() => {
             if (view.canRemove) onRemove();
@@ -89,7 +117,11 @@ export function BuildTray({
           {t('town.build.done')}
         </button>
         <span className={styles.hint}>
-          {view.full ? t('town.build.full') : t('town.build.hint')}
+          {view.full
+            ? t('town.build.full')
+            : view.carrying
+              ? t('town.build.hintCarrying')
+              : t('town.build.hint')}
         </span>
       </div>
     </section>

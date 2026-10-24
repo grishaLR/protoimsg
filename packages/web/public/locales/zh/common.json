@@ -300,22 +300,28 @@
       "titleYard": "正在装饰你的院子",
       "pieces": "物件",
       "place": "放置",
+      "rotate": "旋转",
+      "pickUp": "移动",
       "remove": "移除",
       "done": "完成",
       "retry": "重试",
-      "hint": "面向要放的位置。[ ] 切换物件，Enter 放置，Delete 移除。",
+      "hint": "点击放置，或点击物件来移动它。右键移除。按键：R 旋转，E 拿起，Enter 放置，Delete 移除，[ ] 切换物件。",
+      "hintCarrying": "点击要放的位置（或按 Enter）。R 旋转，Delete 移除，Esc 放回原处。",
       "full": "一个空间最多只能放这么多物件。移除一个才能再放。",
       "saving": "正在保存…",
       "saved": "已保存到你的账号",
       "saveFailed": "保存失败",
       "loadFailed": "无法加载你的设计。请稍后再试。",
-      "announceOn": "装饰中。面向物件要放的位置，按 Enter 放置。",
+      "announceOn": "装饰中。点击一个位置，或面向它按 Enter，即可放置物件。",
       "announceOff": "装饰完成。",
       "announce": {
         "placed": "已放置。",
         "removed": "已移除。",
         "blocked": "那里放不下。",
-        "full": "没有空间放更多物件了。"
+        "full": "没有空间放更多物件了。",
+        "pickedUp": "已拿起。放到要放的位置，或按 Esc 放回原处。",
+        "putBack": "已放回原处。",
+        "rotated": "已旋转。"
       },
       "items": {
         "bed": "床",
@@ -330,7 +336,14 @@
         "bush": "灌木",
         "flowerbed": "花坛",
         "bench": "长椅",
-        "lamppost": "路灯"
+        "lamppost": "路灯",
+        "pumpkins": "南瓜",
+        "garden": "菜地",
+        "boulder": "巨石",
+        "stone": "石头",
+        "chest": "箱子",
+        "barrel": "木桶",
+        "wildflowers": "野花"
       },
       "consent": {
         "title": "保存你的设计",

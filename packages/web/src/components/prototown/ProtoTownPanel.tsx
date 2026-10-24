@@ -1502,6 +1502,8 @@ export function ProtoTownPanel() {
           status={saver.status}
           onSelect={(id) => engineRef.current?.selectBuildItem(id)}
           onPlace={() => engineRef.current?.placeAtCursor()}
+          onRotate={() => engineRef.current?.rotateBuildItem()}
+          onPickUp={() => engineRef.current?.pickUpAtCursor()}
           onRemove={() => engineRef.current?.removeAtCursor()}
           onRetry={saver.flush}
           onDone={() => engineRef.current?.endBuild()}

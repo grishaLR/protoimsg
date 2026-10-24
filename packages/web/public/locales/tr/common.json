@@ -300,22 +300,28 @@
       "titleYard": "Bahçeni düzenliyorsun",
       "pieces": "Eşyalar",
       "place": "Yerleştir",
+      "rotate": "Döndür",
+      "pickUp": "Taşı",
       "remove": "Kaldır",
       "done": "Bitti",
       "retry": "Tekrar dene",
-      "hint": "Koyacağın yere dön. [ ] eşya değiştirir, Enter yerleştirir, Delete kaldırır.",
+      "hint": "Yerleştirmek için tıkla ya da taşımak için bir eşyaya tıkla. Sağ tık kaldırır. Tuşlar: R döndürür, E eline alır, Enter yerleştirir, Delete kaldırır, [ ] eşya değiştirir.",
+      "hintCarrying": "Gideceği yere tıkla (ya da Enter'a bas). R döndürür, Delete kaldırır, Esc yerine geri koyar.",
       "full": "Bir alana sığabilecek eşya bu kadar. Başka birini koymak için birini kaldır.",
       "saving": "Kaydediliyor…",
       "saved": "Hesabına kaydedildi",
       "saveFailed": "Kaydedilemedi",
       "loadFailed": "Tasarımın yüklenemedi. Birazdan tekrar dene.",
-      "announceOn": "Düzenleme modu. Eşyanın gideceği yere dön ve yerleştirmek için Enter'a bas.",
+      "announceOn": "Düzenleme modu. Eşya yerleştirmek için bir yere tıkla ya da o yere dönüp Enter'a bas.",
       "announceOff": "Düzenleme bitti.",
       "announce": {
         "placed": "Yerleştirildi.",
         "removed": "Kaldırıldı.",
         "blocked": "Oraya sığmıyor.",
-        "full": "Daha fazla eşyaya yer yok."
+        "full": "Daha fazla eşyaya yer yok.",
+        "pickedUp": "Eline aldın. Gideceği yere bırak ya da yerine geri koymak için Esc'ye bas.",
+        "putBack": "Yerine kondu.",
+        "rotated": "Döndürüldü."
       },
       "items": {
         "bed": "Yatak",
@@ -330,7 +336,14 @@
         "bush": "Çalı",
         "flowerbed": "Çiçek tarhı",
         "bench": "Bank",
-        "lamppost": "Sokak lambası"
+        "lamppost": "Sokak lambası",
+        "pumpkins": "Balkabakları",
+        "garden": "Bahçe tarhı",
+        "boulder": "Kaya",
+        "stone": "Taş",
+        "chest": "Sandık",
+        "barrel": "Fıçı",
+        "wildflowers": "Kır çiçekleri"
       },
       "consent": {
         "title": "Tasarımlarını kaydet",

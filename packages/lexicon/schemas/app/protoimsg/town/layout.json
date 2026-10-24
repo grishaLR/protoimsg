@@ -55,7 +55,14 @@
             "bush",
             "flowerbed",
             "bench",
-            "lamppost"
+            "lamppost",
+            "pumpkins",
+            "garden",
+            "boulder",
+            "stone",
+            "chest",
+            "barrel",
+            "wildflowers"
           ]
         },
         "x": {

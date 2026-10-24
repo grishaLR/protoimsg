@@ -78,6 +78,13 @@ See [CONTRIBUTING.md](./CONTRIBUTING.md) for setup instructions, development wor
 
 TypeScript monorepo (Turborepo + pnpm workspaces). Vite + React 19 web client. Node.js server with WebSocket. WebRTC for P2P video/voice/data. Tauri v2 desktop app. PostgreSQL + Redis. NLLB + LibreTranslate translation servers. Deployed on Fly.io (server, TURN, translation) + Vercel (web). Full CI/CD via GitHub Actions.
 
+## Art
+
+proto town is built on open pixel art. Thank you:
+
+- RPG Town by Luis Zuno ([@ansimuz](https://ansimuz.com)), CC0: grass, pines, the pond, and yard pieces (pumpkins, garden plot, boulder, stone, chest, barrel, wildflowers).
+- Avatars come from each person's own [rpg.actor](https://rpg.actor) character.
+
 ## License
 
 MIT

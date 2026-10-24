@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { TOWN_DEFAULT_LAYOUT, validateTownLayout } from '@protoimsg/shared';
+import { TOWN_DEFAULT_LAYOUT, townFootprint, validateTownLayout } from '@protoimsg/shared';
 
 describe('validateTownLayout', () => {
   it('keeps the default home and yard exactly as they are', () => {
@@ -75,5 +75,32 @@ describe('validateTownLayout', () => {
     ).toEqual([{ builtin: 'plant', x: 2, y: 2 }]);
     // A rug can't wall anything in: it's walked over.
     expect(validateTownLayout('home', [{ builtin: 'rug', x: 1, y: 2 }])).toHaveLength(1);
+  });
+
+  it('turns pieces that turn (swapping their footprint) and ignores turns on the rest', () => {
+    // A couch turned upright is 1 wide and 3 tall: it fits a 1-wide gap.
+    expect(validateTownLayout('home', [{ builtin: 'couch', x: 6, y: 3, rotation: 1 }])).toEqual([
+      { builtin: 'couch', x: 6, y: 3, rotation: 1 },
+    ]);
+    expect(townFootprint({ builtin: 'couch', rotation: 3 })).toEqual({ w: 1, h: 3 });
+    expect(townFootprint({ builtin: 'couch', rotation: 2 })).toEqual({ w: 3, h: 1 });
+    // A plant looks the same every way: its turn is dropped.
+    expect(validateTownLayout('home', [{ builtin: 'plant', x: 6, y: 3, rotation: 2 }])).toEqual([
+      { builtin: 'plant', x: 6, y: 3 },
+    ]);
+  });
+
+  it('lets you plant right along the path, never on it', () => {
+    // The path runs down x 15–16 from the doormat to the gate.
+    expect(
+      validateTownLayout('yard', [
+        { builtin: 'bush', x: 14, y: 15 },
+        { builtin: 'bush', x: 17, y: 15 },
+        { builtin: 'bush', x: 15, y: 15 },
+      ]),
+    ).toEqual([
+      { builtin: 'bush', x: 14, y: 15 },
+      { builtin: 'bush', x: 17, y: 15 },
+    ]);
   });
 });

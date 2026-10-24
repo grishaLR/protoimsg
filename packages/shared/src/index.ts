@@ -131,6 +131,8 @@ export {
   TOWN_KEEP_CLEAR,
   TOWN_DEFAULT_LAYOUT,
   townBuiltin,
+  townFootprint,
+  townRotation,
   validateTownLayout,
 } from './town-build.js';
 export type { TownSpace, TownPlacement, TownBuiltin, TownBuiltinId } from './town-build.js';

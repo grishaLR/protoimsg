@@ -300,22 +300,28 @@
       "titleYard": "Đang trang trí sân của bạn",
       "pieces": "Đồ vật",
       "place": "Đặt",
+      "rotate": "Xoay",
+      "pickUp": "Di chuyển",
       "remove": "Gỡ",
       "done": "Xong",
       "retry": "Thử lại",
-      "hint": "Quay mặt về chỗ muốn đặt. [ ] đổi đồ vật, Enter để đặt, Delete để gỡ.",
+      "hint": "Nhấp để đặt, hoặc nhấp vào đồ vật để di chuyển. Nhấp chuột phải để gỡ. Phím: R để xoay, E để nhấc lên, Enter để đặt, Delete để gỡ, [ ] đổi đồ vật.",
+      "hintCarrying": "Nhấp vào chỗ muốn đặt (hoặc nhấn Enter). R để xoay, Delete để gỡ, Esc để trả về chỗ cũ.",
       "full": "Một không gian chỉ chứa được chừng này đồ vật. Gỡ bớt một món để đặt món khác.",
       "saving": "Đang lưu…",
       "saved": "Đã lưu vào tài khoản của bạn",
       "saveFailed": "Không lưu được",
       "loadFailed": "Không tải được thiết kế của bạn. Hãy thử lại sau giây lát.",
-      "announceOn": "Đang trang trí. Quay mặt về chỗ muốn đặt đồ vật rồi nhấn Enter để đặt.",
+      "announceOn": "Đang trang trí. Nhấp vào một chỗ, hoặc quay mặt về chỗ đó rồi nhấn Enter, để đặt đồ vật.",
       "announceOff": "Đã xong trang trí.",
       "announce": {
         "placed": "Đã đặt.",
         "removed": "Đã gỡ.",
         "blocked": "Chỗ đó không vừa.",
-        "full": "Không còn chỗ cho thêm đồ vật."
+        "full": "Không còn chỗ cho thêm đồ vật.",
+        "pickedUp": "Đã nhấc lên. Đặt xuống chỗ muốn đặt, hoặc nhấn Esc để trả về chỗ cũ.",
+        "putBack": "Đã trả về chỗ cũ.",
+        "rotated": "Đã xoay."
       },
       "items": {
         "bed": "Giường",
@@ -330,7 +336,14 @@
         "bush": "Bụi cây",
         "flowerbed": "Bồn hoa",
         "bench": "Ghế dài",
-        "lamppost": "Cột đèn"
+        "lamppost": "Cột đèn",
+        "pumpkins": "Bí ngô",
+        "garden": "Luống đất",
+        "boulder": "Tảng đá",
+        "stone": "Hòn đá",
+        "chest": "Rương",
+        "barrel": "Thùng gỗ",
+        "wildflowers": "Hoa dại"
       },
       "consent": {
         "title": "Lưu thiết kế của bạn",

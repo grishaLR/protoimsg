@@ -300,22 +300,28 @@
       "titleYard": "Aménagement de ton jardin",
       "pieces": "Objets",
       "place": "Placer",
+      "rotate": "Pivoter",
+      "pickUp": "Déplacer",
       "remove": "Retirer",
       "done": "Terminé",
       "retry": "Réessayer",
-      "hint": "Tourne-toi vers l’emplacement. [ ] change d’objet, Entrée place, Suppr retire.",
+      "hint": "Clique pour placer, ou clique sur un objet pour le déplacer. Le clic droit retire. Touches : R tourne, E prend, Entrée place, Suppr retire, [ ] change d’objet.",
+      "hintCarrying": "Clique là où il va (ou appuie sur Entrée). R le tourne, Suppr le retire, Échap le remet en place.",
       "full": "Un espace ne peut pas contenir plus d’objets. Retires-en un pour en placer un autre.",
       "saving": "Enregistrement…",
       "saved": "Enregistré sur ton compte",
       "saveFailed": "Échec de l’enregistrement",
       "loadFailed": "Impossible de charger ton aménagement. Réessaie dans un instant.",
-      "announceOn": "Aménagement en cours. Tourne-toi vers l’emplacement d’un objet et appuie sur Entrée pour le placer.",
+      "announceOn": "Aménagement en cours. Clique sur un emplacement, ou tourne-toi vers lui et appuie sur Entrée, pour placer un objet.",
       "announceOff": "Aménagement terminé.",
       "announce": {
         "placed": "Placé.",
         "removed": "Retiré.",
         "blocked": "Ça ne rentre pas ici.",
-        "full": "Plus de place pour d’autres objets."
+        "full": "Plus de place pour d’autres objets.",
+        "pickedUp": "Objet pris. Pose-le là où il va, ou appuie sur Échap pour le remettre en place.",
+        "putBack": "Remis en place.",
+        "rotated": "Tourné."
       },
       "items": {
         "bed": "Lit",
@@ -330,7 +336,14 @@
         "bush": "Buisson",
         "flowerbed": "Parterre de fleurs",
         "bench": "Banc",
-        "lamppost": "Lampadaire"
+        "lamppost": "Lampadaire",
+        "pumpkins": "Citrouilles",
+        "garden": "Potager",
+        "boulder": "Rocher",
+        "stone": "Pierre",
+        "chest": "Coffre",
+        "barrel": "Tonneau",
+        "wildflowers": "Fleurs sauvages"
       },
       "consent": {
         "title": "Enregistre tes aménagements",

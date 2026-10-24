@@ -473,22 +473,28 @@
       "titleYard": "Designing your yard",
       "pieces": "Pieces",
       "place": "Place",
+      "rotate": "Rotate",
+      "pickUp": "Move",
       "remove": "Remove",
       "done": "Done",
       "retry": "Try again",
-      "hint": "Face where it goes. [ ] switch pieces, Enter places, Delete removes.",
+      "hint": "Click to place, or click a piece to move it. Right-click removes. Keys: R turns, E picks up, Enter places, Delete removes, [ ] switches pieces.",
+      "hintCarrying": "Click where it goes (or press Enter). R turns it, Delete removes it, Escape puts it back.",
       "full": "That's as many pieces as a space can hold. Remove one to place another.",
       "saving": "Saving…",
       "saved": "Saved to your account",
       "saveFailed": "Couldn't save",
       "loadFailed": "Couldn't load your design. Try again in a moment.",
-      "announceOn": "Designing. Face where a piece goes and press Enter to place it.",
+      "announceOn": "Designing. Click a spot, or face one and press Enter, to place a piece.",
       "announceOff": "Done designing.",
       "announce": {
         "placed": "Placed.",
         "removed": "Removed.",
         "blocked": "That doesn't fit there.",
-        "full": "No room for more pieces."
+        "full": "No room for more pieces.",
+        "pickedUp": "Picked up. Put it down where it goes, or press Escape to put it back.",
+        "putBack": "Put back.",
+        "rotated": "Turned."
       },
       "items": {
         "bed": "Bed",
@@ -503,7 +509,14 @@
         "bush": "Bush",
         "flowerbed": "Flower bed",
         "bench": "Bench",
-        "lamppost": "Lamppost"
+        "lamppost": "Lamppost",
+        "pumpkins": "Pumpkins",
+        "garden": "Garden plot",
+        "boulder": "Boulder",
+        "stone": "Stone",
+        "chest": "Chest",
+        "barrel": "Barrel",
+        "wildflowers": "Wildflowers"
       },
       "consent": {
         "title": "Save your designs",

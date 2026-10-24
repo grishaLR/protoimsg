@@ -300,22 +300,28 @@
       "titleYard": "Deinen Garten gestalten",
       "pieces": "Teile",
       "place": "Platzieren",
+      "rotate": "Drehen",
+      "pickUp": "Verschieben",
       "remove": "Entfernen",
       "done": "Fertig",
       "retry": "Erneut versuchen",
-      "hint": "Schau dahin, wo es hin soll. [ ] wechselt Teile, Enter platziert, Entf entfernt.",
+      "hint": "Klick zum Platzieren oder klick auf ein Teil, um es zu verschieben. Rechtsklick entfernt. Tasten: R dreht, E hebt auf, Enter platziert, Entf entfernt, [ ] wechselt Teile.",
+      "hintCarrying": "Klick dahin, wo es hin soll (oder drück Enter). R dreht es, Entf entfernt es, Esc stellt es zurück.",
       "full": "Mehr Teile passen nicht in einen Raum. Entferne eins, um ein anderes zu platzieren.",
       "saving": "Wird gespeichert…",
       "saved": "In deinem Account gespeichert",
       "saveFailed": "Speichern fehlgeschlagen",
       "loadFailed": "Dein Design konnte nicht geladen werden. Versuch es gleich noch einmal.",
-      "announceOn": "Einrichtungsmodus. Schau dahin, wo ein Teil hin soll, und drück Enter, um es zu platzieren.",
+      "announceOn": "Einrichtungsmodus. Klick auf eine Stelle oder schau dahin und drück Enter, um ein Teil zu platzieren.",
       "announceOff": "Fertig eingerichtet.",
       "announce": {
         "placed": "Platziert.",
         "removed": "Entfernt.",
         "blocked": "Das passt da nicht hin.",
-        "full": "Kein Platz für weitere Teile."
+        "full": "Kein Platz für weitere Teile.",
+        "pickedUp": "Aufgehoben. Stell es dort ab, wo es hin soll, oder drück Esc, um es zurückzustellen.",
+        "putBack": "Zurückgestellt.",
+        "rotated": "Gedreht."
       },
       "items": {
         "bed": "Bett",
@@ -330,7 +336,14 @@
         "bush": "Busch",
         "flowerbed": "Blumenbeet",
         "bench": "Bank",
-        "lamppost": "Laterne"
+        "lamppost": "Laterne",
+        "pumpkins": "Kürbisse",
+        "garden": "Gemüsebeet",
+        "boulder": "Felsbrocken",
+        "stone": "Stein",
+        "chest": "Truhe",
+        "barrel": "Fass",
+        "wildflowers": "Wildblumen"
       },
       "consent": {
         "title": "Speichere deine Designs",
