@@ -120,8 +120,11 @@ jobs:
           FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
 
   deploy-web:
-    needs: changes
-    if: needs.changes.outputs.web == 'true'
+    # After the server: a new client must never talk to an old server (the
+    # WS protocol can change shape, e.g. town scenes). Runs when the server
+    # deploy succeeded or was skipped.
+    needs: [changes, deploy-server]
+    if: always() && needs.changes.outputs.web == 'true' && needs.changes.result == 'success' && needs.deploy-server.result != 'failure' && needs.deploy-server.result != 'cancelled'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6

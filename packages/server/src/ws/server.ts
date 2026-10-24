@@ -5,6 +5,13 @@ import { DmSubscriptions } from '../dms/subscriptions.js';
 import { CommunityWatchers } from './buddy-watchers.js';
 import { handleClientMessage } from './handlers.js';
 import { TownRoom } from './town.js';
+import { CommunityTownGraph } from './town-graph.js';
+import { CachedOwnerBlocks } from './town-blocks.js';
+import {
+  batchCheckInnerCircle,
+  getCommunityMemberDids,
+  getCommunityOwnerDids,
+} from '../community/queries.js';
 import type { TownVoice } from '../calls/town-voice.js';
 import { attachHeartbeat } from './heartbeat.js';
 import type { PresenceService } from '../presence/service.js';
@@ -102,6 +109,8 @@ export class UserSockets {
 
 export interface WsServer {
   sendToUser: (did: string, message: ServerMessage) => void;
+  /** A community list changed outside this server's WebSocket (the firehose). */
+  communityChanged: (owner: string, members: string[], innerCircle: string[]) => void;
   close: () => Promise<void>;
 }
 
@@ -147,7 +156,17 @@ export function createWsServer(
   const userSockets = new UserSockets();
   blockService.startSweep((d) => userSockets.get(d).size > 0);
   const communityWatchers = new CommunityWatchers(sql, blockService);
-  const townRoom = new TownRoom(blockService, townVoice ?? null);
+  const townGraph = new CommunityTownGraph({
+    loadMembers: (d) => getCommunityMemberDids(sql, d),
+    loadOwners: (d) => getCommunityOwnerDids(sql, d),
+    loadInnerOwners: (d, owners) => batchCheckInnerCircle(sql, [...owners], d),
+  });
+  const townRoom = new TownRoom(
+    blockService,
+    townVoice ?? null,
+    townGraph,
+    new CachedOwnerBlocks(),
+  );
   const pendingCleanup = new Set<Promise<void>>();
 
   wss.on('connection', (ws: WebSocket, req: IncomingMessage) => {
@@ -370,6 +389,7 @@ export function createWsServer(
 
         // Only tear down presence if this was the user's last connection
         if (remaining.size === 0) {
+          townRoom.forgetVisibility(did);
           const closeDid = did;
           const cleanup = (async () => {
             await communityWatchers.notify(closeDid, 'offline', undefined, 'everyone');
@@ -397,6 +417,9 @@ export function createWsServer(
   });
 
   return {
+    communityChanged: (owner: string, members: string[], innerCircle: string[]) => {
+      townRoom.communityChanged(owner, members, innerCircle);
+    },
     sendToUser: (did: string, message: ServerMessage) => {
       const sockets = userSockets.get(did);
       const payload = JSON.stringify(message);
@@ -407,6 +430,7 @@ export function createWsServer(
     close: async () => {
       blockService.stopSweep();
       townRoom.dispose();
+      townGraph.dispose();
       // Close all client sockets first so their 'close' handlers fire
       for (const client of wss.clients) {
         client.close(1001, 'Server shutting down');

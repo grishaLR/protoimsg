@@ -132,7 +132,7 @@
   },
   "town": {
     "hud": {
-      "controls": "WASD / arrows to move"
+      "controls": "WASD / flechas para moverte · Espacio para correr"
     },
     "chat": {
       "placeholder": "Say something to the town…",
@@ -147,7 +147,6 @@
       "live": "En vivo · {{count}} pueden oírte",
       "announceJoined": "Hay alguien cerca: voz conectada",
       "announceEnded": "Voz finalizada",
-      "homeOff": "La voz está desactivada en tu cuarto: solo estás tú",
       "camOn": "Cámara activada",
       "camOff": "Cámara desactivada",
       "camDenied": "Cámara bloqueada: revisa los permisos del navegador",
@@ -167,20 +166,113 @@
       "expandVideo": "Mostrar",
       "videoPaused": "Video en pausa · conexión débil"
     },
-    "areas": {
+    "scenes": {
       "home": {
-        "label": "Casa · círculo cercano",
-        "tooltip": "Tu casa. Aquí nadie puede verte ni oírte. Pronto: tus amigos tocarán la puerta, y dejar entrar a alguien lo añade a tu círculo cercano.",
-        "enter": "Estás en casa: aquí nadie puede verte ni oírte."
+        "chip": "Tu casa · tu círculo íntimo te ve en línea",
+        "enter": "Estás en casa. Nadie entra a menos que lo dejes pasar."
       },
       "neighborhood": {
-        "label": "Vecindario",
-        "tooltip": "Tu vecindario cerrado. Pronto solo la gente de tu comunidad podrá verte aquí y cruzar la reja. Por ahora está abierto, como el mundo de afuera.",
-        "enter": "Vecindario: abierto a todos por ahora (pronto solo para tu comunidad)."
+        "chip": "Tu vecindario · solo comunidad",
+        "enter": "Tu vecindario. La gente de tu comunidad puede visitarte; te ven a ti y a sus contactos mutuos."
       },
-      "public": {
-        "enter": "Mundo público: cualquiera puede verte y pueden hablar cuando están cerca."
+      "square": {
+        "chip": "Plaza del pueblo · todos",
+        "enter": "Plaza del pueblo. Cualquiera puede verte, y puedes hablar cuando estés cerca.",
+        "chipFof": "Plaza del pueblo · amigos de amigos"
+      },
+      "error": {
+        "closed": "Esa puerta está cerrada.",
+        "timeout": "No se pudo llegar. Inténtalo de nuevo.",
+        "outdated": "proto town se está actualizando. Recarga la página en un minuto."
+      },
+      "visiting": {
+        "chip": "Vecindario de {{name}} · ves contactos mutuos",
+        "enter": "Vecindario de {{name}}. Aquí ves a {{name}} y a tus contactos mutuos; los demás permanecen ocultos."
+      },
+      "guestHome": {
+        "chip": "Casa de {{name}} · de visita",
+        "enter": "Estás dentro de la casa de {{name}}."
+      },
+      "notice": {
+        "removed": "Saliste del vecindario de {{name}}.",
+        "privateHouse": "Esta es la casa de {{name}}.",
+        "visitOver": "La visita terminó.",
+        "noAnswer": "Nadie responde."
       }
+    },
+    "doors": {
+      "home": {
+        "label": "Casa",
+        "tooltip": "Tu casa. Entra por la puerta principal. Tu círculo íntimo puede tocar la puerta, y tú decides quién entra."
+      },
+      "neighborhood": {
+        "label": "Tu vecindario",
+        "tooltip": "Tu vecindario, detrás de tu propia reja. Solo la gente de tu comunidad puede entrar."
+      },
+      "square": {
+        "label": "Plaza del pueblo",
+        "tooltip": "Sal por la reja hacia la plaza del pueblo, donde todos pueden verte."
+      },
+      "houseOf": {
+        "label": "Casa de {{name}}",
+        "tooltip": "Casa de {{name}}."
+      },
+      "gateOf": {
+        "tooltip": "Vecindario de {{name}}. Estás en su comunidad, así que la reja se abre para ti."
+      },
+      "neighborhoodOf": {
+        "label": "Vecindario de {{name}}",
+        "tooltip": "Sal por la puerta principal: Vecindario de {{name}}"
+      }
+    },
+    "lots": {
+      "arcade": "Arcade (pronto)",
+      "theater": "Cine (pronto)",
+      "tooltip": "Este terreno espera un edificio. Próximamente."
+    },
+    "signpost": {
+      "label": "Más vecindarios",
+      "tooltip": "Párate sobre el letrero para ver todos los vecindarios que puedes visitar.",
+      "title": "Vecindarios que puedes visitar",
+      "close": "Cerrar"
+    },
+    "fof": {
+      "off": "Amigos de amigos: desactivado",
+      "on": "Amigos de amigos: activado",
+      "hint": "Al activarlo, solo tus contactos mutuos y los contactos mutuos de ellos pueden verte aquí, y solo los ves a ellos.",
+      "announceOn": "Modo amigos de amigos activado. Solo tus contactos mutuos y los contactos mutuos de ellos pueden verte aquí.",
+      "announceOff": "Modo amigos de amigos desactivado. Todos en la plaza pueden verte."
+    },
+    "knock": {
+      "prompt": "¿Tocar la puerta de {{name}}?",
+      "knock": "Tocar",
+      "cancel": "Cancelar",
+      "knocking": "Tocando…",
+      "atDoor": "{{name}} está en la puerta.",
+      "atDoorAgain": "{{name}} vuelve a tocar la puerta.",
+      "letIn": "Dejar entrar",
+      "notNow": "Ahora no",
+      "tabTitle": "Toc, toc",
+      "notifyMe": "Avísame cuando toquen"
+    },
+    "guests": {
+      "title": "Visitas",
+      "askToLeave": "Pedir que se vaya"
+    },
+    "door": {
+      "open": "Puerta: abierta para tocar",
+      "closed": "Puerta: cerrada para tocar",
+      "hint": "Cuando tu puerta está cerrada, nadie responde cuando tocan. Nadie puede saber que está cerrada."
+    },
+    "join": {
+      "ask": "Pedir unirme",
+      "asking": "Pidiendo unirme…",
+      "askHint": "Algunas personas en esta conversación no son tus contactos mutuos. Pide unirte y, si todas aceptan, puedes estar en la conversación mientras te quedes.",
+      "request": "{{name}} quiere unirse a la conversación.",
+      "requestSomeone": "Alguien quiere unirse a tu conversación.",
+      "accept": "Dejar que se una",
+      "decline": "Ahora no",
+      "accepted": "Ya estás dentro. ¡Saluda!"
     },
     "beta": {
       "message": "🚧 El pueblo está en construcción: ¡algunas cosas funcionan!",
@@ -192,10 +284,10 @@
       "work1": "Pasea como tu personaje de rpg.actor",
       "work2": "Burbujas de chat que ve todo el que esté cerca",
       "work3": "Acércate a alguien: un aura morada los une y pueden hablar (micrófono y cámara son opcionales)",
-      "work4": "Tu casa en el centro es privada: nadie te ve ni te oye ahí",
+      "work4": "Tu casa es privada, y los amigos de tu comunidad pueden visitar tu vecindario",
       "soonHeading": "Próximamente",
-      "soon1": "Tocar puertas para dejar entrar a tus amigos",
-      "soon2": "Tu propio vecindario cerrado para tu comunidad",
+      "soon1": "Decorar tu casa",
+      "soon2": "El arcade y el cine en la plaza del pueblo",
       "soon3": "Casas, decoración, el arcade y más",
       "feedback": "¿Algo roto o un deseo? Cuéntaselo a ProtoBuddy: /feedback tu mensaje",
       "close": "Entendido"

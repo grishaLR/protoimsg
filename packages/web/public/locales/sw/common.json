@@ -130,7 +130,7 @@
   },
   "town": {
     "hud": {
-      "controls": "WASD / arrows to move"
+      "controls": "WASD / mishale kusogea · Space kukimbia"
     },
     "chat": {
       "placeholder": "Say something to the town…",
@@ -145,7 +145,6 @@
       "live": "Moja kwa moja · {{count}} wanaweza kukusikia",
       "announceJoined": "Kuna mtu karibu — sauti imeunganishwa",
       "announceEnded": "Sauti imeisha",
-      "homeOff": "Sauti imezimwa chumbani kwako — uko peke yako",
       "camOn": "Kamera imewashwa",
       "camOff": "Kamera imezimwa",
       "camDenied": "Kamera imezuiwa — angalia ruhusa za kivinjari",
@@ -165,20 +164,113 @@
       "expandVideo": "Onyesha",
       "videoPaused": "Video imesitishwa · muunganisho dhaifu"
     },
-    "areas": {
+    "scenes": {
       "home": {
-        "label": "Nyumbani · mduara wa karibu",
-        "tooltip": "Nyumbani kwako. Hakuna anayeweza kukuona wala kukusikia humu. Hivi karibuni: marafiki wataigonga mlango, na kumruhusu mtu aingie kunamwongeza kwenye mduara wako wa karibu.",
-        "enter": "Uko nyumbani — hakuna anayeweza kukuona wala kukusikia hapa."
+        "chip": "Nyumbani kwako · watu wa karibu wanakuona mtandaoni",
+        "enter": "Uko nyumbani. Hakuna anayeingia usipomruhusu."
       },
       "neighborhood": {
-        "label": "Mtaa",
-        "tooltip": "Mtaa wako wenye uzio. Hivi karibuni ni watu wa jumuiya yako pekee watakaokuona hapa na kupita langoni. Kwa sasa uko wazi kama ulimwengu wa nje.",
-        "enter": "Mtaa — uko wazi kwa wote kwa sasa (hivi karibuni kwa jumuiya pekee)."
+        "chip": "Mtaa wako · jamii pekee",
+        "enter": "Mtaa wako. Watu wa jamii yako wanaweza kukutembelea; wanakuona wewe na marafiki zao wa pamoja."
       },
-      "public": {
-        "enter": "Ulimwengu wa umma — yeyote anaweza kukuona, na mnaweza kuzungumza mkiwa karibu."
+      "square": {
+        "chip": "Uwanja wa mji · kila mtu",
+        "enter": "Uwanja wa mji. Yeyote anaweza kukuona, na mnaweza kuzungumza mkiwa karibu.",
+        "chipFof": "Uwanja wa mji · marafiki wa marafiki"
+      },
+      "error": {
+        "closed": "Mlango huo umefungwa.",
+        "timeout": "Imeshindikana kufika huko. Jaribu tena.",
+        "outdated": "proto town inasasishwa. Pakia upya ukurasa baada ya dakika moja."
+      },
+      "visiting": {
+        "chip": "Mtaa wa {{name}} · unaona marafiki wa pamoja",
+        "enter": "Mtaa wa {{name}}. Hapa unamwona {{name}} na marafiki zako wa pamoja; wengine wote wamefichwa."
+      },
+      "guestHome": {
+        "chip": "Nyumba ya {{name}} · mgeni",
+        "enter": "Uko ndani ya nyumba ya {{name}}."
+      },
+      "notice": {
+        "removed": "Umetoka kwenye mtaa wa {{name}}.",
+        "privateHouse": "Hii ni nyumba ya {{name}}.",
+        "visitOver": "Ziara imekwisha.",
+        "noAnswer": "Hakuna jibu."
       }
+    },
+    "doors": {
+      "home": {
+        "label": "Nyumbani",
+        "tooltip": "Nyumba yako. Ingia kupitia mlango wa mbele. Watu wako wa karibu wanaweza kugonga, na wewe ndiye unaamua nani aingie."
+      },
+      "neighborhood": {
+        "label": "Mtaa wako",
+        "tooltip": "Mtaa wako, nyuma ya lango lako mwenyewe. Ni watu wa jamii yako pekee wanaoweza kuingia."
+      },
+      "square": {
+        "label": "Uwanja wa mji",
+        "tooltip": "Toka langoni kuelekea uwanja wa mji, ambapo kila mtu anaweza kukuona."
+      },
+      "houseOf": {
+        "label": "Nyumba ya {{name}}",
+        "tooltip": "Nyumba ya {{name}}."
+      },
+      "gateOf": {
+        "tooltip": "Mtaa wa {{name}}. Uko kwenye jamii ya {{name}}, kwa hiyo lango linakufungukia."
+      },
+      "neighborhoodOf": {
+        "label": "Mtaa wa {{name}}",
+        "tooltip": "Toka kwa mlango wa mbele: Mtaa wa {{name}}"
+      }
+    },
+    "lots": {
+      "arcade": "Ukumbi wa michezo (hivi karibuni)",
+      "theater": "Sinema (hivi karibuni)",
+      "tooltip": "Kiwanja hiki kinasubiri jengo. Kinakuja hivi karibuni."
+    },
+    "signpost": {
+      "label": "Mitaa zaidi",
+      "tooltip": "Simama kwenye kibao cha njia ili uone mitaa yote unayoweza kutembelea.",
+      "title": "Mitaa unayoweza kutembelea",
+      "close": "Funga"
+    },
+    "fof": {
+      "off": "Marafiki wa marafiki: kimezimwa",
+      "on": "Marafiki wa marafiki: kimewashwa",
+      "hint": "Kikiwashwa, marafiki zako wa pamoja na marafiki zao wa pamoja pekee ndio wanaoweza kukuona hapa, nawe unawaona wao tu.",
+      "announceOn": "Hali ya marafiki wa marafiki imewashwa. Marafiki zako wa pamoja na marafiki zao wa pamoja pekee ndio wanaoweza kukuona hapa.",
+      "announceOff": "Hali ya marafiki wa marafiki imezimwa. Kila mtu uwanjani anaweza kukuona."
+    },
+    "knock": {
+      "prompt": "Ugonge mlango wa {{name}}?",
+      "knock": "Gonga",
+      "cancel": "Ghairi",
+      "knocking": "Unagonga…",
+      "atDoor": "{{name}} yuko mlangoni.",
+      "atDoorAgain": "{{name}} anagonga tena.",
+      "letIn": "Mruhusu aingie",
+      "notNow": "Si sasa",
+      "tabTitle": "Hodi hodi",
+      "notifyMe": "Nijulishe mtu akigonga"
+    },
+    "guests": {
+      "title": "Wageni",
+      "askToLeave": "Omba aondoke"
+    },
+    "door": {
+      "open": "Mlango: wazi kwa kugongwa",
+      "closed": "Mlango: umefungwa kwa kugongwa",
+      "hint": "Mlango wako ukiwa umefungwa, hodi hazijibiwi. Hakuna anayeweza kujua kuwa umefungwa."
+    },
+    "join": {
+      "ask": "Omba kujiunga",
+      "asking": "Unaomba kujiunga…",
+      "askHint": "Baadhi ya watu kwenye mazungumzo haya si marafiki zako wa pamoja. Omba, na wote wakikubali, unaweza kujiunga muda wote utakaobaki.",
+      "request": "{{name}} angependa kujiunga na mazungumzo yenu.",
+      "requestSomeone": "Kuna mtu anataka kujiunga na mazungumzo yenu.",
+      "accept": "Mruhusu ajiunge",
+      "decline": "Si sasa",
+      "accepted": "Umejiunga. Wasalimie!"
     },
     "beta": {
       "message": "🚧 Mji unajengwa — baadhi ya mambo yanafanya kazi!",
@@ -190,10 +282,10 @@
       "work1": "Tembea kama mhusika wako wa rpg.actor",
       "work2": "Viputo vya gumzo ambavyo kila mtu karibu anaona",
       "work3": "Mkaribie mtu — mwanga wa zambarau unawaunganisha na mnaweza kuzungumza (maikrofoni na kamera ni kwa hiari)",
-      "work4": "Nyumba yako katikati ni ya faragha — hakuna anayekuona wala kukusikia hapo",
+      "work4": "Nyumba yako ni ya faragha, na marafiki wa jamii yako wanaweza kutembelea mtaa wako",
       "soonHeading": "Inakuja hivi karibuni",
-      "soon1": "Kugonga milango ili kuwaruhusu marafiki waingie",
-      "soon2": "Mtaa wako wenye uzio kwa ajili ya jumuiya yako",
+      "soon1": "Kupamba nyumba yako",
+      "soon2": "Ukumbi wa michezo na sinema kwenye uwanja wa mji",
       "soon3": "Nyumba, mapambo, ukumbi wa michezo na zaidi",
       "feedback": "Kitu kimeharibika au una ombi? Mwambie ProtoBuddy: /feedback ujumbe wako",
       "close": "Nimeelewa"

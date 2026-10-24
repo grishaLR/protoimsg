@@ -1,37 +1,22 @@
 import { useCallback, useState } from 'react';
 import { useWebSocket } from '../contexts/WebSocketContext';
 import type { PresenceStatus, PresenceVisibility } from '@protoimsg/shared';
+import {
+  effectiveVisibility,
+  getCachedVisibility,
+  getCurrentStatus,
+  setCachedVisibility,
+  setCurrentStatus,
+  type SentStatus,
+} from '../lib/presence-state';
 
-const VISIBILITY_STORAGE_KEY = 'protoimsg:visibleTo';
-
-export function getCachedVisibility(): PresenceVisibility {
-  try {
-    const stored = localStorage.getItem(VISIBILITY_STORAGE_KEY);
-    if (
-      stored === 'everyone' ||
-      stored === 'community' ||
-      stored === 'inner-circle' ||
-      stored === 'no-one'
-    ) {
-      return stored;
-    }
-  } catch {
-    // localStorage unavailable
-  }
-  return 'community';
-}
-
-function setCachedVisibility(v: PresenceVisibility): void {
-  try {
-    localStorage.setItem(VISIBILITY_STORAGE_KEY, v);
-  } catch {
-    // localStorage unavailable
-  }
-}
+export { getCachedVisibility };
 
 export function usePresence() {
-  const [status, setStatus] = useState<PresenceStatus>('online');
-  const [awayMessage, setAwayMessage] = useState<string | undefined>();
+  const [status, setStatus] = useState<PresenceStatus>(() => getCurrentStatus().status);
+  const [awayMessage, setAwayMessage] = useState<string | undefined>(
+    () => getCurrentStatus().awayMessage,
+  );
   const [visibleTo, setVisibleTo] = useState<PresenceVisibility>(getCachedVisibility);
   const { send } = useWebSocket();
 
@@ -49,17 +34,17 @@ export function usePresence() {
         setCachedVisibility(newVisibleTo);
       }
 
-      const effectiveVisibleTo = newVisibleTo ?? visibleTo;
+      setCurrentStatus({ status: newStatus as SentStatus, awayMessage: msg });
 
       // Immediate WS broadcast — presence is fully server-side (in-memory)
       send({
         type: 'status_change',
-        status: newStatus as 'online' | 'away' | 'idle',
+        status: newStatus as SentStatus,
         awayMessage: msg,
-        visibleTo: effectiveVisibleTo,
+        visibleTo: effectiveVisibility(),
       });
     },
-    [send, visibleTo],
+    [send],
   );
 
   return { status, awayMessage, visibleTo, changeStatus };

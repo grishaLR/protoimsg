@@ -130,7 +130,7 @@
   },
   "town": {
     "hud": {
-      "controls": "WASD / arrows to move"
+      "controls": "WASD / kibiyoyi don motsi · Space don gudu"
     },
     "chat": {
       "placeholder": "Say something to the town…",
@@ -145,7 +145,6 @@
       "live": "Kai tsaye · {{count}} suna jin ka",
       "announceJoined": "Akwai wani kusa — an haɗa murya",
       "announceEnded": "Murya ta ƙare",
-      "homeOff": "An kashe murya a ɗakinka — kai kaɗai ne",
       "camOn": "Kyamara a kunne",
       "camOff": "Kyamara a kashe",
       "camDenied": "An toshe kyamara — duba izinin burauza",
@@ -165,20 +164,113 @@
       "expandVideo": "Nuna",
       "videoPaused": "An dakatar da bidiyo · haɗi mara ƙarfi"
     },
-    "areas": {
+    "scenes": {
       "home": {
-        "label": "Gida · da'irar kusa",
-        "tooltip": "Gidanka. Babu wanda zai iya ganinka ko jinka a nan. Nan ba da jimawa ba: abokai za su ƙwanƙwasa ƙofa, kuma barin wani ya shigo zai saka shi cikin da'irarka ta kusa.",
-        "enter": "Kana gida — babu wanda zai iya ganinka ko jinka a nan."
+        "chip": "Gidanka · mutanenka na kusa suna ganinka a kan layi",
+        "enter": "Kana gida. Babu mai shigowa sai ka bar shi."
       },
       "neighborhood": {
-        "label": "Unguwa",
-        "tooltip": "Unguwarka mai shinge. Nan ba da jimawa ba sai mutanen al'ummarka ne kawai za su gan ka a nan su wuce ƙofar. Yanzu a buɗe take kamar duniyar waje.",
-        "enter": "Unguwa — a buɗe ga kowa a yanzu (ga al'umma kawai nan ba da jimawa ba)."
+        "chip": "Unguwarka · al'umma kawai",
+        "enter": "Unguwarka. Mutanen al'ummarka za su iya kawo ziyara; suna ganinka da abokansu na juna."
       },
-      "public": {
-        "enter": "Duniyar jama'a — kowa zai iya ganinka, kuma za ku iya magana idan kuna kusa."
+      "square": {
+        "chip": "Dandalin gari · kowa",
+        "enter": "Dandalin gari. Kowa zai iya ganinka, kuma za ku iya magana idan kuna kusa.",
+        "chipFof": "Dandalin gari · abokan abokai"
+      },
+      "error": {
+        "closed": "Wannan ƙofar a rufe take.",
+        "timeout": "Ba a iya isa can ba. Sake gwadawa.",
+        "outdated": "Ana sabunta proto town. Sake loda shafin bayan minti ɗaya."
+      },
+      "visiting": {
+        "chip": "Unguwar {{name}} · kana ganin abokan juna",
+        "enter": "Unguwar {{name}}. A nan kana ganin {{name}} da abokanka na juna; sauran kowa yana ɓoye."
+      },
+      "guestHome": {
+        "chip": "Gidan {{name}} · baƙo",
+        "enter": "Kana cikin gidan {{name}}."
+      },
+      "notice": {
+        "removed": "Ka bar unguwar {{name}}.",
+        "privateHouse": "Wannan gidan {{name}} ne.",
+        "visitOver": "Ziyarar ta ƙare.",
+        "noAnswer": "Babu amsa."
       }
+    },
+    "doors": {
+      "home": {
+        "label": "Gida",
+        "tooltip": "Gidanka. Shiga ta ƙofar gaba. Mutanenka na kusa za su iya ƙwanƙwasa ƙofa, kuma kai ne za ka zaɓi wanda zai shigo."
+      },
+      "neighborhood": {
+        "label": "Unguwarka",
+        "tooltip": "Unguwarka, a bayan ƙofar shingenka. Mutanen al'ummarka ne kawai suke iya shigowa."
+      },
+      "square": {
+        "label": "Dandalin gari",
+        "tooltip": "Fita ta ƙofar shinge zuwa dandalin gari, inda kowa zai iya ganinka."
+      },
+      "houseOf": {
+        "label": "Gidan {{name}}",
+        "tooltip": "Gidan {{name}}."
+      },
+      "gateOf": {
+        "tooltip": "Unguwar {{name}}. Kana cikin al'ummar {{name}}, don haka ƙofar shinge tana buɗe maka."
+      },
+      "neighborhoodOf": {
+        "label": "Unguwar {{name}}",
+        "tooltip": "Fita ta ƙofar gaba: Unguwar {{name}}"
+      }
+    },
+    "lots": {
+      "arcade": "Wurin wasanni (nan ba da jimawa ba)",
+      "theater": "Gidan sinima (nan ba da jimawa ba)",
+      "tooltip": "Wannan fili yana jiran gini. Nan ba da jimawa ba."
+    },
+    "signpost": {
+      "label": "Ƙarin unguwanni",
+      "tooltip": "Tsaya kan allon alama don ganin duk unguwannin da za ka iya ziyarta.",
+      "title": "Unguwannin da za ka iya ziyarta",
+      "close": "Rufe"
+    },
+    "fof": {
+      "off": "Abokan abokai: a kashe",
+      "on": "Abokan abokai: a kunne",
+      "hint": "Idan yana kunne, abokanka na juna da abokansu na juna ne kawai za su iya ganinka a nan, kuma su kaɗai kake gani.",
+      "announceOn": "An kunna yanayin abokan abokai. Abokanka na juna da abokansu na juna ne kawai za su iya ganinka a nan.",
+      "announceOff": "An kashe yanayin abokan abokai. Kowa a dandalin zai iya ganinka."
+    },
+    "knock": {
+      "prompt": "Ka ƙwanƙwasa ƙofar {{name}}?",
+      "knock": "Ƙwanƙwasa",
+      "cancel": "Soke",
+      "knocking": "Ana ƙwanƙwasawa…",
+      "atDoor": "{{name}} yana bakin ƙofa.",
+      "atDoorAgain": "{{name}} na sake ƙwanƙwasa ƙofa.",
+      "letIn": "Ba da izinin shiga",
+      "notNow": "Ba yanzu ba",
+      "tabTitle": "Ƙwan ƙwan",
+      "notifyMe": "Sanar da ni idan an ƙwanƙwasa"
+    },
+    "guests": {
+      "title": "Baƙi",
+      "askToLeave": "Roƙi ya tafi"
+    },
+    "door": {
+      "open": "Ƙofa: a buɗe ga ƙwanƙwasa",
+      "closed": "Ƙofa: a rufe ga ƙwanƙwasa",
+      "hint": "Idan ƙofarka a rufe take, ba za a amsa ƙwanƙwasa ba. Babu wanda zai iya sanin cewa a rufe take."
+    },
+    "join": {
+      "ask": "Nemi shiga",
+      "asking": "Ana neman shiga…",
+      "askHint": "Wasu mutane a wannan hirar ba abokanka na juna ba ne. Ka nemi shiga, kuma idan duk sun yarda, za ka iya shiga muddin kana nan.",
+      "request": "{{name}} na son shiga hirarku.",
+      "requestSomeone": "Wani na son shiga tattaunawarku.",
+      "accept": "Ba da izinin shiga",
+      "decline": "Ba yanzu ba",
+      "accepted": "Ka shiga hirar. Ka ce sannu!"
     },
     "beta": {
       "message": "🚧 Ana gina garin — wasu abubuwa suna aiki!",
@@ -190,10 +282,10 @@
       "work1": "Zagaya a matsayin halinka na rpg.actor",
       "work2": "Kumfar hira da kowa da ke kusa yake gani",
       "work3": "Ka je kusa da wani — haske mai ruwan shunayya zai haɗa ku kuma za ku iya magana (makirufo da kyamara na zaɓi ne)",
-      "work4": "Gidanka a tsakiya na sirri ne — babu wanda zai gan ka ko ya ji ka a can",
+      "work4": "Gidanka na sirri ne, kuma abokai a al'ummarka za su iya ziyartar unguwarka",
       "soonHeading": "Nan ba da jimawa ba",
-      "soon1": "Ƙwanƙwasa ƙofofi don barin abokai su shigo",
-      "soon2": "Unguwarka mai shinge don al'ummarka",
+      "soon1": "Ƙawata gidanka",
+      "soon2": "Wurin wasanni da gidan sinima a dandalin gari",
       "soon3": "Gidaje, ado, wurin wasanni da ƙari",
       "feedback": "Wani abu ya lalace ko kana da buri? Faɗa wa ProtoBuddy: /feedback saƙonka",
       "close": "Na gane"

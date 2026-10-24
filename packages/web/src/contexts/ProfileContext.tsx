@@ -101,3 +101,26 @@ export function useProfile(did: string | null | undefined): ProfileInfo | undefi
 
   return profile;
 }
+
+/**
+ * Several profiles at once (fetches are batched by the provider). Returns a
+ * lookup plus a version that changes whenever the cache does, for effects
+ * that need to react to names arriving.
+ */
+export function useProfiles(dids: readonly string[]): {
+  getProfile: (did: string) => ProfileInfo | undefined;
+  version: number;
+} {
+  const ctx = useContext(ProfileContext);
+  if (!ctx) throw new Error('useProfiles must be used within ProfileProvider');
+  const version = useSyncExternalStore(ctx.subscribe, ctx.getVersion);
+  const key = dids.join(',');
+
+  useEffect(() => {
+    for (const did of key ? key.split(',') : []) {
+      if (!ctx.getProfile(did)) ctx.requestProfile(did);
+    }
+  }, [key, ctx.getProfile, ctx.requestProfile]);
+
+  return { getProfile: ctx.getProfile, version };
+}

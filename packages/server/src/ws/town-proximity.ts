@@ -1,5 +1,4 @@
-import { TOWN_PROXIMITY, townZoneAtPixel } from '@protoimsg/shared';
-import type { TownZone } from '@protoimsg/shared';
+import { TOWN_PROXIMITY } from '@protoimsg/shared';
 
 /** One socket's avatar as the proximity solver sees it. */
 export interface ProxNode {
@@ -22,10 +21,6 @@ export interface ClusterRules {
   compatible(a: ProxNode, b: ProxNode): boolean;
   /** A brand-new link (not yet sharing a room) has dwelled long enough. */
   newLinkReady(a: ProxNode, b: ProxNode): boolean;
-}
-
-export function zoneOf(n: ProxNode): TownZone {
-  return townZoneAtPixel(n.x, n.y);
 }
 
 function dist2(a: ProxNode, b: ProxNode): number {
@@ -83,7 +78,11 @@ function nearbyPairs(nodes: ProxNode[]): Array<[ProxNode, ProxNode]> {
  * returned.
  */
 export function buildClusters(nodes: ProxNode[], rules: ClusterRules): ProxNode[][] {
-  const eligible = nodes.filter((n) => rules.eligible(n)).sort((a, b) => a.id - b.id);
+  // People already in a conversation seed first, so a newcomer can never
+  // push an existing member out of theirs.
+  const eligible = nodes
+    .filter((n) => rules.eligible(n))
+    .sort((a, b) => Number(a.roomId === null) - Number(b.roomId === null) || a.id - b.id);
   const adj = new Map<number, ProxNode[]>();
   for (const n of eligible) adj.set(n.id, []);
   for (const [a, b] of nearbyPairs(eligible)) {
@@ -102,7 +101,14 @@ export function buildClusters(nodes: ProxNode[], rules: ClusterRules): ProxNode[
     const cluster = [seed];
     const queue = [seed];
     for (let cur = queue.shift(); cur; cur = queue.shift()) {
-      for (const nb of adj.get(cur.id) ?? []) {
+      const here = cur.roomId;
+      // Within a conversation, its current members are added before anyone new.
+      const neighbours = [...(adj.get(cur.id) ?? [])].sort(
+        (a, b) =>
+          Number(here === null || a.roomId !== here) - Number(here === null || b.roomId !== here) ||
+          a.id - b.id,
+      );
+      for (const nb of neighbours) {
         if (cluster.length >= TOWN_PROXIMITY.maxClusterSize) break;
         if (visited.has(nb.id)) continue;
         if (dist2(seed, nb) > maxSpan2) continue;
