@@ -161,6 +161,7 @@ const townMove = z.object({
   x: coord,
   y: coord,
   dir: facing,
+  sprint: z.boolean().optional(),
 });
 
 const townChat = z.object({

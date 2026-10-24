@@ -305,7 +305,7 @@
   },
   "town": {
     "hud": {
-      "controls": "WASD / arrows to move"
+      "controls": "WASD / arrows to move · Space to sprint"
     },
     "chat": {
       "placeholder": "Say something to the town…",

@@ -13,14 +13,18 @@ interface KnockPromptProps {
 /** At someone's door (you're in their inner circle): knock, or walk on. */
 export function KnockPrompt({ ownerName, knocking, onKnock, onCancel }: KnockPromptProps) {
   const { t } = useTranslation('common');
-  const knockRef = useRef<HTMLButtonElement>(null);
+  const sectionRef = useRef<HTMLElement>(null);
 
+  // Focus the prompt itself, not its Knock button: Escape works, Tab reaches
+  // the buttons, and Space (the sprint key) can't knock by accident.
   useEffect(() => {
-    knockRef.current?.focus();
+    sectionRef.current?.focus();
   }, []);
 
   return (
     <section
+      ref={sectionRef}
+      tabIndex={-1}
       className={styles.prompt}
       aria-label={t('town.knock.prompt', { name: ownerName })}
       onKeyDown={(e) => {
@@ -40,7 +44,7 @@ export function KnockPrompt({ ownerName, knocking, onKnock, onCancel }: KnockPro
         <>
           <p className={styles.text}>{t('town.knock.prompt', { name: ownerName })}</p>
           <div className={styles.actions}>
-            <button ref={knockRef} type="button" className={styles.primary} onClick={onKnock}>
+            <button type="button" className={styles.primary} onClick={onKnock}>
               {t('town.knock.knock')}
             </button>
             <button type="button" className={styles.secondary} onClick={onCancel}>

@@ -1122,4 +1122,16 @@ describe('TownRoom with relationships (visiting, mutuals, gates, friends of frie
       expect(lastState(b)).toMatchObject({ windowLit: false });
     });
   });
+
+  it("passes a runner's sprint on to the people who can see them", async () => {
+    const a = fakeWs();
+    const b = fakeWs();
+    await enter(a, A, 'square', 300, 300);
+    await enter(b, B, 'square', 320, 300);
+    vi.advanceTimersByTime(150);
+    town.move(b.ws, 330, 300, 2, true);
+    vi.advanceTimersByTime(150);
+    const last = sent(a, 'town_view').at(-1)?.data as { upsert: Array<{ sprint?: boolean }> };
+    expect(last.upsert[0]?.sprint).toBe(true);
+  });
 });

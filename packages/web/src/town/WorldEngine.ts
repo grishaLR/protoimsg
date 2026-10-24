@@ -39,6 +39,8 @@ export type { SignId };
 
 const SCALE = 2; // world zoom
 const SPEED = 132; // px/sec
+// Holding Space: faster on foot, legs to match.
+const SPRINT = 1.75;
 const MOVE_SEND_MS = 110; // position broadcast throttle
 const PEER_SNAP_DIST = 240; // snap a peer instead of interpolating past this
 const PEER_LERP = 11; // peer position ease rate (per second)
@@ -88,9 +90,28 @@ interface Peer {
   y: number;
   tx: number;
   ty: number;
+  /** Walk-cycle speed: 1 walking, SPRINT while they say they're running. */
+  pace: number;
 }
 
 const MOVE_KEYS = new Set(['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'a', 'd', 'w', 's']);
+const SPRINT_KEY = ' ';
+
+/** Focus is in somewhere you type — every key belongs to it. */
+function isTextEntry(target: EventTarget | null): boolean {
+  if (!(target instanceof HTMLElement)) return false;
+  return target.isContentEditable || target.closest('input, textarea, select') !== null;
+}
+
+/**
+ * Space presses a control only when the keyboard put focus there. A button
+ * you clicked with the mouse keeps focus too, but Space should still sprint.
+ */
+function spaceBelongsToFocus(target: EventTarget | null): boolean {
+  if (isTextEntry(target)) return true;
+  if (!(target instanceof HTMLElement)) return false;
+  return target.closest('button, a, [role="button"]') !== null && target.matches(':focus-visible');
+}
 
 function clamp(v: number, lo: number, hi: number): number {
   return v < lo ? lo : v > hi ? hi : v;
@@ -165,6 +186,7 @@ export class WorldEngine {
   private sentX = -1;
   private sentY = -1;
   private sentDir = -1;
+  private sentSprint = false;
   private sendAccumMs = 0;
 
   private inputEnabled = true;
@@ -173,8 +195,8 @@ export class WorldEngine {
   private readyPromise: Promise<void>;
   private resolveReady: () => void = () => {};
 
-  /** Called (throttled) when the local player moves. */
-  onMove?: (x: number, y: number, dir: number) => void;
+  /** Called (throttled) when the local player moves (or starts/stops running). */
+  onMove?: (x: number, y: number, dir: number, sprint: boolean) => void;
 
   /** Called when the local player steps onto a doorway into another scene. */
   onDoorway?: (door: TownDoorway) => void;
@@ -239,6 +261,7 @@ export class WorldEngine {
 
     window.addEventListener('keydown', this.onKeyDown);
     window.addEventListener('keyup', this.onKeyUp);
+    window.addEventListener('blur', this.onBlur);
     this.app.ticker.add(this.tick);
     this.resolveReady();
   }
@@ -612,7 +635,14 @@ export class WorldEngine {
     if (this.fallbackTex) avatar.setFallbackTexture(this.fallbackTex);
     avatar.setPosition(p.x, p.y);
     this.world.addChild(avatar.container);
-    this.peers.set(p.did, { avatar, x: p.x, y: p.y, tx: p.x, ty: p.y });
+    this.peers.set(p.did, {
+      avatar,
+      x: p.x,
+      y: p.y,
+      tx: p.x,
+      ty: p.y,
+      pace: p.sprint ? SPRINT : 1,
+    });
     void this.dressAvatar(avatar, p.did);
   }
 
@@ -622,6 +652,7 @@ export class WorldEngine {
       this.peerJoin(p);
       return;
     }
+    peer.pace = p.sprint ? SPRINT : 1;
     peer.tx = p.x;
     peer.ty = p.y;
     peer.avatar.dir = p.dir;
@@ -645,9 +676,24 @@ export class WorldEngine {
   // ── Input ─────────────────────────────────────────────────────────────
 
   private onKeyDown = (e: KeyboardEvent): void => {
-    if (!this.inputEnabled || !MOVE_KEYS.has(e.key)) return;
+    if (!this.inputEnabled) return;
+    if (e.key === SPRINT_KEY) {
+      // Leave Space to a field or a keyboard-focused control; otherwise it's
+      // the run key (and shouldn't scroll the page or click a stray button).
+      if (spaceBelongsToFocus(e.target)) return;
+      this.keys.add(e.key);
+      e.preventDefault();
+      return;
+    }
+    // Typing in any field (a DM, the buddy search) never walks you around.
+    if (!MOVE_KEYS.has(e.key) || isTextEntry(e.target)) return;
     this.keys.add(e.key);
     e.preventDefault();
+  };
+
+  /** Switching windows mid-stride: keyups never arrive, so let go of everything. */
+  private onBlur = (): void => {
+    this.keys.clear();
   };
 
   private onKeyUp = (e: KeyboardEvent): void => {
@@ -675,7 +721,8 @@ export class WorldEngine {
       else this.player.dir = dy < 0 ? DIR_BACK : DIR_FORWARD;
 
       const len = Math.hypot(dx, dy) || 1;
-      const step = (SPEED * dt) / len;
+      const sprinting = this.keys.has(SPRINT_KEY);
+      const step = ((sprinting ? SPEED * SPRINT : SPEED) * dt) / len;
       const nx = this.px + dx * step;
       const ny = this.py + dy * step;
       const map = this.map;
@@ -686,22 +733,28 @@ export class WorldEngine {
         this.py = clamp(ny, TILE, (map.h - 1) * TILE);
       }
     }
-    this.player.tick(dtMs, moving);
+    this.player.tick(dtMs, moving, moving && this.keys.has(SPRINT_KEY) ? SPRINT : 1);
     this.player.setPosition(this.px, this.py);
     this.checkDoorway();
 
     // Throttled position broadcast (sends the resting position too, since the
     // changed-check stays true until the latest pose is acknowledged).
     this.sendAccumMs += dtMs;
+    // Running only counts while actually moving.
+    const sprinting = moving && this.keys.has(SPRINT_KEY);
     const changed =
-      this.px !== this.sentX || this.py !== this.sentY || this.player.dir !== this.sentDir;
+      this.px !== this.sentX ||
+      this.py !== this.sentY ||
+      this.player.dir !== this.sentDir ||
+      sprinting !== this.sentSprint;
     if (changed && this.sendAccumMs >= MOVE_SEND_MS) {
       this.sendAccumMs = 0;
       this.sentX = this.px;
       this.sentY = this.py;
       this.sentDir = this.player.dir;
+      this.sentSprint = sprinting;
       // Whole pixels: sub-pixel jitter isn't worth a network message.
-      this.onMove?.(Math.round(this.px), Math.round(this.py), this.player.dir);
+      this.onMove?.(Math.round(this.px), Math.round(this.py), this.player.dir, sprinting);
     }
 
     // Peers: interpolate toward their last reported position.
@@ -723,7 +776,7 @@ export class WorldEngine {
           peer.y += pdy * f;
         }
       }
-      peer.avatar.tick(dtMs, peerMoving);
+      peer.avatar.tick(dtMs, peerMoving, peer.pace);
       peer.avatar.setPosition(peer.x, peer.y);
     }
 
@@ -849,6 +902,7 @@ export class WorldEngine {
     this.destroyed = true;
     window.removeEventListener('keydown', this.onKeyDown);
     window.removeEventListener('keyup', this.onKeyUp);
+    window.removeEventListener('blur', this.onBlur);
     if (this.ready) {
       this.app.ticker.remove(this.tick);
       this.app.destroy({ removeView: true }, { children: true, texture: false });

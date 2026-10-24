@@ -132,7 +132,7 @@
   },
   "town": {
     "hud": {
-      "controls": "WASD / arrows to move"
+      "controls": "WASD / saigheada le bogadh · Spás le rith"
     },
     "chat": {
       "placeholder": "Say something to the town…",

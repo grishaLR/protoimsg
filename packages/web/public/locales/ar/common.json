@@ -132,7 +132,7 @@
   },
   "town": {
     "hud": {
-      "controls": "WASD / arrows to move"
+      "controls": "WASD / الأسهم للتحرك · المسافة للركض"
     },
     "chat": {
       "placeholder": "Say something to the town…",

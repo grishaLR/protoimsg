@@ -807,7 +807,7 @@ export async function handleClientMessage(
     }
 
     case 'town_move': {
-      townRoom.move(ws, data.x, data.y, data.dir);
+      townRoom.move(ws, data.x, data.y, data.dir, data.sprint ?? false);
       break;
     }
 

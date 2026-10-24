@@ -519,6 +519,7 @@ export class TownRoom {
       x: place.x,
       y: place.y,
       dir: place.dir,
+      sprint: false,
       moveBudget: MOVE_BURST,
       moveBudgetTs: Date.now(),
       roomId,
@@ -537,7 +538,13 @@ export class TownRoom {
     if (self) {
       for (const [peerDid, m] of this.viewOf(self, this.buildViewGrid())) {
         self.known.set(peerDid, viewKey(m));
-        peers.push({ did: m.did, x: m.x, y: m.y, dir: m.dir });
+        peers.push({
+          did: m.did,
+          x: m.x,
+          y: m.y,
+          dir: m.dir,
+          ...(m.sprint ? { sprint: true } : {}),
+        });
       }
     }
     this.sendTo(ws, {
@@ -1061,13 +1068,14 @@ export class TownRoom {
     this.fofDids = new Set([...this.members.values()].filter((m) => m.fof).map((m) => m.did));
   }
 
-  move(ws: WebSocket, x: number, y: number, dir: number): void {
+  move(ws: WebSocket, x: number, y: number, dir: number, sprint = false): void {
     const m = this.members.get(ws);
     if (!m || !this.consumeMoveToken(m)) return;
     const pos = townClamp(m.kind, x, y);
     m.x = pos.x;
     m.y = pos.y;
     m.dir = dir;
+    m.sprint = sprint;
     m.ver++;
     this.scheduleView();
     this.scheduleProximity();
@@ -1166,7 +1174,13 @@ export class TownRoom {
         const key = viewKey(m);
         if (v.known.get(did) === key) continue;
         v.known.set(did, key);
-        upsert.push({ did: m.did, x: m.x, y: m.y, dir: m.dir });
+        upsert.push({
+          did: m.did,
+          x: m.x,
+          y: m.y,
+          dir: m.dir,
+          ...(m.sprint ? { sprint: true } : {}),
+        });
       }
       for (const did of v.known.keys()) {
         if (!view.has(did)) {

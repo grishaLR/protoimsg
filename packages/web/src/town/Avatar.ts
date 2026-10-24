@@ -144,12 +144,13 @@ export class Avatar {
   }
 
   /** Advance walk animation and expire the chat bubble. */
-  tick(dtMs: number, moving: boolean): void {
+  /** `pace` speeds the walk cycle up (sprinting legs move faster). */
+  tick(dtMs: number, moving: boolean, pace = 1): void {
     if (this.destroyed) return;
     if (this.fallbackSprite) this.fallbackSprite.rotation += dtMs * 0.002;
     this.moving = moving;
     if (moving) {
-      this.animMs += dtMs;
+      this.animMs += dtMs * pace;
       if (this.animMs >= WALK_FRAME_MS) {
         this.animMs = 0;
         this.animStep = (this.animStep + 1) % WALK_CYCLE.length;

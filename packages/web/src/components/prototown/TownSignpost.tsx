@@ -16,15 +16,18 @@ interface TownSignpostProps {
  */
 export function TownSignpost({ owners, nameOf, onVisit, onClose }: TownSignpostProps) {
   const { t } = useTranslation('common');
-  const firstRef = useRef<HTMLButtonElement>(null);
+  const sectionRef = useRef<HTMLElement>(null);
 
-  // Keyboard users land on the first neighborhood straight away.
+  // Focus the list itself, not a neighborhood: Escape works, Tab reaches the
+  // entries, and Space (the sprint key) can't whisk you off by accident.
   useEffect(() => {
-    firstRef.current?.focus();
+    sectionRef.current?.focus();
   }, []);
 
   return (
     <section
+      ref={sectionRef}
+      tabIndex={-1}
       className={styles.signpost}
       aria-labelledby="town-signpost-title"
       onKeyDown={(e) => {
@@ -40,10 +43,9 @@ export function TownSignpost({ owners, nameOf, onVisit, onClose }: TownSignpostP
         </button>
       </div>
       <ul className={styles.list}>
-        {owners.map((owner, i) => (
+        {owners.map((owner) => (
           <li key={owner}>
             <button
-              ref={i === 0 ? firstRef : undefined}
               type="button"
               className={styles.item}
               onClick={() => {

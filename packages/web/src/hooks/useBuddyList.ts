@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useAuth } from './useAuth';
 import { useWebSocket } from '../contexts/WebSocketContext';
-import { getCachedVisibility } from './usePresence';
+import { effectiveVisibility, getCurrentStatus } from '../lib/presence-state';
 import { getCommunityListRecord, putCommunityListRecord, generateTid } from '../lib/atproto';
 import { fetchPresence } from '../lib/api';
 import { playDoorOpen, playDoorClose } from '../lib/sounds';
@@ -108,8 +108,7 @@ export function useBuddyList() {
           setLoading(false);
           // Still sync community + presence even with an empty buddy list
           send({ type: 'sync_community', groups: seeded });
-          const cachedVis = getCachedVisibility();
-          send({ type: 'status_change', status: 'online', visibleTo: cachedVis });
+          send({ type: 'status_change', ...getCurrentStatus(), visibleTo: effectiveVisibility() });
           return;
         }
 
@@ -134,8 +133,8 @@ export function useBuddyList() {
         setLoading(false);
 
         send({ type: 'sync_community', groups: seeded });
-        const cachedVis = getCachedVisibility();
-        send({ type: 'status_change', status: 'online', visibleTo: cachedVis });
+        // Your status and visibility as they stand (narrowed if you're in town).
+        send({ type: 'status_change', ...getCurrentStatus(), visibleTo: effectiveVisibility() });
         send({ type: 'request_community_presence', dids: allDids });
 
         // Fetch atproto block records to restore blockRkey for unblock operations.

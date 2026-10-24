@@ -130,7 +130,7 @@
   },
   "town": {
     "hud": {
-      "controls": "WASD / arrows to move"
+      "controls": "WASD / kibiyoyi don motsi · Space don gudu"
     },
     "chat": {
       "placeholder": "Say something to the town…",

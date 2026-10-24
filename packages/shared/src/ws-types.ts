@@ -182,6 +182,8 @@ export interface TownMoveMessage extends WsMessageBase {
   x: number;
   y: number;
   dir: number;
+  /** Running (Space held) — others draw faster legs. */
+  sprint?: boolean;
 }
 
 export interface TownChatMessage extends WsMessageBase {
@@ -453,6 +455,7 @@ export interface TownPeer {
   x: number;
   y: number;
   dir: number;
+  sprint?: boolean;
 }
 
 export interface TownStateEvent extends WsMessageBase {

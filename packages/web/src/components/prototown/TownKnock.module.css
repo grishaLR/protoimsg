@@ -146,3 +146,8 @@
     min-block-size: calc(var(--cm-space-16) + var(--cm-space-6));
   }
 }
+
+/* Focused programmatically so Escape and Tab work; no ring for the box itself. */
+.prompt:focus {
+  outline: none;
+}

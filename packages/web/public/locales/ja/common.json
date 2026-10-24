@@ -132,7 +132,7 @@
   },
   "town": {
     "hud": {
-      "controls": "WASD / arrows to move"
+      "controls": "WASD / 矢印キーで移動 · スペースでダッシュ"
     },
     "chat": {
       "placeholder": "Say something to the town…",

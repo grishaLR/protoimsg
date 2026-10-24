@@ -132,7 +132,7 @@
   },
   "town": {
     "hud": {
-      "controls": "WASD / arrows to move"
+      "controls": "WASD / phím mũi tên để đi · Space để chạy"
     },
     "chat": {
       "placeholder": "Say something to the town…",

@@ -19,7 +19,11 @@ import type {
   TownSceneKind,
 } from '@protoimsg/shared';
 import { useAuth } from '../../hooks/useAuth';
-import { getCachedVisibility } from '../../hooks/usePresence';
+import {
+  effectiveVisibility,
+  getCurrentStatus,
+  setTownVisibilityCap,
+} from '../../lib/presence-state';
 import { useWebSocket } from '../../contexts/WebSocketContext';
 import { WorldEngine, type SignId } from '../../town/WorldEngine';
 import { useProfiles } from '../../contexts/ProfileContext';
@@ -38,15 +42,15 @@ const SCENE_VISIBILITY: Record<TownSceneKind, PresenceVisibility> = {
   square: 'everyone',
 };
 
-// Most open first. You're shown to whichever of your own setting or the scene
-// is narrower — walking into the square never overrides "invisible".
-const VISIBILITY_ORDER: PresenceVisibility[] = ['everyone', 'community', 'inner-circle', 'no-one'];
-
+/**
+ * Where you stand caps who sees you online; your own narrower setting still
+ * wins ("invisible" stays invisible). Sets the shared cap — so the buddy list
+ * and status menu respect it too — and returns what to send.
+ */
 function sceneVisibility(kind: TownSceneKind, fof: boolean): PresenceVisibility {
-  const own = getCachedVisibility();
   // Friends-of-friends narrows the square; buddy-list presence follows suit.
-  const scene = kind === 'square' && fof ? 'community' : SCENE_VISIBILITY[kind];
-  return VISIBILITY_ORDER.indexOf(own) > VISIBILITY_ORDER.indexOf(scene) ? own : scene;
+  setTownVisibilityCap(kind === 'square' && fof ? 'community' : SCENE_VISIBILITY[kind]);
+  return effectiveVisibility();
 }
 
 // Matches --cm-duration-slower: the fade covers the swap before we ask to enter.
@@ -260,6 +264,11 @@ export function ProtoTownPanel() {
   const [revealed, setRevealed] = useState<Set<string>>(() => new Set());
   // Screen-reader announcement on voice transitions only, not every roster tick.
   const [announcement, setAnnouncement] = useState('');
+  // A repeated message (same door, same signpost) must still be read out:
+  // alternate a zero-width space so the live region always changes.
+  const announce = useCallback((text: string) => {
+    setAnnouncement((prev) => (prev === text ? `${text}\u200b` : text));
+  }, []);
   const prevNearbyRef = useRef(0);
   const tRef = useRef(t);
   tRef.current = t;
@@ -407,7 +416,7 @@ export function ProtoTownPanel() {
     }
     sendRef.current({
       type: 'status_change',
-      status: 'online',
+      ...getCurrentStatus(),
       visibleTo: sceneVisibility(next.kind, fofRef.current),
     });
   }, []);
@@ -427,6 +436,9 @@ export function ProtoTownPanel() {
     const home: TownScene = { kind: 'home', owner: did };
     sceneRef.current = home;
     setScene(home);
+    // Capped from the first moment — before the socket or engine is ready, so
+    // a buddy-list resend can't widen it in between.
+    setTownVisibilityCap(SCENE_VISIBILITY.home);
 
     const voice = new ProximityVoice(audioHost, did, readMicPref());
     voiceRef.current = voice;
@@ -468,11 +480,11 @@ export function ProtoTownPanel() {
     window.addEventListener('keydown', unlockAudio);
     window.addEventListener('pointerdown', unlockAudio);
 
-    engine.onMove = (x, y, dir) => {
+    engine.onMove = (x, y, dir, sprint) => {
       // Not mid-doorway either: a move landing after the server has switched
       // scenes would place us in the new scene at the old coordinates.
       if (sceneConfirmedRef.current && !transitioningRef.current) {
-        sendRef.current({ type: 'town_move', x, y, dir });
+        sendRef.current({ type: 'town_move', x, y, dir, ...(sprint ? { sprint } : {}) });
       }
       // Walked away from the door without knocking: put the prompt away.
       const at = promptAtRef.current;
@@ -496,6 +508,9 @@ export function ProtoTownPanel() {
         if (canKnockRef.current) {
           const p = engine.getPosition();
           promptAtRef.current = { x: p.x, y: p.y };
+          if (!knockPromptRef.current) {
+            announce(tRef.current('town.knock.prompt', { name: nameOfRef.current(from.owner) }));
+          }
           setKnockPrompt((k) => k ?? { owner: from.owner, knocking: false });
         } else {
           setNoticeOwner(from.owner);
@@ -510,7 +525,10 @@ export function ProtoTownPanel() {
       }
       startTransition(target);
     };
-    engine.onSignpost = setSignpostOpen;
+    engine.onSignpost = (on) => {
+      setSignpostOpen(on);
+      if (on) announce(tRef.current('town.signpost.title'));
+    };
     void engine.init(container, did, home.kind).then(() => {
       if (engineRef.current === engine) setEngineEpoch((e) => e + 1);
     });
@@ -544,11 +562,12 @@ export function ProtoTownPanel() {
       setRevealed(new Set());
       setMicError(false);
       sendRef.current({ type: 'town_leave' });
-      // Leaving town: restore the visibility the user set outside of it.
+      // Leaving town: lift the cap and restore your own setting.
+      setTownVisibilityCap(null);
       sendRef.current({
         type: 'status_change',
-        status: 'online',
-        visibleTo: getCachedVisibility(),
+        ...getCurrentStatus(),
+        visibleTo: effectiveVisibility(),
       });
       engineRef.current = null;
       engine.destroy();
@@ -585,7 +604,7 @@ export function ProtoTownPanel() {
     setAsking(false);
     send({
       type: 'status_change',
-      status: 'online',
+      ...getCurrentStatus(),
       visibleTo: sceneVisibility(current.kind, fofRef.current),
     });
     sceneConfirmedRef.current = false;
@@ -677,7 +696,7 @@ export function ProtoTownPanel() {
             msg.data.again ? 'town.knock.atDoorAgain' : 'town.knock.atDoor',
             { name: nameOfRef.current(msg.data.from) },
           );
-          setAnnouncement(atDoor);
+          announce(atDoor);
           setKnocks((ks) =>
             ks.some((k) => k.id === msg.data.knockId)
               ? ks
@@ -713,7 +732,7 @@ export function ProtoTownPanel() {
           playImNotify();
           // It's from someone you can't see, so their profile is rarely
           // loaded yet: don't announce a truncated id.
-          setAnnouncement(
+          announce(
             getProfileRef.current(msg.data.from)
               ? tRef.current('town.join.request', { name: nameOfRef.current(msg.data.from) })
               : tRef.current('town.join.requestSomeone'),
@@ -738,7 +757,7 @@ export function ProtoTownPanel() {
           setAsking(false);
           setJoinAnswered(true);
           if (msg.data.outcome === 'accepted') {
-            setAnnouncement(tRef.current('town.join.accepted'));
+            announce(tRef.current('town.join.accepted'));
           } else setSceneError('noAnswer');
           break;
         case 'town_knock_end':
@@ -799,9 +818,9 @@ export function ProtoTownPanel() {
   useEffect(() => {
     const prev = prevNearbyRef.current;
     prevNearbyRef.current = nearbyCount;
-    if (prev === 0 && nearbyCount > 0) setAnnouncement(t('town.voice.announceJoined'));
+    if (prev === 0 && nearbyCount > 0) announce(t('town.voice.announceJoined'));
     else if (prev > 0 && nearbyCount === 0) {
-      setAnnouncement(t('town.voice.announceEnded'));
+      announce(t('town.voice.announceEnded'));
       // New conversation, fresh consent: hide everyone's video again.
       setRevealed(new Set());
     }
@@ -815,7 +834,7 @@ export function ProtoTownPanel() {
         : cameraEvent === 'joined'
           ? 'town.voice.camAutoOff'
           : 'town.voice.camOffAnnounce';
-    setAnnouncement(t(key));
+    announce(t(key));
     if (cameraEvent !== 'joined') return;
     // Keep the visible "someone joined" notice up briefly.
     const timer = setTimeout(() => {
@@ -877,17 +896,17 @@ export function ProtoTownPanel() {
     if (sceneRef.current) {
       send({
         type: 'status_change',
-        status: 'online',
+        ...getCurrentStatus(),
         visibleTo: sceneVisibility(sceneRef.current.kind, next),
       });
     }
-    setAnnouncement(t(next ? 'town.fof.announceOn' : 'town.fof.announceOff'));
+    announce(t(next ? 'town.fof.announceOn' : 'town.fof.announceOff'));
   }, [fof, send, t]);
 
   const knock = useCallback(() => {
     send({ type: 'town_knock' });
     setKnockPrompt((k) => k && { ...k, knocking: true });
-    setAnnouncement(t('town.knock.knocking'));
+    announce(t('town.knock.knocking'));
   }, [send, t]);
 
   // Safety net: if the answer never arrives (it's sent after TOWN_KNOCK_MS),
@@ -932,7 +951,7 @@ export function ProtoTownPanel() {
     if (asking) return; // aria-disabled, not disabled: focus stays put
     send({ type: 'town_join_ask' });
     setAsking(true);
-    setAnnouncement(t('town.join.asking'));
+    announce(t('town.join.asking'));
   }, [asking, send, t]);
 
   // Safety net: the answer comes within TOWN_JOIN_ASK_MS; don't spin forever.
