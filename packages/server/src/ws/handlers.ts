@@ -88,7 +88,11 @@ export async function handleClientMessage(
 
   switch (data.type) {
     case 'status_change': {
-      const visibleTo = data.visibleTo as PresenceVisibility | undefined;
+      // Where you stand in proto town caps who sees you online, whatever any
+      // of your tabs asks for (the server knows every socket's scene).
+      const requested =
+        (data.visibleTo as PresenceVisibility | undefined) ?? (await service.getVisibleTo(did));
+      const visibleTo = townRoom.capVisibility(did, requested);
       await service.handleStatusChange(did, data.status, data.awayMessage, visibleTo);
       // Town: whether this person's window glows follows the same setting.
       townRoom.setVisibility(did, visibleTo);

@@ -230,7 +230,12 @@ describe('TownRoom views (scene privacy, area of interest, batching)', () => {
     upsert: Array<{ did: string; x: number; y: number; dir: number }>;
     remove: string[];
   };
-  type State = { scene: string; self: { x: number; y: number }; peers: Array<{ did: string }> };
+  type State = {
+    scene: string;
+    self: { x: number; y: number };
+    peers: Array<{ did: string }>;
+    reason?: string;
+  };
   const views = (s: FakeWs) => sent(s, 'town_view').map((m) => m.data as View);
   const upserted = (s: FakeWs) => views(s).flatMap((v) => v.upsert.map((p) => p.did));
   const removed = (s: FakeWs) => views(s).flatMap((v) => v.remove);
@@ -337,13 +342,12 @@ describe('TownRoom views (scene privacy, area of interest, batching)', () => {
     expect(sent(a, 'town_chat')).toHaveLength(0);
   });
 
-  it('a refused first join sends no state, and the socket can do nothing', () => {
+  it('a refused (re)join lands you at home and says why, never nowhere', () => {
     const a = fakeWs();
     const b = fakeWs();
     town.join(a.ws, A, SQ, NEAR_X, NEAR_Y, 0);
     town.join(b.ws, B, `neighborhood:${A}`, NEAR_X, NEAR_Y, 0);
-    expect(sent(b, 'town_state')).toHaveLength(0);
-    town.move(b.ws, NEAR_X + 10, NEAR_Y, 0);
+    expect(lastState(b)).toMatchObject({ scene: homeOf(B), reason: 'removed' });
     town.chat(b.ws, 'hi');
     tick();
     expect(upserted(a)).not.toContain(B);
@@ -540,8 +544,8 @@ describe('TownRoom with relationships (visiting, mutuals, gates, friends of frie
     await enter(b, B, nbhd(A));
     await enter(d, D, nbhd(A));
     expect(lastState(b)?.scene).toBe(nbhd(A));
-    expect(sent(d, 'town_denied')).toHaveLength(1);
-    expect(sent(d, 'town_state')).toHaveLength(0);
+    // Not on the list: a first join lands you at home instead.
+    expect(lastState(d)).toMatchObject({ scene: `home:${D}`, reason: 'removed' });
   });
 
   it('in a neighborhood you see the owner and your mutuals, nobody else', async () => {
@@ -657,7 +661,7 @@ describe('TownRoom with relationships (visiting, mutuals, gates, friends of frie
     await enter(b, B, nbhd(A));
     expect(lastState(b)?.scene).toBe(nbhd(A));
     await enter(c, C, nbhd(A));
-    expect(sent(c, 'town_denied')).toHaveLength(1);
+    expect(lastState(c)).toMatchObject({ scene: `home:${C}`, reason: 'removed' });
   });
 
   it("orders gates mutuals first, then by name — never by who's online", async () => {
@@ -1133,5 +1137,48 @@ describe('TownRoom with relationships (visiting, mutuals, gates, friends of frie
     vi.advanceTimersByTime(150);
     const last = sent(a, 'town_view').at(-1)?.data as { upsert: Array<{ sprint?: boolean }> };
     expect(last.upsert[0]?.sprint).toBe(true);
+  });
+
+  describe('presence follows where you stand', () => {
+    it('caps who sees you online by your most private scene, across tabs', async () => {
+      const a1 = fakeWs();
+      const a2 = fakeWs();
+      expect(town.capVisibility(A, 'everyone')).toBe('everyone'); // not in town
+      await enter(a1, A, 'square');
+      expect(town.capVisibility(A, 'everyone')).toBe('everyone');
+      await enter(a2, A, `home:${A}`);
+      // Any tab re-sending "everyone" is still held to the home tab's cap.
+      expect(town.capVisibility(A, 'everyone')).toBe('inner-circle');
+      expect(town.capVisibility(A, 'no-one')).toBe('no-one'); // never widens
+      town.leave(a2.ws);
+      town.setFof(a1.ws, true);
+      expect(town.capVisibility(A, 'everyone')).toBe('community');
+    });
+
+    it("waits for an offline owner's block list before refusing a rejoin", async () => {
+      blocks = new BlockService();
+      for (const d of [B, C, D]) blocks.sync(d, []); // A (the owner) is offline
+      let release: () => void = () => {};
+      const loaded = new Promise<void>((r) => {
+        release = r;
+      });
+      let known = false;
+      const ownerBlocks = {
+        blocks: () => (known ? false : null),
+        prefetch: () => {},
+        ensure: vi.fn(async () => {
+          await loaded;
+          known = true;
+        }),
+      };
+      town.dispose();
+      town = new TownRoom(blocks, null, graph, ownerBlocks);
+      const b = fakeWs();
+      const entering = town.enter(b.ws, B, nbhd(A), 300, 300, 0);
+      expect(ownerBlocks.ensure).toHaveBeenCalledWith(A);
+      release();
+      await entering;
+      expect(lastState(b)?.scene).toBe(nbhd(A)); // not bounced home
+    });
   });
 });

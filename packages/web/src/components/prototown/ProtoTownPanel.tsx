@@ -612,14 +612,14 @@ export function ProtoTownPanel() {
       const e = engineRef.current;
       if (!e) return;
       if (msg.type === 'town_denied' && !sceneConfirmedRef.current) {
-        // The scene we rejoined won't have us any more: go home instead.
+        // The scene we rejoined won't have us any more (an older server says
+        // so with a bare refusal): go home, and mark it as where we're
+        // heading so its town_state is adopted rather than "corrected".
         const p = e.getPosition();
         if (didRef.current) {
-          send({
-            type: 'town_join',
-            scene: townSceneId({ kind: 'home', owner: didRef.current }),
-            ...p,
-          });
+          const home = townSceneId({ kind: 'home', owner: didRef.current });
+          pendingSceneRef.current = home;
+          send({ type: 'town_join', scene: home, ...p });
         }
         return;
       }
@@ -668,6 +668,7 @@ export function ProtoTownPanel() {
             arriveIn(next);
             e.enterScene(next.kind, msg.data.self);
             endTransition();
+            pendingSceneRef.current = null;
           } else if (!cur || msg.data.scene !== townSceneId(cur)) {
             // A late answer for a door we already gave up on — snap the
             // server back to where we really are.

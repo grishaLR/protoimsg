@@ -19,6 +19,8 @@ export interface OwnerBlocks {
   blocks(owner: string, did: string): boolean | null;
   /** Start loading these owners' block lists (no-op for fresh entries). */
   prefetch(owners: Iterable<string>): void;
+  /** Load one owner's list now, waiting at most a moment for it. */
+  ensure?(owner: string): Promise<void>;
   /** A list finished loading — callers re-check gates and access. */
   onLoaded?: () => void;
 }
@@ -37,12 +39,16 @@ const MAX_CACHED = 5000;
 // A user on hundreds of community lists shouldn't trigger hundreds of PDS
 // reads at once; the rest load as their gates come into play.
 const MAX_PREFETCH = 64;
+// How long a join waits for an owner's list before going ahead (closed).
+const ENSURE_WAIT_MS = 3000;
 
 export class CachedOwnerBlocks implements OwnerBlocks {
   private cache = new Map<string, Cached>();
   private queue: string[] = [];
   private queued = new Set<string>();
   private running = 0;
+  /** Joins waiting on an owner's list. */
+  private waiters = new Map<string, Array<() => void>>();
   onLoaded?: () => void;
 
   constructor(private fetchList: BlockListFetcher = fetchPublicBlockList) {}
@@ -66,6 +72,26 @@ export class CachedOwnerBlocks implements OwnerBlocks {
       added++;
     }
     this.pump();
+  }
+
+  ensure(owner: string): Promise<void> {
+    if (this.cache.get(owner)?.blocked) return Promise.resolve();
+    return new Promise((resolve) => {
+      const timer = setTimeout(resolve, ENSURE_WAIT_MS);
+      const done = (): void => {
+        clearTimeout(timer);
+        resolve();
+      };
+      const list = this.waiters.get(owner);
+      if (list) list.push(done);
+      else this.waiters.set(owner, [done]);
+      // Jump the queue: someone is standing at this gate.
+      if (!this.queued.has(owner)) {
+        this.queued.add(owner);
+        this.queue.unshift(owner);
+      }
+      this.pump();
+    });
   }
 
   private pump(): void {
@@ -93,6 +119,8 @@ export class CachedOwnerBlocks implements OwnerBlocks {
             if (oldest !== undefined) this.cache.delete(oldest);
           }
           this.onLoaded?.();
+          for (const done of this.waiters.get(owner) ?? []) done();
+          this.waiters.delete(owner);
         })
         .finally(() => {
           this.queued.delete(owner);

@@ -35,4 +35,26 @@ describe('CachedOwnerBlocks', () => {
     await flush();
     expect(fetchList).toHaveBeenCalledTimes(1);
   });
+
+  it('ensure waits for one owner, and gives up after a moment', async () => {
+    let finish: (s: Set<string>) => void = () => {};
+    const blocks = new CachedOwnerBlocks(
+      () =>
+        new Promise((r) => {
+          finish = r;
+        }),
+    );
+    const waiting = blocks.ensure(O);
+    finish(new Set([V]));
+    await waiting;
+    expect(blocks.blocks(O, V)).toBe(true);
+
+    vi.useFakeTimers();
+    const never = new CachedOwnerBlocks(() => new Promise(() => {}));
+    const gaveUp = never.ensure(O);
+    await vi.advanceTimersByTimeAsync(3000);
+    await gaveUp;
+    expect(never.blocks(O, V)).toBeNull();
+    vi.useRealTimers();
+  });
 });

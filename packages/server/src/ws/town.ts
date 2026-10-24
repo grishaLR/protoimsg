@@ -187,6 +187,9 @@ interface Knock {
 // Bounds the signpost list (and the message carrying it).
 const MAX_MORE_GATES = 100;
 
+// Most open first.
+const VISIBILITY_ORDER: PresenceVisibility[] = ['everyone', 'community', 'inner-circle', 'no-one'];
+
 function didPair(a: string, b: string): string {
   return a < b ? `${a}|${b}` : `${b}|${a}`;
 }
@@ -299,6 +302,19 @@ export class TownRoom {
     fof?: boolean,
   ): Promise<void> {
     const existing = this.members.get(ws);
+    // Rejoining an offline owner's neighborhood: give their block list a
+    // moment to load, so a reconnect isn't bounced home just because we
+    // didn't know yet.
+    const target = sceneId ? parseTownSceneId(sceneId) : null;
+    if (
+      target?.kind === 'neighborhood' &&
+      target.owner !== did &&
+      !this.blockService.hasSynced(target.owner) &&
+      this.ownerBlockLists.blocks(target.owner, did) === null
+    ) {
+      await this.ownerBlockLists.ensure?.(target.owner);
+      if (this.disposed || ws.readyState !== ws.OPEN) return;
+    }
     // Load relationships on the first join — and retry on later joins if an
     // earlier load failed (until then the socket has no gates or mutuals).
     let acquired = false;
@@ -351,6 +367,14 @@ export class TownRoom {
       return;
     }
     if (!scene || !this.admits(did, scene)) {
+      if (!this.members.has(ws)) {
+        // A (re)joining socket isn't anywhere yet: rather than leave its
+        // client guessing, send it home and say why — the client follows a
+        // server move, so the two never disagree about where you are.
+        const home: TownScene = { kind: 'home', owner: did };
+        this.place(ws, did, home, townArrival('home', null), 'removed', fof);
+        return;
+      }
       this.sendTo(ws, { type: 'town_denied', data: { scene: sceneId ?? '' } });
       return;
     }
@@ -892,6 +916,27 @@ export class TownRoom {
   }
 
   // ── The lit window ────────────────────────────────────────────────────
+
+  /**
+   * Narrow `visibleTo` by where `did` stands in town: home → inner circle,
+   * a neighborhood → community, the square with friends-of-friends on →
+   * community. Across all their sockets the most private wins — so another
+   * tab (or a reconnect) re-sending a wider setting can't undo it.
+   */
+  capVisibility(did: string, visibleTo: PresenceVisibility): PresenceVisibility {
+    let v = visibleTo;
+    for (const m of this.members.values()) {
+      if (m.did !== did) continue;
+      const cap: PresenceVisibility =
+        m.kind === 'home'
+          ? 'inner-circle'
+          : m.kind === 'neighborhood' || this.fofDids.has(did)
+            ? 'community'
+            : 'everyone';
+      if (VISIBILITY_ORDER.indexOf(cap) > VISIBILITY_ORDER.indexOf(v)) v = cap;
+    }
+    return v;
+  }
 
   /** `did` changed who may see them online (their window may need updating). */
   setVisibility(did: string, visibleTo: PresenceVisibility | undefined): void {
