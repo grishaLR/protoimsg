@@ -20,10 +20,10 @@
     "codegen:check": "pnpm codegen && prettier --write 'generated/**/*.ts' && node -e \"const { execSync } = require('child_process'); const path = require('path'); const root = path.resolve(process.cwd(), '../..'); try { execSync('git diff --exit-code -- packages/lexicon/generated', { cwd: root }); } catch (e) { console.error('Generated lexicon files changed. Commit them after schema changes.'); process.exit(1); }\""
   },
   "devDependencies": {
-    "@atproto/lex-cli": "^0.5.0",
+    "@atproto/lex-cli": "^0.10.1",
     "typescript": "^5.7.3"
   },
   "dependencies": {
-    "@atproto/lexicon": "^0.6.1"
+    "@atproto/lexicon": "^0.7.2"
   }
 }
