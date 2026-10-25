@@ -21,13 +21,38 @@ export async function upsertCommunityList(
   `;
 }
 
+// Tail of the pending member syncs per owner DID. Queuing in-process means a burst of syncs for
+// one user (many tabs, reconnect storms) waits here instead of each holding a pool connection
+// while blocked on the advisory lock below.
+const memberSyncQueues = new Map<string, Promise<void>>();
+
 export async function syncCommunityMembers(
+  sql: Sql,
+  ownerDid: string,
+  members: Array<{ did: string; addedAt: string }>,
+): Promise<void> {
+  const prev = memberSyncQueues.get(ownerDid) ?? Promise.resolve();
+  const run = prev.then(() => replaceCommunityMembers(sql, ownerDid, members));
+  const tail = run.catch(() => undefined);
+  memberSyncQueues.set(ownerDid, tail);
+  try {
+    await run;
+  } finally {
+    if (memberSyncQueues.get(ownerDid) === tail) memberSyncQueues.delete(ownerDid);
+  }
+}
+
+async function replaceCommunityMembers(
   sql: Sql,
   ownerDid: string,
   members: Array<{ did: string; addedAt: string }>,
 ): Promise<void> {
   /* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-call -- postgres.js TransactionSql type loses tagged template call signature via Omit */
   await sql.begin(async (tx: any) => {
+    // Serialize syncs per owner across machines — the WS sync_community handler and the Jetstream
+    // consumer can sync the same list concurrently, and the second DELETE can't see rows the
+    // first just inserted, so its INSERT hits the primary key. Released at commit/rollback.
+    await tx`SELECT pg_advisory_xact_lock(hashtext(${'community_members:' + ownerDid}))`;
     await tx`DELETE FROM community_members WHERE owner_did = ${ownerDid}`;
 
     if (members.length > 0) {
