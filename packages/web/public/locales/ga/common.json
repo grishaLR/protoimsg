@@ -165,7 +165,20 @@
       "videoTitle": "Físeán · {{count}}",
       "collapseVideo": "Íoslaghdaigh",
       "expandVideo": "Taispeáin",
-      "videoPaused": "Físeán ar sos · nasc lag"
+      "videoPaused": "Físeán ar sos · nasc lag",
+      "join": "Téigh isteach san fhuaim",
+      "joinHint": "Cuireann sé do mhicreafón ar siúl agus cloiseann tú daoine nuair a shiúlann tú chucu. Cliceáil amháin — fanann sé ar siúl agus tú ag bogadh timpeall an bhaile.",
+      "leave": "Fág an fhuaim",
+      "reconnect": "Athcheangail an guth",
+      "status": {
+        "off": "Fuaim múchta",
+        "connecting": "Ag ceangal na fuaime…",
+        "connected": "Fuaim ar siúl",
+        "reconnecting": "Ag athcheangal…",
+        "failed": "Níorbh fhéidir an fhuaim a cheangal"
+      },
+      "stay": "Fanacht le chéile",
+      "stayHint": "Fan ceangailte le daoine anseo a roghnaigh fanacht freisin, fiú má shiúlann sibh óna chéile"
     },
     "scenes": {
       "home": {
@@ -351,6 +364,26 @@
         "body": "Sábháiltear do dhearadh i do chuntas féin, áit ar féidir le duine ar bith é a fheiceáil, cosúil le do phostálacha. Teastaíonn cead amháin eile chuige sin. Deimhneoidh tú é le do chuntas agus beidh tú ar ais láithreach.",
         "allow": "Lean ar aghaidh",
         "notNow": "Ní anois"
+      }
+    },
+    "sprite": {
+      "borrowed": "Faoi láthair tá sprite réamhshocraithe ar iasacht ag do charachtar.",
+      "create": "Déan do cheann féin ar rpg.actor agus beidh sé le feiceáil anseo!",
+      "dismiss": "Dún"
+    },
+    "credits": {
+      "heading": "Creidiúintí",
+      "openpixels": {
+        "name": "OpenPixels",
+        "detail": "tíleanna le Silveira Neto (CC BY-SA 4.0)"
+      },
+      "townPack": {
+        "name": "Town RPG Pack",
+        "detail": "ealaín le Luis Zuno (@ansimuz), CC0"
+      },
+      "rpgActor": {
+        "name": "rpg.actor",
+        "detail": "sprites carachtar"
       }
     }
   }

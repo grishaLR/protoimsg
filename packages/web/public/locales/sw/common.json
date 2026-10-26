@@ -163,7 +163,20 @@
       "videoTitle": "Video · {{count}}",
       "collapseVideo": "Punguza",
       "expandVideo": "Onyesha",
-      "videoPaused": "Video imesitishwa · muunganisho dhaifu"
+      "videoPaused": "Video imesitishwa · muunganisho dhaifu",
+      "join": "Jiunge na sauti",
+      "joinHint": "Huwasha maikrofoni yako na kukuwezesha kusikia watu unapowakaribia. Bofya mara moja — inabaki imewashwa unapozunguka mjini.",
+      "leave": "Ondoka kwenye sauti",
+      "reconnect": "Unganisha sauti tena",
+      "status": {
+        "off": "Sauti imezimwa",
+        "connecting": "Inaunganisha sauti…",
+        "connected": "Sauti imewashwa",
+        "reconnecting": "Inaunganisha tena…",
+        "failed": "Imeshindwa kuunganisha sauti"
+      },
+      "stay": "Kubaki pamoja",
+      "stayHint": "Endelea kuunganishwa na watu hapa waliochagua kubaki pia, hata mkitengana"
     },
     "scenes": {
       "home": {
@@ -349,6 +362,26 @@
         "body": "Mpangilio wako unahifadhiwa kwenye akaunti yako mwenyewe, ambapo mtu yeyote anaweza kuuona, kama machapisho yako. Hilo linahitaji ruhusa moja zaidi. Utaithibitisha kwa akaunti yako na kurudi hapa mara moja.",
         "allow": "Endelea",
         "notNow": "Si sasa"
+      }
+    },
+    "sprite": {
+      "borrowed": "Kwa sasa unaazima sprite ya kawaida kwa mhusika wako.",
+      "create": "Tengeneza yako kwenye rpg.actor na itaonekana hapa!",
+      "dismiss": "Funga"
+    },
+    "credits": {
+      "heading": "Shukrani",
+      "openpixels": {
+        "name": "OpenPixels",
+        "detail": "vigae vya Silveira Neto (CC BY-SA 4.0)"
+      },
+      "townPack": {
+        "name": "Town RPG Pack",
+        "detail": "sanaa ya Luis Zuno (@ansimuz), CC0"
+      },
+      "rpgActor": {
+        "name": "rpg.actor",
+        "detail": "sprites za wahusika"
       }
     }
   }

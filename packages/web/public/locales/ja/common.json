@@ -165,7 +165,20 @@
       "videoTitle": "ビデオ · {{count}}",
       "collapseVideo": "最小化",
       "expandVideo": "表示",
-      "videoPaused": "ビデオ一時停止 · 接続が不安定"
+      "videoPaused": "ビデオ一時停止 · 接続が不安定",
+      "join": "音声に参加",
+      "joinHint": "マイクをオンにして、近づいた人の声が聞こえるようにします。クリックは一度だけ — 町を歩き回ってもオンのままです。",
+      "leave": "音声から退出",
+      "reconnect": "音声を再接続",
+      "status": {
+        "off": "音声オフ",
+        "connecting": "音声に接続中…",
+        "connected": "音声オン",
+        "reconnecting": "再接続中…",
+        "failed": "音声に接続できませんでした"
+      },
+      "stay": "一緒にいる",
+      "stayHint": "離れても、ここで同じく「一緒にいる」を選んだ人とつながったままにします"
     },
     "scenes": {
       "home": {
@@ -351,6 +364,26 @@
         "body": "デザインはあなた自身のアカウントに保存され、投稿と同じように誰でも見ることができます。そのためにもう1つ許可が必要です。アカウントで確認したら、すぐにここに戻ってきます。",
         "allow": "続ける",
         "notNow": "今はしない"
+      }
+    },
+    "sprite": {
+      "borrowed": "今はキャラクターにデフォルトのスプライトを借りています。",
+      "create": "rpg.actor で自分のスプライトを作ると、ここに表示されます！",
+      "dismiss": "閉じる"
+    },
+    "credits": {
+      "heading": "クレジット",
+      "openpixels": {
+        "name": "OpenPixels",
+        "detail": "タイル：Silveira Neto（CC BY-SA 4.0）"
+      },
+      "townPack": {
+        "name": "Town RPG Pack",
+        "detail": "アート：Luis Zuno（@ansimuz）、CC0"
+      },
+      "rpgActor": {
+        "name": "rpg.actor",
+        "detail": "キャラクタースプライト"
       }
     }
   }

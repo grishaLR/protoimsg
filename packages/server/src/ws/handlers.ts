@@ -806,7 +806,10 @@ export async function handleClientMessage(
     }
 
     case 'town_join': {
-      await townRoom.enter(ws, did, data.scene, data.x, data.y, data.dir, data.fof);
+      // No `voice` (e.g. walking through a door): keep what the socket had.
+      const voiceJoin =
+        data.voice === undefined ? undefined : { on: data.voice, pid: data.voicePid };
+      await townRoom.enter(ws, did, data.scene, data.x, data.y, data.dir, data.fof, voiceJoin);
       break;
     }
 
@@ -862,6 +865,16 @@ export async function handleClientMessage(
 
     case 'town_voice_refresh': {
       townRoom.refreshVoice(ws);
+      break;
+    }
+
+    case 'town_voice_join': {
+      townRoom.setVoiceWanted(ws, data.on);
+      break;
+    }
+
+    case 'town_stay': {
+      townRoom.setStay(ws, data.on);
       break;
     }
 

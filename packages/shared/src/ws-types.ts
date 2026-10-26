@@ -173,6 +173,14 @@ export interface TownJoinMessage extends WsMessageBase {
   scene?: string;
   /** Friends-of-friends mode, applied before your first view is built. */
   fof?: boolean;
+  /** You've joined audio: put this socket in the scene's voice room. */
+  voice?: boolean;
+  /**
+   * Reconnecting: the voice identity you still hold (`town_voice_room`
+   * selfPid). Resumed if it's yours and still parked, so the voice
+   * connection carries on instead of rebuilding.
+   */
+  voicePid?: string;
   x: number;
   y: number;
   dir: number;
@@ -261,6 +269,22 @@ export interface TownVoiceRefreshMessage extends WsMessageBase {
   type: 'town_voice_refresh';
 }
 
+/** Join or leave audio (the scene's voice room) for this socket. */
+export interface TownVoiceJoinMessage extends WsMessageBase {
+  type: 'town_voice_join';
+  on: boolean;
+}
+
+/**
+ * "Stay together": while on, your links to the people in your current
+ * conversation who also chose to stay hold at any distance in the scene.
+ * Resets when the conversation ends.
+ */
+export interface TownStayMessage extends WsMessageBase {
+  type: 'town_stay';
+  on: boolean;
+}
+
 export type ClientMessage =
   | AuthMessage
   | StatusChangeMessage
@@ -291,6 +315,8 @@ export type ClientMessage =
   | TownChatMessage
   | TownLeaveMessage
   | TownVoiceRefreshMessage
+  | TownVoiceJoinMessage
+  | TownStayMessage
   | TownFofMessage
   | TownKnockMessage
   | TownKnockAnswerMessage
@@ -628,28 +654,47 @@ export interface TownChatEvent extends WsMessageBase {
   data: { did: string; text: string };
 }
 
-/** One avatar in your proximity cluster, with its anonymous LiveKit identity. */
+/** One avatar in your conversation, with its anonymous LiveKit identity. */
 export interface TownVoiceMember {
   did: string;
-  /** LiveKit participant identity (random, carries no DID). */
+  /**
+   * LiveKit participant identity in the scene's voice room (random, carries
+   * no DID) — empty when they haven't joined audio.
+   */
   pid: string;
+  /** They chose "stay together". */
+  stay?: boolean;
 }
 
 /**
- * Your proximity voice assignment. `room` is null when nobody is near you.
- * A same `roomId` + `selfPid` while connected is a roster refresh; anything
- * else means (re)connect with `token`. Clients must only grant track
- * subscriptions to `members` — the server reconciles stragglers out.
+ * Your scene voice connection: one LiveKit room per scene, joined once when
+ * you join audio or walk in, left when you walk out. A same `room` +
+ * `selfPid` while connected needs nothing; anything else means (re)connect
+ * with `token`. Null: leave the voice room.
  */
-export interface TownProximityEvent extends WsMessageBase {
-  type: 'town_proximity';
+export interface TownVoiceRoomEvent extends WsMessageBase {
+  type: 'town_voice_room';
   data: {
-    room: {
-      roomId: string;
+    voice: {
+      room: string;
       url: string;
       token: string;
       /** Your own LiveKit identity in this room. */
       selfPid: string;
+    } | null;
+  };
+}
+
+/**
+ * Your conversation — who you may hear and be heard by right now. Null when
+ * nobody is near you. Clients must grant (and request) track subscriptions to
+ * `members` only; the voice room itself is shared by the whole scene.
+ */
+export interface TownProximityEvent extends WsMessageBase {
+  type: 'town_proximity';
+  data: {
+    conversation: {
+      id: string;
       members: TownVoiceMember[];
     } | null;
   };
@@ -681,6 +726,7 @@ export type ServerMessage =
   | TownPeerLeaveEvent
   | TownChatEvent
   | TownProximityEvent
+  | TownVoiceRoomEvent
   | TownDeniedEvent
   | TownGatesEvent
   | TownKnockRequestEvent

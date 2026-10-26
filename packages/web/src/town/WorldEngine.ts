@@ -154,6 +154,17 @@ function spriteUrl(did: string): string {
   return `${RPG_ACTOR_API_URL}/api/sprite/normalized?did=${encodeURIComponent(did)}`;
 }
 
+/** rpg.actor confirms this DID has no sprite (as opposed to being unreachable). */
+async function spriteMissing(did: string): Promise<boolean> {
+  try {
+    // GET, not HEAD: only called after the image failed, so the body is an error.
+    const res = await fetch(spriteUrl(did));
+    return res.status === 404;
+  } catch {
+    return false;
+  }
+}
+
 function loadImage(src: string): Promise<HTMLImageElement> {
   return new Promise((resolve, reject) => {
     const img = new Image();
@@ -319,6 +330,8 @@ export class WorldEngine {
 
   /** Called (throttled) when the local player moves (or starts/stops running). */
   onMove?: (x: number, y: number, dir: number, sprint: boolean) => void;
+  /** Your own sprite loaded: `borrowed` when you have no rpg.actor sprite yet. */
+  onOwnSprite?: (borrowed: boolean) => void;
 
   /** Called when the local player steps onto a doorway into another scene. */
   onDoorway?: (door: TownDoorway) => void;
@@ -1198,10 +1211,17 @@ export class WorldEngine {
   /** Load a DID's rpg.actor sprite + display name onto an avatar. */
   private async dressAvatar(avatar: Avatar, did: string): Promise<void> {
     let img: HTMLImageElement | null = null;
+    let borrowed = false;
     try {
       img = await loadImage(spriteUrl(did));
     } catch {
+      borrowed = true;
       img = await loadImage(spriteUrl(GAME_MASTER_DID)).catch(() => null);
+    }
+    if (did === this.selfDid && avatar === this.player) {
+      // Only a confirmed "no sprite" (404) — not a network blip or outage.
+      const missing = borrowed && (await spriteMissing(did));
+      if (!this.destroyed) this.onOwnSprite?.(missing);
     }
     if (!this.destroyed && img) {
       const base = Texture.from(img);
@@ -1564,12 +1584,11 @@ export class WorldEngine {
       this.app.canvas.removeEventListener('pointerleave', this.onCanvasPointerLeave);
       this.app.canvas.removeEventListener('contextmenu', this.onCanvasContextMenu);
     }
-    if (this.ready) {
-      this.app.ticker.remove(this.tick);
-      this.app.destroy({ removeView: true }, { children: true, texture: false });
-    }
+    if (this.ready) this.app.ticker.remove(this.tick);
     // Free GPU memory — these base textures are shared by frame sub-textures
-    // and are not released by app.destroy({ texture: false }).
+    // and are not released by app.destroy({ texture: false }). Before the
+    // app: destroying a texture source notifies the renderer's GC, which
+    // app.destroy nulls ("Cannot read properties of null (reading 'gc')").
     this.art?.destroy();
     this.art = null;
     for (const t of this.frameTextures) t.destroy();
@@ -1578,5 +1597,8 @@ export class WorldEngine {
     this.ownedTextures = [];
     this.fallbackTex?.destroy(true);
     this.fallbackTex = null;
+    if (this.ready) {
+      this.app.destroy({ removeView: true }, { children: true, texture: false });
+    }
   }
 }

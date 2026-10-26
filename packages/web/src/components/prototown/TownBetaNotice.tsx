@@ -17,7 +17,7 @@ function readDismissed(): boolean {
 /**
  * "Under construction" notice for proto town: a dismissible banner, plus a
  * small BETA button that stays put afterwards. Both open a short, plain list
- * of what works today and what's coming.
+ * of what works today and what's coming, and the credits for town's art.
  */
 export function TownBetaNotice({
   onBannerChange,
@@ -107,6 +107,43 @@ export function TownBetaNotice({
           {SOON.map((k) => (
             <li key={k}>{t(`town.beta.${k}`)}</li>
           ))}
+        </ul>
+        <h3 className={styles.heading}>{t('town.credits.heading')}</h3>
+        {/* Art and characters we use — attribution required (CC BY-SA) or simply deserved. */}
+        <ul className={styles.list}>
+          <li>
+            <a
+              className={styles.link}
+              href="https://github.com/silveira/openpixels"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              {t('town.credits.openpixels.name')}
+            </a>{' '}
+            — {t('town.credits.openpixels.detail')}
+          </li>
+          <li>
+            <a
+              className={styles.link}
+              href="https://ansimuz.com"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              {t('town.credits.townPack.name')}
+            </a>{' '}
+            — {t('town.credits.townPack.detail')}
+          </li>
+          <li>
+            <a
+              className={styles.link}
+              href="https://rpg.actor"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              {t('town.credits.rpgActor.name')}
+            </a>{' '}
+            — {t('town.credits.rpgActor.detail')}
+          </li>
         </ul>
         <p className={styles.footer}>{t('town.beta.feedback')}</p>
         <button

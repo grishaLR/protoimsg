@@ -368,7 +368,7 @@ export function createWsServer(
         });
     });
 
-    ws.on('close', () => {
+    ws.on('close', (code: number) => {
       const ip = (ws as WebSocket & { remoteIp?: string }).remoteIp;
       if (ip) connectionTracker.decrement(ip);
       clearTimeout(authTimer);
@@ -378,7 +378,9 @@ export function createWsServer(
         // Remove this socket first so we can check remaining connections
         userSockets.remove(did, ws);
         communityWatchers.unwatchAll(ws);
-        townRoom.leave(ws);
+        // A network drop (not a server-side close like a ban or auth failure):
+        // keep its voice identity briefly so a reconnect resumes it.
+        townRoom.leave(ws, code === 1006 || code === 1001);
         botService?.handleClose(ws);
 
         const abandonedConvos = dmSubs.unsubscribeAll(ws);

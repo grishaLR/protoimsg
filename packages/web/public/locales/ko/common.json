@@ -165,7 +165,20 @@
       "videoTitle": "영상 · {{count}}",
       "collapseVideo": "최소화",
       "expandVideo": "보기",
-      "videoPaused": "영상 일시정지 · 연결 약함"
+      "videoPaused": "영상 일시정지 · 연결 약함",
+      "join": "오디오 참여",
+      "joinHint": "마이크를 켜고, 사람들에게 다가가면 목소리를 들을 수 있어요. 한 번만 클릭하면 마을을 돌아다니는 동안 계속 켜져 있어요.",
+      "leave": "오디오 나가기",
+      "reconnect": "음성 다시 연결",
+      "status": {
+        "off": "오디오 꺼짐",
+        "connecting": "오디오 연결 중…",
+        "connected": "오디오 켜짐",
+        "reconnecting": "다시 연결 중…",
+        "failed": "오디오를 연결할 수 없어요"
+      },
+      "stay": "함께 있기",
+      "stayHint": "멀어지더라도 여기서 함께 있기를 선택한 사람들과 계속 연결돼요"
     },
     "scenes": {
       "home": {
@@ -351,6 +364,26 @@
         "body": "디자인은 내 계정에 저장되며, 내 게시물처럼 누구나 볼 수 있어요. 이를 위해 권한이 하나 더 필요해요. 계정에서 확인하면 바로 돌아와요.",
         "allow": "계속",
         "notNow": "나중에"
+      }
+    },
+    "sprite": {
+      "borrowed": "지금은 캐릭터에 기본 스프라이트를 빌려 쓰고 있어요.",
+      "create": "rpg.actor에서 나만의 스프라이트를 만들면 여기에 나타나요!",
+      "dismiss": "닫기"
+    },
+    "credits": {
+      "heading": "크레딧",
+      "openpixels": {
+        "name": "OpenPixels",
+        "detail": "타일: Silveira Neto (CC BY-SA 4.0)"
+      },
+      "townPack": {
+        "name": "Town RPG Pack",
+        "detail": "아트: Luis Zuno (@ansimuz), CC0"
+      },
+      "rpgActor": {
+        "name": "rpg.actor",
+        "detail": "캐릭터 스프라이트"
       }
     }
   }
