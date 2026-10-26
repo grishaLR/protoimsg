@@ -46,6 +46,11 @@ export interface AuthContextValue {
   authError: string | null;
   grantedScopes: string[];
   login: (handle: string, turnstileToken?: string) => Promise<void>;
+  /**
+   * Already signed in, but the session predates a permission we now ask for
+   * (e.g. saving town designs): re-run consent for the current scopes.
+   */
+  requestScopes: () => Promise<void>;
   logout: () => void;
   /** Re-check for pending gifts (e.g. after a score that hits the leaderboard). */
   refreshGifts: () => void;
@@ -186,6 +191,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         .then(async (result) => {
           if (result) {
             sessionStorage.removeItem('protoimsg:oauth_pending');
+            sessionStorage.removeItem('protoimsg:oauth_retry');
             const { session: restoredSession } = result;
             setAuthPhase('authenticating');
 
@@ -285,6 +291,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         })
         .catch((err: unknown) => {
           console.error('OAuth init failed:', err);
+          // A consent screen came back with an error (e.g. "no" to a new
+          // permission) while a session is still stored: reload once — the
+          // callback params are gone by now, so the session simply restores.
+          const retried = sessionStorage.getItem('protoimsg:oauth_retry') === '1';
+          if (sessionStorage.getItem('protoimsg:oauth_pending') && !retried) {
+            sessionStorage.removeItem('protoimsg:oauth_pending');
+            if (localStorage.getItem('protoimsg:did')) {
+              sessionStorage.setItem('protoimsg:oauth_retry', '1');
+              window.location.replace(window.location.pathname);
+              return;
+            }
+          }
+          sessionStorage.removeItem('protoimsg:oauth_retry');
           setAuthPhase('idle');
         });
 
@@ -320,6 +339,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     // On return, init() in the useEffect above catches the callback.
   }, []);
 
+  const requestScopes = useCallback(async () => {
+    if (!did) return;
+    // Same return path as a sign-in; no preflight — this account is already in.
+    sessionStorage.setItem('protoimsg:oauth_pending', '1');
+    await getOAuthClient().signIn(did, { scope: OAUTH_SCOPE });
+  }, [did]);
+
   const logout = useCallback(() => {
     const sub = did;
     void deleteServerSession();
@@ -352,6 +378,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       authError,
       grantedScopes,
       login,
+      requestScopes,
       logout,
       refreshGifts,
     }),
@@ -366,6 +393,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       authError,
       grantedScopes,
       login,
+      requestScopes,
       logout,
       refreshGifts,
     ],

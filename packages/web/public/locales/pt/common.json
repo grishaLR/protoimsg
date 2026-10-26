@@ -132,7 +132,8 @@
   },
   "town": {
     "hud": {
-      "controls": "WASD / setas para andar · Espaço para correr"
+      "controls": "WASD / setas para andar · Espaço para correr",
+      "controlsTouch": "Joystick para andar"
     },
     "chat": {
       "placeholder": "Say something to the town…",
@@ -291,6 +292,66 @@
       "soon3": "Casas, decoração, o fliperama e mais",
       "feedback": "Algo quebrado ou um desejo? Conte ao ProtoBuddy: /feedback sua mensagem",
       "close": "Entendi"
+    },
+    "build": {
+      "start": "Decorar",
+      "stop": "Terminar",
+      "buttonHint": "Arrume seu espaço (B). Todo mundo que visitar vê sua decoração.",
+      "titleHome": "Decorando sua casa",
+      "titleYard": "Decorando seu quintal",
+      "pieces": "Peças",
+      "place": "Colocar",
+      "rotate": "Girar",
+      "pickUp": "Mover",
+      "remove": "Remover",
+      "done": "Pronto",
+      "retry": "Tentar de novo",
+      "hint": "Clique para colocar, ou clique em uma peça para movê-la. O clique direito remove. Teclas: R gira, E pega, Enter coloca, Delete remove, [ ] troca de peça.",
+      "hintCarrying": "Clique onde ela vai (ou aperte Enter). R gira, Delete remove, Esc devolve ao lugar.",
+      "full": "Esse é o máximo de peças que cabem num espaço. Remova uma para colocar outra.",
+      "saving": "Salvando…",
+      "saved": "Salvo na sua conta",
+      "saveFailed": "Não foi possível salvar",
+      "loadFailed": "Não foi possível carregar sua decoração. Tente de novo daqui a pouco.",
+      "announceOn": "Decorando. Clique em um lugar, ou vire para ele e aperte Enter, para colocar uma peça.",
+      "announceOff": "Decoração concluída.",
+      "announce": {
+        "placed": "Colocada.",
+        "removed": "Removida.",
+        "blocked": "Isso não cabe aí.",
+        "full": "Não há espaço para mais peças.",
+        "pickedUp": "Peça pega. Coloque onde ela vai, ou aperte Esc para devolvê-la ao lugar.",
+        "putBack": "Devolvida ao lugar.",
+        "rotated": "Girada."
+      },
+      "items": {
+        "bed": "Cama",
+        "nightstand": "Criado-mudo",
+        "couch": "Sofá",
+        "armchair": "Poltrona",
+        "table": "Mesa",
+        "bookshelf": "Estante",
+        "plant": "Planta",
+        "rug": "Tapete",
+        "pine": "Pinheiro",
+        "bush": "Arbusto",
+        "flowerbed": "Canteiro de flores",
+        "bench": "Banco",
+        "lamppost": "Poste de luz",
+        "pumpkins": "Abóboras",
+        "garden": "Horta",
+        "boulder": "Pedregulho",
+        "stone": "Pedra",
+        "chest": "Baú",
+        "barrel": "Barril",
+        "wildflowers": "Flores silvestres"
+      },
+      "consent": {
+        "title": "Salve suas decorações",
+        "body": "Sua decoração fica salva na sua própria conta, onde qualquer pessoa pode vê-la, como seus posts. Para isso é preciso mais uma permissão. Você vai confirmar com sua conta e voltar logo em seguida.",
+        "allow": "Continuar",
+        "notNow": "Agora não"
+      }
     }
   }
 }

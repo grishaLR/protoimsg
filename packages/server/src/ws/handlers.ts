@@ -845,6 +845,11 @@ export async function handleClientMessage(
       break;
     }
 
+    case 'town_layout_saved': {
+      townRoom.layoutSaved(ws, data.space);
+      break;
+    }
+
     case 'town_join_ask': {
       townRoom.askToJoin(ws);
       break;

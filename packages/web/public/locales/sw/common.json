@@ -130,7 +130,8 @@
   },
   "town": {
     "hud": {
-      "controls": "WASD / mishale kusogea · Space kukimbia"
+      "controls": "WASD / mishale kusogea · Space kukimbia",
+      "controlsTouch": "Joystick kutembea"
     },
     "chat": {
       "placeholder": "Say something to the town…",
@@ -289,6 +290,66 @@
       "soon3": "Nyumba, mapambo, ukumbi wa michezo na zaidi",
       "feedback": "Kitu kimeharibika au una ombi? Mwambie ProtoBuddy: /feedback ujumbe wako",
       "close": "Nimeelewa"
+    },
+    "build": {
+      "start": "Pamba",
+      "stop": "Maliza kupamba",
+      "buttonHint": "Panga nafasi yako (B). Kila anayekutembelea ataona mpangilio wako.",
+      "titleHome": "Unapamba nyumba yako",
+      "titleYard": "Unapamba uwanja wako",
+      "pieces": "Vitu",
+      "place": "Weka",
+      "rotate": "Zungusha",
+      "pickUp": "Hamisha",
+      "remove": "Ondoa",
+      "done": "Tayari",
+      "retry": "Jaribu tena",
+      "hint": "Bofya kuweka, au bofya kitu kukihamisha. Kubofya kulia kunaondoa. Vitufe: R kuzungusha, E kunyanyua, Enter kuweka, Delete kuondoa, [ ] kubadilisha vitu.",
+      "hintCarrying": "Bofya mahali kinapokwenda (au bonyeza Enter). R kukizungusha, Delete kukiondoa, Escape kukirudisha.",
+      "full": "Hivyo ndivyo vitu vingi zaidi ambavyo nafasi inaweza kubeba. Ondoa kimoja ili uweke kingine.",
+      "saving": "Inahifadhi…",
+      "saved": "Imehifadhiwa kwenye akaunti yako",
+      "saveFailed": "Imeshindwa kuhifadhi",
+      "loadFailed": "Imeshindwa kupakia mpangilio wako. Jaribu tena baada ya muda mfupi.",
+      "announceOn": "Unapamba. Bofya mahali, au elekea huko kisha bonyeza Enter, kuweka kitu.",
+      "announceOff": "Umemaliza kupamba.",
+      "announce": {
+        "placed": "Kimewekwa.",
+        "removed": "Kimeondolewa.",
+        "blocked": "Hakitoshi hapo.",
+        "full": "Hakuna nafasi ya vitu zaidi.",
+        "pickedUp": "Kimenyanyuliwa. Kiweke mahali kinapokwenda, au bonyeza Escape kukirudisha.",
+        "putBack": "Kimerudishwa.",
+        "rotated": "Kimezungushwa."
+      },
+      "items": {
+        "bed": "Kitanda",
+        "nightstand": "Meza ya kando ya kitanda",
+        "couch": "Kochi",
+        "armchair": "Kiti cha mikono",
+        "table": "Meza",
+        "bookshelf": "Kabati la vitabu",
+        "plant": "Mmea",
+        "rug": "Zulia",
+        "pine": "Msonobari",
+        "bush": "Kichaka",
+        "flowerbed": "Kitalu cha maua",
+        "bench": "Benchi",
+        "lamppost": "Nguzo ya taa",
+        "pumpkins": "Maboga",
+        "garden": "Shamba dogo",
+        "boulder": "Jabali",
+        "stone": "Jiwe",
+        "chest": "Sanduku",
+        "barrel": "Pipa",
+        "wildflowers": "Maua ya porini"
+      },
+      "consent": {
+        "title": "Hifadhi mipangilio yako",
+        "body": "Mpangilio wako unahifadhiwa kwenye akaunti yako mwenyewe, ambapo mtu yeyote anaweza kuuona, kama machapisho yako. Hilo linahitaji ruhusa moja zaidi. Utaithibitisha kwa akaunti yako na kurudi hapa mara moja.",
+        "allow": "Endelea",
+        "notNow": "Si sasa"
+      }
     }
   }
 }

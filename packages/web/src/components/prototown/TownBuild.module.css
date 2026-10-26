@@ -1,0 +1,123 @@
+/* Sits where the signpost does: above the chat bar, centred. The two never
+   show together (you build in your own home or yard, not the square). */
+.tray {
+  position: absolute;
+  z-index: var(--cm-z-local-top);
+  inset-inline: var(--cm-space-0);
+  inset-block-end: calc(var(--cm-space-6) + var(--cm-space-16));
+  margin-inline: auto;
+  inline-size: min(calc(100% - var(--cm-space-12)), var(--cm-panel-width-dm));
+  /* Short screens (a phone on its side): scroll rather than run into the HUD. */
+  max-block-size: 50%;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--cm-space-3);
+  padding: var(--cm-space-3) var(--cm-space-5) var(--cm-space-4);
+  color: var(--color-base-content);
+  background: var(--color-base-100);
+  border: var(--cm-space-0.5) solid var(--color-base-300);
+  border-radius: var(--cm-radius-md);
+  box-shadow: var(--cm-raised);
+}
+
+.header {
+  display: flex;
+  align-items: baseline;
+  gap: var(--cm-space-3);
+}
+
+.title {
+  margin: var(--cm-space-0);
+  font-size: var(--cm-text-sm);
+  font-weight: 700;
+}
+
+.status {
+  margin-inline-start: auto;
+  font-size: var(--cm-text-xs);
+  color: var(--color-base-content);
+}
+
+.statusError {
+  color: var(--color-error);
+  font-weight: 700;
+}
+
+.body {
+  margin: var(--cm-space-0);
+  font-size: var(--cm-text-sm);
+  line-height: var(--cm-leading-normal);
+}
+
+.items {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--cm-space-2);
+}
+
+.item,
+.button {
+  padding: var(--cm-space-1) var(--cm-space-4);
+  font-size: var(--cm-text-xs);
+  color: var(--color-base-content);
+  background: var(--cm-surface-button);
+  border: var(--cm-space-0.5) solid var(--color-base-300);
+  border-radius: var(--cm-radius-sm);
+  box-shadow: var(--cm-raised);
+  cursor: pointer;
+}
+
+.item:hover,
+.button:hover {
+  background: var(--color-base-200);
+}
+
+.item:active,
+.button:active {
+  box-shadow: var(--cm-pressed);
+}
+
+/* Framed in the text colour, like the knock card's main action: the primary
+   colour alone is too faint against the tray in some themes. Bold too, so
+   the piece in hand doesn't rely on colour at all. */
+.selected,
+.primary {
+  color: var(--color-base-content);
+  background: var(--color-base-100);
+  border: var(--cm-space-1) solid var(--color-base-content);
+  font-weight: 700;
+}
+
+.button[aria-disabled='true'],
+.button[aria-disabled='true']:hover {
+  background: var(--cm-surface-button);
+  opacity: var(--cm-opacity-disabled);
+  cursor: default;
+  box-shadow: none;
+}
+
+.item:focus-visible,
+.button:focus-visible {
+  outline: var(--cm-focus-thin) solid var(--cm-focus);
+  outline-offset: var(--cm-focus-offset);
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--cm-space-2);
+}
+
+.hint {
+  font-size: var(--cm-text-xs);
+}
+
+/* 44px touch targets on phones and tablets. */
+@media (pointer: coarse) {
+  .item,
+  .button {
+    min-block-size: calc(var(--cm-space-16) + var(--cm-space-6));
+  }
+}

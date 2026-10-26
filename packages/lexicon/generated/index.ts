@@ -14,6 +14,7 @@ import * as AppProtoimsgChatPoll from './types/app/protoimsg/chat/poll';
 import * as AppProtoimsgChatRole from './types/app/protoimsg/chat/role';
 import * as AppProtoimsgChatRoom from './types/app/protoimsg/chat/room';
 import * as AppProtoimsgChatVote from './types/app/protoimsg/chat/vote';
+import * as AppProtoimsgTownLayout from './types/app/protoimsg/town/layout';
 
 export * as AppProtoimsgChatAllowlist from './types/app/protoimsg/chat/allowlist';
 export * as AppProtoimsgChatAuthVerify from './types/app/protoimsg/chat/authVerify';
@@ -25,6 +26,7 @@ export * as AppProtoimsgChatPoll from './types/app/protoimsg/chat/poll';
 export * as AppProtoimsgChatRole from './types/app/protoimsg/chat/role';
 export * as AppProtoimsgChatRoom from './types/app/protoimsg/chat/room';
 export * as AppProtoimsgChatVote from './types/app/protoimsg/chat/vote';
+export * as AppProtoimsgTownLayout from './types/app/protoimsg/town/layout';
 
 export class AtpBaseClient extends XrpcClient {
   app: AppNS;
@@ -53,10 +55,12 @@ export class AppNS {
 export class AppProtoimsgNS {
   _client: XrpcClient;
   chat: AppProtoimsgChatNS;
+  town: AppProtoimsgTownNS;
 
   constructor(client: XrpcClient) {
     this._client = client;
     this.chat = new AppProtoimsgChatNS(client);
+    this.town = new AppProtoimsgTownNS(client);
   }
 }
 
@@ -658,6 +662,74 @@ export class VoteRecord {
       'com.atproto.repo.deleteRecord',
       undefined,
       { collection: 'app.protoimsg.chat.vote', ...params },
+      { headers },
+    );
+  }
+}
+
+export class AppProtoimsgTownNS {
+  _client: XrpcClient;
+  layout: LayoutRecord;
+
+  constructor(client: XrpcClient) {
+    this._client = client;
+    this.layout = new LayoutRecord(client);
+  }
+}
+
+export class LayoutRecord {
+  _client: XrpcClient;
+
+  constructor(client: XrpcClient) {
+    this._client = client;
+  }
+
+  async list(params: Omit<ComAtprotoRepoListRecords.QueryParams, 'collection'>): Promise<{
+    cursor?: string;
+    records: { uri: string; value: AppProtoimsgTownLayout.Record }[];
+  }> {
+    const res = await this._client.call('com.atproto.repo.listRecords', {
+      collection: 'app.protoimsg.town.layout',
+      ...params,
+    });
+    return res.data;
+  }
+
+  async get(params: Omit<ComAtprotoRepoGetRecord.QueryParams, 'collection'>): Promise<{
+    uri: string;
+    cid: string;
+    value: AppProtoimsgTownLayout.Record;
+  }> {
+    const res = await this._client.call('com.atproto.repo.getRecord', {
+      collection: 'app.protoimsg.town.layout',
+      ...params,
+    });
+    return res.data;
+  }
+
+  async create(
+    params: Omit<ComAtprotoRepoCreateRecord.InputSchema, 'collection' | 'record'>,
+    record: AppProtoimsgTownLayout.Record,
+    headers?: Record<string, string>,
+  ): Promise<{ uri: string; cid: string }> {
+    record.$type = 'app.protoimsg.town.layout';
+    const res = await this._client.call(
+      'com.atproto.repo.createRecord',
+      undefined,
+      { collection: 'app.protoimsg.town.layout', ...params, record },
+      { encoding: 'application/json', headers },
+    );
+    return res.data;
+  }
+
+  async delete(
+    params: Omit<ComAtprotoRepoDeleteRecord.InputSchema, 'collection'>,
+    headers?: Record<string, string>,
+  ): Promise<void> {
+    await this._client.call(
+      'com.atproto.repo.deleteRecord',
+      undefined,
+      { collection: 'app.protoimsg.town.layout', ...params },
       { headers },
     );
   }
