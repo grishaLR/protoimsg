@@ -38,7 +38,12 @@ import { useProfiles } from '../../contexts/ProfileContext';
 import { TownSignpost } from './TownSignpost';
 import { GuestList, KnockPrompt, RequestCards, type PendingRequest } from './TownKnock';
 import { playDoorOpen, playImNotify } from '../../lib/sounds';
-import { ProximityVoice, type ProximityVideo } from '../../town/ProximityVoice';
+import {
+  ProximityVoice,
+  unlockTownAudio,
+  type ProximityVideo,
+  type VoiceStatus,
+} from '../../town/ProximityVoice';
 import { TownVideoWindow } from './TownVideoWindow';
 import { TownBetaNotice } from './TownBetaNotice';
 import { TownJoystick } from './TownJoystick';
@@ -124,6 +129,9 @@ function prefersReducedMotion(): boolean {
 }
 
 const MIC_STORAGE_KEY = 'protoimsg:townMic';
+// You joined audio once: later visits rejoin it on their own (your first
+// click or keypress there unlocks playback).
+const AUDIO_STORAGE_KEY = 'protoimsg:townAudio';
 const VOLUME_TICK_MS = 250;
 // Full volume inside the join radius, easing down for mesh members who are
 // only linked through someone else.
@@ -188,6 +196,32 @@ function readMicPref(): boolean {
   }
 }
 
+function readAudioPref(): boolean {
+  try {
+    return localStorage.getItem(AUDIO_STORAGE_KEY) === 'on';
+  } catch {
+    return false;
+  }
+}
+
+function writeAudioPref(on: boolean): void {
+  try {
+    localStorage.setItem(AUDIO_STORAGE_KEY, on ? 'on' : 'off');
+  } catch {
+    // localStorage unavailable
+  }
+}
+
+const SPRITE_TIP_KEY = 'protoimsg:townSpriteTipDismissed';
+
+function readSpriteTipDismissed(): boolean {
+  try {
+    return localStorage.getItem(SPRITE_TIP_KEY) === '1';
+  } catch {
+    return false;
+  }
+}
+
 function writeMicPref(on: boolean): void {
   try {
     localStorage.setItem(MIC_STORAGE_KEY, on ? 'on' : 'off');
@@ -228,6 +262,15 @@ export function ProtoTownPanel() {
   const [micError, setMicError] = useState(false);
   const [audioBlocked, setAudioBlocked] = useState(false);
   const [nearbyCount, setNearbyCount] = useState(0);
+  // Joined audio (the scene's voice room), and where that connection stands.
+  const [audioJoined, setAudioJoined] = useState(readAudioPref);
+  const audioJoinedRef = useRef(audioJoined);
+  audioJoinedRef.current = audioJoined;
+  const [voiceStatus, setVoiceStatus] = useState<VoiceStatus>('off');
+  const [stayOn, setStayOn] = useState(false);
+  // You have no rpg.actor sprite yet (wearing the default) — offer the link.
+  const [spriteBorrowed, setSpriteBorrowed] = useState(false);
+  const [spriteTipDismissed, setSpriteTipDismissed] = useState(readSpriteTipDismissed);
   const [scene, setScene] = useState<TownScene | null>(null);
   const sceneRef = useRef<TownScene | null>(null);
   // Door sign tooltip (hover/tap), and a short note when you enter a scene.
@@ -481,6 +524,15 @@ export function ProtoTownPanel() {
 
     const voice = new ProximityVoice(audioHost, did, readMicPref());
     voiceRef.current = voice;
+    voice.onStatusChange = (status) => {
+      setVoiceStatus(status);
+      // Only trouble is announced — not every door's connecting → connected.
+      if (status === 'failed' || status === 'reconnecting') {
+        announce(tRef.current(`town.voice.status.${status}`));
+      }
+    };
+    voice.onStayChange = setStayOn;
+    voice.setJoined(audioJoinedRef.current);
     voice.onMembersChange = (dids) => {
       engine.setVoiceCluster(dids);
       setNearbyCount(Math.max(0, dids.length - 1));
@@ -509,16 +561,20 @@ export function ProtoTownPanel() {
       sendRef.current({ type: 'town_voice_refresh' });
     };
     const volumeTimer = setInterval(() => {
-      voice.setVolumes((peerDid) => volumeAt(engine.distanceTo(peerDid)));
+      // A house is one conversation: everyone inside is at full volume.
+      const inHome = sceneRef.current?.kind === 'home';
+      voice.setVolumes((peerDid) => (inHome ? 1 : volumeAt(engine.distanceTo(peerDid))));
     }, VOLUME_TICK_MS);
     // Walking (a keypress) or clicking is a user gesture — use it to lift any
     // autoplay block so the "click to hear" button is rarely needed.
     const unlockAudio = (): void => {
+      unlockTownAudio();
       void voice.startAudio();
     };
     window.addEventListener('keydown', unlockAudio);
     window.addEventListener('pointerdown', unlockAudio);
 
+    engine.onOwnSprite = setSpriteBorrowed;
     engine.onMove = (x, y, dir, sprint) => {
       // Not mid-doorway either: a move landing after the server has switched
       // scenes would place us in the new scene at the old coordinates.
@@ -609,6 +665,8 @@ export function ProtoTownPanel() {
       voice.destroy();
       setVoiceSupported(false);
       setNearbyCount(0);
+      setVoiceStatus('off');
+      setStayOn(false);
       setJoinAvailable(false);
       setJoinAnswered(false);
       setAsking(false);
@@ -663,6 +721,12 @@ export function ProtoTownPanel() {
       y: p.y,
       dir: p.dir,
       fof: fofRef.current,
+      // Audio rides along so the voice room is ready at once; a reconnect
+      // also offers the identity it still holds, to resume it.
+      voice: audioJoinedRef.current,
+      ...(audioJoinedRef.current && voiceRef.current?.selfPid
+        ? { voicePid: voiceRef.current.selfPid }
+        : {}),
     });
     // Your door's state lives on the server (all your tabs share it). Only a
     // closed door is restated — a stale tab must never reopen it.
@@ -703,7 +767,8 @@ export function ProtoTownPanel() {
           if (typeof (msg.data as Partial<typeof msg.data>).scene !== 'string') {
             send({ type: 'town_leave' });
             e.setPeers([]);
-            void voiceRef.current?.assign(null);
+            void voiceRef.current?.setConversation(null);
+            void voiceRef.current?.setVoiceRoom(null);
             endTransition('outdated');
             setSceneError('outdated');
             return;
@@ -860,7 +925,11 @@ export function ProtoTownPanel() {
           for (const peerDid of msg.data.remove) e.peerLeave(peerDid);
           break;
         case 'town_proximity':
-          void voiceRef.current?.assign(msg.data.room);
+          // `?? null`: an older server's assignment has no conversation.
+          void voiceRef.current?.setConversation(msg.data.conversation ?? null);
+          break;
+        case 'town_voice_room':
+          void voiceRef.current?.setVoiceRoom(msg.data.voice);
           break;
         case 'town_peer_join':
           e.peerJoin(msg.data);
@@ -882,9 +951,10 @@ export function ProtoTownPanel() {
       unsub();
       // Socket gone mid-doorway: stay put; the rejoin uses the scene we're in.
       endTransition('timeout');
-      // Socket gone: the server has already evicted us from voice; a fresh
-      // assignment follows the next town_join.
-      void voiceRef.current?.assign(null);
+      // Socket gone: our conversation is over (the server re-forms it after
+      // the rejoin), but the voice connection stays up — the rejoin resumes
+      // the same identity, so nothing rebuilds.
+      void voiceRef.current?.setConversation(null);
     };
   }, [
     connected,
@@ -963,6 +1033,50 @@ export function ProtoTownPanel() {
   const enableAudio = useCallback(() => {
     void voiceRef.current?.startAudio();
   }, []);
+
+  /**
+   * "Join audio": one click unlocks playback for the whole visit, asks for
+   * the mic, and puts you in the scene's voice room — later conversations
+   * connect without another click.
+   */
+  const joinAudio = useCallback(() => {
+    unlockTownAudio();
+    setAudioJoined(true);
+    audioJoinedRef.current = true;
+    writeAudioPref(true);
+    setMicOn(true);
+    setMicError(false);
+    writeMicPref(true);
+    const voice = voiceRef.current;
+    voice?.setJoined(true);
+    void voice?.setMicEnabled(true);
+    send({ type: 'town_voice_join', on: true });
+  }, [send]);
+
+  const leaveAudio = useCallback(() => {
+    setAudioJoined(false);
+    audioJoinedRef.current = false;
+    writeAudioPref(false);
+    voiceRef.current?.setJoined(false);
+    send({ type: 'town_voice_join', on: false });
+  }, [send]);
+
+  const reconnectVoice = useCallback(() => {
+    voiceRef.current?.reconnect();
+  }, []);
+
+  const dismissSpriteTip = useCallback(() => {
+    setSpriteTipDismissed(true);
+    try {
+      localStorage.setItem(SPRITE_TIP_KEY, '1');
+    } catch {
+      // localStorage unavailable
+    }
+  }, []);
+
+  const toggleStay = useCallback(() => {
+    send({ type: 'town_stay', on: !stayOn });
+  }, [send, stayOn]);
 
   // Relabel signs when the language, the scene or a resolved name changes.
   useEffect(() => {
@@ -1319,6 +1433,25 @@ export function ProtoTownPanel() {
           <div className={styles.hud}>
             {t(touchFirst ? 'town.hud.controlsTouch' : 'town.hud.controls')}
           </div>
+          {spriteBorrowed && !spriteTipDismissed && (
+            <div className={styles.spriteTip}>
+              <span>
+                {t('town.sprite.borrowed')}{' '}
+                <a href="https://rpg.actor" target="_blank" rel="noopener noreferrer">
+                  {t('town.sprite.create')}
+                </a>
+              </span>
+              <button
+                type="button"
+                className={styles.spriteTipClose}
+                aria-label={t('town.sprite.dismiss')}
+                title={t('town.sprite.dismiss')}
+                onClick={dismissSpriteTip}
+              >
+                ✕
+              </button>
+            </div>
+          )}
           {scene?.kind === 'square' && (
             <button
               type="button"
@@ -1388,6 +1521,33 @@ export function ProtoTownPanel() {
         </div>
         {voiceSupported && (
           <div className={styles.voiceBar}>
+            {!audioJoined ? (
+              <button
+                type="button"
+                className={`${styles.voiceButton} ${styles.joinAudio}`}
+                aria-describedby="town-join-audio-hint"
+                onClick={joinAudio}
+              >
+                {t('town.voice.join')}
+              </button>
+            ) : (
+              <span
+                className={`${styles.nearby} ${styles.voiceStatus} ${styles[`status-${voiceStatus}`] ?? ''}`}
+              >
+                {/* Not a live region: trouble is announced separately (onStatusChange). */}
+                {t(`town.voice.status.${voiceStatus}`)}
+              </span>
+            )}
+            {!audioJoined && (
+              <span id="town-join-audio-hint" className={styles.srOnly}>
+                {t('town.voice.joinHint')}
+              </span>
+            )}
+            {audioJoined && voiceStatus === 'failed' && (
+              <button type="button" className={styles.voiceButton} onClick={reconnectVoice}>
+                {t('town.voice.reconnect')}
+              </button>
+            )}
             {nearbyCount > 0 && (
               <span className={`${styles.nearby} ${micLive ? styles.live : ''}`}>
                 {micLive
@@ -1395,8 +1555,12 @@ export function ProtoTownPanel() {
                   : t('town.voice.nearby', { count: nearbyCount })}
               </span>
             )}
-            {audioBlocked && nearbyCount > 0 && (
-              <button type="button" className={styles.voiceButton} onClick={enableAudio}>
+            {audioJoined && audioBlocked && nearbyCount > 0 && (
+              <button
+                type="button"
+                className={`${styles.voiceButton} ${styles.tapToHear}`}
+                onClick={enableAudio}
+              >
                 {t('town.voice.enableAudio')}
               </button>
             )}
@@ -1418,15 +1582,17 @@ export function ProtoTownPanel() {
                 {t('town.join.askHint')}
               </span>
             )}
-            <button
-              type="button"
-              className={`${styles.voiceButton} ${micOn ? styles.micOn : ''}`}
-              onClick={toggleMic}
-            >
-              {micOn ? t('town.voice.micOn') : t('town.voice.micOff')}
-            </button>
+            {audioJoined && (
+              <button
+                type="button"
+                className={`${styles.voiceButton} ${micOn ? styles.micOn : ''}`}
+                onClick={toggleMic}
+              >
+                {micOn ? t('town.voice.micOn') : t('town.voice.micOff')}
+              </button>
+            )}
             {/* Never hide the off switch while the camera is live or starting. */}
-            {(nearbyCount > 0 || cameraOn || cameraPending) && (
+            {((audioJoined && nearbyCount > 0) || cameraOn || cameraPending) && (
               <button
                 type="button"
                 className={`${styles.voiceButton} ${cameraOn ? styles.micOn : ''}`}
@@ -1447,6 +1613,23 @@ export function ProtoTownPanel() {
             )}
             {cameraEvent === 'joined' && (
               <span className={styles.nearby}>{t('town.voice.camAutoOff')}</span>
+            )}
+            {/* A house is one conversation already — nothing to hold on to there. */}
+            {audioJoined && nearbyCount > 0 && scene?.kind !== 'home' && (
+              <button
+                type="button"
+                className={`${styles.voiceButton} ${stayOn ? styles.micOn : ''}`}
+                aria-pressed={stayOn}
+                title={t('town.voice.stayHint')}
+                onClick={toggleStay}
+              >
+                {t('town.voice.stay')}
+              </button>
+            )}
+            {audioJoined && (
+              <button type="button" className={styles.voiceButton} onClick={leaveAudio}>
+                {t('town.voice.leave')}
+              </button>
             )}
 
             {micError && (

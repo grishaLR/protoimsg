@@ -165,7 +165,20 @@
       "videoTitle": "视频 · {{count}}",
       "collapseVideo": "最小化",
       "expandVideo": "显示",
-      "videoPaused": "视频已暂停 · 网络不佳"
+      "videoPaused": "视频已暂停 · 网络不佳",
+      "join": "加入语音",
+      "joinHint": "打开麦克风，走近别人时就能听到他们。只需点一次——在小镇里走动时会一直保持开启。",
+      "leave": "退出语音",
+      "reconnect": "重新连接语音",
+      "status": {
+        "off": "语音已关闭",
+        "connecting": "正在连接语音…",
+        "connected": "语音已开启",
+        "reconnecting": "正在重新连接…",
+        "failed": "无法连接语音"
+      },
+      "stay": "待在一起",
+      "stayHint": "即使走开，也和这里同样选择留下的人保持连接"
     },
     "scenes": {
       "home": {
@@ -351,6 +364,26 @@
         "body": "你的设计会保存到你自己的账号里，和你的帖子一样，任何人都能看到。这需要再授予一项权限。你会在账号中确认，然后马上回来。",
         "allow": "继续",
         "notNow": "暂不"
+      }
+    },
+    "sprite": {
+      "borrowed": "你的角色目前借用的是默认形象。",
+      "create": "去 rpg.actor 创建你自己的形象，它就会出现在这里！",
+      "dismiss": "关闭"
+    },
+    "credits": {
+      "heading": "致谢",
+      "openpixels": {
+        "name": "OpenPixels",
+        "detail": "图块作者 Silveira Neto（CC BY-SA 4.0）"
+      },
+      "townPack": {
+        "name": "Town RPG Pack",
+        "detail": "美术作者 Luis Zuno（@ansimuz），CC0"
+      },
+      "rpgActor": {
+        "name": "rpg.actor",
+        "detail": "角色形象"
       }
     }
   }

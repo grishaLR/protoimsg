@@ -165,7 +165,20 @@
       "videoTitle": "Vidéo · {{count}}",
       "collapseVideo": "Réduire",
       "expandVideo": "Afficher",
-      "videoPaused": "Vidéo en pause · connexion faible"
+      "videoPaused": "Vidéo en pause · connexion faible",
+      "join": "Rejoindre l'audio",
+      "joinHint": "Active ton micro et te permet d'entendre les gens quand tu t'approches d'eux. Un seul clic — ça reste actif pendant que tu te déplaces en ville.",
+      "leave": "Quitter l'audio",
+      "reconnect": "Reconnecter l'audio",
+      "status": {
+        "off": "Audio désactivé",
+        "connecting": "Connexion de l'audio…",
+        "connected": "Audio activé",
+        "reconnecting": "Reconnexion…",
+        "failed": "Impossible de connecter l'audio"
+      },
+      "stay": "Rester ensemble",
+      "stayHint": "Reste connecté·e avec les personnes ici qui ont aussi choisi de rester, même si vous vous éloignez"
     },
     "scenes": {
       "home": {
@@ -351,6 +364,26 @@
         "body": "Ton aménagement est enregistré sur ton propre compte, où tout le monde peut le voir, comme tes publications. Il faut pour cela une autorisation de plus. Tu la confirmeras avec ton compte et tu reviendras tout de suite.",
         "allow": "Continuer",
         "notNow": "Pas maintenant"
+      }
+    },
+    "sprite": {
+      "borrowed": "Pour l'instant, tu empruntes un sprite par défaut pour ton personnage.",
+      "create": "Crée le tien sur rpg.actor et il apparaîtra ici !",
+      "dismiss": "Fermer"
+    },
+    "credits": {
+      "heading": "Crédits",
+      "openpixels": {
+        "name": "OpenPixels",
+        "detail": "tuiles de Silveira Neto (CC BY-SA 4.0)"
+      },
+      "townPack": {
+        "name": "Town RPG Pack",
+        "detail": "graphismes de Luis Zuno (@ansimuz), CC0"
+      },
+      "rpgActor": {
+        "name": "rpg.actor",
+        "detail": "sprites des personnages"
       }
     }
   }

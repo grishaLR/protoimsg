@@ -165,7 +165,20 @@
       "videoTitle": "Video · {{count}}",
       "collapseVideo": "Minimieren",
       "expandVideo": "Anzeigen",
-      "videoPaused": "Video pausiert · schwache Verbindung"
+      "videoPaused": "Video pausiert · schwache Verbindung",
+      "join": "Audio starten",
+      "joinHint": "Schaltet dein Mikrofon ein und lässt dich Leute hören, wenn du zu ihnen gehst. Ein Klick – es bleibt an, während du dich durch die Stadt bewegst.",
+      "leave": "Audio beenden",
+      "reconnect": "Audio neu verbinden",
+      "status": {
+        "off": "Audio aus",
+        "connecting": "Audio wird verbunden…",
+        "connected": "Audio an",
+        "reconnecting": "Verbindung wird wiederhergestellt…",
+        "failed": "Audio konnte nicht verbunden werden"
+      },
+      "stay": "Zusammenbleiben",
+      "stayHint": "Bleib mit Leuten hier verbunden, die auch zusammenbleiben wollen – selbst wenn ihr auseinandergeht"
     },
     "scenes": {
       "home": {
@@ -351,6 +364,26 @@
         "body": "Dein Design wird in deinem eigenen Account gespeichert, wo es alle sehen können, wie deine Posts. Dafür braucht es noch eine Berechtigung. Du bestätigst sie mit deinem Account und bist gleich wieder da.",
         "allow": "Weiter",
         "notNow": "Jetzt nicht"
+      }
+    },
+    "sprite": {
+      "borrowed": "Gerade leihst du dir ein Standard-Sprite für deine Figur.",
+      "create": "Erstelle dein eigenes auf rpg.actor und es erscheint hier!",
+      "dismiss": "Schließen"
+    },
+    "credits": {
+      "heading": "Credits",
+      "openpixels": {
+        "name": "OpenPixels",
+        "detail": "Kacheln von Silveira Neto (CC BY-SA 4.0)"
+      },
+      "townPack": {
+        "name": "Town RPG Pack",
+        "detail": "Grafik von Luis Zuno (@ansimuz), CC0"
+      },
+      "rpgActor": {
+        "name": "rpg.actor",
+        "detail": "Figuren-Sprites"
       }
     }
   }

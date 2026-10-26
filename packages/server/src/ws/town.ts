@@ -3,6 +3,7 @@ import type { WebSocket } from 'ws';
 import {
   TOWN_PROXIMITY,
   TOWN_VIEW,
+  TOWN_VOICE,
   parseTownSceneId,
   TOWN_JOIN_ASK_MS,
   TOWN_KNOCK_MS,
@@ -21,6 +22,7 @@ import type {
   TownSceneKind,
   TownSpace,
   TownSpawn,
+  TownProximityEvent,
   TownVoiceMember,
 } from '@protoimsg/shared';
 import type { BlockService } from '../moderation/block-service.js';
@@ -64,21 +66,49 @@ interface TownMember extends TownPeer {
   windowLit: boolean;
   moveBudget: number;
   moveBudgetTs: number;
-  /** Proximity voice room this socket is assigned to, if any. */
+  /** Conversation (proximity cluster) this socket is in, if any. */
   roomId: string | null;
-  /** Anonymous LiveKit identity for the current room. */
+  /** Anonymous LiveKit identity in the scene's voice room ('' when not in audio). */
   pid: string;
+  /** This socket joined audio. */
+  voiceWanted: boolean;
+  /** The scene voice room this socket holds an identity in, if any. */
+  voiceRoom: string | null;
+  /** When its current voice token was issued (connect watchdog). */
+  voiceIssuedAt: number;
+  /** Watchdog re-issues since the last fresh start — capped, then left to "Reconnect". */
+  voiceRetries: number;
+  /**
+   * DIDs that were ever sent this socket's voice identity in a roster. If any
+   * of them can no longer see it (a block, friends-of-friends, a lapsed pass)
+   * the identity is replaced — otherwise they could keep watching it in the
+   * shared scene room (presence, speaking) after losing sight of you.
+   */
+  exposedTo: Set<string>;
+  /** Chose "stay together" in its current conversation. */
+  stay: boolean;
+  /** The conversation roster this socket was last sent (JSON), to send only changes. */
+  rosterKey: string;
   /** Bumped on every position change — views re-send only what moved. */
   ver: number;
   /** What this socket's client currently shows: DID → `${memberId}:${ver}`. */
   known: Map<string, string>;
 }
 
-interface VoiceRoomState {
-  /** Bumped per send — a slower, older send never overwrites a newer roster. */
-  version: number;
-  /** The one createRoom call for this room — tokens wait on it so they never race ahead of the cap. */
-  ready: Promise<void>;
+/** A dropped socket's voice identity, kept briefly so a reconnect resumes it. */
+interface ParkedVoice {
+  did: string;
+  scene: string;
+  room: string;
+  exposedTo: Set<string>;
+  timer: ReturnType<typeof setTimeout>;
+}
+
+/** What a joining socket says about audio (`town_join`). */
+export interface VoiceJoin {
+  on: boolean;
+  /** The identity it still holds from before a reconnect. */
+  pid?: string;
 }
 
 // Server-side cap on town_move so the rate-limit exemption can't be weaponised:
@@ -96,12 +126,16 @@ const VIEW_CELL = Math.max(TOWN_VIEW.halfWidth, TOWN_VIEW.halfHeight);
 // A new link must hold this long before a room is minted — stops jittering
 // across the radius from churning LiveKit rooms.
 const LINK_DWELL_MS = 600;
-// After a LiveKit failure, pause voice assignment and retry on our own timer
-// (not on the next move) — no hammering during an outage, no stuck rooms.
-const VOICE_RETRY_MS = 5000;
-// How often every active room is checked for participants who shouldn't be
-// there (kicked members reconnecting with a still-valid token).
+// How often every scene voice room is checked: participants who shouldn't be
+// there are evicted (tokens can't be revoked), and anyone who should be but
+// isn't gets a fresh token once theirs is this old — so a failed connect or
+// a LiveKit hiccup heals without anyone leaving town.
 const RECONCILE_MS = 5000;
+const VOICE_WATCHDOG_MS = 15_000;
+// After this many watchdog re-issues (e.g. a full room, a blocked network) stop
+// retrying on our own; the client's "Reconnect" starts over.
+const VOICE_MAX_RETRIES = 4;
+const NO_ROSTER = 'null';
 
 function cellKey(scene: string, cx: number, cy: number): string {
   return `${scene}|${String(cx)},${String(cy)}`;
@@ -212,9 +246,12 @@ function sameGates(a: readonly unknown[], b: readonly unknown[]): boolean {
  * scene (a home, a neighborhood or the square); avatars, chat and voice
  * never cross scenes, so who can see you is decided by where you are.
  *
- * Also runs proximity voice: avatars close together form a cluster (the
- * "aura mesh") and the server — never the client — decides who shares a
- * LiveKit room. Safety rules, all fail-closed:
+ * Also runs proximity voice, Gather-style: everyone who joined audio in a
+ * scene shares one LiveKit room (`town_voice_room`), avatars close together
+ * form a conversation (the "aura mesh"), and the server — never the client —
+ * decides who is in each conversation (`town_proximity`). Clients grant and
+ * request tracks only within it, so walking up to or away from someone never
+ * reconnects anything. Safety rules, all fail-closed:
  * - blocked pairs never share a room, even through a third person;
  * - nobody is voice-eligible until their block list has synced;
  * - scenes are admission-checked on entry and never leak into each other,
@@ -222,8 +259,11 @@ function sameGates(a: readonly unknown[], b: readonly unknown[]): boolean {
  * - inside a scene, who sees and hears whom follows its rule (`canSee`):
  *   a neighborhood shows you its owner and your mutuals, and the square is
  *   open unless friends-of-friends mode narrows it;
- * - removed participants are evicted, and rooms are reconciled against the
- *   expected roster because LiveKit tokens can't be revoked.
+ * - people who leave a scene are evicted from its voice room, and rooms are
+ *   reconciled against who should be there because LiveKit tokens can't be
+ *   revoked;
+ * - inside the shared room only anonymous ids are visible: hearing or seeing
+ *   anyone takes their client's grant, which follows the server's roster.
  */
 export class TownRoom {
   private members = new Map<WebSocket, TownMember>();
@@ -233,12 +273,16 @@ export class TownRoom {
   private reconcileTimer: ReturnType<typeof setInterval> | null = null;
   private sweepTimer: ReturnType<typeof setInterval> | null = null;
   private disposed = false;
-  private voiceBackoffUntil = 0;
-  /** Rooms whose roster must be re-sent on the next tick. */
-  private pendingDirty = new Set<string>();
   /** When each not-yet-linked close pair first came within range. */
   private closeSince = new Map<string, number>();
-  private rooms = new Map<string, VoiceRoomState>();
+  /** When each linked pair first drifted past the leave radius (grace). */
+  private farSince = new Map<string, number>();
+  /** Conversations alive after the last proximity tick. */
+  private conversations = new Set<string>();
+  /** Scene id → its LiveKit voice room (one per scene, Gather-style). */
+  private sceneRooms = new Map<string, string>();
+  /** Voice identities of dropped sockets, by pid, until they resume or lapse. */
+  private parked = new Map<string, ParkedVoice>();
   /** DIDs with friends-of-friends mode on in any of their sockets. */
   private fofDids = new Set<string>();
   /** Knocks waiting for an answer, by id. */
@@ -293,7 +337,7 @@ export class TownRoom {
     this.sweepTimer.unref();
     if (voice) {
       this.reconcileTimer = setInterval(() => {
-        for (const roomId of this.rooms.keys()) this.reconcileRoom(roomId);
+        this.reconcileVoice();
       }, RECONCILE_MS);
       this.reconcileTimer.unref();
     }
@@ -311,6 +355,7 @@ export class TownRoom {
     y: number,
     dir: number,
     fof?: boolean,
+    voiceJoin?: VoiceJoin,
   ): Promise<void> {
     const existing = this.members.get(ws);
     // The space's design must be in hand before its state is sent.
@@ -344,7 +389,7 @@ export class TownRoom {
         return;
       }
     }
-    this.join(ws, did, sceneId, x, y, dir, fof);
+    this.join(ws, did, sceneId, x, y, dir, fof, voiceJoin);
     const m = this.members.get(ws);
     if (acquired) {
       if (m && !m.graphRef) m.graphRef = true;
@@ -365,6 +410,7 @@ export class TownRoom {
     y: number,
     dir: number,
     fof?: boolean,
+    voiceJoin?: VoiceJoin,
   ): void {
     const scene: TownScene | null =
       sceneId === undefined ? { kind: 'home', owner: did } : parseTownSceneId(sceneId);
@@ -381,7 +427,15 @@ export class TownRoom {
       const fallback: TownScene = this.admits(did, outside)
         ? outside
         : { kind: 'home', owner: did };
-      this.place(ws, did, fallback, townArrival(fallback.kind, 'home'), 'visitOver', fof);
+      this.place(
+        ws,
+        did,
+        fallback,
+        townArrival(fallback.kind, 'home'),
+        'visitOver',
+        fof,
+        voiceJoin,
+      );
       return;
     }
     if (!scene || !this.admits(did, scene)) {
@@ -390,13 +444,13 @@ export class TownRoom {
         // client guessing, send it home and say why — the client follows a
         // server move, so the two never disagree about where you are.
         const home: TownScene = { kind: 'home', owner: did };
-        this.place(ws, did, home, townArrival('home', null), 'removed', fof);
+        this.place(ws, did, home, townArrival('home', null), 'removed', fof, voiceJoin);
         return;
       }
       this.sendTo(ws, { type: 'town_denied', data: { scene: sceneId ?? '' } });
       return;
     }
-    this.place(ws, did, scene, { ...townClamp(scene.kind, x, y), dir }, undefined, fof);
+    this.place(ws, did, scene, { ...townClamp(scene.kind, x, y), dir }, undefined, fof, voiceJoin);
   }
 
   /** Friends-of-friends mode on/off for this socket (applies in the square). */
@@ -502,6 +556,7 @@ export class TownRoom {
     requested: TownSpawn,
     reason?: 'removed' | 'letIn' | 'visitOver',
     fof?: boolean,
+    voiceJoin?: VoiceJoin,
   ): void {
     const id = townSceneId(scene);
     const prev = this.members.get(ws);
@@ -528,20 +583,36 @@ export class TownRoom {
       place = fromGate ? townGateArrival(fromGate.slot) : townArrival(scene.kind, prev.kind);
     }
 
-    // A re-join into the same scene keeps its voice assignment, and gets it
-    // re-sent (the client may have rebuilt its voice connection). Changing
-    // scene drops it at once — voice never follows you through a door.
+    // A re-join into the same scene keeps its conversation and voice
+    // identity. Changing scene drops both at once — voice never follows you
+    // through a door (each scene has its own voice room).
     let roomId = prev?.roomId ?? null;
     let pid = prev?.pid ?? '';
-    if (prev && roomId && prev.scene !== id) {
-      this.voice?.removeParticipant(roomId, pid);
-      this.pendingDirty.add(roomId);
-      // Tokens can't be revoked: sweep the old room now rather than on the
-      // next reconcile interval, so a reused token can't slip back in.
-      this.reconcileRoom(roomId);
-      this.sendTo(ws, { type: 'town_proximity', data: { room: null } });
+    let voiceRoom = prev?.voiceRoom ?? null;
+    let stay = prev?.stay ?? false;
+    let rosterKey = prev?.rosterKey ?? NO_ROSTER;
+    let exposedTo = prev?.exposedTo ?? new Set<string>();
+    // A join says what it wants; a server-side move keeps what it had.
+    const voiceWanted = voiceJoin ? voiceJoin.on : (prev?.voiceWanted ?? false);
+    if (prev && prev.scene !== id) {
+      if (roomId) this.sendTo(ws, { type: 'town_proximity', data: { conversation: null } });
       roomId = null;
+      stay = false;
+      rosterKey = NO_ROSTER;
+    }
+    if (voiceRoom && (!voiceWanted || (prev && prev.scene !== id))) {
+      this.voice?.removeParticipant(voiceRoom, pid);
+      if (!voiceWanted) this.sendTo(ws, { type: 'town_voice_room', data: { voice: null } });
+      voiceRoom = null;
       pid = '';
+      exposedTo = new Set();
+    }
+    // A reconnecting socket picks its voice identity back up — its LiveKit
+    // connection never dropped, so nothing rebuilds. Either parked, or still
+    // held by its old socket the server hasn't noticed is dead yet.
+    if (!prev && voiceWanted && voiceJoin?.pid) {
+      const resumed = this.resumeVoice(did, id, voiceJoin.pid);
+      if (resumed) ({ pid, voiceRoom, exposedTo } = resumed);
     }
     this.members.set(ws, {
       id: prev?.id ?? this.nextId++,
@@ -566,10 +637,16 @@ export class TownRoom {
       moveBudgetTs: Date.now(),
       roomId,
       pid,
+      voiceWanted,
+      voiceRoom,
+      voiceIssuedAt: prev?.voiceIssuedAt ?? 0,
+      voiceRetries: 0,
+      exposedTo,
+      stay,
+      rosterKey,
       ver: (prev?.ver ?? 0) + 1,
       known: new Map(),
     });
-    if (roomId) this.pendingDirty.add(roomId);
     // Friends-of-friends from the join must narrow the very first view.
     if ((fof ?? prev?.fof ?? false) !== (prev?.fof ?? false)) this.recountFof();
 
@@ -614,6 +691,9 @@ export class TownRoom {
     if (homeOwner === did || (prev?.kind === 'home' && prev.owner === did)) {
       this.refreshWindows(did);
     }
+    // A (re)join always gets a token: the client may have rebuilt its voice
+    // connection, and ignores it if it's still connected as this identity.
+    if (voiceWanted) this.issueVoice(ws);
     this.scheduleView();
     this.scheduleProximity();
   }
@@ -923,7 +1003,7 @@ export class TownRoom {
           continue;
         }
         // Same people, new room id: their conversation merged or re-formed.
-        if (pass.connected && !this.rooms.has(pass.roomId)) {
+        if (pass.connected && !this.conversations.has(pass.roomId)) {
           pass.roomId = ra;
           continue;
         }
@@ -1184,7 +1264,12 @@ export class TownRoom {
     }
   }
 
-  leave(ws: WebSocket): void {
+  /**
+   * The socket left town. `park`: it dropped (rather than left on purpose),
+   * so its voice identity is kept for TOWN_VOICE.resumeMs — a reconnect picks
+   * it up and the voice connection carries on.
+   */
+  leave(ws: WebSocket, park = false): void {
     const m = this.members.get(ws);
     if (!m) return;
     this.members.delete(ws);
@@ -1192,12 +1277,12 @@ export class TownRoom {
     if (m.fof) this.recountFof();
     this.leftScene(m);
     if (m.kind === 'home' && m.owner === m.did) this.refreshWindows(m.did);
-    if (m.roomId) {
-      this.voice?.removeParticipant(m.roomId, m.pid);
-      // Remaining members need a roster without this pid.
-      this.pendingDirty.add(m.roomId);
-      this.scheduleProximity();
+    if (m.voiceRoom && m.pid) {
+      if (park) this.park(m);
+      else this.voice?.removeParticipant(m.voiceRoom, m.pid);
     }
+    // Remaining members need a roster without them.
+    if (m.roomId) this.scheduleProximity();
     // Viewers drop the avatar on the next view tick — unless another visible
     // socket of the same DID keeps it alive.
     this.scheduleView();
@@ -1289,11 +1374,38 @@ export class TownRoom {
     this.recheckAll();
   }
 
-  /** The client lost its voice connection — re-send its room with a fresh token. */
+  /** The client lost its voice connection — send it (only it) a fresh token and its roster. */
   refreshVoice(ws: WebSocket): void {
     const m = this.members.get(ws);
-    if (!m?.roomId) return;
-    this.pendingDirty.add(m.roomId);
+    if (!m?.voiceWanted) return;
+    m.voiceRetries = 0;
+    this.issueVoice(ws);
+    m.rosterKey = '';
+    this.scheduleProximity();
+  }
+
+  /** Join or leave audio for this socket. */
+  setVoiceWanted(ws: WebSocket, on: boolean): void {
+    const m = this.members.get(ws);
+    if (!m || m.voiceWanted === on) return;
+    m.voiceWanted = on;
+    if (on) {
+      this.issueVoice(ws);
+      return;
+    }
+    if (m.voiceRoom) this.voice?.removeParticipant(m.voiceRoom, m.pid);
+    m.voiceRoom = null;
+    m.pid = '';
+    m.exposedTo = new Set();
+    this.sendTo(ws, { type: 'town_voice_room', data: { voice: null } });
+    this.scheduleProximity();
+  }
+
+  /** "Stay together" in the current conversation (resets when it ends). */
+  setStay(ws: WebSocket, on: boolean): void {
+    const m = this.members.get(ws);
+    if (!m || m.stay === on || (on && !m.roomId)) return;
+    m.stay = on;
     this.scheduleProximity();
   }
 
@@ -1305,6 +1417,8 @@ export class TownRoom {
     this.knocks.clear();
     for (const r of this.joinRequests.values()) clearTimeout(r.timer);
     this.joinRequests.clear();
+    for (const p of this.parked.values()) clearTimeout(p.timer);
+    this.parked.clear();
     if (this.sweepTimer) clearInterval(this.sweepTimer);
     this.sweepTimer = null;
     this.viewTimer = null;
@@ -1313,38 +1427,207 @@ export class TownRoom {
     this.reconcileTimer = null;
   }
 
+  // ── Scene voice ───────────────────────────────────────────────────────
+
+  /** The scene's voice room, minted on first use. */
+  private sceneRoom(scene: string): string {
+    let room = this.sceneRooms.get(scene);
+    if (!room) {
+      room = randomId('town_');
+      this.sceneRooms.set(scene, room);
+    }
+    return room;
+  }
+
+  /**
+   * Send `ws` a fresh token for its scene's voice room, keeping its identity
+   * if it has one there. Failures are logged and left to the watchdog.
+   */
+  private issueVoice(ws: WebSocket): void {
+    const voice = this.voice;
+    const m = this.members.get(ws);
+    if (!voice || !m?.voiceWanted || this.disposed) return;
+    const room = this.sceneRoom(m.scene);
+    if (m.voiceRoom !== room || !m.pid) {
+      m.voiceRoom = room;
+      m.pid = randomId('p_');
+      this.scheduleProximity(); // rosters carry pids
+    }
+    m.voiceIssuedAt = Date.now();
+    const pid = m.pid;
+    void (async () => {
+      try {
+        // Idempotent; also recreates a room LiveKit closed while empty.
+        await voice.ensureRoom(room, TOWN_VOICE.sceneCap);
+        const token = await voice.issueToken(room, pid);
+        const cur = this.members.get(ws);
+        if (!cur || cur.voiceRoom !== room || cur.pid !== pid) return;
+        this.sendTo(ws, {
+          type: 'town_voice_room',
+          data: { voice: { room, url: voice.url, token, selfPid: pid } },
+        });
+      } catch (err) {
+        log.error({ err, room }, 'Failed to issue town voice token');
+      }
+    })();
+  }
+
+  /** Hold a dropped socket's voice identity until it resumes or lapses. */
+  private park(m: TownMember): void {
+    const room = m.voiceRoom;
+    if (!room) return;
+    const pid = m.pid;
+    const timer = setTimeout(() => {
+      this.parked.delete(pid);
+      this.voice?.removeParticipant(room, pid);
+    }, TOWN_VOICE.resumeMs);
+    timer.unref();
+    this.parked.set(pid, { did: m.did, scene: m.scene, room, exposedTo: m.exposedTo, timer });
+  }
+
+  /**
+   * Hand a reconnecting socket its old voice identity — only its own DID in
+   * the same scene, and never one someone has since lost sight of (that one
+   * must be replaced, not resumed).
+   */
+  private resumeVoice(
+    did: string,
+    scene: string,
+    pid: string,
+  ): { pid: string; voiceRoom: string; exposedTo: Set<string> } | null {
+    const parked = this.parked.get(pid);
+    if (parked?.did === did && parked.scene === scene) {
+      clearTimeout(parked.timer);
+      this.parked.delete(pid);
+      if ([...parked.exposedTo].some((d) => this.blockService.isBlocked(did, d))) {
+        this.voice?.removeParticipant(parked.room, pid);
+        return null;
+      }
+      return { pid, voiceRoom: parked.room, exposedTo: parked.exposedTo };
+    }
+    for (const o of this.members.values()) {
+      if (o.did !== did || o.scene !== scene || o.pid !== pid || !o.voiceRoom) continue;
+      if ([...o.exposedTo].some((d) => this.blockService.isBlocked(did, d))) return null;
+      // The old socket is (about to be) dead: it gives the identity up quietly.
+      const taken = { pid, voiceRoom: o.voiceRoom, exposedTo: o.exposedTo };
+      o.pid = '';
+      o.voiceRoom = null;
+      o.voiceWanted = false;
+      o.exposedTo = new Set();
+      return taken;
+    }
+    return null;
+  }
+
+  /**
+   * Has anyone who knows `m`'s voice identity lost sight of `m`? Then it must
+   * be replaced: the shared room shows an identity's presence and speaking
+   * to everyone in it, and a modified client could keep following it.
+   */
+  private identityCompromised(m: TownMember, byDid: Map<string, TownMember[]>): boolean {
+    for (const d of m.exposedTo) {
+      if (this.blockService.isBlocked(m.did, d)) return true;
+      for (const v of byDid.get(d) ?? []) {
+        if (v.scene === m.scene && !this.canSee(v, m)) return true;
+      }
+    }
+    return false;
+  }
+
+  /** Swap `m` onto a fresh voice identity (its client reconnects with it). */
+  private rotateVoice(m: TownMember): void {
+    if (m.voiceRoom && m.pid) this.voice?.removeParticipant(m.voiceRoom, m.pid);
+    m.pid = '';
+    m.exposedTo = new Set();
+    log.info({ scene: m.scene }, 'Replacing a town voice identity someone lost sight of');
+    this.issueVoice(m.ws);
+  }
+
+  /**
+   * Every scene voice room against who should be in it: evict strangers
+   * (tokens can't be revoked), re-issue tokens to members who never showed
+   * up, and forget rooms nobody holds any more.
+   */
+  private reconcileVoice(): void {
+    const voice = this.voice;
+    if (!voice || this.disposed) return;
+    const held = new Map<string, TownMember[]>();
+    for (const m of this.members.values()) {
+      if (!m.voiceRoom) continue;
+      const list = held.get(m.voiceRoom);
+      if (list) list.push(m);
+      else held.set(m.voiceRoom, [m]);
+    }
+    const parkedRooms = new Set([...this.parked.values()].map((p) => p.room));
+    for (const [scene, room] of this.sceneRooms) {
+      if (!held.has(room) && !parkedRooms.has(room)) this.sceneRooms.delete(scene);
+    }
+    for (const room of new Set([...held.keys(), ...parkedRooms])) {
+      voice
+        .listParticipants(room)
+        .then((identities) => {
+          if (this.disposed) return;
+          const expected = new Set<string>();
+          for (const m of this.members.values()) if (m.voiceRoom === room) expected.add(m.pid);
+          for (const [pid, p] of this.parked) if (p.room === room) expected.add(pid);
+          for (const identity of identities) {
+            if (!expected.has(identity)) {
+              log.info({ room }, 'Evicting unexpected town voice participant');
+              voice.removeParticipant(room, identity);
+            }
+          }
+          const present = new Set(identities);
+          const now = Date.now();
+          for (const m of this.members.values()) {
+            if (m.voiceRoom !== room || !m.voiceWanted || present.has(m.pid)) continue;
+            if (now - m.voiceIssuedAt < VOICE_WATCHDOG_MS) continue;
+            if (m.voiceRetries >= VOICE_MAX_RETRIES) continue;
+            m.voiceRetries++;
+            log.info({ room }, 'Town voice member never connected — re-issuing token');
+            this.issueVoice(m.ws);
+          }
+        })
+        .catch((err: unknown) => {
+          log.debug({ err, room }, 'Town voice reconcile skipped');
+        });
+    }
+  }
+
+  // ── Conversations ─────────────────────────────────────────────────────
+
   private scheduleProximity(): void {
     if (!this.voice || this.disposed || this.proximityTimer) return;
-    const delay = Math.max(PROXIMITY_TICK_MS, this.voiceBackoffUntil - Date.now());
     this.proximityTimer = setTimeout(() => {
       this.proximityTimer = null;
       this.updateProximity();
-    }, delay);
+    }, PROXIMITY_TICK_MS);
   }
 
+  /**
+   * Re-solve conversations and send each socket its roster when it changed.
+   * Pure bookkeeping — nobody connects or disconnects anything: everyone in
+   * a scene already shares its voice room, and rosters decide who hears whom.
+   */
   private updateProximity(): void {
-    const voice = this.voice;
-    if (!voice || this.disposed) return;
+    if (!this.voice || this.disposed) return;
     const now = Date.now();
-    if (now < this.voiceBackoffUntil) {
-      this.scheduleProximity(); // a move queued us early — wait out the backoff
-      return;
-    }
 
-    // Clusters never span scenes: solve each scene on its own.
+    // Conversations never span scenes: solve each scene on its own.
     const byId = new Map<number, TownMember>();
-    const scenes = new Map<string, ProxNode[]>();
+    const scenes = new Map<string, { kind: TownSceneKind; nodes: ProxNode[] }>();
     for (const m of this.members.values()) {
       byId.set(m.id, m);
-      const node = { id: m.id, did: m.did, x: m.x, y: m.y, roomId: m.roomId };
-      const list = scenes.get(m.scene);
-      if (list) list.push(node);
-      else scenes.set(m.scene, [node]);
+      const node = { id: m.id, did: m.did, x: m.x, y: m.y, roomId: m.roomId, stay: m.stay };
+      const entry = scenes.get(m.scene);
+      if (entry) entry.nodes.push(node);
+      else scenes.set(m.scene, { kind: m.kind, nodes: [node] });
     }
 
     const prevClose = this.closeSince;
     const nextClose = new Map<string, number>();
-    const dwell = { pending: false };
+    const prevFar = this.farSince;
+    const nextFar = new Map<string, number>();
+    const again = { pending: false };
     const rules: ClusterRules = {
       eligible: (n) => this.blockService.hasSynced(n.did),
       compatible: (a, b) => {
@@ -1357,41 +1640,47 @@ export class TownRoom {
         const since = prevClose.get(key) ?? now;
         nextClose.set(key, since);
         if (now - since >= LINK_DWELL_MS) return true;
-        dwell.pending = true;
+        again.pending = true;
         return false;
+      },
+      holdLink: (a, b) => {
+        const key = pairKey(a, b);
+        const since = prevFar.get(key) ?? now;
+        nextFar.set(key, since);
+        if (now - since >= TOWN_PROXIMITY.linkGraceMs) return false;
+        again.pending = true; // look again when the grace runs out
+        return true;
       },
     };
     // Passes that lapsed stop counting before anyone is clustered with them.
     if (this.expireJoinPasses(now)) this.scheduleView();
-    const clusters = [...scenes.values()].flatMap((nodes) => buildClusters(nodes, rules));
+    // Inside a home the whole house is one conversation, wherever you stand.
+    const clusters = [...scenes.values()].flatMap(({ kind, nodes }) =>
+      buildClusters(nodes, rules, kind === 'home'),
+    );
     this.closeSince = nextClose;
-    const roomIds = assignRooms(clusters, () => randomId('town_'));
+    this.farSince = nextFar;
+    const roomIds = assignRooms(clusters, () => randomId('c_'));
 
     const nextRoom = new Map<number, string>();
     clusters.forEach((cluster, i) => {
       const roomId = roomIds[i];
       if (roomId) for (const n of cluster) nextRoom.set(n.id, roomId);
     });
-
-    const dirty = new Set(this.pendingDirty);
-    this.pendingDirty.clear();
+    const groups = new Map<string, TownMember[]>();
     for (const m of byId.values()) {
       const target = nextRoom.get(m.id) ?? null;
-      if (target === m.roomId) continue;
-      if (m.roomId) {
-        voice.removeParticipant(m.roomId, m.pid);
-        dirty.add(m.roomId);
+      if (target !== m.roomId) {
+        m.roomId = target;
+        m.stay = false; // a choice about one conversation, not the next
       }
-      m.roomId = target;
-      m.pid = target ? randomId('p_') : '';
-      if (target) dirty.add(target);
-      else this.sendTo(m.ws, { type: 'town_proximity', data: { room: null } });
+      if (!target) continue;
+      const g = groups.get(target);
+      if (g) g.push(m);
+      else groups.set(target, [m]);
     }
+    this.conversations = new Set(groups.keys());
 
-    const active = new Set(nextRoom.values());
-    for (const roomId of this.rooms.keys()) {
-      if (!active.has(roomId)) this.rooms.delete(roomId);
-    }
     for (const m of byId.values()) {
       const available = this.joinApplies(m);
       if (available !== m.joinAvailable) {
@@ -1399,90 +1688,45 @@ export class TownRoom {
         this.sendTo(m.ws, { type: 'town_join_available', data: { available } });
       }
     }
-    for (const roomId of dirty) {
-      if (active.has(roomId)) void this.sendRoom(voice, roomId);
+    const byDid = new Map<string, TownMember[]>();
+    for (const m of byId.values()) {
+      const list = byDid.get(m.did);
+      if (list) list.push(m);
+      else byDid.set(m.did, [m]);
+    }
+    for (const m of byId.values()) {
+      if (m.pid && this.identityCompromised(m, byDid)) this.rotateVoice(m);
+    }
+    for (const m of byId.values()) {
+      const conversation = this.rosterFor(m, groups);
+      const key = JSON.stringify(conversation);
+      if (key === m.rosterKey) continue;
+      m.rosterKey = key;
+      this.sendTo(m.ws, { type: 'town_proximity', data: { conversation } });
     }
 
-    if (dwell.pending) this.scheduleProximity();
+    if (again.pending) this.scheduleProximity();
+  }
+
+  /** `m`'s conversation as it may know it: only people it can see. */
+  private rosterFor(
+    m: TownMember,
+    groups: Map<string, TownMember[]>,
+  ): TownProximityEvent['data']['conversation'] {
+    if (!m.roomId) return null;
+    // Clusters already exclude pairs who can't see each other; this is
+    // defense in depth.
+    const members: TownVoiceMember[] = (groups.get(m.roomId) ?? [])
+      .filter((r) => r === m || this.canSee(m, r))
+      .map((r) => {
+        if (r !== m && r.pid) r.exposedTo.add(m.did);
+        return { did: r.did, pid: r.pid, ...(r.stay ? { stay: true } : {}) };
+      });
+    return { id: m.roomId, members };
   }
 
   private roomMembers(roomId: string): TownMember[] {
     return [...this.members.values()].filter((m) => m.roomId === roomId);
-  }
-
-  private async sendRoom(voice: TownVoice, roomId: string): Promise<void> {
-    let state = this.rooms.get(roomId);
-    if (!state) {
-      // createRoom once per room (sets the participant cap) — later roster
-      // sends just await it instead of paying a LiveKit round-trip each time.
-      // A failure drops the state, so the retry creates it again.
-      state = {
-        version: 0,
-        ready: voice.ensureRoom(roomId, TOWN_PROXIMITY.maxClusterSize),
-      };
-      this.rooms.set(roomId, state);
-    }
-    const version = ++state.version;
-    const ready = state.ready;
-
-    const targets = this.roomMembers(roomId).map((m) => ({ m, pid: m.pid }));
-    try {
-      await ready;
-      const tokens = await Promise.all(targets.map((t) => voice.issueToken(roomId, t.pid)));
-      // A newer send for this room supersedes us.
-      if (this.rooms.get(roomId) !== state || state.version !== version) return;
-
-      // Roster from live state, not the snapshot — anyone who left while we
-      // were signing is already gone from it.
-      const live = this.roomMembers(roomId);
-      targets.forEach(({ m, pid }, i) => {
-        const token = tokens[i];
-        if (!token || this.members.get(m.ws) !== m || m.roomId !== roomId || m.pid !== pid) return;
-        // Clusters already exclude pairs who can't see each other; this is
-        // defense in depth.
-        const members: TownVoiceMember[] = live
-          .filter((r) => r === m || this.canSee(m, r))
-          .map((r) => ({ did: r.did, pid: r.pid }));
-        this.sendTo(m.ws, {
-          type: 'town_proximity',
-          data: { room: { roomId, url: voice.url, token, selfPid: pid, members } },
-        });
-      });
-      this.reconcileRoom(roomId);
-    } catch (err) {
-      if (this.rooms.get(roomId) !== state) return;
-      log.error({ err, roomId }, 'Failed to set up proximity voice room');
-      this.voiceBackoffUntil = Date.now() + VOICE_RETRY_MS;
-      this.rooms.delete(roomId);
-      // Release everyone so the backoff retry re-forms the room cleanly.
-      for (const m of this.roomMembers(roomId)) {
-        voice.removeParticipant(roomId, m.pid);
-        m.roomId = null;
-        m.pid = '';
-        this.sendTo(m.ws, { type: 'town_proximity', data: { room: null } });
-      }
-      this.scheduleProximity();
-    }
-  }
-
-  /** Evict any LiveKit participant who isn't on the room's current roster. */
-  private reconcileRoom(roomId: string): void {
-    const voice = this.voice;
-    if (!voice || this.disposed) return;
-    voice
-      .listParticipants(roomId)
-      .then((identities) => {
-        const expected = new Set(this.roomMembers(roomId).map((m) => m.pid));
-        for (const identity of identities) {
-          if (!expected.has(identity)) {
-            log.info({ roomId }, 'Evicting unexpected proximity participant');
-            voice.removeParticipant(roomId, identity);
-          }
-        }
-      })
-      .catch((err: unknown) => {
-        log.debug({ err, roomId }, 'Proximity room reconcile skipped');
-      });
   }
 
   private consumeMoveToken(m: TownMember): boolean {

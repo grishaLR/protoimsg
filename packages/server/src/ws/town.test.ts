@@ -2,19 +2,23 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import type { WebSocket } from 'ws';
 import {
   TOWN_DEFAULT_LAYOUT,
+  TOWN_PROXIMITY,
   TOWN_TILE,
   TOWN_VIEW,
   parseTownSceneId,
   townArrival,
   townGateArrival,
   type TownProximityEvent,
+  type TownVoiceMember,
+  type TownVoiceRoomEvent,
 } from '@protoimsg/shared';
 import { BlockService } from '../moderation/block-service.js';
 import type { TownVoice } from '../calls/town-voice.js';
 import { TownRoom } from './town.js';
 import { CommunityTownGraph } from './town-graph.js';
 
-type Room = TownProximityEvent['data']['room'];
+type Convo = TownProximityEvent['data']['conversation'];
+type Voice = TownVoiceRoomEvent['data']['voice'];
 
 interface FakeWs {
   ws: WebSocket;
@@ -26,12 +30,25 @@ function fakeWs(): FakeWs {
   return { ws: { readyState: 1, OPEN: 1, send } as unknown as WebSocket, send };
 }
 
-/** The latest proximity assignment a socket received (undefined = none yet). */
-function lastRoom(s: FakeWs): Room | undefined {
+/**
+ * The latest conversation roster a socket received (undefined = none yet),
+ * with its id as `roomId`.
+ */
+function lastRoom(s: FakeWs): { roomId: string; members: TownVoiceMember[] } | null | undefined {
   const msgs = s.send.mock.calls
     .map((c) => JSON.parse(String(c[0])) as { type: string; data: unknown })
     .filter((m) => m.type === 'town_proximity') as TownProximityEvent[];
-  return msgs.at(-1)?.data.room;
+  if (msgs.length === 0) return undefined;
+  const c: Convo | undefined = msgs.at(-1)?.data.conversation;
+  return c ? { roomId: c.id, members: c.members } : null;
+}
+
+/** The latest scene voice assignment a socket received (undefined = none yet). */
+function lastVoice(s: FakeWs): Voice | undefined {
+  const msgs = s.send.mock.calls
+    .map((c) => JSON.parse(String(c[0])) as { type: string; data: unknown })
+    .filter((m) => m.type === 'town_voice_room') as TownVoiceRoomEvent[];
+  return msgs.at(-1)?.data.voice;
 }
 
 function fakeVoice(participants: string[] = []) {
@@ -64,6 +81,7 @@ describe('TownRoom proximity voice', () => {
   let blocks: BlockService;
   let voice: ReturnType<typeof fakeVoice>;
   let town: TownRoom;
+  const AUDIO = { on: true };
 
   beforeEach(() => {
     vi.useFakeTimers();
@@ -79,23 +97,76 @@ describe('TownRoom proximity voice', () => {
   });
 
   const settle = () => vi.advanceTimersByTimeAsync(1500);
+  const dids = (s: FakeWs) =>
+    lastRoom(s)
+      ?.members.map((m) => m.did)
+      .sort();
 
-  it('puts two nearby synced avatars in one room with a shared roster', async () => {
+  it('puts two nearby synced avatars in one conversation with a shared roster', async () => {
     const a = fakeWs();
     const b = fakeWs();
     town.join(a.ws, A, SQ, OPEN, ROW, 0);
     town.join(b.ws, B, SQ, OPEN + 20, ROW, 0);
     await settle();
 
-    const ra = lastRoom(a);
-    const rb = lastRoom(b);
-    expect(ra?.roomId).toBeDefined();
-    expect(ra?.roomId).toBe(rb?.roomId);
-    expect(ra?.members.map((m) => m.did).sort()).toEqual([A, B]);
-    expect(ra?.selfPid).not.toBe(rb?.selfPid);
+    expect(lastRoom(a)?.roomId).toBeDefined();
+    expect(lastRoom(a)?.roomId).toBe(lastRoom(b)?.roomId);
+    expect(dids(a)).toEqual([A, B]);
+    // Nobody joined audio: no voice room, no LiveKit identities.
+    expect(lastVoice(a)).toBeUndefined();
+    expect(lastRoom(a)?.members.every((m) => m.pid === '')).toBe(true);
   });
 
-  it('keeps voice off until the block list has synced (fail closed)', async () => {
+  it('joining audio gives one shared voice room per scene, and rosters carry identities', async () => {
+    const a = fakeWs();
+    const b = fakeWs();
+    const far = fakeWs();
+    town.join(a.ws, A, SQ, OPEN, ROW, 0, false, AUDIO);
+    town.join(b.ws, B, SQ, OPEN + 20, ROW, 0, false, AUDIO);
+    town.join(far.ws, C, SQ, OPEN + 600, ROW, 0, false, AUDIO);
+    await settle();
+
+    const va = lastVoice(a);
+    const vb = lastVoice(b);
+    expect(va?.room).toBeTruthy();
+    // Everyone in the scene shares it — even someone nowhere near.
+    expect(vb?.room).toBe(va?.room);
+    expect(lastVoice(far)?.room).toBe(va?.room);
+    expect(va?.selfPid).not.toBe(vb?.selfPid);
+    expect(va?.token).toBe(`tok:${va?.room ?? ''}:${va?.selfPid ?? ''}`);
+    // ...but only the conversation is on the roster.
+    expect(lastRoom(a)?.members).toEqual(
+      expect.arrayContaining([
+        { did: A, pid: va?.selfPid },
+        { did: B, pid: vb?.selfPid },
+      ]),
+    );
+    expect(dids(a)).toEqual([A, B]);
+    expect(lastRoom(far)).toBeUndefined();
+  });
+
+  it('joins and leaves audio mid-session', async () => {
+    const a = fakeWs();
+    const b = fakeWs();
+    town.join(a.ws, A, SQ, OPEN, ROW, 0, false, AUDIO);
+    town.join(b.ws, B, SQ, OPEN + 20, ROW, 0);
+    await settle();
+    expect(lastRoom(a)?.members.find((m) => m.did === B)?.pid).toBe('');
+
+    town.setVoiceWanted(b.ws, true);
+    await settle();
+    const pidB = lastVoice(b)?.selfPid;
+    expect(pidB).toBeTruthy();
+    expect(lastRoom(a)?.members.find((m) => m.did === B)?.pid).toBe(pidB);
+
+    town.setVoiceWanted(b.ws, false);
+    await settle();
+    expect(lastVoice(b)).toBeNull();
+    expect(voice.removeParticipant).toHaveBeenCalledWith(expect.any(String), pidB);
+    expect(lastRoom(a)?.members.find((m) => m.did === B)?.pid).toBe('');
+  });
+
+  it('keeps conversations off until the block list has synced (fail closed)', async () => {
     const unsynced = 'did:plc:new';
     const a = fakeWs();
     const u = fakeWs();
@@ -107,14 +178,10 @@ describe('TownRoom proximity voice', () => {
     blocks.sync(unsynced, []);
     town.refreshBlocks();
     await settle();
-    expect(
-      lastRoom(u)
-        ?.members.map((m) => m.did)
-        .sort(),
-    ).toEqual([A, unsynced].sort());
+    expect(dids(u)).toEqual([A, unsynced].sort());
   });
 
-  it('never lets a blocked pair share a room through a bridge', async () => {
+  it('never lets a blocked pair share a conversation through a bridge', async () => {
     blocks.sync(A, [C]);
     const a = fakeWs();
     const b = fakeWs();
@@ -124,101 +191,253 @@ describe('TownRoom proximity voice', () => {
     town.join(c.ws, C, SQ, OPEN + 160, ROW, 0);
     await settle();
 
-    const ra = lastRoom(a);
-    const rc = lastRoom(c);
-    expect(ra?.roomId).not.toBe(rc?.roomId ?? null);
-    expect(ra?.members.map((m) => m.did)).not.toContain(C);
+    expect(lastRoom(a)?.roomId).not.toBe(lastRoom(c)?.roomId ?? null);
+    expect(dids(a)).not.toContain(C);
   });
 
-  it('splits an existing room when someone blocks mid-conversation', async () => {
+  it('splits a conversation when someone blocks mid-conversation', async () => {
     const a = fakeWs();
     const b = fakeWs();
-    town.join(a.ws, A, SQ, OPEN, ROW, 0);
-    town.join(b.ws, B, SQ, OPEN + 20, ROW, 0);
+    town.join(a.ws, A, SQ, OPEN, ROW, 0, false, AUDIO);
+    town.join(b.ws, B, SQ, OPEN + 20, ROW, 0, false, AUDIO);
     await settle();
-    const pidB = lastRoom(b)?.selfPid;
-    expect(pidB).toBeDefined();
+    expect(lastRoom(a)).toBeTruthy();
 
     blocks.sync(A, [B]);
     town.refreshBlocks();
     await settle();
     expect(lastRoom(a)).toBeNull();
     expect(lastRoom(b)).toBeNull();
-    expect(voice.removeParticipant).toHaveBeenCalledWith(expect.any(String), pidB);
   });
 
-  it('evicts the leaver and updates the remaining roster', async () => {
+  it('evicts someone who leaves town and updates the remaining roster', async () => {
     const a = fakeWs();
     const b = fakeWs();
     const c = fakeWs();
-    town.join(a.ws, A, SQ, OPEN, ROW, 0);
-    town.join(b.ws, B, SQ, OPEN + 20, ROW, 0);
-    town.join(c.ws, C, SQ, OPEN + 40, ROW, 0);
+    town.join(a.ws, A, SQ, OPEN, ROW, 0, false, AUDIO);
+    town.join(b.ws, B, SQ, OPEN + 20, ROW, 0, false, AUDIO);
+    town.join(c.ws, C, SQ, OPEN + 40, ROW, 0, false, AUDIO);
     await settle();
     const roomId = lastRoom(a)?.roomId;
-    const pidC = lastRoom(c)?.selfPid;
+    const vc = lastVoice(c);
 
     town.leave(c.ws);
     await settle();
-    expect(voice.removeParticipant).toHaveBeenCalledWith(roomId, pidC);
+    expect(voice.removeParticipant).toHaveBeenCalledWith(vc?.room, vc?.selfPid);
     expect(lastRoom(a)?.roomId).toBe(roomId);
-    expect(
-      lastRoom(a)
-        ?.members.map((m) => m.did)
-        .sort(),
-    ).toEqual([A, B]);
+    expect(dids(a)).toEqual([A, B]);
   });
 
-  it('never shares voice across scenes, even at the same coordinates', async () => {
+  it('a dropped socket keeps its voice identity briefly and resumes it on reconnect', async () => {
+    const a = fakeWs();
+    town.join(a.ws, A, SQ, OPEN, ROW, 0, false, AUDIO);
+    await settle();
+    const v = lastVoice(a);
+    expect(v?.selfPid).toBeTruthy();
+
+    town.leave(a.ws, true);
+    await vi.advanceTimersByTimeAsync(5000);
+    expect(voice.removeParticipant).not.toHaveBeenCalled();
+
+    const a2 = fakeWs();
+    town.join(a2.ws, A, SQ, OPEN, ROW, 0, false, { on: true, pid: v?.selfPid });
+    await settle();
+    expect(lastVoice(a2)).toMatchObject({ room: v?.room, selfPid: v?.selfPid });
+    await vi.advanceTimersByTimeAsync(20_000);
+    expect(voice.removeParticipant).not.toHaveBeenCalledWith(v?.room, v?.selfPid);
+  });
+
+  it('a parked identity lapses, and nobody else can claim it', async () => {
+    const a = fakeWs();
+    town.join(a.ws, A, SQ, OPEN, ROW, 0, false, AUDIO);
+    await settle();
+    const v = lastVoice(a);
+
+    town.leave(a.ws, true);
+    const b = fakeWs();
+    town.join(b.ws, B, SQ, OPEN, ROW, 0, false, { on: true, pid: v?.selfPid });
+    await settle();
+    expect(lastVoice(b)?.selfPid).not.toBe(v?.selfPid);
+
+    await vi.advanceTimersByTimeAsync(10_000);
+    expect(voice.removeParticipant).toHaveBeenCalledWith(v?.room, v?.selfPid);
+  });
+
+  it('never shares a conversation or voice room across scenes', async () => {
     const a = fakeWs();
     const b = fakeWs();
-    town.join(a.ws, A, SQ, OPEN, ROW, 0);
-    town.join(b.ws, B, homeOf(B), OPEN, ROW, 0);
+    town.join(a.ws, A, SQ, OPEN, ROW, 0, false, AUDIO);
+    town.join(b.ws, B, homeOf(B), OPEN, ROW, 0, false, AUDIO);
     await settle();
     expect(lastRoom(a)).toBeUndefined();
     expect(lastRoom(b)).toBeUndefined();
+    expect(lastVoice(a)?.room).not.toBe(lastVoice(b)?.room);
   });
 
-  it('drops voice the moment you walk through a door', async () => {
+  it('drops the conversation and voice room the moment you walk through a door', async () => {
+    const a = fakeWs();
+    const b = fakeWs();
+    town.join(a.ws, A, SQ, OPEN, ROW, 0, false, AUDIO);
+    town.join(b.ws, B, SQ, OPEN + 20, ROW, 0, false, AUDIO);
+    await settle();
+    const before = lastVoice(a);
+    expect(lastRoom(a)).toBeTruthy();
+
+    town.join(a.ws, A, homeOf(A), OPEN, ROW, 0, false, AUDIO);
+    expect(lastRoom(a)).toBeNull();
+    expect(voice.removeParticipant).toHaveBeenCalledWith(before?.room, before?.selfPid);
+    await settle();
+    expect(lastVoice(a)?.room).not.toBe(before?.room);
+    expect(lastVoice(a)?.selfPid).not.toBe(before?.selfPid);
+    expect(lastRoom(b)).toBeNull();
+  });
+
+  it('keeps a link for a short grace past the leave radius', async () => {
     const a = fakeWs();
     const b = fakeWs();
     town.join(a.ws, A, SQ, OPEN, ROW, 0);
     town.join(b.ws, B, SQ, OPEN + 20, ROW, 0);
     await settle();
-    const room = lastRoom(a);
-    expect(room).toBeTruthy();
+    const id = lastRoom(a)?.roomId;
 
-    town.join(a.ws, A, homeOf(A), OPEN, ROW, 0);
-    expect(lastRoom(a)).toBeNull();
-    expect(voice.removeParticipant).toHaveBeenCalledWith(room?.roomId, room?.selfPid);
+    town.move(b.ws, OPEN + TOWN_PROXIMITY.leaveRadius + 40, ROW, 0);
+    await vi.advanceTimersByTimeAsync(1500);
+    expect(lastRoom(a)?.roomId).toBe(id);
+    // Back within range before the grace ends: the same conversation carries on.
+    town.move(b.ws, OPEN + 20, ROW, 0);
     await settle();
-    expect(lastRoom(b)).toBeNull();
+    expect(lastRoom(a)?.roomId).toBe(id);
+
+    town.move(b.ws, OPEN + TOWN_PROXIMITY.leaveRadius + 40, ROW, 0);
+    await vi.advanceTimersByTimeAsync(TOWN_PROXIMITY.linkGraceMs + 500);
+    expect(lastRoom(a)).toBeNull();
   });
 
-  it('reconciles out participants who are not on the roster', async () => {
+  it('"stay together" holds a link at any distance only while both chose it', async () => {
+    const a = fakeWs();
+    const b = fakeWs();
+    town.join(a.ws, A, SQ, OPEN, ROW, 0);
+    town.join(b.ws, B, SQ, OPEN + 20, ROW, 0);
+    await settle();
+    const id = lastRoom(a)?.roomId;
+
+    town.setStay(a.ws, true);
+    town.setStay(b.ws, true);
+    await settle();
+    expect(lastRoom(a)?.members.every((m) => m.stay)).toBe(true);
+    town.move(b.ws, OPEN + 700, ROW, 0);
+    await vi.advanceTimersByTimeAsync(TOWN_PROXIMITY.linkGraceMs + 1500);
+    expect(lastRoom(a)?.roomId).toBe(id);
+
+    town.setStay(b.ws, false);
+    await vi.advanceTimersByTimeAsync(TOWN_PROXIMITY.linkGraceMs + 1500);
+    expect(lastRoom(a)).toBeNull();
+    // A choice about that conversation only: a new one starts without it.
+    town.move(b.ws, OPEN + 20, ROW, 0);
+    await settle();
+    expect(lastRoom(a)?.members.some((m) => m.stay)).toBe(false);
+  });
+
+  it('replaces the voice identity of someone who blocks a person who knew it', async () => {
+    const a = fakeWs();
+    const b = fakeWs();
+    town.join(a.ws, A, SQ, OPEN, ROW, 0, false, AUDIO);
+    town.join(b.ws, B, SQ, OPEN + 20, ROW, 0, false, AUDIO);
+    await settle();
+    const oldA = lastVoice(a)?.selfPid;
+    const oldB = lastVoice(b)?.selfPid;
+    // B learned A's identity from its roster.
+    expect(lastRoom(b)?.members.some((m) => m.pid === oldA)).toBe(true);
+
+    blocks.sync(A, [B]);
+    town.refreshBlocks();
+    await settle();
+    // Both shared rooms are scene-wide: neither may keep following the other.
+    expect(lastVoice(a)?.selfPid).not.toBe(oldA);
+    expect(lastVoice(b)?.selfPid).not.toBe(oldB);
+    expect(voice.removeParticipant).toHaveBeenCalledWith(lastVoice(a)?.room, oldA);
+  });
+
+  it('never resumes a parked identity across a block that landed meanwhile', async () => {
+    const a = fakeWs();
+    const b = fakeWs();
+    town.join(a.ws, A, SQ, OPEN, ROW, 0, false, AUDIO);
+    town.join(b.ws, B, SQ, OPEN + 20, ROW, 0, false, AUDIO);
+    await settle();
+    const v = lastVoice(a);
+
+    town.leave(a.ws, true);
+    blocks.sync(A, [B]);
+    town.refreshBlocks();
+    const a2 = fakeWs();
+    town.join(a2.ws, A, SQ, OPEN, ROW, 0, false, { on: true, pid: v?.selfPid });
+    await settle();
+    expect(lastVoice(a2)?.selfPid).not.toBe(v?.selfPid);
+    expect(voice.removeParticipant).toHaveBeenCalledWith(v?.room, v?.selfPid);
+  });
+
+  it('a reconnect takes its identity over from a socket the server still thinks is alive', async () => {
+    const a = fakeWs();
+    town.join(a.ws, A, SQ, OPEN, ROW, 0, false, AUDIO);
+    await settle();
+    const v = lastVoice(a);
+
+    const a2 = fakeWs();
+    town.join(a2.ws, A, SQ, OPEN, ROW, 0, false, { on: true, pid: v?.selfPid });
+    await settle();
+    expect(lastVoice(a2)?.selfPid).toBe(v?.selfPid);
+    // The dead socket closing later doesn't evict the identity it gave up.
+    town.leave(a.ws);
+    expect(voice.removeParticipant).not.toHaveBeenCalledWith(v?.room, v?.selfPid);
+  });
+
+  it('stops re-issuing tokens after a few tries until the client asks again', async () => {
+    const a = fakeWs();
+    town.join(a.ws, A, SQ, OPEN, ROW, 0, false, AUDIO);
+    await settle();
+    await vi.advanceTimersByTimeAsync(5 * 60_000);
+    const capped = voice.issueToken.mock.calls.length;
+    expect(capped).toBe(1 + 4);
+    town.refreshVoice(a.ws);
+    await vi.advanceTimersByTimeAsync(30_000);
+    expect(voice.issueToken.mock.calls.length).toBeGreaterThan(capped + 1);
+  });
+
+  it('reconciles out participants who are not in the scene', async () => {
     voice = fakeVoice(['p_intruder']);
     town.dispose();
     town = new TownRoom(blocks, voice);
     const a = fakeWs();
-    const b = fakeWs();
-    town.join(a.ws, A, SQ, OPEN, ROW, 0);
-    town.join(b.ws, B, SQ, OPEN + 20, ROW, 0);
+    town.join(a.ws, A, SQ, OPEN, ROW, 0, false, AUDIO);
     await settle();
-    expect(voice.removeParticipant).toHaveBeenCalledWith(lastRoom(a)?.roomId, 'p_intruder');
+    await vi.advanceTimersByTimeAsync(5000);
+    expect(voice.removeParticipant).toHaveBeenCalledWith(lastVoice(a)?.room, 'p_intruder');
   });
 
-  it('re-sends a fresh token when the client asks for a voice refresh', async () => {
+  it('re-issues a token to someone who never showed up in the voice room', async () => {
+    const a = fakeWs();
+    town.join(a.ws, A, SQ, OPEN, ROW, 0, false, AUDIO);
+    await settle();
+    expect(voice.issueToken).toHaveBeenCalledTimes(1);
+    await vi.advanceTimersByTimeAsync(20_000);
+    expect(voice.issueToken.mock.calls.length).toBeGreaterThan(1);
+    expect(voice.issueToken).toHaveBeenLastCalledWith(lastVoice(a)?.room, lastVoice(a)?.selfPid);
+  });
+
+  it('a voice refresh sends a fresh token to the asker only', async () => {
     const a = fakeWs();
     const b = fakeWs();
-    town.join(a.ws, A, SQ, OPEN, ROW, 0);
-    town.join(b.ws, B, SQ, OPEN + 20, ROW, 0);
+    town.join(a.ws, A, SQ, OPEN, ROW, 0, false, AUDIO);
+    town.join(b.ws, B, SQ, OPEN + 20, ROW, 0, false, AUDIO);
     await settle();
-    const before = a.send.mock.calls.length;
+    const tokensB = sent(b, 'town_voice_room').length;
+    const tokensA = sent(a, 'town_voice_room').length;
 
     town.refreshVoice(a.ws);
     await settle();
-    expect(a.send.mock.calls.length).toBeGreaterThan(before);
-    expect(lastRoom(a)?.token).toContain(lastRoom(a)?.selfPid ?? '?');
+    expect(sent(a, 'town_voice_room').length).toBe(tokensA + 1);
+    expect(sent(b, 'town_voice_room').length).toBe(tokensB);
+    expect(lastRoom(a)).toBeTruthy();
   });
 });
 

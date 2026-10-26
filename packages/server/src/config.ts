@@ -25,6 +25,8 @@ const envSchema = z.object({
   OAUTH_CLIENT_ID: z.string().optional(),
   OAUTH_REDIRECT_URI: z.string().url().optional(),
   SENTRY_DSN: z.string().url().optional(),
+  // Overrides NODE_ENV as the Sentry environment tag (staging runs with NODE_ENV=production).
+  SENTRY_ENVIRONMENT: z.string().optional(),
   REDIS_URL: z
     .string()
     .regex(/^rediss?:\/\//)

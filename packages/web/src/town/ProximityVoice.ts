@@ -1,5 +1,6 @@
 import {
   ConnectionState,
+  DisconnectReason,
   Room,
   RoomEvent,
   Track,
@@ -7,14 +8,17 @@ import {
   createLocalVideoTrack,
   type LocalVideoTrack,
   type Participant,
+  type RemoteParticipant,
   type RemoteTrack,
   type RemoteTrackPublication,
   type TrackPublication,
   type VideoTrack,
 } from 'livekit-client';
-import type { TownProximityEvent } from '@protoimsg/shared';
+import type { TownProximityEvent, TownVoiceRoomEvent } from '@protoimsg/shared';
+import { Sentry } from '../sentry';
 
-type VoiceRoom = NonNullable<TownProximityEvent['data']['room']>;
+type VoiceRoom = NonNullable<TownVoiceRoomEvent['data']['voice']>;
+type Conversation = NonNullable<TownProximityEvent['data']['conversation']>;
 
 /** One camera feed in your conversation (yours or a mesh member's). */
 export interface ProximityVideo {
@@ -26,26 +30,72 @@ export interface ProximityVideo {
   paused: boolean;
 }
 
+/**
+ * Where your voice connection stands. `off` until you join audio; then the
+ * real LiveKit state — never inferred from who's nearby.
+ */
+export type VoiceStatus = 'off' | 'connecting' | 'connected' | 'reconnecting' | 'failed';
+
 const RETRY_BASE_MS = 2000;
 const RETRY_MAX_MS = 30_000;
+/** Still not connected after this long: say so, and offer "Reconnect". */
+const CONNECT_TIMEOUT_MS = 15_000;
 
 /**
- * Proximity voice for proto town. The server decides who shares a room (the
- * aura cluster); this follows its assignments — joining, switching or leaving
- * the LiveKit room — and plays everyone's mic audio, plus camera video for
- * anyone who turns theirs on.
+ * One AudioContext for every voice room this page ever joins. A context made
+ * outside a click starts suspended on Safari (and sometimes Chrome), and
+ * LiveKit's default makes a new one per room — so every new conversation
+ * used to come up silent until you happened to click again. This one is
+ * unlocked by your first click or keypress in town and stays unlocked.
+ */
+let sharedAudioContext: AudioContext | null = null;
+
+function townAudioContext(): AudioContext | null {
+  if (sharedAudioContext?.state !== 'closed' && sharedAudioContext) return sharedAudioContext;
+  try {
+    sharedAudioContext = new AudioContext({ latencyHint: 'interactive' });
+  } catch {
+    sharedAudioContext = null;
+  }
+  return sharedAudioContext;
+}
+
+/** Resume town audio. Must run inside a user gesture to lift an autoplay block. */
+export function unlockTownAudio(): void {
+  const ctx = townAudioContext();
+  if (ctx?.state === 'suspended') void ctx.resume().catch(() => undefined);
+}
+
+/**
+ * Proximity voice for proto town, Gather-style. Everyone who joined audio in
+ * a scene shares ONE LiveKit room for as long as they're in it; the server
+ * decides your conversation (the aura cluster), and this only changes who may
+ * hear whom — track permissions and subscriptions — never the connection.
+ * Walking away and back is instant: nothing reconnects.
  *
- * Every assignment takes a sequence number synchronously; after each await we
- * bail if a newer assignment (or destroy) has happened, so a slow connect can
- * never leave you in a stale room or with a hot mic after leaving town.
+ * Privacy: you grant your tracks only to your current conversation's
+ * identities, and subscribe only to theirs. Others in the scene's room see
+ * an anonymous identity, never your audio or video.
+ *
+ * After each await we bail if we've since left that room (another room, no
+ * room, or destroy), so a slow connect can never leave you in a stale room or
+ * with a hot mic after leaving town.
  */
 export class ProximityVoice {
   private room: Room | null = null;
-  private roomId: string | null = null;
-  private selfPid: string | null = null;
+  private roomName: string | null = null;
+  private selfPidValue: string | null = null;
+  /** The last assignment, kept so a failure can be retried. */
+  private assignment: VoiceRoom | null = null;
+  private joined = false;
+  private status: VoiceStatus = 'off';
+  /** Your conversation: other people's identities → DIDs (yourself excluded). */
   private pidToDid = new Map<string, string>();
+  private conversationId: string | null = null;
   private audioEls = new Set<HTMLMediaElement>();
   private micEnabled: boolean;
+  /** Mic changes run one at a time, each re-reading the latest wish. */
+  private micChain: Promise<void> = Promise.resolve();
   /** Camera is live (published, unmuted). Per conversation only — always starts off. */
   private cameraOn = false;
   /** What the user asked for; a start in flight checks this before going live. */
@@ -55,23 +105,34 @@ export class ProximityVoice {
   /** Remote camera feeds the server has paused, by participant identity. */
   private pausedVideo = new Set<string>();
   private prepared = false;
-  private seq = 0;
   private destroyed = false;
   private retryTimer: ReturnType<typeof setTimeout> | null = null;
   private retryDelay = RETRY_BASE_MS;
+  private connectTimer: ReturnType<typeof setTimeout> | null = null;
+  /** A failure was already sent to Sentry since the last good connection. */
+  private reported = false;
+  /** Roster changes apply one at a time (camera-off must finish before new grants). */
+  private rosterChain: Promise<void> = Promise.resolve();
+  private onContextState = (): void => {
+    this.emitAudioBlocked();
+  };
 
-  /** Unique DIDs in your cluster (including you), or [] when nobody is near. */
+  /** Unique DIDs in your conversation (including you), or [] when nobody is near. */
   onMembersChange?: (dids: string[]) => void;
-  /** DIDs currently speaking in your cluster. */
+  /** Whether you chose "stay together" in this conversation (from the server). */
+  onStayChange?: (stay: boolean) => void;
+  /** DIDs currently speaking in your conversation. */
   onSpeakingChange?: (dids: Set<string>) => void;
   /** The browser blocked autoplay — call startAudio() from a user gesture. */
   onAudioBlockedChange?: (blocked: boolean) => void;
-  /** Your mic is being published to the people around you right now. */
+  /** Your mic is being sent to the people around you right now. */
   onLiveChange?: (live: boolean) => void;
   /** Mic permission was denied or no device is available. */
   onMicError?: () => void;
   /** Connection lost or failed — ask the server for a fresh token. */
   onRequestRefresh?: () => void;
+  /** The real voice connection state. */
+  onStatusChange?: (status: VoiceStatus) => void;
   /** Camera feeds currently showing in your conversation. */
   onVideoChange?: (videos: ProximityVideo[]) => void;
   /**
@@ -93,99 +154,147 @@ export class ProximityVoice {
     micEnabled: boolean,
   ) {
     this.micEnabled = micEnabled;
+    townAudioContext()?.addEventListener('statechange', this.onContextState);
   }
 
-  async assign(next: VoiceRoom | null): Promise<void> {
-    if (this.destroyed) return;
-    const seq = ++this.seq;
-    this.clearRetry();
+  /** Your identity in the scene's voice room — sent on reconnect to resume it. */
+  get selfPid(): string | null {
+    return this.selfPidValue;
+  }
 
-    if (!next) {
-      this.pidToDid.clear();
-      this.onMembersChange?.([]);
-      this.leaveRoom();
+  /** You joined (or left) audio. Leaving drops the voice connection. */
+  setJoined(joined: boolean): void {
+    if (this.destroyed || this.joined === joined) return;
+    this.joined = joined;
+    if (joined) {
+      this.setStatus('connecting');
       return;
     }
+    this.clearRetry();
+    this.assignment = null;
+    this.leaveRoom();
+    this.setStatus('off');
+  }
 
-    const before = new Set(this.pidToDid.keys());
-    this.pidToDid = new Map(next.members.map((m) => [m.pid, m.did]));
-    this.onMembersChange?.([...new Set(next.members.map((m) => m.did))]);
+  /** The server's scene voice assignment (`town_voice_room`). */
+  async setVoiceRoom(next: VoiceRoom | null): Promise<void> {
+    if (this.destroyed) return;
+    this.clearRetry();
+    this.assignment = next;
+    if (!next) {
+      this.leaveRoom();
+      this.setStatus(this.joined ? 'connecting' : 'off');
+      return;
+    }
+    if (!this.joined) return;
 
-    // Same room, same identity, still alive → roster refresh only.
-    const room0 = this.room;
+    // Same room, same identity, still alive: a fresh token we don't need.
+    const cur = this.room;
     if (
-      room0 &&
-      next.roomId === this.roomId &&
-      next.selfPid === this.selfPid &&
-      room0.state !== ConnectionState.Disconnected
+      cur &&
+      next.room === this.roomName &&
+      next.selfPid === this.selfPidValue &&
+      cur.state !== ConnectionState.Disconnected
     ) {
-      // Someone new is joining the conversation: your camera goes off BEFORE
-      // they're allowed to subscribe — they never see video you didn't
-      // choose to show them.
-      const joined = next.members.some(
-        (m) => m.pid !== next.selfPid && m.did !== this.selfDid && !before.has(m.pid),
-      );
-      if (joined && (this.cameraOn || this.cameraWanted)) await this.stopCamera(room0, 'joined');
-      this.applyPermissions(room0);
-      this.emitVideo();
       return;
     }
 
     this.leaveRoom();
-    if (this.isStale(seq)) return;
-
+    const ctx = townAudioContext();
     const room = new Room({
       // Only stream video that's actually on screen, at the size it's shown:
       // hidden feeds cost nothing, small tiles get the small layer.
       adaptiveStream: true,
       dynacast: true,
-      // GainNode volume — HTMLMediaElement.volume is ignored on iOS.
-      webAudioMix: true,
+      // GainNode volume — HTMLMediaElement.volume is ignored on iOS. The
+      // shared context stays unlocked across rooms (see townAudioContext).
+      webAudioMix: ctx ? { audioContext: ctx } : true,
       // "Mic off" must release the device, not just mute it.
       publishDefaults: { stopMicTrackOnMute: true },
       // Small tiles — no need to burn bandwidth on HD.
       videoCaptureDefaults: { resolution: VideoPresets.h360.resolution },
     });
     this.room = room;
-    this.roomId = next.roomId;
-    this.selfPid = next.selfPid;
+    this.roomName = next.room;
+    this.selfPidValue = next.selfPid;
     this.bindRoomEvents(room);
+    this.setStatus('connecting');
 
     try {
-      await room.connect(next.url, next.token);
-    } catch {
+      // ICE servers come from LiveKit itself (incl. its TURN/TLS fallback) —
+      // passing our own would replace them, not add to them.
+      await room.connect(next.url, next.token, {
+        // Nothing is heard until it's your conversation's — subscriptions
+        // follow the roster (applySubscriptions).
+        autoSubscribe: false,
+      });
+    } catch (err) {
       if (this.room === room) {
         this.room = null;
-        this.roomId = null;
+        this.roomName = null;
+        this.setStatus('failed');
+        this.reportOnce('connect failed', err);
         this.scheduleRetry();
       }
       return;
     }
-    if (this.isStale(seq) || this.room !== room) {
+    if (this.isStale(room)) {
       room.removeAllListeners();
       await room.disconnect();
       return;
     }
     this.retryDelay = RETRY_BASE_MS;
-    this.applyPermissions(room);
-    this.onAudioBlockedChange?.(!room.canPlaybackAudio);
-    if (this.micEnabled) await this.publishMic(room, seq);
+    this.reported = false;
+    this.setStatus('connected');
+    // The roster may have changed while connecting — apply the latest.
+    this.syncRoster(room);
+    this.emitAudioBlocked();
+  }
+
+  /** The server's conversation roster (`town_proximity`). Applied in order. */
+  setConversation(conv: Conversation | null): Promise<void> {
+    this.rosterChain = this.rosterChain.then(() => this.applyConversation(conv));
+    return this.rosterChain;
+  }
+
+  private async applyConversation(conv: Conversation | null): Promise<void> {
+    if (this.destroyed) return;
+    const before = new Set(this.pidToDid.keys());
+    this.conversationId = conv?.id ?? null;
+    this.pidToDid = new Map(
+      (conv?.members ?? [])
+        .filter((m) => m.pid && m.pid !== this.selfPidValue && m.did !== this.selfDid)
+        .map((m) => [m.pid, m.did]),
+    );
+    this.onMembersChange?.(conv ? [...new Set(conv.members.map((m) => m.did))] : []);
+    this.onStayChange?.(conv?.members.some((m) => m.did === this.selfDid && m.stay) ?? false);
+
+    const room = this.room;
+    if (!conv) {
+      // The conversation is over — your camera goes off with it.
+      if (room && (this.cameraOn || this.cameraWanted)) await this.stopCamera(room, 'ended');
+    } else {
+      // Someone new can hear you: your camera goes off BEFORE they're allowed
+      // to subscribe — they never see video you didn't choose to show them.
+      const joined = [...this.pidToDid.keys()].some((pid) => !before.has(pid));
+      if (joined && room && (this.cameraOn || this.cameraWanted)) {
+        await this.stopCamera(room, 'joined');
+      }
+    }
+    if (this.room) this.syncRoster(this.room);
+    else this.emitVideo();
   }
 
   async setMicEnabled(enabled: boolean): Promise<void> {
     this.micEnabled = enabled;
     const room = this.room;
     if (room?.state === ConnectionState.Connected) {
-      if (enabled) {
-        await this.publishMic(room, this.seq);
-      } else {
-        await room.localParticipant.setMicrophoneEnabled(false);
-        this.onLiveChange?.(false);
-      }
+      this.syncMic(room);
+      await this.micChain;
       return;
     }
     if (!enabled) return;
-    // Not near anyone yet — ask for permission now, inside the click, so the
+    // Not connected yet — ask for permission now, inside the click, so the
     // prompt doesn't ambush you the moment someone walks up.
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
@@ -198,8 +307,8 @@ export class ProximityVoice {
 
   /**
    * Turn your camera on/off for the current conversation. Turning it on only
-   * works while connected (there's nobody to show it to otherwise); turning it
-   * off always works, whatever state the connection is in.
+   * works while connected and in a conversation (there's nobody to show it to
+   * otherwise); turning it off always works.
    */
   async setCameraEnabled(on: boolean): Promise<void> {
     const room = this.room;
@@ -208,12 +317,15 @@ export class ProximityVoice {
       else this.setWanted(false);
       return;
     }
-    if (room?.state !== ConnectionState.Connected) return;
+    if (room?.state !== ConnectionState.Connected || !this.conversationId) return;
     this.setWanted(true);
-    const seq = this.seq;
     const start = ++this.cameraStart;
+    const convo = this.conversationId;
     const live = (): boolean =>
-      !this.isStale(seq) && this.room === room && this.cameraWanted && start === this.cameraStart;
+      !this.isStale(room) &&
+      this.cameraWanted &&
+      start === this.cameraStart &&
+      this.conversationId === convo;
     try {
       await this.startCamera(room, live);
     } finally {
@@ -227,6 +339,11 @@ export class ProximityVoice {
     try {
       if (existing?.track) {
         await room.localParticipant.setCameraEnabled(true);
+        if (!live()) {
+          // Re-enabling reopened the device; don't leave the light on.
+          existing.track.stop();
+          return;
+        }
       } else {
         // Create the track ourselves so a start that's overtaken (left the
         // conversation, clicked off again) can stop the device immediately.
@@ -274,8 +391,8 @@ export class ProximityVoice {
   }
 
   /**
-   * Warm up the LiveKit connection (DNS, TLS, region lookup) so the first
-   * conversation connects faster. Safe to call repeatedly.
+   * Warm up the LiveKit connection (DNS, TLS, region lookup) so joining
+   * connects faster. Safe to call repeatedly.
    */
   prepare(url: string): void {
     if (this.prepared || this.destroyed) return;
@@ -294,27 +411,50 @@ export class ProximityVoice {
     if (!room) return;
     for (const p of room.remoteParticipants.values()) {
       const did = this.pidToDid.get(p.identity);
-      // Unknown pids and your own other tabs stay silent (no echo).
-      p.setVolume(did && did !== this.selfDid ? volumeFor(did) : 0);
+      // Anyone outside your conversation stays silent (they aren't subscribed
+      // anyway — this is belt and braces).
+      p.setVolume(did ? volumeFor(did) : 0);
     }
   }
 
   /** Resume playback after an autoplay block. Must run in a user gesture. */
   async startAudio(): Promise<void> {
+    unlockTownAudio();
     const room = this.room;
     if (room && !room.canPlaybackAudio) await room.startAudio();
+    this.emitAudioBlocked();
+  }
+
+  /**
+   * "Reconnect voice": throw away the connection and ask for a fresh one —
+   * what leaving town and coming back used to be needed for. Run it in the
+   * click (it also unlocks audio).
+   */
+  reconnect(): void {
+    if (this.destroyed || !this.joined) return;
+    unlockTownAudio();
+    this.clearRetry();
+    this.retryDelay = RETRY_BASE_MS;
+    this.reported = false;
+    this.leaveRoom();
+    this.setStatus('connecting');
+    this.onRequestRefresh?.();
   }
 
   destroy(): void {
     this.destroyed = true;
-    this.seq++;
     this.clearRetry();
+    if (this.connectTimer) clearTimeout(this.connectTimer);
+    this.connectTimer = null;
+    townAudioContext()?.removeEventListener('statechange', this.onContextState);
     this.onMembersChange = undefined;
+    this.onStayChange = undefined;
     this.onSpeakingChange = undefined;
     this.onAudioBlockedChange = undefined;
     this.onLiveChange = undefined;
     this.onMicError = undefined;
     this.onRequestRefresh = undefined;
+    this.onStatusChange = undefined;
     this.onVideoChange = undefined;
     this.onCameraChange = undefined;
     this.onCameraError = undefined;
@@ -325,6 +465,9 @@ export class ProximityVoice {
   private bindRoomEvents(room: Room): void {
     // Every handler ignores a room we've already moved on from.
     room
+      .on(RoomEvent.TrackPublished, (_pub: RemoteTrackPublication, p: RemoteParticipant) => {
+        if (this.room === room) this.applySubscriptions(p);
+      })
       .on(RoomEvent.TrackSubscribed, (track: RemoteTrack) => {
         if (this.room !== room) return;
         if (track.kind === Track.Kind.Video) {
@@ -381,57 +524,153 @@ export class ProximityVoice {
         if (this.room !== room) return;
         const dids = new Set<string>();
         for (const s of speakers) {
+          if (s.identity === this.selfPidValue) {
+            dids.add(this.selfDid);
+            continue;
+          }
+          // Speaking indicators are room-wide: show only your conversation.
           const did = this.pidToDid.get(s.identity);
           if (did) dids.add(did);
         }
         this.onSpeakingChange?.(dids);
       })
       .on(RoomEvent.AudioPlaybackStatusChanged, () => {
-        if (this.room !== room) return;
-        this.onAudioBlockedChange?.(!room.canPlaybackAudio);
+        if (this.room === room) this.emitAudioBlocked();
       })
-      .on(RoomEvent.Disconnected, () => {
-        // Unexpected drop (kicked on WS reconnect, network) — not our leave,
+      .on(RoomEvent.Reconnecting, () => {
+        if (this.room === room) this.setStatus('reconnecting');
+      })
+      .on(RoomEvent.Reconnected, () => {
+        if (this.room !== room) return;
+        this.setStatus('connected');
+        this.syncRoster(room);
+      })
+      .on(RoomEvent.Disconnected, (reason?: DisconnectReason) => {
+        // Unexpected drop (evicted, network, server restart) — not our leave,
         // which detaches the room first.
         if (this.room !== room) return;
         this.room = null;
-        this.roomId = null;
+        this.roomName = null;
         this.clearAudio();
         this.clearVideo();
         this.onLiveChange?.(false);
+        // The server took us out (walked through a door, identity replaced):
+        // a new token is on its way — not a failure. The connect timeout
+        // still catches one that never comes.
+        if (
+          reason === DisconnectReason.PARTICIPANT_REMOVED ||
+          reason === DisconnectReason.ROOM_DELETED
+        ) {
+          this.setStatus('connecting');
+          return;
+        }
+        this.setStatus('failed');
+        Sentry.addBreadcrumb({
+          category: 'town.voice',
+          message: 'disconnected',
+          data: { reason: reason !== undefined ? DisconnectReason[reason] : 'unknown' },
+        });
         this.scheduleRetry();
       });
   }
 
-  /**
-   * Only roster members may subscribe to your tracks. LiveKit tokens can't be
-   * revoked, so this stops anyone the server evicted (who reconnects with an
-   * old token) from hearing you before the server reconciles them out.
-   */
-  private applyPermissions(room: Room): void {
-    // LiveKit stores the list and (re)sends it once connected — don't skip it
-    // while reconnecting, or an evicted pid keeps access after resume.
+  /** Permissions, subscriptions and mic to match the current conversation. */
+  private syncRoster(room: Room): void {
     if (room.state === ConnectionState.Disconnected) return;
-    const allowed = [...this.pidToDid.keys()]
-      .filter((pid) => pid !== this.selfPid)
-      .map((pid) => ({ participantIdentity: pid, allowAll: true }));
-    room.localParticipant.setTrackSubscriptionPermissions(false, allowed);
+    this.applyPermissions(room);
+    for (const p of room.remoteParticipants.values()) this.applySubscriptions(p);
+    this.syncMic(room);
+    this.emitVideo();
   }
 
-  private async publishMic(room: Room, seq: number): Promise<void> {
-    try {
-      await room.localParticipant.setMicrophoneEnabled(true);
-    } catch {
-      this.micEnabled = false;
-      this.onMicError?.();
-      return;
+  /**
+   * Only your conversation may subscribe to your tracks. The server decides
+   * who that is; LiveKit enforces it, so nobody else in the scene's room
+   * hears or sees you whatever their client does.
+   */
+  private applyPermissions(room: Room): void {
+    room.localParticipant.setTrackSubscriptionPermissions(
+      false,
+      [...this.pidToDid.keys()].map((pid) => ({ participantIdentity: pid, allowAll: true })),
+    );
+  }
+
+  /** Subscribe to your conversation's tracks, and only theirs. */
+  private applySubscriptions(p: RemoteParticipant): void {
+    const wanted = this.pidToDid.has(p.identity);
+    for (const pub of p.trackPublications.values()) {
+      if (pub.isDesired !== wanted) pub.setSubscribed(wanted);
     }
-    // Superseded while the device was opening — don't leave a hot mic.
-    if (this.isStale(seq) || this.room !== room) {
-      await room.localParticipant.setMicrophoneEnabled(false).catch(() => undefined);
-      return;
+  }
+
+  /**
+   * Send your mic only while someone in your conversation can hear it, and
+   * release the device otherwise. Queued, and each step re-reads the latest
+   * wish, so rapid roster changes always settle on the right state.
+   */
+  private syncMic(room: Room): void {
+    this.micChain = this.micChain.then(async () => {
+      if (this.isStale(room) || room.state !== ConnectionState.Connected) return;
+      const want = this.micEnabled && this.pidToDid.size > 0;
+      if (room.localParticipant.isMicrophoneEnabled === want) {
+        this.onLiveChange?.(want);
+        return;
+      }
+      try {
+        await room.localParticipant.setMicrophoneEnabled(want);
+      } catch (err) {
+        // The room went away mid-change — not a device problem.
+        if (this.isStale(room)) {
+          releaseDevice(room, Track.Source.Microphone);
+          return;
+        }
+        if (want) {
+          this.micEnabled = false;
+          this.onMicError?.();
+          this.reportOnce('mic failed', err);
+        }
+        this.onLiveChange?.(false);
+        return;
+      }
+      // Left while the device was (re)opening: it may be live but unpublished
+      // — stop it, or the OS mic indicator stays on with nobody listening.
+      if (this.isStale(room)) {
+        releaseDevice(room, Track.Source.Microphone);
+        return;
+      }
+      this.onLiveChange?.(want);
+    });
+  }
+
+  private setStatus(status: VoiceStatus): void {
+    if (this.status === status) return;
+    this.status = status;
+    if (this.connectTimer) clearTimeout(this.connectTimer);
+    this.connectTimer = null;
+    if (status === 'connecting') {
+      this.connectTimer = setTimeout(() => {
+        this.connectTimer = null;
+        if (this.status === 'connecting' && this.joined && !this.destroyed) {
+          this.setStatus('failed');
+        }
+      }, CONNECT_TIMEOUT_MS);
     }
-    this.onLiveChange?.(true);
+    this.onStatusChange?.(status);
+  }
+
+  /** Persistent failures retry for as long as you're in town — report the first only. */
+  private reportOnce(what: string, err: unknown): void {
+    if (this.reported) return;
+    this.reported = true;
+    report(what, err);
+  }
+
+  private emitAudioBlocked(): void {
+    const ctx = townAudioContext();
+    const room = this.room;
+    const blocked =
+      (ctx !== null && ctx.state !== 'running') || (room !== null && !room.canPlaybackAudio);
+    this.onAudioBlockedChange?.(blocked);
   }
 
   private setCameraState(on: boolean, reason?: 'joined' | 'ended'): void {
@@ -465,7 +704,7 @@ export class ProximityVoice {
     this.emitVideo();
   }
 
-  /** Rebuild the list of visible camera feeds: yours, then each roster member's. */
+  /** Rebuild the list of visible camera feeds: yours, then each conversation member's. */
   private emitVideo(): void {
     const room = this.room;
     if (!room) {
@@ -485,8 +724,7 @@ export class ProximityVoice {
     }
     for (const p of room.remoteParticipants.values()) {
       const did = this.pidToDid.get(p.identity);
-      // Only roster members, and never your own other tab.
-      if (!did || did === this.selfDid) continue;
+      if (!did) continue;
       const pub = p.getTrackPublication(Track.Source.Camera);
       if (pub?.videoTrack && pub.isSubscribed && !pub.isMuted) {
         videos.push({
@@ -509,13 +747,13 @@ export class ProximityVoice {
     this.onVideoChange?.([]);
   }
 
-  /** A newer assignment (or destroy) happened while we were awaiting. */
-  private isStale(seq: number): boolean {
-    return seq !== this.seq || this.destroyed;
+  /** We left `room` (or were destroyed) while awaiting. */
+  private isStale(room: Room): boolean {
+    return this.room !== room || this.destroyed;
   }
 
   private scheduleRetry(): void {
-    if (this.destroyed || this.retryTimer) return;
+    if (this.destroyed || this.retryTimer || !this.joined) return;
     this.retryTimer = setTimeout(() => {
       this.retryTimer = null;
       this.onRequestRefresh?.();
@@ -532,16 +770,15 @@ export class ProximityVoice {
     for (const el of this.audioEls) el.remove();
     this.audioEls.clear();
     this.onSpeakingChange?.(new Set());
-    this.onAudioBlockedChange?.(false);
   }
 
   private leaveRoom(): void {
     const room = this.room;
     this.room = null;
-    this.roomId = null;
-    this.selfPid = null;
+    this.roomName = null;
+    this.selfPidValue = null;
     this.clearAudio();
-    // The conversation is over (or changing) — your camera goes off with it.
+    // Leaving the room ends your camera too.
     this.clearVideo();
     this.onLiveChange?.(false);
     this.pausedVideo.clear();
@@ -552,4 +789,14 @@ export class ProximityVoice {
       void room.disconnect();
     }
   }
+}
+
+/** Stop a local device track directly — works even after the room disconnected. */
+function releaseDevice(room: Room, source: Track.Source): void {
+  room.localParticipant.getTrackPublication(source)?.track?.stop();
+}
+
+/** Voice failures are invisible to the user's console otherwise — send them to Sentry. */
+function report(what: string, err: unknown): void {
+  Sentry.captureException(err, { tags: { area: 'town-voice' }, extra: { what } });
 }

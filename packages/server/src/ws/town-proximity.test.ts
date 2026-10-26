@@ -167,3 +167,60 @@ describe('buildClusters keeps conversations stable', () => {
     expect(clusters.map((c) => c.map((n) => n.id).sort())).toEqual([[2, 3]]);
   });
 });
+
+describe('buildClusters inside a home (wholeScene)', () => {
+  it('links everyone in the house regardless of distance, dwell or span', () => {
+    const far = BASE + maxSpan * 3;
+    const clusters = buildClusters(
+      [node(1, BASE), node(2, far), node(3, BASE, far)],
+      rules({ newLinkReady: () => false }),
+      true,
+    );
+    expect(ids(clusters)).toEqual([[1, 2, 3]]);
+  });
+
+  it('still keeps incompatible people apart', () => {
+    const blocked = (a: ProxNode, b: ProxNode) =>
+      a.did !== b.did && !([a.id, b.id].includes(1) && [a.id, b.id].includes(3));
+    const clusters = buildClusters(
+      [node(1, BASE), node(2, BASE + 500), node(3, BASE + 900)],
+      rules({ compatible: blocked }),
+      true,
+    );
+    expect(ids(clusters)).toEqual([[1, 2]]);
+  });
+});
+
+describe('buildClusters grace and "stay together"', () => {
+  const far = BASE + leaveRadius + 50;
+
+  it('holds an existing link past the leave radius while the grace lasts', () => {
+    const pair = [node(1, BASE, BASE, 'r'), node(2, far, BASE, 'r')];
+    expect(ids(buildClusters(pair, rules({ holdLink: () => true })))).toEqual([[1, 2]]);
+    expect(buildClusters(pair, rules({ holdLink: () => false }))).toEqual([]);
+  });
+
+  it('never extends grace to people who were not already linked', () => {
+    const pair = [node(1, BASE), node(2, far)];
+    expect(buildClusters(pair, rules({ holdLink: () => true }))).toEqual([]);
+  });
+
+  it('keeps a stay-together link at any distance only when both chose it', () => {
+    const veryFar = BASE + maxSpan * 4;
+    const both = [
+      { ...node(1, BASE, BASE, 'r'), stay: true },
+      { ...node(2, veryFar, BASE, 'r'), stay: true },
+    ];
+    expect(ids(buildClusters(both, rules()))).toEqual([[1, 2]]);
+    const one = [{ ...node(1, BASE, BASE, 'r'), stay: true }, node(2, veryFar, BASE, 'r')];
+    expect(buildClusters(one, rules())).toEqual([]);
+  });
+
+  it('a stay-together link still respects blocks', () => {
+    const both = [
+      { ...node(1, BASE, BASE, 'r'), stay: true },
+      { ...node(2, far, BASE, 'r'), stay: true },
+    ];
+    expect(buildClusters(both, rules({ compatible: () => false }))).toEqual([]);
+  });
+});

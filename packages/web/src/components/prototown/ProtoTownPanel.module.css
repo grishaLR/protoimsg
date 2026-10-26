@@ -73,6 +73,51 @@
   }
 }
 
+/* "You're borrowing a default sprite" — a quiet card with the rpg.actor link. */
+.spriteTip {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--cm-space-3);
+  max-inline-size: var(--cm-panel-width-dm);
+  padding: var(--cm-space-2) var(--cm-space-5);
+  font-size: var(--cm-text-xs);
+  line-height: var(--cm-leading-snug);
+  color: var(--color-base-content);
+  background: var(--color-base-100);
+  border: var(--cm-space-0.5) solid var(--color-base-300);
+  border-radius: var(--cm-radius-sm);
+  box-shadow: var(--cm-raised);
+  pointer-events: auto;
+}
+
+/* Body colour + underline: primary is a fill colour and falls short as text in several themes. */
+.spriteTip a {
+  color: inherit;
+  font-weight: 700;
+  text-decoration: underline;
+}
+
+.spriteTipClose {
+  padding: var(--cm-space-0) var(--cm-space-1);
+  color: inherit;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+@media (pointer: coarse) {
+  .spriteTipClose {
+    min-inline-size: calc(var(--cm-space-16) + var(--cm-space-6));
+    min-block-size: calc(var(--cm-space-16) + var(--cm-space-6));
+  }
+}
+
+.spriteTip a:focus-visible,
+.spriteTipClose:focus-visible {
+  outline: var(--cm-focus-thin) solid var(--cm-focus);
+  outline-offset: var(--cm-focus-offset);
+}
+
 .hud {
   padding: var(--cm-space-2) var(--cm-space-5);
   font-size: var(--cm-text-xs);
@@ -196,6 +241,47 @@
 .live {
   color: var(--color-primary-content);
   background: var(--color-primary);
+}
+
+/* The one click that turns town audio on — the voice bar's main action. */
+.joinAudio {
+  font-weight: 700;
+  color: var(--color-primary-content);
+  background: var(--color-primary);
+}
+
+/* Autoplay fallback: loud on purpose — you can't hear anyone until you tap. */
+.tapToHear {
+  font-weight: 700;
+  color: var(--color-warning-content);
+  background: var(--color-warning);
+}
+
+.voiceStatus::before {
+  content: '●' / '';
+  margin-inline-end: var(--cm-space-2);
+  color: var(--color-base-content);
+  opacity: var(--cm-opacity-disabled);
+}
+
+.status-connected::before {
+  color: var(--color-success);
+  opacity: 1;
+}
+
+.status-connecting::before,
+.status-reconnecting::before {
+  color: var(--color-warning);
+  opacity: 1;
+}
+
+.status-failed {
+  color: var(--color-error);
+}
+
+.status-failed::before {
+  color: var(--color-error);
+  opacity: 1;
 }
 
 .srOnly {
