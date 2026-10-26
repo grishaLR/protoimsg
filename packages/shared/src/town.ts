@@ -224,13 +224,32 @@ export const TOWN_VIEW = { halfWidth: 720, halfHeight: 480 } as const;
 /**
  * Proximity voice ("aura mesh") radii, in world px. Two avatars link when they
  * come within JOIN and stay linked until they drift past LEAVE — the gap is
- * hysteresis so standing at the edge doesn't flap the audio room.
+ * hysteresis so standing at the edge doesn't flap the conversation — and even
+ * then the link holds for `linkGraceMs`, so walking around a table or
+ * stepping aside for a moment doesn't end it.
  */
 export const TOWN_PROXIMITY = {
-  joinRadius: 96,
-  leaveRadius: 132,
-  /** Max avatars sharing one voice room — bounds LiveKit fan-out per cluster. */
+  /** 4 tiles. */
+  joinRadius: TOWN_TILE * 4,
+  /** 6 tiles. */
+  leaveRadius: TOWN_TILE * 6,
+  /** How long a link outlives drifting past LEAVE. */
+  linkGraceMs: 3000,
+  /** Max avatars in one conversation — bounds who each mic is sent to. */
   maxClusterSize: 12,
   /** Max distance from a cluster's seed — stops daisy chains spanning the map. */
-  maxSpan: 288,
+  maxSpan: TOWN_TILE * 12,
+} as const;
+
+/**
+ * Scene voice: everyone who joined audio in a scene shares one LiveKit room
+ * for as long as they're in it (Gather-style). Conversations never reconnect
+ * anything — the server only changes who may hear whom, and each client
+ * grants its tracks to its current conversation alone.
+ */
+export const TOWN_VOICE = {
+  /** LiveKit participant cap for one scene's room. */
+  sceneCap: 100,
+  /** A dropped socket keeps its voice identity this long, so a reconnect resumes it. */
+  resumeMs: 10_000,
 } as const;

@@ -91,6 +91,16 @@
   line-height: var(--cm-leading-snug);
 }
 
+.link {
+  color: inherit;
+  text-decoration: underline;
+}
+
+.link:focus-visible {
+  outline: var(--cm-focus-thin) solid var(--cm-focus);
+  outline-offset: var(--cm-focus-offset);
+}
+
 .footer {
   margin: var(--cm-space-4) var(--cm-space-0);
   font-size: var(--cm-text-xs);

@@ -165,7 +165,20 @@
       "videoTitle": "Vídeo · {{count}}",
       "collapseVideo": "Minimizar",
       "expandVideo": "Mostrar",
-      "videoPaused": "Vídeo pausado · conexão fraca"
+      "videoPaused": "Vídeo pausado · conexão fraca",
+      "join": "Entrar no áudio",
+      "joinHint": "Liga seu microfone e deixa você ouvir as pessoas quando chega perto delas. Um clique só — continua ligado enquanto você anda pela cidade.",
+      "leave": "Sair do áudio",
+      "reconnect": "Reconectar voz",
+      "status": {
+        "off": "Áudio desligado",
+        "connecting": "Conectando áudio…",
+        "connected": "Áudio ligado",
+        "reconnecting": "Reconectando…",
+        "failed": "Não foi possível conectar o áudio"
+      },
+      "stay": "Ficar juntos",
+      "stayHint": "Continue conectado com quem aqui também escolheu ficar, mesmo que vocês se afastem"
     },
     "scenes": {
       "home": {
@@ -351,6 +364,26 @@
         "body": "Sua decoração fica salva na sua própria conta, onde qualquer pessoa pode vê-la, como seus posts. Para isso é preciso mais uma permissão. Você vai confirmar com sua conta e voltar logo em seguida.",
         "allow": "Continuar",
         "notNow": "Agora não"
+      }
+    },
+    "sprite": {
+      "borrowed": "No momento você está usando um sprite padrão para seu personagem.",
+      "create": "Crie o seu no rpg.actor e ele vai aparecer aqui!",
+      "dismiss": "Fechar"
+    },
+    "credits": {
+      "heading": "Créditos",
+      "openpixels": {
+        "name": "OpenPixels",
+        "detail": "blocos de Silveira Neto (CC BY-SA 4.0)"
+      },
+      "townPack": {
+        "name": "Town RPG Pack",
+        "detail": "arte de Luis Zuno (@ansimuz), CC0"
+      },
+      "rpgActor": {
+        "name": "rpg.actor",
+        "detail": "sprites de personagens"
       }
     }
   }

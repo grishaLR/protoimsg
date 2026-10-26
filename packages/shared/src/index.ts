@@ -87,6 +87,9 @@ export type {
   TownChatEvent,
   TownVoiceMember,
   TownProximityEvent,
+  TownVoiceRoomEvent,
+  TownVoiceJoinMessage,
+  TownStayMessage,
   TownDeniedEvent,
   TownViewEvent,
   TownGatesEvent,
@@ -107,6 +110,7 @@ export type {
 export {
   TOWN_TILE,
   TOWN_PROXIMITY,
+  TOWN_VOICE,
   TOWN_VIEW,
   TOWN_LAYOUTS,
   TOWN_HOME_LAYOUT,

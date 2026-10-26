@@ -165,7 +165,20 @@
       "videoTitle": "Video · {{count}}",
       "collapseVideo": "Minimizar",
       "expandVideo": "Mostrar",
-      "videoPaused": "Video en pausa · conexión débil"
+      "videoPaused": "Video en pausa · conexión débil",
+      "join": "Unirse al audio",
+      "joinHint": "Activa tu micrófono y te permite escuchar a la gente cuando te acercas. Un solo clic: sigue activo mientras te mueves por el pueblo.",
+      "leave": "Salir del audio",
+      "reconnect": "Reconectar voz",
+      "status": {
+        "off": "Audio desactivado",
+        "connecting": "Conectando audio…",
+        "connected": "Audio activado",
+        "reconnecting": "Reconectando…",
+        "failed": "No se pudo conectar el audio"
+      },
+      "stay": "Seguir juntos",
+      "stayHint": "Sigue conectado con quienes aquí también eligieron quedarse, aunque se alejen"
     },
     "scenes": {
       "home": {
@@ -351,6 +364,26 @@
         "body": "Tu diseño se guarda en tu propia cuenta, donde cualquiera puede verlo, como tus publicaciones. Para eso hace falta un permiso más. Lo confirmarás con tu cuenta y volverás enseguida.",
         "allow": "Continuar",
         "notNow": "Ahora no"
+      }
+    },
+    "sprite": {
+      "borrowed": "Por ahora estás usando un sprite predeterminado para tu personaje.",
+      "create": "¡Crea el tuyo en rpg.actor y aparecerá aquí!",
+      "dismiss": "Cerrar"
+    },
+    "credits": {
+      "heading": "Créditos",
+      "openpixels": {
+        "name": "OpenPixels",
+        "detail": "tiles de Silveira Neto (CC BY-SA 4.0)"
+      },
+      "townPack": {
+        "name": "Town RPG Pack",
+        "detail": "arte de Luis Zuno (@ansimuz), CC0"
+      },
+      "rpgActor": {
+        "name": "rpg.actor",
+        "detail": "sprites de personajes"
       }
     }
   }

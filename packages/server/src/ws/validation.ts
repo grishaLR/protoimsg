@@ -151,6 +151,8 @@ const townJoin = z.object({
   // Parsed and admission-checked by TownRoom; here only bounded.
   scene: z.string().min(1).max(2100).optional(),
   fof: z.boolean().optional(),
+  voice: z.boolean().optional(),
+  voicePid: z.string().min(1).max(64).optional(),
   x: coord,
   y: coord,
   dir: facing,
@@ -172,6 +174,10 @@ const townChat = z.object({
 const townLeave = z.object({ type: z.literal('town_leave') });
 
 const townVoiceRefresh = z.object({ type: z.literal('town_voice_refresh') });
+
+const townVoiceJoin = z.object({ type: z.literal('town_voice_join'), on: z.boolean() });
+
+const townStay = z.object({ type: z.literal('town_stay'), on: z.boolean() });
 
 const townFof = z.object({ type: z.literal('town_fof'), on: z.boolean() });
 
@@ -237,6 +243,8 @@ const clientMessage = z.discriminatedUnion('type', [
   townChat,
   townLeave,
   townVoiceRefresh,
+  townVoiceJoin,
+  townStay,
 ]);
 
 export type ValidatedClientMessage = z.infer<typeof clientMessage>;

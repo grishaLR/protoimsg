@@ -338,7 +338,20 @@
       "videoTitle": "Video · {{count}}",
       "collapseVideo": "Minimize",
       "expandVideo": "Show",
-      "videoPaused": "Video paused · weak connection"
+      "videoPaused": "Video paused · weak connection",
+      "join": "Join audio",
+      "joinHint": "Turns on your mic and lets you hear people when you walk up to them. One click — it stays on as you move around town.",
+      "leave": "Leave audio",
+      "reconnect": "Reconnect audio",
+      "status": {
+        "off": "Audio off",
+        "connecting": "Connecting audio…",
+        "connected": "Audio on",
+        "reconnecting": "Reconnecting…",
+        "failed": "Couldn't connect audio"
+      },
+      "stay": "Stay together",
+      "stayHint": "Stay connected with people here who also chose to stay, even if you walk apart"
     },
     "scenes": {
       "home": {
@@ -524,6 +537,26 @@
         "body": "Your design is saved to your own account, where anyone can see it, like your posts. That needs one more permission. You'll confirm it with your account and come right back.",
         "allow": "Continue",
         "notNow": "Not now"
+      }
+    },
+    "sprite": {
+      "borrowed": "Right now you're borrowing a default sprite for your character.",
+      "create": "Make your own at rpg.actor and it'll show up here!",
+      "dismiss": "Dismiss"
+    },
+    "credits": {
+      "heading": "Credits",
+      "openpixels": {
+        "name": "OpenPixels",
+        "detail": "tiles by Silveira Neto (CC BY-SA 4.0)"
+      },
+      "townPack": {
+        "name": "Town RPG Pack",
+        "detail": "art by Luis Zuno (@ansimuz), CC0"
+      },
+      "rpgActor": {
+        "name": "rpg.actor",
+        "detail": "character sprites"
       }
     }
   }

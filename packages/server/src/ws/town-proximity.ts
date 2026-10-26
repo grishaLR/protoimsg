@@ -6,8 +6,10 @@ export interface ProxNode {
   did: string;
   x: number;
   y: number;
-  /** Voice room this node is in right now, if any. */
+  /** Conversation this node is in right now, if any. */
   roomId: string | null;
+  /** Chose "stay together" in its current conversation. */
+  stay?: boolean;
 }
 
 export interface ClusterRules {
@@ -21,6 +23,11 @@ export interface ClusterRules {
   compatible(a: ProxNode, b: ProxNode): boolean;
   /** A brand-new link (not yet sharing a room) has dwelled long enough. */
   newLinkReady(a: ProxNode, b: ProxNode): boolean;
+  /**
+   * An existing link that drifted past the leave radius: still within its
+   * grace period? (Absent: no grace.)
+   */
+  holdLink?(a: ProxNode, b: ProxNode): boolean;
 }
 
 function dist2(a: ProxNode, b: ProxNode): number {
@@ -34,10 +41,24 @@ export function isNewLinkCandidate(a: ProxNode, b: ProxNode): boolean {
   );
 }
 
-function linked(a: ProxNode, b: ProxNode, rules: ClusterRules): boolean {
+function sameRoom(a: ProxNode, b: ProxNode): boolean {
+  return a.roomId !== null && a.roomId === b.roomId;
+}
+
+/** Both chose to stay together in the conversation they share. */
+function stayLink(a: ProxNode, b: ProxNode): boolean {
+  return sameRoom(a, b) && a.stay === true && b.stay === true;
+}
+
+function linked(a: ProxNode, b: ProxNode, rules: ClusterRules, wholeScene: boolean): boolean {
+  if (wholeScene) return true;
   const d2 = dist2(a, b);
-  // Hysteresis — an existing link holds until the wider leave radius.
-  if (a.roomId !== null && a.roomId === b.roomId) return d2 < TOWN_PROXIMITY.leaveRadius ** 2;
+  if (sameRoom(a, b)) {
+    if (stayLink(a, b)) return true;
+    // Hysteresis — an existing link holds until the wider leave radius, and
+    // past it for a short grace.
+    return d2 < TOWN_PROXIMITY.leaveRadius ** 2 || (rules.holdLink?.(a, b) ?? false);
+  }
   return d2 < TOWN_PROXIMITY.joinRadius ** 2 && rules.newLinkReady(a, b);
 }
 
@@ -68,6 +89,31 @@ function nearbyPairs(nodes: ProxNode[]): Array<[ProxNode, ProxNode]> {
 }
 
 /**
+ * Pairs already sharing a conversation, at any distance — grace and "stay
+ * together" links can outlast the spatial hash's reach. Bounded by the
+ * cluster cap.
+ */
+function roomPairs(nodes: ProxNode[]): Array<[ProxNode, ProxNode]> {
+  const byRoom = new Map<string, ProxNode[]>();
+  for (const n of nodes) {
+    if (!n.roomId) continue;
+    const list = byRoom.get(n.roomId);
+    if (list) list.push(n);
+    else byRoom.set(n.roomId, [n]);
+  }
+  return [...byRoom.values()].flatMap(allPairs);
+}
+
+/** Every pair — for scenes where distance doesn't matter. */
+function allPairs(nodes: ProxNode[]): Array<[ProxNode, ProxNode]> {
+  const pairs: Array<[ProxNode, ProxNode]> = [];
+  for (const a of nodes) {
+    for (const b of nodes) if (a.id < b.id) pairs.push([a, b]);
+  }
+  return pairs;
+}
+
+/**
  * Group avatars into voice clusters: connected components of the proximity
  * graph ("the mesh"), so A–B–C can all talk even if A and C are farther apart.
  *
@@ -76,8 +122,16 @@ function nearbyPairs(nodes: ProxNode[]): Array<[ProxNode, ProxNode]> {
  * Clusters are capped in size and in span (distance from the seed), so a
  * daisy chain can't stretch audio across the map. Only clusters of 2+ are
  * returned.
+ *
+ * `wholeScene` (inside a home) links everyone regardless of distance or
+ * dwell: the house is one conversation. Compatibility and the size cap
+ * still apply.
  */
-export function buildClusters(nodes: ProxNode[], rules: ClusterRules): ProxNode[][] {
+export function buildClusters(
+  nodes: ProxNode[],
+  rules: ClusterRules,
+  wholeScene = false,
+): ProxNode[][] {
   // People already in a conversation seed first, so a newcomer can never
   // push an existing member out of theirs.
   const eligible = nodes
@@ -85,8 +139,15 @@ export function buildClusters(nodes: ProxNode[], rules: ClusterRules): ProxNode[
     .sort((a, b) => Number(a.roomId === null) - Number(b.roomId === null) || a.id - b.id);
   const adj = new Map<number, ProxNode[]>();
   for (const n of eligible) adj.set(n.id, []);
-  for (const [a, b] of nearbyPairs(eligible)) {
-    if (!linked(a, b, rules)) continue;
+  const seen = new Set<string>();
+  const pairs = wholeScene
+    ? allPairs(eligible)
+    : [...nearbyPairs(eligible), ...roomPairs(eligible)];
+  for (const [a, b] of pairs) {
+    const key = a.id < b.id ? `${String(a.id)}:${String(b.id)}` : `${String(b.id)}:${String(a.id)}`;
+    if (seen.has(key)) continue;
+    seen.add(key);
+    if (!linked(a, b, rules, wholeScene)) continue;
     adj.get(a.id)?.push(b);
     adj.get(b.id)?.push(a);
   }
@@ -111,7 +172,8 @@ export function buildClusters(nodes: ProxNode[], rules: ClusterRules): ProxNode[
       for (const nb of neighbours) {
         if (cluster.length >= TOWN_PROXIMITY.maxClusterSize) break;
         if (visited.has(nb.id)) continue;
-        if (dist2(seed, nb) > maxSpan2) continue;
+        // "Stay together" is a choice both made — distance doesn't apply.
+        if (!wholeScene && !stayLink(cur, nb) && dist2(seed, nb) > maxSpan2) continue;
         if (!cluster.every((m) => rules.compatible(m, nb))) continue;
         visited.add(nb.id);
         cluster.push(nb);

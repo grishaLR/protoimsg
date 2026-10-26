@@ -165,7 +165,20 @@
       "videoTitle": "Video · {{count}}",
       "collapseVideo": "Küçült",
       "expandVideo": "Göster",
-      "videoPaused": "Video duraklatıldı · zayıf bağlantı"
+      "videoPaused": "Video duraklatıldı · zayıf bağlantı",
+      "join": "Sese katıl",
+      "joinHint": "Mikrofonunu açar ve insanların yanına gittiğinde onları duymanı sağlar. Tek tık — kasabada dolaşırken açık kalır.",
+      "leave": "Sesten ayrıl",
+      "reconnect": "Sesi yeniden bağla",
+      "status": {
+        "off": "Ses kapalı",
+        "connecting": "Ses bağlanıyor…",
+        "connected": "Ses açık",
+        "reconnecting": "Yeniden bağlanıyor…",
+        "failed": "Ses bağlanamadı"
+      },
+      "stay": "Birlikte kal",
+      "stayHint": "Uzaklaşsanız bile burada kalmayı seçen kişilerle bağlı kal"
     },
     "scenes": {
       "home": {
@@ -351,6 +364,26 @@
         "body": "Tasarımın kendi hesabına kaydedilir ve gönderilerin gibi herkes onu görebilir. Bunun için bir izin daha gerekiyor. Hesabınla onaylayıp hemen geri döneceksin.",
         "allow": "Devam et",
         "notNow": "Şimdi değil"
+      }
+    },
+    "sprite": {
+      "borrowed": "Şu anda karakterin için varsayılan bir sprite ödünç alıyorsun.",
+      "create": "rpg.actor'da kendininkini oluştur, burada görünsün!",
+      "dismiss": "Kapat"
+    },
+    "credits": {
+      "heading": "Emeği geçenler",
+      "openpixels": {
+        "name": "OpenPixels",
+        "detail": "Silveira Neto'nun karoları (CC BY-SA 4.0)"
+      },
+      "townPack": {
+        "name": "Town RPG Pack",
+        "detail": "Luis Zuno (@ansimuz) çizimleri, CC0"
+      },
+      "rpgActor": {
+        "name": "rpg.actor",
+        "detail": "karakter sprite'ları"
       }
     }
   }

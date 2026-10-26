@@ -165,7 +165,20 @@
       "videoTitle": "Video · {{count}}",
       "collapseVideo": "Thu nhỏ",
       "expandVideo": "Hiện",
-      "videoPaused": "Video tạm dừng · kết nối yếu"
+      "videoPaused": "Video tạm dừng · kết nối yếu",
+      "join": "Tham gia âm thanh",
+      "joinHint": "Bật micro và cho phép bạn nghe mọi người khi bạn đến gần họ. Chỉ một lần nhấp — vẫn bật khi bạn đi quanh thị trấn.",
+      "leave": "Rời âm thanh",
+      "reconnect": "Kết nối lại âm thanh",
+      "status": {
+        "off": "Âm thanh tắt",
+        "connecting": "Đang kết nối âm thanh…",
+        "connected": "Âm thanh bật",
+        "reconnecting": "Đang kết nối lại…",
+        "failed": "Không thể kết nối âm thanh"
+      },
+      "stay": "Ở cùng nhau",
+      "stayHint": "Giữ kết nối với những người ở đây cũng chọn ở lại, kể cả khi các bạn đi xa nhau"
     },
     "scenes": {
       "home": {
@@ -351,6 +364,26 @@
         "body": "Thiết kế của bạn được lưu vào tài khoản của chính bạn, nơi ai cũng có thể xem, giống như bài đăng của bạn. Việc này cần thêm một quyền nữa. Bạn sẽ xác nhận bằng tài khoản của mình và quay lại ngay.",
         "allow": "Tiếp tục",
         "notNow": "Để sau"
+      }
+    },
+    "sprite": {
+      "borrowed": "Hiện bạn đang mượn một sprite mặc định cho nhân vật.",
+      "create": "Tạo sprite của riêng bạn trên rpg.actor và nó sẽ hiện ở đây!",
+      "dismiss": "Đóng"
+    },
+    "credits": {
+      "heading": "Ghi công",
+      "openpixels": {
+        "name": "OpenPixels",
+        "detail": "tile của Silveira Neto (CC BY-SA 4.0)"
+      },
+      "townPack": {
+        "name": "Town RPG Pack",
+        "detail": "hình vẽ của Luis Zuno (@ansimuz), CC0"
+      },
+      "rpgActor": {
+        "name": "rpg.actor",
+        "detail": "sprite nhân vật"
       }
     }
   }

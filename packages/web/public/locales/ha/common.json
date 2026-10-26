@@ -163,7 +163,20 @@
       "videoTitle": "Bidiyo · {{count}}",
       "collapseVideo": "Rage",
       "expandVideo": "Nuna",
-      "videoPaused": "An dakatar da bidiyo · haɗi mara ƙarfi"
+      "videoPaused": "An dakatar da bidiyo · haɗi mara ƙarfi",
+      "join": "Shiga sauti",
+      "joinHint": "Yana kunna makirufonka kuma yana baka damar jin mutane idan ka matso kusa da su. Danna sau ɗaya — zai ci gaba da aiki yayin da kake yawo a gari.",
+      "leave": "Bar sauti",
+      "reconnect": "Sake haɗa murya",
+      "status": {
+        "off": "Sauti a kashe",
+        "connecting": "Ana haɗa sauti…",
+        "connected": "Sauti a kunne",
+        "reconnecting": "Ana sake haɗawa…",
+        "failed": "An kasa haɗa sauti"
+      },
+      "stay": "Zama tare",
+      "stayHint": "Ci gaba da haɗuwa da mutanen nan da suka zaɓi zama ma, ko da kun rabu"
     },
     "scenes": {
       "home": {
@@ -349,6 +362,26 @@
         "body": "Ana adana tsarinka a asusunka na kanka, inda kowa zai iya gani, kamar rubuce-rubucenka. Hakan na buƙatar ƙarin izini ɗaya. Za ka tabbatar da shi da asusunka sannan ka dawo nan take.",
         "allow": "Ci gaba",
         "notNow": "Ba yanzu ba"
+      }
+    },
+    "sprite": {
+      "borrowed": "A yanzu kana aron sprite na asali don haruffanka.",
+      "create": "Ƙirƙiri naka a rpg.actor kuma zai bayyana a nan!",
+      "dismiss": "Rufe"
+    },
+    "credits": {
+      "heading": "Godiya",
+      "openpixels": {
+        "name": "OpenPixels",
+        "detail": "tayal na Silveira Neto (CC BY-SA 4.0)"
+      },
+      "townPack": {
+        "name": "Town RPG Pack",
+        "detail": "zane na Luis Zuno (@ansimuz), CC0"
+      },
+      "rpgActor": {
+        "name": "rpg.actor",
+        "detail": "sprites na haruffa"
       }
     }
   }
