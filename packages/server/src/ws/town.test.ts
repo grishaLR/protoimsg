@@ -1206,6 +1206,36 @@ describe('TownRoom with relationships (visiting, mutuals, gates, friends of frie
       expect(lastRoom(c)).toBeNull(); // no pass any more
     });
 
+    it('when a pass ends, only the leaver reconnects — the rest are swapped once their talk ends', async () => {
+      const { a, b, c } = await setup();
+      for (const s of [a, b, c]) town.setVoiceWanted(s.ws, true);
+      await settle();
+      town.askToJoin(c.ws);
+      town.answerJoin(b.ws, joinRequests(b).at(-1)?.requestId ?? '', true);
+      await settle();
+      expect(lastRoom(c)?.members).toHaveLength(3);
+      const oldB = lastVoice(b)?.selfPid;
+      const oldC = lastVoice(c)?.selfPid;
+
+      town.move(c.ws, 1000, 760, 0);
+      await settle();
+      await vi.advanceTimersByTimeAsync(TOWN_PROXIMITY.linkGraceMs + 1500);
+      expect(
+        lastRoom(b)
+          ?.members.map((m) => m.did)
+          .sort(),
+      ).toEqual([A, B]);
+      // B is still talking with A: no reconnect for them yet.
+      expect(lastVoice(b)?.selfPid).toBe(oldB);
+      expect(lastVoice(c)?.selfPid).not.toBe(oldC);
+
+      town.move(b.ws, 1000, 60, 0);
+      await settle();
+      await vi.advanceTimersByTimeAsync(TOWN_PROXIMITY.linkGraceMs + 1500);
+      expect(lastRoom(b)).toBeNull();
+      expect(lastVoice(b)?.selfPid).not.toBe(oldB);
+    });
+
     it('a "not now" looks like no answer, at the usual time, and you wait to ask again', async () => {
       const { b, c } = await setup();
       town.askToJoin(c.ws);

@@ -1523,10 +1523,16 @@ export class TownRoom {
    * Has anyone who knows `m`'s voice identity lost sight of `m`? Then it must
    * be replaced: the shared room shows an identity's presence and speaking
    * to everyone in it, and a modified client could keep following it.
+   *
+   * A block replaces it at once. Merely losing sight (a join pass ended) waits
+   * while `m` is still in a conversation — replacing it means reconnecting,
+   * which would cut off everyone still talking. They can't subscribe to you
+   * either way; until then they only see presence and speaking.
    */
   private identityCompromised(m: TownMember, byDid: Map<string, TownMember[]>): boolean {
     for (const d of m.exposedTo) {
       if (this.blockService.isBlocked(m.did, d)) return true;
+      if (m.roomId) continue;
       for (const v of byDid.get(d) ?? []) {
         if (v.scene === m.scene && !this.canSee(v, m)) return true;
       }
