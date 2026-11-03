@@ -250,6 +250,48 @@
       "title": "Vecindarios que puedes visitar",
       "close": "Cerrar"
     },
+    "guide": {
+      "name": "ProtoBuddy",
+      "greeting": "¡Hola! Ven a saludar 👋",
+      "talk": "Hablar con {{name}}",
+      "talkHint": "Pulsa E o tócalo",
+      "intro": "¡Bienvenido a proto town! ¿Qué quieres saber?",
+      "close": "Cerrar",
+      "sendAway": "Enviar a {{name}} a la plaza",
+      "bringBack": "Traer a {{name}} a mi vecindario",
+      "bye": "¡Nos vemos en la plaza! Búscame junto al pozo 👋",
+      "comingHome": "Estaré en tu vecindario cuando vuelvas 🏡",
+      "topics": {
+        "what": {
+          "q": "¿Qué es proto town?",
+          "a": "Nuestro pequeño mundo en la ATmosphere. Pasea como tu personaje de rpg.actor, chatea con la gente cercana y visita los vecindarios de tus amigos. Está en beta, así que algunas cosas aún se están construyendo."
+        },
+        "look": {
+          "q": "¿Cómo cambio mi aspecto?",
+          "a": "Tu personaje viene de rpg.actor. Crea uno con su generador de sprites y aparecerá aquí la próxima vez que vengas al pueblo."
+        },
+        "design": {
+          "q": "¿Cómo decoro mi espacio?",
+          "a": "Ve a casa y pulsa B (o Decorar) para organizar tu casa o tu jardín. Todos los que te visiten verán tu diseño. Pon un armario para presumir los objetos de rpg.actor que tienes."
+        },
+        "talk": {
+          "q": "¿Cómo hablo con la gente?",
+          "a": "Acércate a alguien y un aura morada los une. Cuando se ilumina, pueden hablar. Tu micrófono y tu cámara siguen apagados hasta que los enciendas. También puedes escribir en el chat: todos los que estén cerca ven tu burbuja."
+        },
+        "visible": {
+          "q": "¿Quién puede verme aquí?",
+          "a": "El pueblo es como estar en público: quienes están en el mismo espacio pueden verte. En la plaza eso es todo el mundo, a menos que actives amigos de amigos. Tu vecindario es para tu comunidad, y tu casa es solo para ti y para quien dejes pasar. Los bloqueos siempre se aplican."
+        },
+        "around": {
+          "q": "¿Cómo me muevo?",
+          "a": "WASD o las flechas para caminar, y Espacio para correr. Desde casa, sal por la puerta principal a tu vecindario y por su reja a la plaza. Las rejas de la cerca de arriba de la plaza llevan a los vecindarios de amigos que te tienen en su comunidad. Si hay más de los que caben, el letrero muestra el resto."
+        },
+        "help": {
+          "q": "Algo no funciona",
+          "a": "¡Lo siento! Usa Enviar comentarios en el menú de la app y cuéntanos qué pasó. Leemos todos."
+        }
+      }
+    },
     "here": {
       "button": "Aquí: {{count}}",
       "title": "Quién está aquí",

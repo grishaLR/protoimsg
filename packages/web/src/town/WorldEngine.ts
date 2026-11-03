@@ -17,6 +17,7 @@ import {
   TOWN_BUILTINS,
   TOWN_MAX_PLACEMENTS,
   TOWN_PROXIMITY,
+  TOWN_NEIGHBORHOOD_LAYOUT,
   TOWN_SQUARE_LAYOUT,
   townArrival,
   townBuiltin,
@@ -36,7 +37,8 @@ import type {
   TownSpace,
   TownSpawn,
 } from '@protoimsg/shared';
-import { GAME_MASTER_DID, RPG_ACTOR_API_URL } from '../lib/config';
+import { currentSpriteUrl, normalizedSpriteUrl } from '../lib/actor-sprite';
+import { GAME_MASTER_DID } from '../lib/config';
 import { resolveDisplayNameForDid } from '../lib/resolve-pds';
 import {
   Avatar,
@@ -142,6 +144,25 @@ export type TownBuildAction =
 const BUILD_KEY = 'b';
 const ROTATE_KEY = 'r';
 const PICK_UP_KEY = 'e';
+/** Outside build mode, the same key talks to the guide when you're beside him. */
+const TALK_KEY = 'e';
+/** The town guide's sprite sheet (a fixed character, shipped with the app). */
+const GUIDE_SHEET = '/assets/town/protobuddy.png';
+/** Close enough to talk to the guide, and how far to walk off before it ends. */
+const GUIDE_NEAR = TILE * 1.75;
+const GUIDE_FAR = TILE * 2.25;
+/** The guide strolls about near his spot: this far (px), at an easy pace. */
+const GUIDE_WANDER = TILE * 3;
+const GUIDE_SPEED = 36; // px/s, well under a walking player's
+/** He stands a while between strolls (ms, random within the range). */
+const GUIDE_PAUSE_MIN_MS = 2_000;
+const GUIDE_PAUSE_MAX_MS = 6_000;
+/** Sent to the square: he says goodbye, then goes after this long. */
+const GUIDE_LEAVE_MS = 2_500;
+/** The guide's answers are longer than chat: wider bubbles, up long enough to read. */
+const GUIDE_BUBBLE_WRAP = 190;
+const GUIDE_BUBBLE_BASE_MS = 4_000;
+const GUIDE_BUBBLE_MS_PER_CHAR = 55;
 
 /**
  * Build keys belong to the town: the page itself, or anywhere in the town
@@ -172,15 +193,11 @@ function covers(p: TownPlacement, tx: number, ty: number): boolean {
   return !!fp && tx >= p.x && tx < p.x + fp.w && ty >= p.y && ty < p.y + fp.h;
 }
 
-function spriteUrl(did: string): string {
-  return `${RPG_ACTOR_API_URL}/api/sprite/normalized?did=${encodeURIComponent(did)}`;
-}
-
-/** rpg.actor confirms this DID has no sprite (as opposed to being unreachable). */
-async function spriteMissing(did: string): Promise<boolean> {
+/** rpg.actor confirms this sprite doesn't exist (as opposed to being unreachable). */
+async function spriteMissing(url: string): Promise<boolean> {
   try {
     // GET, not HEAD: only called after the image failed, so the body is an error.
-    const res = await fetch(spriteUrl(did));
+    const res = await fetch(url);
     return res.status === 404;
   } catch {
     return false;
@@ -246,6 +263,17 @@ function spaceBelongsToFocus(target: EventTarget | null): boolean {
   return target.closest('button, a, [role="button"]') !== null && target.matches(':focus-visible');
 }
 
+/** How long the guide stands between strolls. */
+function guidePause(): number {
+  return GUIDE_PAUSE_MIN_MS + Math.random() * (GUIDE_PAUSE_MAX_MS - GUIDE_PAUSE_MIN_MS);
+}
+
+/** The direction to face for a move (or a look) of dx, dy. */
+function facing(dx: number, dy: number): number {
+  if (Math.abs(dx) > Math.abs(dy)) return dx < 0 ? DIR_LEFT : DIR_RIGHT;
+  return dy < 0 ? DIR_BACK : DIR_FORWARD;
+}
+
 function clamp(v: number, lo: number, hi: number): number {
   return v < lo ? lo : v > hi ? hi : v;
 }
@@ -266,6 +294,8 @@ function cameraOffset(screen: number, mapSize: number, player: number): number {
 export class WorldEngine {
   private app = new Application();
   private world = new Container();
+  /** Speech bubbles, over everything in the world (nothing covers what's said). */
+  private bubbleLayer = new Container();
   private player = new Avatar('');
   private peers = new Map<string, Peer>();
   /** Server → local time, shared by every peer (one server clock). */
@@ -298,6 +328,21 @@ export class WorldEngine {
   private openSlots = new Set<number>();
   private hasMoreGates = false;
   private onSignpostTile = false;
+  /** The square's guide (ProtoBuddy), while you're in the square. */
+  private guide: Avatar | null = null;
+  private guideFrames: Promise<Texture[][] | null> | null = null;
+  private guideNear = false;
+  /** Where he is now, where he's strolling to, and how long until he moves on. */
+  private guideX = 0;
+  private guideY = 0;
+  private guideTarget: { x: number; y: number } | null = null;
+  private guideWaitMs = 0;
+  /** In your own yard (the panel decides: it knows whose yard, and your choice). */
+  private guideInYard = false;
+  /** Counting down to leaving your yard (0: not leaving). */
+  private guideLeaveMs = 0;
+  private guideName = '';
+  private guideGreeting = '';
   /** Each gate owner's front-facing frame, loaded once per DID. */
   private gateFrames = new Map<string, Promise<Texture | null>>();
   /** The default sprite sheet, shared by every owner without one. */
@@ -380,6 +425,12 @@ export class WorldEngine {
   /** Stepped onto (true) or off (false) the square's signpost. */
   onSignpost?: (on: boolean) => void;
 
+  /** Walked up to (true) or away from (false) the square's guide. */
+  onGuideNear?: (near: boolean) => void;
+
+  /** Asked to talk to the guide: E beside him, or clicked / tapped him. */
+  onGuideTalk?: () => void;
+
   /** Build mode started, changed (piece, what's in front of you) or ended (null). */
   onBuildChange?: (view: TownBuildView | null) => void;
 
@@ -434,6 +485,9 @@ export class WorldEngine {
     this.world.scale.set(SCALE);
     this.world.sortableChildren = true;
     this.app.stage.addChild(this.world);
+    this.bubbleLayer.zIndex = SIGN_Z + 1;
+    this.world.addChild(this.bubbleLayer);
+    this.player.setBubbleLayer(this.bubbleLayer);
     // Build mode aims and acts with the pointer too (mouse and touch).
     this.app.stage.eventMode = 'static';
     this.app.stage.hitArea = this.app.screen;
@@ -477,6 +531,34 @@ export class WorldEngine {
     this.refreshSigns();
   }
 
+  /**
+   * Whether the guide keeps you company in this yard: on in your own
+   * neighborhood unless you've sent him to the square. Turned off while he's
+   * here, he says goodbye (via `guideSay`) and leaves shortly after.
+   */
+  setGuideInYard(on: boolean): void {
+    if (on === this.guideInYard) return;
+    this.guideInYard = on;
+    if (this.map.kind !== 'neighborhood' || !this.ready || this.destroyed) return;
+    if (on) {
+      this.guideLeaveMs = 0;
+      if (!this.guide) void this.addGuide();
+    } else if (this.guide) this.guideLeaveMs = GUIDE_LEAVE_MS;
+  }
+
+  /** The guide's name label and the greeting he says when you walk up. */
+  setGuide(name: string, greeting: string): void {
+    this.guideName = name;
+    this.guideGreeting = greeting;
+    this.guide?.setName(name);
+  }
+
+  /** The guide says `text` in a speech bubble (up longer the more he says). */
+  guideSay(text: string): void {
+    const ms = GUIDE_BUBBLE_BASE_MS + text.length * GUIDE_BUBBLE_MS_PER_CHAR;
+    this.guide?.showBubble(text, ms, GUIDE_BUBBLE_WRAP);
+  }
+
   /** Re-read every sign's text (language changed, a name resolved, …). */
   refreshSigns(): void {
     for (const [id, text] of this.signTexts) text.text = this.signText(id);
@@ -514,6 +596,8 @@ export class WorldEngine {
     this.nearby.clear();
     this.cluster = [];
     this.map = SCENE_MAPS[kind];
+    // Whose yard this is comes from the panel after the swap: no guide until then.
+    this.guideInYard = false;
     this.setLayoutData(layout);
     this.app.renderer.background.color = this.map.background;
     this.px = spawn.x;
@@ -1171,6 +1255,133 @@ export class WorldEngine {
     }
   }
 
+  /** Where the guide stands: on his tile, feet near its bottom edge. */
+  private guideHome(): { x: number; y: number } {
+    const g =
+      this.map.kind === 'neighborhood' ? TOWN_NEIGHBORHOOD_LAYOUT.guide : TOWN_SQUARE_LAYOUT.guide;
+    return { x: (g.x + 0.5) * TILE, y: (g.y + 1) * TILE - 6 };
+  }
+
+  /** Somewhere the guide may stand: open ground (your design too), not a doorway. */
+  private guideCanStand(x: number, y: number): boolean {
+    const tx = Math.floor(x / TILE);
+    const ty = Math.floor(y / TILE);
+    return !this.isBlocked(tx, ty) && !townDoorwayAtTile(this.map.kind, tx, ty);
+  }
+
+  private async addGuide(): Promise<void> {
+    const gen = this.sceneGen;
+    this.guideFrames ??= loadTexture(GUIDE_SHEET).then((sheet) => {
+      if (!sheet) return null;
+      if (this.destroyed) {
+        sheet.destroy(true);
+        return null;
+      }
+      this.ownedTextures.push(sheet);
+      const frames = buildFrames(sheet);
+      this.frameTextures.push(...frames.flat());
+      return frames;
+    });
+    const frames = await this.guideFrames;
+    // Left (or rebuilt) the scene while the sheet loaded, sent away from the
+    // yard meanwhile, or already here (on again before the first load landed).
+    if (!frames || this.destroyed || gen !== this.sceneGen || this.guide) return;
+    if (this.map.kind === 'neighborhood' && !this.guideInYard) return;
+    const guide = new Avatar(this.guideName);
+    guide.setBubbleLayer(this.bubbleLayer);
+    guide.setFrames(frames);
+    // His spot, or somewhere near it if your design stands there.
+    const home = this.guideCanStand(this.guideHome().x, this.guideHome().y)
+      ? this.guideHome()
+      : (this.guideStrollTarget() ?? this.guideHome());
+    this.guideX = home.x;
+    this.guideY = home.y;
+    this.guideTarget = null;
+    this.guideWaitMs = guidePause();
+    guide.setPosition(home.x, home.y);
+    guide.container.eventMode = 'static';
+    guide.container.cursor = 'pointer';
+    // Only beside him (like E): walking away is what ends the chat.
+    guide.container.on('pointertap', () => {
+      if (this.guideNear && !this.atDoor && this.inputEnabled) this.onGuideTalk?.();
+    });
+    this.guide = guide;
+    this.world.addChild(guide.container);
+  }
+
+  /** Somewhere open near his spot to stroll to (null: stay put this time). */
+  private guideStrollTarget(): { x: number; y: number } | null {
+    const home = this.guideHome();
+    for (let i = 0; i < 8; i++) {
+      const x = home.x + (Math.random() * 2 - 1) * GUIDE_WANDER;
+      const y = home.y + (Math.random() * 2 - 1) * GUIDE_WANDER;
+      if (this.guideCanStand(x, y)) return { x, y };
+    }
+    return null;
+  }
+
+  /** Stroll toward the target; false when there's nowhere to go right now. */
+  private strollGuide(guide: Avatar, dtMs: number): boolean {
+    const target = this.guideTarget;
+    if (!target) {
+      this.guideWaitMs -= dtMs;
+      if (this.guideWaitMs <= 0) {
+        this.guideTarget = this.guideStrollTarget();
+        this.guideWaitMs = guidePause();
+      }
+      return false;
+    }
+    const dx = target.x - this.guideX;
+    const dy = target.y - this.guideY;
+    const d = Math.hypot(dx, dy);
+    const step = Math.min(d, (GUIDE_SPEED * dtMs) / 1000);
+    const nx = this.guideX + (dx / (d || 1)) * step;
+    const ny = this.guideY + (dy / (d || 1)) * step;
+    // Arrived, or the fountain / a bench is in the way: stand a while.
+    if (d < 1 || !this.guideCanStand(nx, ny)) {
+      this.guideTarget = null;
+      return false;
+    }
+    this.guideX = nx;
+    this.guideY = ny;
+    guide.dir = facing(dx, dy);
+    return true;
+  }
+
+  /**
+   * The guide strolls about until you're beside him; then he stops and turns
+   * to face you. Client-side only: everyone sees him wander his own way.
+   */
+  private updateGuide(dtMs: number): void {
+    const guide = this.guide;
+    let near = false;
+    // Sent to the square: goodbye said, gone once the moment's passed.
+    if (guide && this.guideLeaveMs > 0) {
+      this.guideLeaveMs -= dtMs;
+      if (this.guideLeaveMs <= 0) {
+        this.guideLeaveMs = 0;
+        guide.destroy();
+        this.guide = null;
+      }
+    }
+    if (guide && this.guide) {
+      const dx = this.px - this.guideX;
+      const dy = this.py - this.guideY;
+      // Leaving: he's done talking (the panel closed his card).
+      near =
+        this.guideLeaveMs === 0 && Math.hypot(dx, dy) < (this.guideNear ? GUIDE_FAR : GUIDE_NEAR);
+      let walking = false;
+      if (near) guide.dir = facing(dx, dy);
+      else walking = this.strollGuide(guide, dtMs);
+      guide.tick(dtMs, walking);
+      guide.setPosition(this.guideX, this.guideY);
+    }
+    if (near === this.guideNear) return;
+    this.guideNear = near;
+    if (near && this.guideGreeting) guide?.showBubble(this.guideGreeting);
+    this.onGuideNear?.(near);
+  }
+
   private async addGateAvatar(owner: string, x: number, y: number): Promise<void> {
     const gen = this.sceneGen;
     let frame = this.gateFrames.get(owner);
@@ -1191,10 +1402,10 @@ export class WorldEngine {
 
   /** One front-facing frame of `owner`'s sheet (the default sheet if they have none). */
   private async loadGateFrame(owner: string): Promise<Texture | null> {
-    let sheet = await loadTexture(spriteUrl(owner));
+    let sheet = await loadTexture(await currentSpriteUrl(owner));
     if (sheet) this.ownedTextures.push(sheet);
     else {
-      this.defaultSheet ??= loadTexture(spriteUrl(GAME_MASTER_DID)).then((t) => {
+      this.defaultSheet ??= loadTexture(normalizedSpriteUrl(GAME_MASTER_DID)).then((t) => {
         if (t) this.ownedTextures.push(t);
         return t;
       });
@@ -1277,6 +1488,11 @@ export class WorldEngine {
    */
   private buildScene(enter = true): void {
     this.sceneGen++;
+    // The guide isn't a scene node: his bubble lives on the bubble layer, so
+    // he's destroyed as an avatar (which takes the bubble with him).
+    this.guide?.destroy();
+    this.guide = null;
+    this.guideLeaveMs = 0;
     // `context: true` frees each Graphics' geometry; textures are shared, keep them.
     for (const node of this.sceneNodes) node.destroy({ children: true, context: true });
     this.sceneNodes = [];
@@ -1303,6 +1519,9 @@ export class WorldEngine {
       this.addSceneNode(this.windowGlow);
     }
     this.buildSignLabels();
+    if (map.kind === 'square' || (map.kind === 'neighborhood' && this.guideInYard)) {
+      void this.addGuide();
+    }
 
     for (const o of art ? map.objects : []) {
       if (!art) break;
@@ -1330,6 +1549,10 @@ export class WorldEngine {
     if (this.onSignpostTile) {
       this.onSignpostTile = false;
       this.onSignpost?.(false);
+    }
+    if (this.guideNear) {
+      this.guideNear = false;
+      this.onGuideNear?.(false);
     }
   }
 
@@ -1410,15 +1633,17 @@ export class WorldEngine {
   private async dressAvatar(avatar: Avatar, did: string): Promise<void> {
     let img: HTMLImageElement | null = null;
     let borrowed = false;
+    // Versioned by the current sprite, so a change shows at once (see actor-sprite).
+    const url = await currentSpriteUrl(did);
     try {
-      img = await loadImage(spriteUrl(did));
+      img = await loadImage(url);
     } catch {
       borrowed = true;
-      img = await loadImage(spriteUrl(GAME_MASTER_DID)).catch(() => null);
+      img = await loadImage(normalizedSpriteUrl(GAME_MASTER_DID)).catch(() => null);
     }
     if (did === this.selfDid && avatar === this.player) {
       // Only a confirmed "no sprite" (404) — not a network blip or outage.
-      const missing = borrowed && (await spriteMissing(did));
+      const missing = borrowed && (await spriteMissing(url));
       if (!this.destroyed) this.onOwnSprite?.(missing);
     }
     if (!this.destroyed && img) {
@@ -1443,6 +1668,7 @@ export class WorldEngine {
   peerJoin(p: TownPeer): void {
     if (p.did === this.selfDid || this.peers.has(p.did)) return;
     const avatar = new Avatar('');
+    avatar.setBubbleLayer(this.bubbleLayer);
     avatar.dir = p.dir;
     if (this.fallbackTex) avatar.setFallbackTexture(this.fallbackTex);
     avatar.setPosition(p.x, p.y);
@@ -1500,6 +1726,21 @@ export class WorldEngine {
   private onKeyDown = (e: KeyboardEvent): void => {
     if (!this.inputEnabled) return;
     if (this.onBuildKey(e)) return;
+    if (
+      this.guideNear &&
+      e.key.toLowerCase() === TALK_KEY &&
+      !e.repeat &&
+      !e.metaKey &&
+      !e.ctrlKey &&
+      !e.altKey &&
+      !isTextEntry(e.target) &&
+      !panelOwnsKeys(e.target) &&
+      buildKeysApply(e.target)
+    ) {
+      this.onGuideTalk?.();
+      e.preventDefault();
+      return;
+    }
     if (e.key === SPRINT_KEY) {
       // Leave Space to a field or a keyboard-focused control; otherwise it's
       // the run key (and shouldn't scroll the page or click a stray button).
@@ -1613,6 +1854,7 @@ export class WorldEngine {
     this.player.tick(dtMs, moving, moving && this.keys.has(SPRINT_KEY) ? SPRINT : 1);
     this.player.setPosition(this.px, this.py);
     this.checkDoorway();
+    this.updateGuide(dtMs);
     // Walking aims in front of you again (until the mouse moves).
     if (moving && this.pointerTile) {
       this.pointerTile = null;

@@ -248,6 +248,48 @@
       "title": "Unguwannin da za ka iya ziyarta",
       "close": "Rufe"
     },
+    "guide": {
+      "name": "ProtoBuddy",
+      "greeting": "Sannu! Zo ka gaishe ni 👋",
+      "talk": "Yi magana da {{name}}",
+      "talkHint": "Danna E ko taɓa shi",
+      "intro": "Barka da zuwa proto town! Me kake son sani?",
+      "close": "Rufe",
+      "sendAway": "Aika {{name}} zuwa dandali",
+      "bringBack": "Kawo {{name}} unguwata",
+      "bye": "Sai mun haɗu a dandali! Za ka same ni a bakin rijiya 👋",
+      "comingHome": "Zan kasance a unguwarka idan ka dawo 🏡",
+      "topics": {
+        "what": {
+          "q": "Mene ne proto town?",
+          "a": "Ƙaramar duniyarmu a kan ATmosphere. Zagaya a matsayin halinka na rpg.actor, ka yi hira da mutanen da ke kusa, ka ziyarci unguwannin abokanka. Tana cikin gwaji, don haka ana ci gaba da gina wasu sassanta."
+        },
+        "look": {
+          "q": "Ta yaya zan canza kamannina?",
+          "a": "Halinka yana zuwa daga rpg.actor. Ƙirƙiri ɗaya da janareta na sprite ɗinsu, kuma zai bayyana a nan a gaba idan ka zo gari."
+        },
+        "design": {
+          "q": "Ta yaya zan ƙawata wurina?",
+          "a": "Je gida, sannan danna B (ko Ƙawata) don shirya gidanka ko harabarka. Duk wanda ya ziyarce ka zai ga tsarinka. Ƙara akwatin tufafi don nuna kayan rpg.actor da kake da su."
+        },
+        "talk": {
+          "q": "Ta yaya zan yi magana da mutane?",
+          "a": "Ka je kusa da wani, haske mai ruwan shunayya zai haɗa ku. Da zarar ya haskaka, za ku iya magana. Makirufo da kyamararka za su kasance a kashe har sai ka kunna su. Haka kuma za ka iya rubutu a akwatin hira: duk wanda ke kusa zai ga kumfarka."
+        },
+        "visible": {
+          "q": "Wa zai iya ganina a nan?",
+          "a": "Gari kamar fita cikin jama’a ne: mutanen da ke wuri ɗaya za su iya ganinka. A dandali wannan kowa ne, sai dai idan ka kunna abokan abokai. Unguwarka ta al'ummarka ce, gidanka kuma naka ne kai kaɗai da duk wanda ka bari ya shigo. Toshewa koyaushe tana aiki."
+        },
+        "around": {
+          "q": "Ta yaya zan zagaya?",
+          "a": "WASD ko kibiyoyi don tafiya, Space kuma don gudu. Daga gida, fita ta ƙofar gaba zuwa unguwarka, sannan ta ƙofar shingenta zuwa dandali. Ƙofofin da ke kan shingen saman dandalin suna kai wa unguwannin abokan da suka saka ka cikin al'ummarsu. Idan sun fi yadda za su isa, allon alama zai jera sauran."
+        },
+        "help": {
+          "q": "Wani abu ya lalace",
+          "a": "Yi haƙuri! Yi amfani da Aika ra'ayi a menu na manhaja ka gaya mana abin da ya faru. Muna karanta kowane ɗaya."
+        }
+      }
+    },
     "here": {
       "button": "Nan: {{count}}",
       "title": "Waye ke nan",

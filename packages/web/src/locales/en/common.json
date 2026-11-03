@@ -423,6 +423,48 @@
       "title": "Neighborhoods you can visit",
       "close": "Close"
     },
+    "guide": {
+      "name": "ProtoBuddy",
+      "greeting": "Hi! Come say hi 👋",
+      "talk": "Talk to {{name}}",
+      "talkHint": "Press E or tap him",
+      "intro": "Welcome to proto town! What do you want to know?",
+      "close": "Close",
+      "sendAway": "Send {{name}} to the square",
+      "bringBack": "Bring {{name}} to my neighborhood",
+      "bye": "See you in the square! Find me by the well 👋",
+      "comingHome": "I'll be in your neighborhood when you get back 🏡",
+      "topics": {
+        "what": {
+          "q": "What is proto town?",
+          "a": "Our little world on the ATmosphere. Walk around as your rpg.actor character, chat with people nearby, and visit friends' neighborhoods. It's in beta, so some of it is still being built."
+        },
+        "look": {
+          "q": "How do I change how I look?",
+          "a": "Your character comes from rpg.actor. Make one with their sprite generator, and it shows up here the next time you come to town."
+        },
+        "design": {
+          "q": "How do I decorate my place?",
+          "a": "Go home, then press B (or Design) to arrange your home or yard. Everyone who visits sees your design. Add a wardrobe to show off rpg.actor items you own."
+        },
+        "talk": {
+          "q": "How do I talk to people?",
+          "a": "Walk up to someone and a purple aura links you. Once it lights up, you can talk. Your mic and camera stay off until you turn them on. You can also type in the chat box: everyone nearby sees your bubble."
+        },
+        "visible": {
+          "q": "Who can see me here?",
+          "a": "Town is like being out in public: people in the same space can see you. In the square that's everyone, unless you turn on friends of friends. Your neighborhood is for your community, and your home is just you and anyone you let in. Blocks always apply."
+        },
+        "around": {
+          "q": "How do I get around?",
+          "a": "WASD or the arrow keys walk, and Space sprints. From home, go out the front door to your neighborhood and out its gate to the square. The gates along the square's top fence lead to the neighborhoods of friends who have you in their community. When there are more than fit, the signpost lists the rest."
+        },
+        "help": {
+          "q": "Something's broken",
+          "a": "Sorry! Use Send Feedback in the app menu and tell us what happened. We read every one."
+        }
+      }
+    },
     "here": {
       "button": "Here: {{count}}",
       "title": "Who's here",

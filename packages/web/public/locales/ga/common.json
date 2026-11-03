@@ -250,6 +250,48 @@
       "title": "Comharsanachtaí ar féidir leat cuairt a thabhairt orthu",
       "close": "Dún"
     },
+    "guide": {
+      "name": "ProtoBuddy",
+      "greeting": "Haigh! Tar agus abair haigh 👋",
+      "talk": "Labhair le {{name}}",
+      "talkHint": "Brúigh E nó tapáil é",
+      "intro": "Fáilte go proto town! Cad ba mhaith leat a fháil amach?",
+      "close": "Dún",
+      "sendAway": "Seol {{name}} chuig an gcearnóg",
+      "bringBack": "Tabhair {{name}} chuig mo chomharsanacht",
+      "bye": "Feicfidh mé sa chearnóg thú! Gheobhaidh tú mé ag an tobar 👋",
+      "comingHome": "Beidh mé i do chomharsanacht nuair a fhillfidh tú 🏡",
+      "topics": {
+        "what": {
+          "q": "Cad é proto town?",
+          "a": "Ár ndomhan beag ar an ATmosphere. Siúil timpeall mar do charachtar rpg.actor, déan comhrá le daoine in aice leat, agus tabhair cuairt ar chomharsanachtaí do chairde. Tá sé i mbéite, mar sin tá cuid de fós á thógáil."
+        },
+        "look": {
+          "q": "Conas a athraím mo chuma?",
+          "a": "Tagann do charachtar ó rpg.actor. Déan ceann lena ngineadóir sprite, agus beidh sé le feiceáil anseo an chéad uair eile a thagann tú chuig an mbaile."
+        },
+        "design": {
+          "q": "Conas a mhaisím m’áit?",
+          "a": "Téigh abhaile, ansin brúigh B (nó Maisigh) chun do theach nó do chlós a shocrú. Feiceann gach duine a thagann ar cuairt do dhearadh. Cuir vardrús leis chun na míreanna rpg.actor atá agat a thaispeáint."
+        },
+        "talk": {
+          "q": "Conas a labhraím le daoine?",
+          "a": "Siúil chuig duine agus nascann aura corcra sibh. Nuair a lasann sé, is féidir libh labhairt. Fanann do mhicreafón agus do cheamara múchta go dtí go gcuireann tú ar siúl iad. Is féidir leat clóscríobh sa bhosca comhrá freisin: feiceann gach duine in aice láimhe do bholgán."
+        },
+        "visible": {
+          "q": "Cé atá in ann mé a fheiceáil anseo?",
+          "a": "Tá an baile mór cosúil le bheith amuigh go poiblí: is féidir le daoine sa spás céanna tú a fheiceáil. Sa chearnóg, sin cách, mura gcuireann tú cairde cairde ar siúl. Is do do phobal do chomharsanacht, agus is duitse amháin do theach agus d’aon duine a ligeann tú isteach. Bíonn bacanna i bhfeidhm i gcónaí."
+        },
+        "around": {
+          "q": "Conas a bhogaim timpeall?",
+          "a": "Siúlann WASD nó na saigheada, agus ritheann tú le Spás. Ón mbaile, téigh amach an príomhdhoras chuig do chomharsanacht agus amach a geata chuig an gcearnóg. Tugann na geataí ar an bhfál ag barr na cearnóige go comharsanachtaí cairde a bhfuil tú ina bpobal. Nuair a bhíonn níos mó ná mar a fheileann ann, liostaíonn an comhartha bóthair an chuid eile."
+        },
+        "help": {
+          "q": "Tá rud éigin briste",
+          "a": "Ár leithscéal! Úsáid Seol aiseolas i roghchlár na haipe agus inis dúinn cad a tharla. Léimid gach ceann acu."
+        }
+      }
+    },
     "here": {
       "button": "Anseo: {{count}}",
       "title": "Cé atá anseo",

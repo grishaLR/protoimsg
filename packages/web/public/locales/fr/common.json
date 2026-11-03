@@ -250,6 +250,48 @@
       "title": "Quartiers que tu peux visiter",
       "close": "Fermer"
     },
+    "guide": {
+      "name": "ProtoBuddy",
+      "greeting": "Salut ! Viens dire bonjour 👋",
+      "talk": "Parler à {{name}}",
+      "talkHint": "Appuie sur E ou touche-le",
+      "intro": "Bienvenue à proto town ! Qu’est-ce que tu veux savoir ?",
+      "close": "Fermer",
+      "sendAway": "Envoyer {{name}} sur la grand-place",
+      "bringBack": "Ramener {{name}} dans mon quartier",
+      "bye": "On se voit sur la grand-place ! Retrouve-moi près du puits 👋",
+      "comingHome": "Je serai dans ton quartier à ton retour 🏡",
+      "topics": {
+        "what": {
+          "q": "C’est quoi, proto town ?",
+          "a": "Notre petit monde sur l’ATmosphere. Promène-toi avec ton personnage rpg.actor, discute avec les gens autour de toi et rends visite aux quartiers de tes amis. C’est en bêta, alors certaines choses sont encore en construction."
+        },
+        "look": {
+          "q": "Comment changer mon apparence ?",
+          "a": "Ton personnage vient de rpg.actor. Crée-en un avec leur générateur de sprites, et il apparaîtra ici la prochaine fois que tu viendras en ville."
+        },
+        "design": {
+          "q": "Comment décorer chez moi ?",
+          "a": "Rentre chez toi, puis appuie sur B (ou Décorer) pour aménager ta maison ou ton jardin. Tous ceux qui te rendent visite voient ton aménagement. Ajoute une penderie pour montrer les objets rpg.actor que tu possèdes."
+        },
+        "talk": {
+          "q": "Comment parler aux gens ?",
+          "a": "Approche-toi de quelqu’un et une aura violette vous relie. Dès qu’elle s’allume, vous pouvez parler. Ton micro et ta caméra restent coupés jusqu’à ce que tu les actives. Tu peux aussi écrire dans la zone de discussion : tout le monde autour voit ta bulle."
+        },
+        "visible": {
+          "q": "Qui peut me voir ici ?",
+          "a": "La ville, c’est comme être dehors en public : les personnes au même endroit peuvent te voir. Sur la grand-place, c’est tout le monde, sauf si tu actives amis d’amis. Ton quartier est pour ta communauté, et ta maison, c’est juste toi et ceux que tu fais entrer. Les blocages s’appliquent toujours."
+        },
+        "around": {
+          "q": "Comment me déplacer ?",
+          "a": "WASD ou les flèches pour marcher, et Espace pour courir. Depuis chez toi, sors par la porte d’entrée vers ton quartier, puis passe son portail pour rejoindre la grand-place. Les portails le long de la clôture du haut de la grand-place mènent aux quartiers des amis qui t’ont dans leur communauté. S’il y en a trop, le panneau affiche les autres."
+        },
+        "help": {
+          "q": "Quelque chose ne marche pas",
+          "a": "Désolé ! Utilise Envoyer un commentaire dans le menu de l’app et raconte-nous ce qui s’est passé. On les lit tous."
+        }
+      }
+    },
     "here": {
       "button": "Ici : {{count}}",
       "title": "Qui est là",

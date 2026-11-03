@@ -93,6 +93,8 @@ export const TOWN_NEIGHBORHOOD_LAYOUT = {
   gate: { x: 15, y: 22, w: 2, h: 1 },
   house: { x: 12, y: 8, w: 8, h: 4 },
   door: { x: 15, y: 11, w: 2, h: 1 },
+  /** The town guide's spot in your own yard, beside the path to the gate. */
+  guide: { x: 18, y: 16 },
 } as const;
 
 /**
@@ -122,6 +124,8 @@ export const TOWN_SQUARE_LAYOUT = {
   },
   /** Stepping here lists every neighborhood you can visit. */
   signpost: { x: 24, y: 3 },
+  /** The town guide's (ProtoBuddy's) spot right of the fountain; he strolls around it. */
+  guide: { x: 23, y: 15 },
 } as const;
 
 /** Max gates the row shows (yours + others); the rest are on the signpost. */
