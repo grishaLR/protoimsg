@@ -58,6 +58,28 @@ export interface AuthContextValue {
 
 export const AuthContext = createContext<AuthContextValue | null>(null);
 
+/**
+ * Start the OAuth redirect to the user's PDS. On desktop the main window is
+ * buddy-list narrow, so widen it first for the PDS sign-in page; initOAuth
+ * shrinks it back once the redirect returns (success, error, or cancel).
+ */
+async function oauthSignIn(identifier: string): Promise<void> {
+  if (IS_TAURI) {
+    const { expandMainWindowForOAuth } = await import('../lib/tauri-windows');
+    await expandMainWindowForOAuth();
+  }
+  try {
+    await getOAuthClient().signIn(identifier, { scope: OAUTH_SCOPE });
+  } catch (err) {
+    // Never left the page (e.g. handle didn't resolve) — shrink back now.
+    if (IS_TAURI) {
+      const { restoreMainWindowAfterOAuth } = await import('../lib/tauri-windows');
+      await restoreMainWindowAfterOAuth();
+    }
+    throw err;
+  }
+}
+
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<OAuthSession | null>(null);
   const [agent, setAgent] = useState<Agent | null>(null);
@@ -188,6 +210,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       oauthClient
         .init()
+        .finally(() => {
+          // Back from the PDS sign-in page (or a plain launch: no-op).
+          if (IS_TAURI) {
+            void import('../lib/tauri-windows').then(({ restoreMainWindowAfterOAuth }) => {
+              void restoreMainWindowAfterOAuth();
+            });
+          }
+        })
         .then(async (result) => {
           if (result) {
             sessionStorage.removeItem('protoimsg:oauth_pending');
@@ -331,10 +361,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     // Flag that an OAuth redirect is in progress — checked on return to
     // decide whether to show the full ConnectingScreen or a quick restore.
     sessionStorage.setItem('protoimsg:oauth_pending', '1');
-    const oauthClient = getOAuthClient();
-    await oauthClient.signIn(inputHandle, {
-      scope: OAUTH_SCOPE,
-    });
+    await oauthSignIn(inputHandle);
     // This redirects to PDS — execution won't continue here.
     // On return, init() in the useEffect above catches the callback.
   }, []);
@@ -343,7 +370,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (!did) return;
     // Same return path as a sign-in; no preflight — this account is already in.
     sessionStorage.setItem('protoimsg:oauth_pending', '1');
-    await getOAuthClient().signIn(did, { scope: OAUTH_SCOPE });
+    await oauthSignIn(did);
   }, [did]);
 
   const logout = useCallback(() => {
