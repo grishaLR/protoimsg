@@ -423,12 +423,26 @@
       "title": "Neighborhoods you can visit",
       "close": "Close"
     },
+    "here": {
+      "button": "Here: {{count}}",
+      "title": "Who's here",
+      "empty": "Just you so far",
+      "more": "+{{count}} more",
+      "close": "Close"
+    },
     "fof": {
       "off": "Friends of friends: off",
       "on": "Friends of friends: on",
       "hint": "When on, only your mutuals and their mutuals can see you here, and you only see them.",
       "announceOn": "Friends-of-friends mode on. Only your mutuals and their mutuals can see you here.",
       "announceOff": "Friends-of-friends mode off. Everyone in the square can see you."
+    },
+    "publicNotice": {
+      "title": "You're out in public",
+      "bodyFof": "In town, people in the same space can see you. You're in friends-of-friends mode, so in the town square only your mutuals and their mutuals see you, and you only see them. You can change this at the top anytime.",
+      "bodyOpen": "In town, people in the same space can see you. In the town square, that's everyone here. Want a smaller crowd? Turn on friends of friends, or head home.",
+      "turnOnFof": "Turn on friends of friends",
+      "ok": "Got it"
     },
     "knock": {
       "prompt": "Knock on {{name}}'s door?",

@@ -209,11 +209,19 @@ function isTextEntry(target: EventTarget | null): boolean {
 }
 
 /**
+ * A panel that handles its own keys (`data-town-keys="own"`, e.g. a list you
+ * scroll with the arrows): while focus is inside it, nothing walks you around.
+ */
+function panelOwnsKeys(target: EventTarget | null): boolean {
+  return target instanceof HTMLElement && target.closest('[data-town-keys="own"]') !== null;
+}
+
+/**
  * Space presses a control only when the keyboard put focus there. A button
  * you clicked with the mouse keeps focus too, but Space should still sprint.
  */
 function spaceBelongsToFocus(target: EventTarget | null): boolean {
-  if (isTextEntry(target)) return true;
+  if (isTextEntry(target) || panelOwnsKeys(target)) return true;
   if (!(target instanceof HTMLElement)) return false;
   return target.closest('button, a, [role="button"]') !== null && target.matches(':focus-visible');
 }
@@ -1301,7 +1309,7 @@ export class WorldEngine {
       return;
     }
     // Typing in any field (a DM, the buddy search) never walks you around.
-    if (!MOVE_KEYS.has(e.key) || isTextEntry(e.target)) return;
+    if (!MOVE_KEYS.has(e.key) || isTextEntry(e.target) || panelOwnsKeys(e.target)) return;
     this.keys.add(e.key);
     e.preventDefault();
   };

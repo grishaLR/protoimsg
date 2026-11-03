@@ -250,12 +250,26 @@
       "title": "Khu phố bạn có thể ghé thăm",
       "close": "Đóng"
     },
+    "here": {
+      "button": "Ở đây: {{count}}",
+      "title": "Ai đang ở đây",
+      "empty": "Hiện chỉ có bạn",
+      "more": "+{{count}} người nữa",
+      "close": "Đóng"
+    },
     "fof": {
       "off": "Bạn của bạn bè: tắt",
       "on": "Bạn của bạn bè: bật",
       "hint": "Khi bật, chỉ bạn bè hai chiều của bạn và bạn bè hai chiều của họ mới thấy bạn ở đây, và bạn cũng chỉ thấy họ.",
       "announceOn": "Đã bật chế độ bạn của bạn bè. Chỉ bạn bè hai chiều của bạn và bạn bè hai chiều của họ mới thấy bạn ở đây.",
       "announceOff": "Đã tắt chế độ bạn của bạn bè. Mọi người trong quảng trường đều thấy bạn."
+    },
+    "publicNotice": {
+      "title": "Bạn đang ở nơi công cộng",
+      "bodyFof": "Trong thị trấn, những người ở cùng không gian có thể thấy bạn. Bạn đang ở chế độ bạn của bạn bè, nên ở quảng trường thị trấn chỉ bạn bè hai chiều của bạn và bạn bè hai chiều của họ mới thấy bạn, và bạn cũng chỉ thấy họ. Bạn có thể đổi ở phía trên bất cứ lúc nào.",
+      "bodyOpen": "Trong thị trấn, những người ở cùng không gian có thể thấy bạn. Ở quảng trường thị trấn, đó là tất cả mọi người. Muốn ít người hơn? Bật bạn của bạn bè, hoặc về nhà.",
+      "turnOnFof": "Bật bạn của bạn bè",
+      "ok": "Đã hiểu"
     },
     "knock": {
       "prompt": "Gõ cửa nhà của {{name}}?",

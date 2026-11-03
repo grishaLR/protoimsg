@@ -35,6 +35,8 @@ import { sceneSpace } from '../../town/map';
 import { BuildConsent, BuildTray } from './TownBuild';
 import { canSaveLayouts, useLayoutSaver } from './useLayoutSaver';
 import { useProfiles } from '../../contexts/ProfileContext';
+import { TownHere } from './TownHere';
+import { TownPublicNotice } from './TownPublicNotice';
 import { TownSignpost } from './TownSignpost';
 import { GuestList, KnockPrompt, RequestCards, type PendingRequest } from './TownKnock';
 import { playDoorOpen, playImNotify } from '../../lib/sounds';
@@ -172,9 +174,24 @@ function closeKnockNotification(): void {
   knockNotification = null;
 }
 
+/**
+ * Friends-of-friends is the default: town is public, so the smaller crowd is
+ * where everyone starts. Only an explicit "off" makes the square fully open.
+ */
 function readFofPref(): boolean {
   try {
-    return localStorage.getItem(FOF_STORAGE_KEY) === 'on';
+    return localStorage.getItem(FOF_STORAGE_KEY) !== 'off';
+  } catch {
+    return true;
+  }
+}
+
+/** The once-only "you're out in public" card for the square. */
+const PUBLIC_NOTICE_KEY = 'protoimsg:townPublicNoticeSeen';
+
+function readPublicNoticeSeen(): boolean {
+  try {
+    return localStorage.getItem(PUBLIC_NOTICE_KEY) === '1';
   } catch {
     return false;
   }
@@ -285,6 +302,7 @@ export function ProtoTownPanel() {
   const [moreGates, setMoreGates] = useState<string[]>([]);
   const [signpostOpen, setSignpostOpen] = useState(false);
   const [fof, setFof] = useState(readFofPref);
+  const [publicNoticeSeen, setPublicNoticeSeen] = useState(readPublicNoticeSeen);
   // Knocking: may you knock on this neighborhood's door; your knock prompt
   // (null = closed); knocks at your own door; your guests; your door's state.
   const canKnockRef = useRef(false);
@@ -302,6 +320,10 @@ export function ProtoTownPanel() {
   const [asking, setAsking] = useState(false);
   const [joinRequests, setJoinRequests] = useState<PendingRequest[]>([]);
   const [guests, setGuests] = useState<string[]>([]);
+  // Everyone in this scene you may see, wherever they stand (server-filtered).
+  // Null until the server says for this scene (never a misleading "0").
+  const [here, setHere] = useState<{ dids: string[]; total: number } | null>(null);
+  const [hereOpen, setHereOpen] = useState(false);
   const [knockingOpen, setKnockingOpen] = useState(readKnockingOpen);
   // Offer knock notifications only where the browser can still ask.
   const [canAskNotify, setCanAskNotify] = useState(
@@ -367,9 +389,23 @@ export function ProtoTownPanel() {
     for (const r of joinRequests) out.add(r.from);
     for (const g of guests) out.add(g);
     if (signpostOpen) for (const d of moreGates.slice(0, SIGNPOST_NAMES)) out.add(d);
+    // Only while the list is open: a busy square shouldn't fetch 100 profiles.
+    if (hereOpen && here) for (const d of here.dids) out.add(d);
     if (did) out.delete(did);
     return [...out];
-  }, [gates, scene, noticeOwner, signpostOpen, moreGates, knocks, joinRequests, guests, did]);
+  }, [
+    gates,
+    scene,
+    noticeOwner,
+    signpostOpen,
+    moreGates,
+    knocks,
+    joinRequests,
+    guests,
+    hereOpen,
+    here,
+    did,
+  ]);
   const { getProfile, version: namesVersion } = useProfiles(nameDids);
   const nameOf = useCallback(
     (d: string) => {
@@ -491,6 +527,8 @@ export function ProtoTownPanel() {
     setKnockPrompt(null);
     setJoinRequests([]);
     setAsking(false);
+    // The server sends the new scene's list shortly; never show the old one.
+    setHere(null);
     // Knock cards and the guest list only make sense inside your own home.
     if (next.kind !== 'home' || next.owner !== didRef.current) {
       setKnocks([]);
@@ -677,6 +715,8 @@ export function ProtoTownPanel() {
       gatesRef.current = [];
       setGates([]);
       setMoreGates([]);
+      setHere(null);
+      setHereOpen(false);
       setSignpostOpen(false);
       setAudioBlocked(false);
       setMicLive(false);
@@ -919,6 +959,9 @@ export function ProtoTownPanel() {
         case 'town_guests':
           setGuests(msg.data.guests);
           break;
+        case 'town_here':
+          setHere(msg.data);
+          break;
         case 'town_view':
           // Batched: who appeared/moved in your view, and who left it.
           for (const p of msg.data.upsert) e.peerMove(p);
@@ -1099,6 +1142,27 @@ export function ProtoTownPanel() {
     }
     announce(t(next ? 'town.fof.announceOn' : 'town.fof.announceOff'));
   }, [fof, send, t]);
+
+  const dismissPublicNotice = useCallback(() => {
+    setPublicNoticeSeen(true);
+    try {
+      localStorage.setItem(PUBLIC_NOTICE_KEY, '1');
+    } catch {
+      // localStorage unavailable — it shows again next time, which is fine
+    }
+  }, []);
+
+  const turnOnFofFromNotice = useCallback(() => {
+    // The ref, not state: a double tap must never toggle it back off.
+    if (!fofRef.current) toggleFof();
+    dismissPublicNotice();
+  }, [toggleFof, dismissPublicNotice]);
+
+  const showPublicNotice = scene?.kind === 'square' && !publicNoticeSeen && !signpostOpen;
+  // Safety copy: make sure screen readers hear it appear, not just sighted users.
+  useEffect(() => {
+    if (showPublicNotice) announce(tRef.current('town.publicNotice.title'));
+  }, [showPublicNotice, announce]);
 
   const knock = useCallback(() => {
     send({ type: 'town_knock' });
@@ -1430,6 +1494,15 @@ export function ProtoTownPanel() {
       <div className={`${styles.topBar} ${bannerShown ? styles.belowBanner : ''}`}>
         <div className={styles.hudGroup}>
           {scene && <div className={styles.sceneChip}>{chipText}</div>}
+          {scene && (
+            <TownHere
+              here={here}
+              open={hereOpen}
+              onOpenChange={setHereOpen}
+              nameOf={nameOf}
+              buttonClassName={`${styles.voiceButton} ${styles.fofToggle}`}
+            />
+          )}
           <div className={styles.hud}>
             {t(touchFirst ? 'town.hud.controlsTouch' : 'town.hud.controls')}
           </div>
@@ -1679,6 +1752,13 @@ export function ProtoTownPanel() {
       {atOwnHome && guests.length > 0 && (
         <GuestList guests={guests} nameOf={nameOf} onAskToLeave={askToLeave} />
       )}
+      {showPublicNotice && (
+        <TownPublicNotice
+          fof={fof}
+          onTurnOnFof={turnOnFofFromNotice}
+          onDismiss={dismissPublicNotice}
+        />
+      )}
       {signpostOpen && moreGates.length > 0 && (
         <TownSignpost
           owners={moreGates}
@@ -1712,7 +1792,8 @@ export function ProtoTownPanel() {
         />
       )}
       {/* Walking on a touch screen; out of the way while the build tray is up. */}
-      {touchFirst && !buildView && (
+      {/* Off while the public notice is up: it sits where the stick does on phones. */}
+      {touchFirst && !buildView && !showPublicNotice && (
         <TownJoystick onMove={(x, y) => engineRef.current?.setStick(x, y)} />
       )}
       {videos.length > 0 && (
