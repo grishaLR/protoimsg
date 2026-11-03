@@ -21,11 +21,13 @@ import {
   townArrival,
   townBuiltin,
   townDoorwayAtTile,
+  townDisplaySlots,
   townFootprint,
   validateTownLayout,
 } from '@protoimsg/shared';
 import type {
   TownBuiltinId,
+  TownDisplayed,
   TownDoorway,
   TownGate,
   TownPeer,
@@ -47,6 +49,8 @@ import {
   buildFrames,
 } from './Avatar';
 import {
+  WARDROBE_SPOTS,
+  arrangeWardrobe,
   buildLampGlow,
   buildStructures,
   buildWindowGlow,
@@ -54,6 +58,9 @@ import {
   sceneSigns,
   type SignId,
 } from './structures';
+import { loadDisplayArt } from './displayArt';
+import { PeerClock, PeerTrack, type PeerSample } from './peerMotion';
+import { pictureKey, type WardrobeItem } from './wardrobeItems';
 import { OPENPIXELS_SHEET, OpenPixels } from './openpixels';
 import {
   ASSET_BASE,
@@ -75,7 +82,6 @@ const SPEED = 132; // px/sec
 const SPRINT = 1.75;
 const MOVE_SEND_MS = 110; // position broadcast throttle
 const PEER_SNAP_DIST = 240; // snap a peer instead of interpolating past this
-const PEER_LERP = 11; // peer position ease rate (per second)
 const MAX_FRAME_MS = 50; // clamp delta time — avoids tunneling on stalls
 
 // Proximity aura mesh — drawn between everyone in your voice cluster.
@@ -111,7 +117,17 @@ export interface TownBuildView {
   /** Carrying a piece you picked up (Escape puts it back). */
   carrying: boolean;
   full: boolean;
+  /**
+   * Your space has a wardrobe (one at most): how many items it can show,
+   * and the ones chosen for it. Wherever you're aiming.
+   */
+  display: { slots: number; chosen: readonly TownDisplayed[] } | null;
 }
+
+/** Items on display art kept loaded at once (oldest dropped). */
+const MAX_DISPLAY_ART = 64;
+/** A wardrobe item's art that failed to load is tried again after this. */
+const ART_RETRY_MS = 60_000;
 
 export type TownBuildAction =
   | 'placed'
@@ -120,7 +136,8 @@ export type TownBuildAction =
   | 'full'
   | 'pickedUp'
   | 'putBack'
-  | 'rotated';
+  | 'rotated'
+  | 'oneWardrobe';
 
 const BUILD_KEY = 'b';
 const ROTATE_KEY = 'r';
@@ -143,6 +160,11 @@ function buildItems(space: TownSpace): TownBuiltinId[] {
   return (Object.keys(TOWN_BUILTINS) as TownBuiltinId[]).filter((id) =>
     (TOWN_BUILTINS[id].spaces as readonly TownSpace[]).includes(space),
   );
+}
+
+/** A wardrobe's picks as one comparable string (item and look, in order). */
+function displayKey(d: readonly TownDisplayed[] | undefined): string {
+  return (d ?? []).map((x) => `${x.item} ${x.look ?? ''}`).join('\n');
 }
 
 function covers(p: TownPlacement, tx: number, ty: number): boolean {
@@ -191,12 +213,10 @@ async function loadTexture(src: string): Promise<Texture | null> {
 
 interface Peer {
   avatar: Avatar;
+  /** Where they're shown now (replayed slightly in the past; see peerMotion). */
   x: number;
   y: number;
-  tx: number;
-  ty: number;
-  /** Walk-cycle speed: 1 walking, SPRINT while they say they're running. */
-  pace: number;
+  track: PeerTrack;
 }
 
 const MOVE_KEYS = new Set(['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'a', 'd', 'w', 's']);
@@ -209,11 +229,19 @@ function isTextEntry(target: EventTarget | null): boolean {
 }
 
 /**
+ * A panel that handles its own keys (`data-town-keys="own"`, e.g. a list you
+ * scroll with the arrows): while focus is inside it, nothing walks you around.
+ */
+function panelOwnsKeys(target: EventTarget | null): boolean {
+  return target instanceof HTMLElement && target.closest('[data-town-keys="own"]') !== null;
+}
+
+/**
  * Space presses a control only when the keyboard put focus there. A button
  * you clicked with the mouse keeps focus too, but Space should still sprint.
  */
 function spaceBelongsToFocus(target: EventTarget | null): boolean {
-  if (isTextEntry(target)) return true;
+  if (isTextEntry(target) || panelOwnsKeys(target)) return true;
   if (!(target instanceof HTMLElement)) return false;
   return target.closest('button, a, [role="button"]') !== null && target.matches(':focus-visible');
 }
@@ -240,6 +268,8 @@ export class WorldEngine {
   private world = new Container();
   private player = new Avatar('');
   private peers = new Map<string, Peer>();
+  /** Server → local time, shared by every peer (one server clock). */
+  private peerClock = new PeerClock();
   private keys = new Set<string>();
   private fallbackTex: Texture | null = null;
   private ownedTextures: Texture[] = [];
@@ -285,6 +315,15 @@ export class WorldEngine {
   private atDoor = false;
   private lastSafe = { x: 0, y: 0 };
 
+  /** Items the scene's wardrobes show (read from the owner's PDS), by item URI. */
+  private displayItems = new Map<string, WardrobeItem>();
+  /** Their art, by pictureKey (image, mask and colours). */
+  private displayArt = new Map<string, Texture>();
+  private displayLoading = new Map<string, AbortController>();
+  /** Art that failed to load, and when (tried again a minute later). */
+  private displayFailed = new Map<string, number>();
+  private redrawQueued = false;
+
   /** The current scene's design (homes and yards), and what it blocks. */
   private layout: TownPlacement[] = [];
   private layoutBlocked = new Set<string>();
@@ -309,6 +348,8 @@ export class WorldEngine {
   private buildGhost: Container | null = null;
   /** What the ghost was last drawn for, so it's only redrawn on change. */
   private ghostKey = '';
+  /** Build mode on hold (choosing wardrobe items): nothing in hand, no ghost. */
+  private buildPaused = false;
   /** Bumped whenever the layout changes (part of the ghost's key). */
   private layoutVersion = 0;
   /** The last view sent to the panel. */
@@ -344,6 +385,9 @@ export class WorldEngine {
 
   /** Something happened in build mode worth saying out loud. */
   onBuildAction?: (action: TownBuildAction) => void;
+
+  /** You put down a new wardrobe (`piece`, as placed): offer to fill it. */
+  onWardrobePlaced?: (piece: TownPlacement) => void;
 
   /** You changed your design: save it. */
   onLayoutEdit?: (space: TownSpace, placements: TownPlacement[]) => void;
@@ -548,6 +592,7 @@ export class WorldEngine {
 
   /** Leave build mode (no-op when not building). A carried piece goes back. */
   endBuild(): void {
+    this.buildPaused = false;
     if (!this.build) return;
     this.putBack();
     this.build = null;
@@ -617,7 +662,13 @@ export class WorldEngine {
     const def = townBuiltin(id);
     if (!id || !def) return null;
     const rotation = def.rotates ? build.rotation : 0;
-    const piece = { builtin: id, ...(rotation ? { rotation } : {}) };
+    // A wardrobe you're moving keeps what's on it.
+    const display = build.carrying?.piece.display;
+    const piece = {
+      builtin: id,
+      ...(rotation ? { rotation } : {}),
+      ...(display?.length ? { display } : {}),
+    };
     const fp = townFootprint(piece);
     if (!fp) return null;
     const midW = Math.floor((fp.w - 1) / 2);
@@ -638,7 +689,7 @@ export class WorldEngine {
   private fits(c: TownPlacement): boolean {
     if (!this.build || this.layout.length >= TOWN_MAX_PLACEMENTS) return false;
     const next = [...this.layout, c];
-    return validateTownLayout(this.build.space, next).length === next.length;
+    return validateTownLayout(this.build.space, next, this.selfDid).length === next.length;
   }
 
   /** The topmost piece covering the tile you're aiming at. */
@@ -662,12 +713,20 @@ export class WorldEngine {
       return;
     }
     if (!this.fits(c)) {
-      this.onBuildAction?.('blocked');
+      const def = townBuiltin(c.builtin);
+      const taken =
+        !!def &&
+        'max' in def &&
+        this.layout.filter((p) => p.builtin === c.builtin).length >= (def.max ?? Infinity);
+      this.onBuildAction?.(taken ? 'oneWardrobe' : 'blocked');
       return;
     }
+    const moved = !!build.carrying;
     build.carrying = null;
     this.commitLayout([...this.layout, c]);
     this.onBuildAction?.('placed');
+    // A new wardrobe: choosing what goes on it is the obvious next step.
+    if (!moved && townDisplaySlots(c.builtin) > 0) this.onWardrobePlaced?.(c);
   }
 
   /** Pick up the piece you're aiming at, to move it (it rides in your hand). */
@@ -727,7 +786,7 @@ export class WorldEngine {
   }
 
   private onStagePointerMove = (e: FederatedPointerEvent): void => {
-    if (this.build && e.pointerType === 'mouse') this.aimAt(e);
+    if (this.build && !this.buildPaused && e.pointerType === 'mouse') this.aimAt(e);
   };
 
   /**
@@ -743,7 +802,7 @@ export class WorldEngine {
    * in hand. Right-click takes the piece there away.
    */
   private onStagePointerDown = (e: FederatedPointerEvent): void => {
-    if (!this.build) return;
+    if (!this.build || this.buildPaused) return;
     this.aimAt(e);
     if (e.button === 2) {
       this.removeAtCursor();
@@ -795,6 +854,7 @@ export class WorldEngine {
     ghost.eventMode = 'none';
     const marks = new Graphics();
     const target = aimed >= 0 && !build.carrying ? this.layout[aimed] : undefined;
+    const wardrobe = this.wardrobe();
     const targetFp = target ? townFootprint(target) : null;
     if (target && targetFp) {
       marks
@@ -823,6 +883,7 @@ export class WorldEngine {
       }
     }
     ghost.addChild(marks);
+    ghost.visible = !this.buildPaused;
     this.buildGhost = ghost;
     this.world.addChild(ghost);
 
@@ -838,6 +899,9 @@ export class WorldEngine {
       canRemove: !!build.carrying || aimed >= 0,
       carrying: !!build.carrying,
       full: this.layout.length >= TOWN_MAX_PLACEMENTS,
+      display: wardrobe
+        ? { slots: townDisplaySlots(wardrobe.builtin), chosen: wardrobe.display ?? [] }
+        : null,
     };
     // Tell the panel only when the tray would change, not on every step.
     const last = this.lastView;
@@ -849,7 +913,9 @@ export class WorldEngine {
       last.canPickUp === view.canPickUp &&
       last.canRemove === view.canRemove &&
       last.carrying === view.carrying &&
-      last.full === view.full
+      last.full === view.full &&
+      last.display?.slots === view.display?.slots &&
+      displayKey(last.display?.chosen) === displayKey(view.display?.chosen)
     ) {
       return;
     }
@@ -875,7 +941,139 @@ export class WorldEngine {
       s.zIndex = def.solid ? p.y * TILE + h - 1 : -4400;
       return s;
     }
-    return drawPlacement(this.art, p);
+    const node = drawPlacement(this.art, p);
+    if (node && p.builtin === 'wardrobe' && p.display?.length) this.dressWardrobe(node, p.display);
+    return node;
+  }
+
+  /** Hang a wardrobe's items on it: hats up top, clothes on the rail, the rest below. */
+  private dressWardrobe(node: Container, display: readonly TownDisplayed[]): void {
+    const shown = display
+      .map((d) => this.displayItems.get(d.item))
+      .filter((i): i is WardrobeItem => i !== undefined);
+    const spots = arrangeWardrobe(shown.map((i) => i.category));
+    shown.forEach((item, n) => {
+      const spot = WARDROBE_SPOTS[spots[n] ?? -1];
+      const tex = this.displayArt.get(pictureKey(item));
+      if (!spot || !tex) return;
+      const s = new Sprite(tex);
+      // Whole-pixel scaling when it fits at 1× or more, so pixel art stays crisp.
+      const fit = Math.min(spot.w / tex.width, spot.h / tex.height);
+      s.scale.set(fit >= 1 ? Math.floor(fit) : fit);
+      const hung = spot.kind === 'hang';
+      s.anchor.set(0.5, hung ? 0 : 1);
+      s.position.set(spot.x, spot.y);
+      node.addChild(s);
+    });
+  }
+
+  /**
+   * The items the scene's wardrobes show, read from the owner's PDS. Applied
+   * even mid-design: they're art, not layout. Their art loads in the
+   * background and the room redraws as it arrives.
+   */
+  setDisplayItems(items: readonly WardrobeItem[]): void {
+    const same =
+      items.length === this.displayItems.size &&
+      items.every((i) => {
+        const had = this.displayItems.get(i.uri);
+        return !!had && pictureKey(had) === pictureKey(i);
+      });
+    this.displayItems = new Map(items.map((i) => [i.uri, i]));
+    for (const item of items) {
+      const key = pictureKey(item);
+      if (this.displayLoading.has(key)) continue;
+      // Loaded, or failed under a minute ago: nothing to do yet.
+      if (
+        this.displayArt.get(key) ||
+        Date.now() - (this.displayFailed.get(key) ?? 0) < ART_RETRY_MS
+      ) {
+        continue;
+      }
+      const ac = new AbortController();
+      this.displayLoading.set(key, ac);
+      void loadDisplayArt(item, ac.signal).then((tex) => {
+        this.displayLoading.delete(key);
+        if (this.destroyed || ac.signal.aborted) {
+          tex?.destroy(true);
+          return;
+        }
+        if (tex) {
+          this.displayFailed.delete(key);
+          this.rememberArt(key, tex);
+          this.redrawDisplays();
+        } else {
+          this.displayFailed.set(key, Date.now());
+        }
+      });
+    }
+    if (!same) this.redrawDisplays();
+  }
+
+  /** Some wardrobe here (placed, or in your hands) shows items. */
+  private showsItems(): boolean {
+    return (
+      this.layout.some((p) => p.display?.length) || !!this.build?.carrying?.piece.display?.length
+    );
+  }
+
+  /** Redraw dressed wardrobes once this frame, however many pictures arrived. */
+  private redrawDisplays(): void {
+    if (this.redrawQueued || !this.ready || this.destroyed || !this.showsItems()) return;
+    this.redrawQueued = true;
+    requestAnimationFrame(() => {
+      this.redrawQueued = false;
+      if (this.destroyed || !this.ready) return;
+      this.drawLayout();
+      this.ghostKey = '';
+      this.updateGhost();
+    });
+  }
+
+  private rememberArt(key: string, tex: Texture): void {
+    this.displayArt.set(key, tex);
+    if (this.displayArt.size <= MAX_DISPLAY_ART) return;
+    // Drop the oldest art nothing here shows any more.
+    const inUse = new Set([...this.displayItems.values()].map(pictureKey));
+    for (const [old, t] of this.displayArt) {
+      if (this.displayArt.size <= MAX_DISPLAY_ART) break;
+      if (inUse.has(old)) continue;
+      this.displayArt.delete(old);
+      t.destroy(true);
+    }
+  }
+
+  /**
+   * Put build mode on hold while you choose what your wardrobe shows: the
+   * piece in hand and its ghost go away, and come back when you're done.
+   */
+  setBuildPaused(paused: boolean): void {
+    if (this.buildPaused === paused) return;
+    this.buildPaused = paused;
+    if (paused) this.pointerTile = null;
+    if (this.buildGhost) this.buildGhost.visible = !paused;
+    this.ghostKey = '';
+    this.updateGhost();
+  }
+
+  /** Your space's wardrobe while designing (not while it's in your hands). */
+  wardrobe(): TownPlacement | null {
+    if (!this.build) return null;
+    return this.layout.find((p) => townDisplaySlots(p.builtin) > 0) ?? null;
+  }
+
+  /**
+   * Show `uris` on `piece` (from wardrobe()), then save. False (nothing
+   * changed) if it's gone or been moved since.
+   */
+  setDisplay(piece: TownPlacement, display: readonly TownDisplayed[]): boolean {
+    if (!this.build) return false;
+    const i = this.layout.indexOf(piece);
+    if (i < 0) return false;
+    const { display: _old, ...rest } = piece;
+    const next: TownPlacement = display.length ? { ...rest, display: [...display] } : rest;
+    this.commitLayout(this.layout.map((p, j) => (j === i ? next : p)));
+    return true;
   }
 
   /** Draw the scene's design (and its lamplight indoors). */
@@ -1253,9 +1451,7 @@ export class WorldEngine {
       avatar,
       x: p.x,
       y: p.y,
-      tx: p.x,
-      ty: p.y,
-      pace: p.sprint ? SPRINT : 1,
+      track: new PeerTrack(this.peerSample(p), PEER_SNAP_DIST, SPEED),
     });
     void this.dressAvatar(avatar, p.did);
   }
@@ -1266,10 +1462,22 @@ export class WorldEngine {
       this.peerJoin(p);
       return;
     }
-    peer.pace = p.sprint ? SPRINT : 1;
-    peer.tx = p.x;
-    peer.ty = p.y;
-    peer.avatar.dir = p.dir;
+    peer.track.push(this.peerSample(p));
+  }
+
+  /** A peer update as a timed sample; feeds the shared clock. */
+  private peerSample(p: TownPeer): PeerSample {
+    // Monotonic: a wall-clock jump must never throw playback off.
+    const now = performance.now();
+    const pose = { x: p.x, y: p.y, dir: p.dir, pace: p.sprint ? SPRINT : 1 };
+    if (p.t === undefined) {
+      // Unstamped (someone standing still, or an older server): our best guess
+      // at the server time, marked so a real stamp can re-time it. It must
+      // never move the clock.
+      return { ...pose, t: this.peerClock.serverNow(now), provisional: true };
+    }
+    this.peerClock.observe(p.t, now);
+    return { ...pose, t: p.t };
   }
 
   peerLeave(did: string): void {
@@ -1301,7 +1509,7 @@ export class WorldEngine {
       return;
     }
     // Typing in any field (a DM, the buddy search) never walks you around.
-    if (!MOVE_KEYS.has(e.key) || isTextEntry(e.target)) return;
+    if (!MOVE_KEYS.has(e.key) || isTextEntry(e.target) || panelOwnsKeys(e.target)) return;
     this.keys.add(e.key);
     e.preventDefault();
   };
@@ -1432,26 +1640,15 @@ export class WorldEngine {
       this.onMove?.(Math.round(this.px), Math.round(this.py), this.player.dir, sprinting);
     }
 
-    // Peers: interpolate toward their last reported position.
+    // Peers: replayed a little in the past at a steady speed, by when the
+    // server received each move — batched arrivals would make them surge.
+    const playback = this.peerClock.playbackTime(performance.now());
     for (const peer of this.peers.values()) {
-      const pdx = peer.tx - peer.x;
-      const pdy = peer.ty - peer.y;
-      const dist = Math.hypot(pdx, pdy);
-      let peerMoving = false;
-      if (dist > 0.5) {
-        peerMoving = true;
-        if (dist > PEER_SNAP_DIST) {
-          peer.x = peer.tx;
-          peer.y = peer.ty;
-        } else {
-          // Ease toward the latest reported position — smoother than chasing
-          // at literal walk speed (which stutters between packets).
-          const f = Math.min(1, dt * PEER_LERP);
-          peer.x += pdx * f;
-          peer.y += pdy * f;
-        }
-      }
-      peer.avatar.tick(dtMs, peerMoving, peer.pace);
+      const pose = peer.track.at(playback);
+      peer.x = pose.x;
+      peer.y = pose.y;
+      peer.avatar.dir = pose.dir;
+      peer.avatar.tick(dtMs, pose.moving, pose.pace);
       peer.avatar.setPosition(peer.x, peer.y);
     }
 
@@ -1593,6 +1790,10 @@ export class WorldEngine {
     this.art = null;
     for (const t of this.frameTextures) t.destroy();
     this.frameTextures = [];
+    for (const ac of this.displayLoading.values()) ac.abort();
+    this.displayLoading.clear();
+    for (const t of this.displayArt.values()) t.destroy(true);
+    this.displayArt.clear();
     for (const t of this.ownedTextures) t.destroy(true);
     this.ownedTextures = [];
     this.fallbackTex?.destroy(true);

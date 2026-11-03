@@ -39,7 +39,9 @@
     "macOS": {
       "infoPlist": "Info.plist",
       "entitlements": "./entitlements.mac.plist",
-      "provisioningProfile": "./embedded.provisionprofile",
+      "files": {
+        "embedded.provisionprofile": "./embedded.provisionprofile"
+      },
       "signingIdentity": "Apple Distribution"
     }
   }

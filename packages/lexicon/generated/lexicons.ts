@@ -794,6 +794,7 @@ export const schemaDict = {
               'chest',
               'barrel',
               'wildflowers',
+              'wardrobe',
             ],
           },
           x: {
@@ -814,6 +815,35 @@ export const schemaDict = {
             maximum: 3,
             default: 0,
             description: 'Facing: 0 down, 1 left, 2 right, 3 up (within what the object supports).',
+          },
+          display: {
+            type: 'array',
+            description:
+              "Wardrobes only: the layout owner's rpg.actor items shown on this piece, in order.",
+            maxLength: 7,
+            items: {
+              type: 'ref',
+              ref: 'lex:app.protoimsg.town.layout#displayed',
+            },
+          },
+        },
+      },
+      displayed: {
+        type: 'object',
+        description: 'One item shown on a wardrobe.',
+        required: ['item'],
+        properties: {
+          item: {
+            type: 'string',
+            format: 'at-uri',
+            description: "An equipment.rpg.item record in the layout owner's own repo.",
+          },
+          look: {
+            type: 'string',
+            description:
+              "How it shows: 'icon' (its icon; the default) or 'worn' (the front-facing frame of how it looks on a character).",
+            knownValues: ['icon', 'worn'],
+            default: 'icon',
           },
         },
       },

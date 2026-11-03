@@ -509,7 +509,9 @@ describe('TownRoom views (scene privacy, area of interest, batching)', () => {
     town.move(a.ws, 960, 200, 0);
     town.join(b.ws, B, SQ, 5, 5, 1);
     tick();
-    expect(views(a).at(-1)?.upsert).toEqual([{ did: B, ...townArrival('square', 'home') }]);
+    expect(views(a).at(-1)?.upsert).toEqual([
+      { did: B, ...townArrival('square', 'home'), t: expect.any(Number) as number },
+    ]);
   });
 
   it('keeps chat inside the scene', () => {
@@ -586,7 +588,9 @@ describe('TownRoom views (scene privacy, area of interest, batching)', () => {
     tick();
     town.move(a.ws, 5000, 5000, 0);
     tick();
-    expect(views(b).at(-1)?.upsert).toEqual([{ did: A, x: edgeX, y: edgeY, dir: 0 }]);
+    expect(views(b).at(-1)?.upsert).toEqual([
+      { did: A, x: edgeX, y: edgeY, dir: 0, t: expect.any(Number) as number },
+    ]);
   });
 
   it('hides a newly blocked avatar without waiting for anyone to move', () => {
@@ -645,7 +649,37 @@ describe('TownRoom views (scene privacy, area of interest, batching)', () => {
     for (let i = 1; i <= 5; i++) town.move(b.ws, NEAR_X + 20 + i, NEAR_Y, 0);
     tick();
     expect(views(a)).toHaveLength(1);
-    expect(views(a)[0]?.upsert).toEqual([{ did: B, x: NEAR_X + 25, y: NEAR_Y, dir: 0 }]);
+    expect(views(a)[0]?.upsert).toEqual([
+      { did: B, x: NEAR_X + 25, y: NEAR_Y, dir: 0, t: expect.any(Number) as number },
+    ]);
+  });
+
+  it('stamps each move with when it arrived, not when its batch went out', () => {
+    const a = fakeWs();
+    const b = fakeWs();
+    town.join(a.ws, A, SQ, NEAR_X, NEAR_Y, 0);
+    town.join(b.ws, B, SQ, NEAR_X + 20, NEAR_Y, 0);
+    tick();
+    a.send.mockClear();
+    const arrived = Date.now();
+    town.move(b.ws, NEAR_X + 30, NEAR_Y, 0);
+    vi.advanceTimersByTime(90); // still waiting in the batch
+    tick();
+    const upsert = views(a).at(-1)?.upsert as Array<{ t?: number }> | undefined;
+    expect(upsert?.[0]?.t).toBe(arrived);
+  });
+
+  it("never stamps a standing peer's position: how long they've been idle stays theirs", () => {
+    const a = fakeWs();
+    const b = fakeWs();
+    town.join(b.ws, B, SQ, NEAR_X + 20, NEAR_Y, 0);
+    vi.advanceTimersByTime(60_000); // B stands still for a minute
+    town.join(a.ws, A, SQ, NEAR_X, NEAR_Y, 0);
+    const peers = (
+      sent(a, 'town_state').at(-1)?.data as { peers: Array<{ did: string; t?: number }> }
+    ).peers;
+    expect(peers.find((p) => p.did === B)).toBeDefined();
+    expect(peers.find((p) => p.did === B)?.t).toBeUndefined();
   });
 
   it('never shows a blocked user, and leaving town removes you', () => {
@@ -852,6 +886,137 @@ describe('TownRoom with relationships (visiting, mutuals, gates, friends of frie
     town.setFof(b.ws, false);
     tick();
     expect(seen(d)).toContain(B);
+  });
+
+  describe("who's here", () => {
+    type Here = { dids: string[]; total: number };
+    const here = (s: FakeWs) => sent(s, 'town_here').at(-1)?.data as Here | undefined;
+    const settleHere = () => vi.advanceTimersByTime(600);
+
+    it('lists everyone in the square you may see, wherever they stand, never yourself', async () => {
+      const b = fakeWs();
+      const c = fakeWs();
+      const d = fakeWs();
+      const home = fakeWs();
+      await enter(b, B, 'square', 5, 5);
+      await enter(c, C, 'square', 5000, 5000); // far corner: outside any view
+      await enter(d, D, 'square', 300, 300);
+      await enter(home, A, homeOf(A)); // another scene
+      settleHere();
+      expect(here(b)).toEqual({ dids: [C, D].sort(), total: 2 });
+      expect(here(home)).toEqual({ dids: [], total: 0 });
+    });
+
+    it('friends-of-friends mode narrows the list both ways, and lifting it restores it', async () => {
+      // B ⇄ A ⇄ C: B and C are friends of friends through A; D is a stranger.
+      const b = fakeWs();
+      const c = fakeWs();
+      const d = fakeWs();
+      await enter(b, B, 'square');
+      await enter(c, C, 'square');
+      await enter(d, D, 'square');
+      town.setFof(b.ws, true);
+      settleHere();
+      expect(here(b)?.dids).toEqual([C]);
+      expect(here(d)?.dids).toEqual([C]); // B is hidden from the stranger too
+      expect(here(c)?.dids).toEqual([B, D].sort());
+
+      town.setFof(b.ws, false);
+      settleHere();
+      expect(here(d)?.dids).toEqual([B, C].sort());
+    });
+
+    it('in a neighborhood a visitor lists the owner and their mutuals only', async () => {
+      const a = fakeWs();
+      const b = fakeWs();
+      const c = fakeWs();
+      await enter(a, A, nbhd(A));
+      await enter(b, B, nbhd(A));
+      await enter(c, C, nbhd(A));
+      settleHere();
+      expect(here(a)?.dids).toEqual([B, C].sort()); // owner sees all
+      expect(here(b)?.dids).toEqual([A]); // B and C aren't mutuals
+    });
+
+    it('drops someone on the next refresh after a block lands, both ways', async () => {
+      const b = fakeWs();
+      const d = fakeWs();
+      await enter(b, B, 'square');
+      await enter(d, D, 'square');
+      settleHere();
+      expect(here(b)?.dids).toEqual([D]);
+      blocks.sync(B, [D]);
+      town.refreshBlocks();
+      settleHere();
+      expect(here(b)?.dids).toEqual([]);
+      expect(here(d)?.dids).toEqual([]);
+    });
+
+    it('a new scene gets its own list, even an empty one', async () => {
+      const b = fakeWs();
+      const d = fakeWs();
+      await enter(b, B, 'square');
+      await enter(d, D, 'square');
+      settleHere();
+      expect(here(b)?.dids).toEqual([D]);
+      await enter(b, B, homeOf(B));
+      settleHere();
+      expect(here(b)).toEqual({ dids: [], total: 0 });
+    });
+
+    it('caps the list but keeps the count exact', async () => {
+      const b = fakeWs();
+      await enter(b, B, 'square');
+      for (let i = 0; i < 105; i++) {
+        const did = `did:plc:crowd${String(i).padStart(3, '0')}`;
+        blocks.sync(did, []);
+        await enter(fakeWs(), did, 'square');
+      }
+      settleHere();
+      expect(here(b)?.total).toBe(105);
+      expect(here(b)?.dids).toHaveLength(100);
+    });
+
+    it('friends-of-friends follows list changes: losing the link drops you', async () => {
+      // B ⇄ A ⇄ C: friends of friends through A, until C removes A.
+      const b = fakeWs();
+      const c = fakeWs();
+      await enter(b, B, 'square');
+      await enter(c, C, 'square');
+      town.setFof(b.ws, true);
+      settleHere();
+      expect(here(c)?.dids).toEqual([B]);
+      lists[C] = [];
+      town.communityChanged(C, [], []);
+      settleHere();
+      expect(here(c)?.dids).toEqual([]);
+      expect(here(b)?.dids).toEqual([]);
+    });
+
+    it('leaves scenes nothing happened in alone', async () => {
+      const a = fakeWs();
+      await enter(a, A, homeOf(A));
+      settleHere();
+      const before = sent(a, 'town_here').length;
+      await enter(fakeWs(), D, 'square');
+      settleHere();
+      expect(sent(a, 'town_here')).toHaveLength(before);
+    });
+
+    it('updates on leaving, and never re-sends for movement', async () => {
+      const b = fakeWs();
+      const d = fakeWs();
+      await enter(b, B, 'square');
+      await enter(d, D, 'square');
+      settleHere();
+      const before = sent(b, 'town_here').length;
+      town.move(d.ws, 320, 300, 0);
+      settleHere();
+      expect(sent(b, 'town_here')).toHaveLength(before);
+      town.leave(d.ws);
+      settleHere();
+      expect(here(b)).toEqual({ dids: [], total: 0 });
+    });
   });
 
   it("keeps an offline owner's gate shut until their block list says you're not blocked", async () => {
@@ -1204,6 +1369,36 @@ describe('TownRoom with relationships (visiting, mutuals, gates, friends of frie
       town.move(c.ws, 60, 100, 0);
       await settle();
       expect(lastRoom(c)).toBeNull(); // no pass any more
+    });
+
+    it('when a pass ends, only the leaver reconnects — the rest are swapped once their talk ends', async () => {
+      const { a, b, c } = await setup();
+      for (const s of [a, b, c]) town.setVoiceWanted(s.ws, true);
+      await settle();
+      town.askToJoin(c.ws);
+      town.answerJoin(b.ws, joinRequests(b).at(-1)?.requestId ?? '', true);
+      await settle();
+      expect(lastRoom(c)?.members).toHaveLength(3);
+      const oldB = lastVoice(b)?.selfPid;
+      const oldC = lastVoice(c)?.selfPid;
+
+      town.move(c.ws, 1000, 760, 0);
+      await settle();
+      await vi.advanceTimersByTimeAsync(TOWN_PROXIMITY.linkGraceMs + 1500);
+      expect(
+        lastRoom(b)
+          ?.members.map((m) => m.did)
+          .sort(),
+      ).toEqual([A, B]);
+      // B is still talking with A: no reconnect for them yet.
+      expect(lastVoice(b)?.selfPid).toBe(oldB);
+      expect(lastVoice(c)?.selfPid).not.toBe(oldC);
+
+      town.move(b.ws, 1000, 60, 0);
+      await settle();
+      await vi.advanceTimersByTimeAsync(TOWN_PROXIMITY.linkGraceMs + 1500);
+      expect(lastRoom(b)).toBeNull();
+      expect(lastVoice(b)?.selfPid).not.toBe(oldB);
     });
 
     it('a "not now" looks like no answer, at the usual time, and you wait to ask again', async () => {

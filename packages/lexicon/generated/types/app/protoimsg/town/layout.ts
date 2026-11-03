@@ -53,6 +53,7 @@ export interface Placement {
     | 'chest'
     | 'barrel'
     | 'wildflowers'
+    | 'wardrobe'
     | (string & {});
   /** Tile column of the object's top-left footprint tile. */
   x: number;
@@ -60,6 +61,8 @@ export interface Placement {
   y: number;
   /** Facing: 0 down, 1 left, 2 right, 3 up (within what the object supports). */
   rotation: number;
+  /** Wardrobes only: the layout owner's rpg.actor items shown on this piece, in order. */
+  display?: Displayed[];
   [k: string]: unknown;
 }
 
@@ -69,4 +72,21 @@ export function isPlacement(v: unknown): v is Placement {
 
 export function validatePlacement(v: unknown): ValidationResult {
   return lexicons.validate('app.protoimsg.town.layout#placement', v);
+}
+
+/** One item shown on a wardrobe. */
+export interface Displayed {
+  /** An equipment.rpg.item record in the layout owner's own repo. */
+  item: string;
+  /** How it shows: 'icon' (its icon; the default) or 'worn' (the front-facing frame of how it looks on a character). */
+  look: 'icon' | 'worn' | (string & {});
+  [k: string]: unknown;
+}
+
+export function isDisplayed(v: unknown): v is Displayed {
+  return isObj(v) && hasProp(v, '$type') && v.$type === 'app.protoimsg.town.layout#displayed';
+}
+
+export function validateDisplayed(v: unknown): ValidationResult {
+  return lexicons.validate('app.protoimsg.town.layout#displayed', v);
 }

@@ -490,6 +490,12 @@ export interface TownPeer {
   y: number;
   dir: number;
   sprint?: boolean;
+  /**
+   * When the server received this position (ms since epoch). Moves reach
+   * viewers in batches, so arrival times are uneven; clients replay peers by
+   * this instead to keep their motion steady. Absent from older servers.
+   */
+  t?: number;
 }
 
 export interface TownStateEvent extends WsMessageBase {
@@ -700,6 +706,17 @@ export interface TownProximityEvent extends WsMessageBase {
   };
 }
 
+/**
+ * Who else is in your scene right now, wherever they stand — your view only
+ * carries nearby avatars. Same rule as seeing them: blocks, neighborhood
+ * mutuals and friends-of-friends mode all apply. Sent when it changes, never
+ * for movement. `dids` is capped; `total` is the full count.
+ */
+export interface TownHereEvent extends WsMessageBase {
+  type: 'town_here';
+  data: { dids: string[]; total: number };
+}
+
 export type ServerMessage =
   | AuthSuccessEvent
   | PresenceUpdateEvent
@@ -726,6 +743,7 @@ export type ServerMessage =
   | TownPeerLeaveEvent
   | TownChatEvent
   | TownProximityEvent
+  | TownHereEvent
   | TownVoiceRoomEvent
   | TownDeniedEvent
   | TownGatesEvent

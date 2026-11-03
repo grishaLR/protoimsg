@@ -250,12 +250,26 @@
       "title": "Vecindarios que puedes visitar",
       "close": "Cerrar"
     },
+    "here": {
+      "button": "Aquí: {{count}}",
+      "title": "Quién está aquí",
+      "empty": "Por ahora solo tú",
+      "more": "+{{count}} más",
+      "close": "Cerrar"
+    },
     "fof": {
       "off": "Amigos de amigos: desactivado",
       "on": "Amigos de amigos: activado",
       "hint": "Al activarlo, solo tus contactos mutuos y los contactos mutuos de ellos pueden verte aquí, y solo los ves a ellos.",
       "announceOn": "Modo amigos de amigos activado. Solo tus contactos mutuos y los contactos mutuos de ellos pueden verte aquí.",
       "announceOff": "Modo amigos de amigos desactivado. Todos en la plaza pueden verte."
+    },
+    "publicNotice": {
+      "title": "Estás en público",
+      "bodyFof": "En el pueblo, quienes están en el mismo espacio pueden verte. Estás en modo amigos de amigos, así que en la plaza del pueblo solo te ven tus contactos mutuos y los contactos mutuos de ellos, y solo los ves a ellos. Puedes cambiarlo arriba cuando quieras.",
+      "bodyOpen": "En el pueblo, quienes están en el mismo espacio pueden verte. En la plaza del pueblo, eso es todo el mundo. ¿Prefieres menos gente? Activa amigos de amigos o vuelve a casa.",
+      "turnOnFof": "Activar amigos de amigos",
+      "ok": "Entendido"
     },
     "knock": {
       "prompt": "¿Tocar la puerta de {{name}}?",
@@ -335,7 +349,8 @@
         "full": "No hay espacio para más piezas.",
         "pickedUp": "Levantada. Déjala donde va, o pulsa Esc para devolverla a su sitio.",
         "putBack": "Devuelta a su sitio.",
-        "rotated": "Girada."
+        "rotated": "Girada.",
+        "oneWardrobe": "Tu casa ya tiene un armario. Mueve ese en su lugar."
       },
       "items": {
         "bed": "Cama",
@@ -357,13 +372,30 @@
         "stone": "Piedra",
         "chest": "Cofre",
         "barrel": "Barril",
-        "wildflowers": "Flores silvestres"
+        "wildflowers": "Flores silvestres",
+        "wardrobe": "Armario"
       },
       "consent": {
         "title": "Guarda tus diseños",
         "body": "Tu diseño se guarda en tu propia cuenta, donde cualquiera puede verlo, como tus publicaciones. Para eso hace falta un permiso más. Lo confirmarás con tu cuenta y volverás enseguida.",
         "allow": "Continuar",
         "notNow": "Ahora no"
+      },
+      "wardrobe": {
+        "choose": "Objetos del armario ({{chosen}}/{{slots}})",
+        "title": "Tu armario",
+        "body": "Elige hasta {{count}} de tus objetos de rpg.actor para lucirlos. Quien visite tu casa los verá.",
+        "count": "{{chosen}} de {{slots}}",
+        "loading": "Cargando tus objetos…",
+        "loadFailed": "No se pudieron cargar tus objetos.",
+        "empty": "Aún no tienes objetos de rpg.actor. Gana algunos en el arcade o consíguelos en rpg.actor.",
+        "full": "Lleno. Desmarca uno para cambiarlo.",
+        "save": "Mostrar estos",
+        "cancel": "Cancelar",
+        "saved": "Armario actualizado.",
+        "look": "Cómo se ve {{title}}",
+        "lookIcon": "Icono",
+        "lookWorn": "Puesto"
       }
     },
     "sprite": {

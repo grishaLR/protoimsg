@@ -87,6 +87,7 @@ export type {
   TownChatEvent,
   TownVoiceMember,
   TownProximityEvent,
+  TownHereEvent,
   TownVoiceRoomEvent,
   TownVoiceJoinMessage,
   TownStayMessage,
@@ -129,7 +130,9 @@ export {
 } from './town.js';
 export {
   TOWN_LAYOUT_COLLECTION,
+  RPG_ITEM_COLLECTION,
   TOWN_MAX_PLACEMENTS,
+  TOWN_MAX_DISPLAYED,
   TOWN_BUILTINS,
   TOWN_BUILD_AREA,
   TOWN_KEEP_CLEAR,
@@ -138,8 +141,18 @@ export {
   townFootprint,
   townRotation,
   validateTownLayout,
+  townDisplay,
+  townDisplaySlots,
+  parseRpgItemUri,
 } from './town-build.js';
-export type { TownSpace, TownPlacement, TownBuiltin, TownBuiltinId } from './town-build.js';
+export type {
+  TownSpace,
+  TownPlacement,
+  TownBuiltin,
+  TownBuiltinId,
+  TownDisplayed,
+  TownDisplayLook,
+} from './town-build.js';
 export type {
   TownScene,
   TownSceneKind,

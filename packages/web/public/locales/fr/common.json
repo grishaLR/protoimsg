@@ -250,12 +250,26 @@
       "title": "Quartiers que tu peux visiter",
       "close": "Fermer"
     },
+    "here": {
+      "button": "Ici : {{count}}",
+      "title": "Qui est là",
+      "empty": "Juste toi pour l'instant",
+      "more": "+{{count}} de plus",
+      "close": "Fermer"
+    },
     "fof": {
       "off": "Amis d’amis : désactivé",
       "on": "Amis d’amis : activé",
       "hint": "Une fois activé, seuls tes contacts mutuels et leurs contacts mutuels peuvent te voir ici, et tu ne vois qu’eux.",
       "announceOn": "Mode amis d’amis activé. Seuls tes contacts mutuels et leurs contacts mutuels peuvent te voir ici.",
       "announceOff": "Mode amis d’amis désactivé. Tout le monde sur la grand-place peut te voir."
+    },
+    "publicNotice": {
+      "title": "Tu es en public",
+      "bodyFof": "En ville, les personnes au même endroit peuvent te voir. Tu es en mode amis d’amis : sur la grand-place, seuls tes contacts mutuels et leurs contacts mutuels te voient, et tu ne vois qu’eux. Tu peux changer ça en haut à tout moment.",
+      "bodyOpen": "En ville, les personnes au même endroit peuvent te voir. Sur la grand-place, c’est tout le monde. Envie de moins de monde ? Active amis d’amis, ou rentre chez toi.",
+      "turnOnFof": "Activer amis d’amis",
+      "ok": "Compris"
     },
     "knock": {
       "prompt": "Frapper à la porte de {{name}} ?",
@@ -335,7 +349,8 @@
         "full": "Plus de place pour d’autres objets.",
         "pickedUp": "Objet pris. Pose-le là où il va, ou appuie sur Échap pour le remettre en place.",
         "putBack": "Remis en place.",
-        "rotated": "Tourné."
+        "rotated": "Tourné.",
+        "oneWardrobe": "Ta maison a déjà une penderie. Déplace plutôt celle-là."
       },
       "items": {
         "bed": "Lit",
@@ -357,13 +372,30 @@
         "stone": "Pierre",
         "chest": "Coffre",
         "barrel": "Tonneau",
-        "wildflowers": "Fleurs sauvages"
+        "wildflowers": "Fleurs sauvages",
+        "wardrobe": "Penderie"
       },
       "consent": {
         "title": "Enregistre tes aménagements",
         "body": "Ton aménagement est enregistré sur ton propre compte, où tout le monde peut le voir, comme tes publications. Il faut pour cela une autorisation de plus. Tu la confirmeras avec ton compte et tu reviendras tout de suite.",
         "allow": "Continuer",
         "notNow": "Pas maintenant"
+      },
+      "wardrobe": {
+        "choose": "Objets de la penderie ({{chosen}}/{{slots}})",
+        "title": "Ta penderie",
+        "body": "Choisis jusqu’à {{count}} de tes objets rpg.actor à exposer. Tous ceux qui visitent ta maison les verront.",
+        "count": "{{chosen}} sur {{slots}}",
+        "loading": "Chargement de tes objets…",
+        "loadFailed": "Impossible de charger tes objets.",
+        "empty": "Tu n’as pas encore d’objets rpg.actor. Gagnes-en à l’arcade ou trouve-les sur rpg.actor.",
+        "full": "Pleine. Décoche un objet pour l’échanger.",
+        "save": "Montrer ceux-ci",
+        "cancel": "Annuler",
+        "saved": "Penderie mise à jour.",
+        "look": "Affichage de {{title}}",
+        "lookIcon": "Icône",
+        "lookWorn": "Porté"
       }
     },
     "sprite": {

@@ -250,12 +250,26 @@
       "title": "Ziyaret edebileceğin mahalleler",
       "close": "Kapat"
     },
+    "here": {
+      "button": "Burada: {{count}}",
+      "title": "Kimler burada",
+      "empty": "Şimdilik sadece sen",
+      "more": "+{{count}} kişi daha",
+      "close": "Kapat"
+    },
     "fof": {
       "off": "Arkadaşların arkadaşları: kapalı",
       "on": "Arkadaşların arkadaşları: açık",
       "hint": "Açıkken burada seni yalnızca karşılıklı arkadaşların ve onların karşılıklı arkadaşları görebilir, sen de yalnızca onları görürsün.",
       "announceOn": "Arkadaşların arkadaşları modu açık. Burada seni yalnızca karşılıklı arkadaşların ve onların karşılıklı arkadaşları görebilir.",
       "announceOff": "Arkadaşların arkadaşları modu kapalı. Meydandaki herkes seni görebilir."
+    },
+    "publicNotice": {
+      "title": "Herkese açık bir yerdesin",
+      "bodyFof": "Kasabada aynı alandaki kişiler seni görebilir. Arkadaşların arkadaşları modundasın; kasaba meydanında seni yalnızca karşılıklı arkadaşların ve onların karşılıklı arkadaşları görür, sen de yalnızca onları görürsün. Bunu istediğin zaman yukarıdan değiştirebilirsin.",
+      "bodyOpen": "Kasabada aynı alandaki kişiler seni görebilir. Kasaba meydanında bu, buradaki herkes demek. Daha az kalabalık mı istersin? Arkadaşların arkadaşları modunu aç ya da eve dön.",
+      "turnOnFof": "Arkadaşların arkadaşlarını aç",
+      "ok": "Anladım"
     },
     "knock": {
       "prompt": "{{name}} kullanıcısının kapısını çalmak ister misin?",
@@ -335,7 +349,8 @@
         "full": "Daha fazla eşyaya yer yok.",
         "pickedUp": "Eline aldın. Gideceği yere bırak ya da yerine geri koymak için Esc'ye bas.",
         "putBack": "Yerine kondu.",
-        "rotated": "Döndürüldü."
+        "rotated": "Döndürüldü.",
+        "oneWardrobe": "Evinde zaten bir gardırop var. Onu taşı."
       },
       "items": {
         "bed": "Yatak",
@@ -357,13 +372,30 @@
         "stone": "Taş",
         "chest": "Sandık",
         "barrel": "Fıçı",
-        "wildflowers": "Kır çiçekleri"
+        "wildflowers": "Kır çiçekleri",
+        "wardrobe": "Gardırop"
       },
       "consent": {
         "title": "Tasarımlarını kaydet",
         "body": "Tasarımın kendi hesabına kaydedilir ve gönderilerin gibi herkes onu görebilir. Bunun için bir izin daha gerekiyor. Hesabınla onaylayıp hemen geri döneceksin.",
         "allow": "Devam et",
         "notNow": "Şimdi değil"
+      },
+      "wardrobe": {
+        "choose": "Gardırop eşyaları ({{chosen}}/{{slots}})",
+        "title": "Gardırobun",
+        "body": "Sergilemek için rpg.actor eşyalarından en fazla {{count}} tane seç. Evine gelen herkes görür.",
+        "count": "{{chosen}}/{{slots}}",
+        "loading": "Eşyaların yükleniyor…",
+        "loadFailed": "Eşyaların yüklenemedi.",
+        "empty": "Henüz hiç rpg.actor eşyan yok. Atari salonunda kazan ya da rpg.actor’dan edin.",
+        "full": "Dolu. Değiştirmek için birinin işaretini kaldır.",
+        "save": "Bunları göster",
+        "cancel": "İptal",
+        "saved": "Gardırop güncellendi.",
+        "look": "{{title}} nasıl görünsün",
+        "lookIcon": "Simge",
+        "lookWorn": "Giyili"
       }
     },
     "sprite": {

@@ -423,12 +423,26 @@
       "title": "Neighborhoods you can visit",
       "close": "Close"
     },
+    "here": {
+      "button": "Here: {{count}}",
+      "title": "Who's here",
+      "empty": "Just you so far",
+      "more": "+{{count}} more",
+      "close": "Close"
+    },
     "fof": {
       "off": "Friends of friends: off",
       "on": "Friends of friends: on",
       "hint": "When on, only your mutuals and their mutuals can see you here, and you only see them.",
       "announceOn": "Friends-of-friends mode on. Only your mutuals and their mutuals can see you here.",
       "announceOff": "Friends-of-friends mode off. Everyone in the square can see you."
+    },
+    "publicNotice": {
+      "title": "You're out in public",
+      "bodyFof": "In town, people in the same space can see you. You're in friends-of-friends mode, so in the town square only your mutuals and their mutuals see you, and you only see them. You can change this at the top anytime.",
+      "bodyOpen": "In town, people in the same space can see you. In the town square, that's everyone here. Want a smaller crowd? Turn on friends of friends, or head home.",
+      "turnOnFof": "Turn on friends of friends",
+      "ok": "Got it"
     },
     "knock": {
       "prompt": "Knock on {{name}}'s door?",
@@ -508,7 +522,8 @@
         "full": "No room for more pieces.",
         "pickedUp": "Picked up. Put it down where it goes, or press Escape to put it back.",
         "putBack": "Put back.",
-        "rotated": "Turned."
+        "rotated": "Turned.",
+        "oneWardrobe": "Your home already has a wardrobe. Move that one instead."
       },
       "items": {
         "bed": "Bed",
@@ -530,13 +545,30 @@
         "stone": "Stone",
         "chest": "Chest",
         "barrel": "Barrel",
-        "wildflowers": "Wildflowers"
+        "wildflowers": "Wildflowers",
+        "wardrobe": "Wardrobe"
       },
       "consent": {
         "title": "Save your designs",
         "body": "Your design is saved to your own account, where anyone can see it, like your posts. That needs one more permission. You'll confirm it with your account and come right back.",
         "allow": "Continue",
         "notNow": "Not now"
+      },
+      "wardrobe": {
+        "choose": "Wardrobe items ({{chosen}}/{{slots}})",
+        "title": "Your wardrobe",
+        "body": "Pick up to {{count}} of your rpg.actor items to show off. Everyone who visits your home sees them.",
+        "count": "{{chosen}} of {{slots}}",
+        "loading": "Loading your items…",
+        "loadFailed": "Couldn't load your items.",
+        "empty": "You don't have any rpg.actor items yet. Win some in the arcade, or get them at rpg.actor.",
+        "full": "Full. Untick one to swap it.",
+        "save": "Show these",
+        "cancel": "Cancel",
+        "saved": "Wardrobe updated.",
+        "look": "How {{title}} shows",
+        "lookIcon": "Icon",
+        "lookWorn": "Worn"
       }
     },
     "sprite": {

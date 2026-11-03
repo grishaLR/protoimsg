@@ -3,7 +3,119 @@
  * Dynamically imported only when IS_TAURI is true — web builds never bundle this.
  */
 
+import { LogicalSize, PhysicalPosition, PhysicalSize } from '@tauri-apps/api/dpi';
 import { WebviewWindow, getCurrentWebviewWindow } from '@tauri-apps/api/webviewWindow';
+
+/** Main window size while in proto town — wide enough for town + buddy sidebar. */
+const TOWN_WINDOW_SIZE = { width: 1100, height: 720 };
+
+/** Main window bounds before entering town; null when not expanded. */
+let boundsBeforeTown: { size: PhysicalSize; position: PhysicalPosition } | null = null;
+
+/** Expand/restore run one at a time so a grow and a shrink can't interleave. */
+let resizeChain: Promise<void> = Promise.resolve();
+
+function enqueueResize(step: () => Promise<void>): Promise<void> {
+  resizeChain = resizeChain.then(step).catch((err: unknown) => {
+    console.error('main window town resize failed:', err);
+  });
+  return resizeChain;
+}
+
+/**
+ * Grow the main (buddy list) window so proto town fits beside the buddy list.
+ * Town stays in the main window on purpose: it shares the real WebSocket and
+ * the presence state (town visibility cap, away status) with the buddy list.
+ */
+export function expandMainWindowForTown(): Promise<void> {
+  return enqueueResize(async () => {
+    if (boundsBeforeTown) return;
+    const win = getCurrentWebviewWindow();
+    const [size, position, factor] = await Promise.all([
+      win.innerSize(),
+      win.outerPosition(),
+      win.scaleFactor(),
+    ]);
+    boundsBeforeTown = { size, position };
+    const prev = size.toLogical(factor);
+    await win.setSize(
+      new LogicalSize(
+        Math.max(prev.width, TOWN_WINDOW_SIZE.width),
+        Math.max(prev.height, TOWN_WINDOW_SIZE.height),
+      ),
+    );
+    await win.center();
+  });
+}
+
+/** Put the main window back where and how big it was before town. No-op if not expanded. */
+export function restoreMainWindowFromTown(): Promise<void> {
+  return enqueueResize(async () => {
+    const prev = boundsBeforeTown;
+    if (!prev) return;
+    boundsBeforeTown = null;
+    const win = getCurrentWebviewWindow();
+    await win.setSize(prev.size);
+    await win.setPosition(prev.position);
+  });
+}
+
+/** Main window size while on the PDS sign-in page (a full-page OAuth redirect). */
+const OAUTH_WINDOW_SIZE = { width: 480, height: 760 };
+
+/**
+ * Pre-OAuth window bounds. sessionStorage, not module state: the page navigates
+ * to the PDS and back, which wipes module state but keeps sessionStorage.
+ */
+const OAUTH_BOUNDS_KEY = 'protoimsg:oauth_window_bounds';
+
+interface StoredBounds {
+  width: number;
+  height: number;
+  x: number;
+  y: number;
+}
+
+/** Widen the main window so the PDS sign-in page isn't squeezed. Call right before redirecting. */
+export function expandMainWindowForOAuth(): Promise<void> {
+  return enqueueResize(async () => {
+    if (sessionStorage.getItem(OAUTH_BOUNDS_KEY)) return;
+    const win = getCurrentWebviewWindow();
+    const [size, position, factor] = await Promise.all([
+      win.innerSize(),
+      win.outerPosition(),
+      win.scaleFactor(),
+    ]);
+    const bounds: StoredBounds = {
+      width: size.width,
+      height: size.height,
+      x: position.x,
+      y: position.y,
+    };
+    sessionStorage.setItem(OAUTH_BOUNDS_KEY, JSON.stringify(bounds));
+    const prev = size.toLogical(factor);
+    await win.setSize(
+      new LogicalSize(
+        Math.max(prev.width, OAUTH_WINDOW_SIZE.width),
+        Math.max(prev.height, OAUTH_WINDOW_SIZE.height),
+      ),
+    );
+    await win.center();
+  });
+}
+
+/** Back to the pre-OAuth size and position. No-op if the window wasn't expanded. */
+export function restoreMainWindowAfterOAuth(): Promise<void> {
+  return enqueueResize(async () => {
+    const raw = sessionStorage.getItem(OAUTH_BOUNDS_KEY);
+    if (!raw) return;
+    sessionStorage.removeItem(OAUTH_BOUNDS_KEY);
+    const b = JSON.parse(raw) as StoredBounds;
+    const win = getCurrentWebviewWindow();
+    await win.setSize(new PhysicalSize(b.width, b.height));
+    await win.setPosition(new PhysicalPosition(b.x, b.y));
+  });
+}
 
 /** Check if this is the main (buddy list) window */
 export function isMainWindow(): boolean {

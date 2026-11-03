@@ -40,6 +40,8 @@ const RETRY_BASE_MS = 2000;
 const RETRY_MAX_MS = 30_000;
 /** Still not connected after this long: say so, and offer "Reconnect". */
 const CONNECT_TIMEOUT_MS = 15_000;
+/** Still reconnecting after this long: drop the room and fetch a fresh one. */
+const RECONNECT_TIMEOUT_MS = 15_000;
 
 /**
  * One AudioContext for every voice room this page ever joins. A context made
@@ -189,12 +191,13 @@ export class ProximityVoice {
     if (!this.joined) return;
 
     // Same room, same identity, still alive: a fresh token we don't need.
+    // A room stuck reconnecting isn't alive — take the fresh token instead.
     const cur = this.room;
     if (
       cur &&
       next.room === this.roomName &&
       next.selfPid === this.selfPidValue &&
-      cur.state !== ConnectionState.Disconnected
+      (cur.state === ConnectionState.Connected || cur.state === ConnectionState.Connecting)
     ) {
       return;
     }
@@ -654,8 +657,29 @@ export class ProximityVoice {
           this.setStatus('failed');
         }
       }, CONNECT_TIMEOUT_MS);
+    } else if (status === 'reconnecting') {
+      // LiveKit's own reconnect can hang (e.g. an ICE restart on a closed
+      // peer connection) without ever firing Disconnected — give up on the
+      // room ourselves and ask for a fresh one.
+      this.connectTimer = setTimeout(() => {
+        this.connectTimer = null;
+        if (this.status === 'reconnecting' && this.joined && !this.destroyed) {
+          this.abandonStuckRoom();
+        }
+      }, RECONNECT_TIMEOUT_MS);
     }
     this.onStatusChange?.(status);
+  }
+
+  private abandonStuckRoom(): void {
+    Sentry.addBreadcrumb({
+      category: 'town.voice',
+      message: 'reconnect timed out',
+      data: { room: this.roomName },
+    });
+    this.leaveRoom();
+    this.setStatus('failed');
+    this.scheduleRetry();
   }
 
   /** Persistent failures retry for as long as you're in town — report the first only. */

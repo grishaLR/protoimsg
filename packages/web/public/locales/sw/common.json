@@ -248,12 +248,26 @@
       "title": "Mitaa unayoweza kutembelea",
       "close": "Funga"
     },
+    "here": {
+      "button": "Hapa: {{count}}",
+      "title": "Nani yuko hapa",
+      "empty": "Ni wewe tu kwa sasa",
+      "more": "+{{count}} zaidi",
+      "close": "Funga"
+    },
     "fof": {
       "off": "Marafiki wa marafiki: kimezimwa",
       "on": "Marafiki wa marafiki: kimewashwa",
       "hint": "Kikiwashwa, marafiki zako wa pamoja na marafiki zao wa pamoja pekee ndio wanaoweza kukuona hapa, nawe unawaona wao tu.",
       "announceOn": "Hali ya marafiki wa marafiki imewashwa. Marafiki zako wa pamoja na marafiki zao wa pamoja pekee ndio wanaoweza kukuona hapa.",
       "announceOff": "Hali ya marafiki wa marafiki imezimwa. Kila mtu uwanjani anaweza kukuona."
+    },
+    "publicNotice": {
+      "title": "Uko hadharani",
+      "bodyFof": "Mjini, watu walio katika eneo moja nawe wanaweza kukuona. Uko katika hali ya marafiki wa marafiki, kwa hiyo kwenye uwanja wa mji ni marafiki zako wa pamoja na marafiki zao wa pamoja pekee wanaokuona, nawe unawaona wao tu. Unaweza kubadilisha hili juu wakati wowote.",
+      "bodyOpen": "Mjini, watu walio katika eneo moja nawe wanaweza kukuona. Kwenye uwanja wa mji, hao ni kila mtu aliyepo. Unataka watu wachache? Washa marafiki wa marafiki, au rudi nyumbani.",
+      "turnOnFof": "Washa marafiki wa marafiki",
+      "ok": "Nimeelewa"
     },
     "knock": {
       "prompt": "Ugonge mlango wa {{name}}?",
@@ -333,7 +347,8 @@
         "full": "Hakuna nafasi ya vitu zaidi.",
         "pickedUp": "Kimenyanyuliwa. Kiweke mahali kinapokwenda, au bonyeza Escape kukirudisha.",
         "putBack": "Kimerudishwa.",
-        "rotated": "Kimezungushwa."
+        "rotated": "Kimezungushwa.",
+        "oneWardrobe": "Nyumba yako tayari ina kabati la nguo. Hamisha hilo badala yake."
       },
       "items": {
         "bed": "Kitanda",
@@ -355,13 +370,30 @@
         "stone": "Jiwe",
         "chest": "Sanduku",
         "barrel": "Pipa",
-        "wildflowers": "Maua ya porini"
+        "wildflowers": "Maua ya porini",
+        "wardrobe": "Kabati la nguo"
       },
       "consent": {
         "title": "Hifadhi mipangilio yako",
         "body": "Mpangilio wako unahifadhiwa kwenye akaunti yako mwenyewe, ambapo mtu yeyote anaweza kuuona, kama machapisho yako. Hilo linahitaji ruhusa moja zaidi. Utaithibitisha kwa akaunti yako na kurudi hapa mara moja.",
         "allow": "Endelea",
         "notNow": "Si sasa"
+      },
+      "wardrobe": {
+        "choose": "Vitu vya kabati ({{chosen}}/{{slots}})",
+        "title": "Kabati lako la nguo",
+        "body": "Chagua hadi vitu {{count}} vyako vya rpg.actor uvionyeshe. Kila anayetembelea nyumba yako ataviona.",
+        "count": "{{chosen}} kati ya {{slots}}",
+        "loading": "Inapakia vitu vyako…",
+        "loadFailed": "Imeshindwa kupakia vitu vyako.",
+        "empty": "Bado huna vitu vya rpg.actor. Shinda baadhi kwenye michezo, au vipate kwenye rpg.actor.",
+        "full": "Limejaa. Ondoa alama kwenye kimoja ili kubadilisha.",
+        "save": "Onyesha hivi",
+        "cancel": "Ghairi",
+        "saved": "Kabati la nguo limesasishwa.",
+        "look": "Jinsi {{title}} inavyoonekana",
+        "lookIcon": "Ikoni",
+        "lookWorn": "Imevaliwa"
       }
     },
     "sprite": {

@@ -52,6 +52,8 @@ interface TownMember extends TownPeer {
   owner: string | null;
   /** Friends-of-friends mode (square): see and be seen only within two steps. */
   fof: boolean;
+  /** The "who's here" list this socket was last sent ('' = none yet). */
+  hereKey: string;
   /** Square: the gate row this socket was last sent. */
   gates: TownGate[];
   /** Holds a reference in the graph (released on leave). */
@@ -121,6 +123,11 @@ const MOVE_BURST = 30; // bucket capacity
 const PROXIMITY_TICK_MS = 200;
 // Avatar views are diffed and sent in one batch per viewer at most this often.
 const VIEW_TICK_MS = 100;
+/** "Who's here" refresh: joins, leaves and visibility changes, never movement. */
+const HERE_TICK_MS = 500;
+/** Most DIDs in one "who's here" list; the count is always exact. */
+const HERE_MAX = 100;
+const SQUARE_SCENE = townSceneId({ kind: 'square' });
 // Spatial grid for view lookups: a viewer's box spans at most 3×3 cells.
 const VIEW_CELL = Math.max(TOWN_VIEW.halfWidth, TOWN_VIEW.halfHeight);
 // A new link must hold this long before a room is minted — stops jittering
@@ -142,6 +149,17 @@ function cellKey(scene: string, cx: number, cy: number): string {
 }
 
 /** Identity + version of what a viewer was last sent about an avatar. */
+/**
+ * A position's server receive time, only while it's fresh. Viewers replay
+ * movement by it; an old stamp (someone standing still) is no use to that and
+ * would tell whoever walks up how long they've been idle.
+ */
+const STAMP_FRESH_MS = 1_000;
+
+function freshStamp(m: TownMember): { t?: number } {
+  return m.t !== undefined && Date.now() - m.t < STAMP_FRESH_MS ? { t: m.t } : {};
+}
+
 function viewKey(m: TownMember): string {
   return `${String(m.id)}:${String(m.ver)}`;
 }
@@ -270,6 +288,9 @@ export class TownRoom {
   private nextId = 1;
   private proximityTimer: ReturnType<typeof setTimeout> | null = null;
   private viewTimer: ReturnType<typeof setTimeout> | null = null;
+  private hereTimer: ReturnType<typeof setTimeout> | null = null;
+  /** Scenes whose "who's here" lists may have changed since the last flush. */
+  private hereDirty: Set<string> | 'all' = new Set();
   private reconcileTimer: ReturnType<typeof setInterval> | null = null;
   private sweepTimer: ReturnType<typeof setInterval> | null = null;
   private disposed = false;
@@ -460,6 +481,8 @@ export class TownRoom {
     m.fof = on;
     this.recountFof();
     this.scheduleView();
+    // Friends-of-friends is per DID: another tab of theirs may be in the square.
+    this.scheduleHere(m.scene, SQUARE_SCENE);
     this.scheduleProximity();
   }
 
@@ -622,6 +645,8 @@ export class TownRoom {
       kind: scene.kind,
       owner: scene.kind === 'square' ? null : scene.owner,
       fof: fof ?? prev?.fof ?? false,
+      // A new scene gets a fresh list, even if it happens to match.
+      hereKey: prev?.scene === id ? prev.hereKey : '',
       gates: row?.gates ?? [],
       graphRef: prev?.graphRef ?? false,
       moreGates: row?.more ?? [],
@@ -633,6 +658,7 @@ export class TownRoom {
       y: place.y,
       dir: place.dir,
       sprint: false,
+      t: Date.now(),
       moveBudget: MOVE_BURST,
       moveBudgetTs: Date.now(),
       roomId,
@@ -648,7 +674,8 @@ export class TownRoom {
       known: new Map(),
     });
     // Friends-of-friends from the join must narrow the very first view.
-    if ((fof ?? prev?.fof ?? false) !== (prev?.fof ?? false)) this.recountFof();
+    const fofChanged = (fof ?? prev?.fof ?? false) !== (prev?.fof ?? false);
+    if (fofChanged) this.recountFof();
 
     // Your initial view, sent directly; everyone else learns about you on the
     // next view tick.
@@ -663,6 +690,7 @@ export class TownRoom {
           y: m.y,
           dir: m.dir,
           ...(m.sprint ? { sprint: true } : {}),
+          ...freshStamp(m),
         });
       }
     }
@@ -695,6 +723,11 @@ export class TownRoom {
     // connection, and ignores it if it's still connected as this identity.
     if (voiceWanted) this.issueVoice(ws);
     this.scheduleView();
+    this.scheduleHere(
+      id,
+      ...(prev && prev.scene !== id ? [prev.scene] : []),
+      ...(fofChanged ? [SQUARE_SCENE] : []),
+    );
     this.scheduleProximity();
   }
 
@@ -942,6 +975,7 @@ export class TownRoom {
     }, JOIN_PASS_GRACE_MS + 100).unref();
     this.endJoinRequest(request, 'accepted');
     this.scheduleView();
+    this.scheduleHere(request.scene);
     this.scheduleProximity();
   }
 
@@ -1227,6 +1261,7 @@ export class TownRoom {
       this.place(m.ws, m.did, { kind: 'square' }, townArrival('square', null), 'removed');
     }
     this.scheduleView();
+    this.scheduleHere();
     this.scheduleProximity();
   }
 
@@ -1242,8 +1277,10 @@ export class TownRoom {
     m.y = pos.y;
     m.dir = dir;
     m.sprint = sprint;
+    // Stamped on arrival, before batching: viewers replay moves by it.
+    m.t = Date.now();
     m.ver++;
-    this.scheduleView();
+    this.scheduleView(); // moves never change who's here
     this.scheduleProximity();
   }
 
@@ -1286,6 +1323,8 @@ export class TownRoom {
     // Viewers drop the avatar on the next view tick — unless another visible
     // socket of the same DID keeps it alive.
     this.scheduleView();
+    // Dropping a friends-of-friends tab can widen the square for their others.
+    this.scheduleHere(m.scene, ...(m.fof ? [SQUARE_SCENE] : []));
   }
 
   private scheduleView(): void {
@@ -1296,6 +1335,50 @@ export class TownRoom {
     }, VIEW_TICK_MS);
   }
 
+  /** Refresh "who's here" for these scenes — none given: every scene (relationships changed). */
+  private scheduleHere(...scenes: string[]): void {
+    if (this.disposed) return;
+    if (scenes.length === 0) this.hereDirty = 'all';
+    else if (this.hereDirty !== 'all') for (const sc of scenes) this.hereDirty.add(sc);
+    if (this.hereTimer) return;
+    this.hereTimer = setTimeout(() => {
+      this.hereTimer = null;
+      this.flushHere();
+    }, HERE_TICK_MS);
+  }
+
+  /**
+   * Send each socket who else is in its scene — everyone it may see there
+   * (`canSee`), wherever they stand. Sorted by DID so neither order nor the
+   * cap says anything about who arrived when.
+   */
+  private flushHere(): void {
+    if (this.disposed) return;
+    const dirty = this.hereDirty;
+    this.hereDirty = new Set();
+    const inDirty = (scene: string): boolean => dirty === 'all' || dirty.has(scene);
+    const byScene = new Map<string, TownMember[]>();
+    for (const m of this.members.values()) {
+      if (!inDirty(m.scene)) continue;
+      const list = byScene.get(m.scene);
+      if (list) list.push(m);
+      else byScene.set(m.scene, [m]);
+    }
+    for (const v of this.members.values()) {
+      if (!inDirty(v.scene)) continue;
+      const here = new Set<string>();
+      for (const r of byScene.get(v.scene) ?? []) {
+        if (this.canSee(v, r)) here.add(r.did);
+      }
+      const all = [...here].sort();
+      const dids = all.slice(0, HERE_MAX);
+      const key = `${String(all.length)}|${dids.join(',')}`;
+      if (key === v.hereKey) continue;
+      v.hereKey = key;
+      this.sendTo(v.ws, { type: 'town_here', data: { dids, total: all.length } });
+    }
+  }
+
   /** Members bucketed by scene + grid cell, one representative socket per DID per scene. */
   private buildViewGrid(): Map<string, TownMember[]> {
     const rep = new Map<string, TownMember>();
@@ -1303,7 +1386,7 @@ export class TownRoom {
       // Several tabs of one DID in a scene: the most recently moved one is the avatar.
       const key = `${m.scene}|${m.did}`;
       const cur = rep.get(key);
-      if (!cur || m.ver > cur.ver) rep.set(key, m);
+      if (!cur || (m.t ?? 0) > (cur.t ?? 0)) rep.set(key, m);
     }
     const grid = new Map<string, TownMember[]>();
     for (const m of rep.values()) {
@@ -1351,6 +1434,7 @@ export class TownRoom {
           y: m.y,
           dir: m.dir,
           ...(m.sprint ? { sprint: true } : {}),
+          ...freshStamp(m),
         });
       }
       for (const did of v.known.keys()) {
@@ -1413,6 +1497,8 @@ export class TownRoom {
     this.disposed = true;
     if (this.proximityTimer) clearTimeout(this.proximityTimer);
     if (this.viewTimer) clearTimeout(this.viewTimer);
+    if (this.hereTimer) clearTimeout(this.hereTimer);
+    this.hereTimer = null;
     for (const k of this.knocks.values()) clearTimeout(k.timer);
     this.knocks.clear();
     for (const r of this.joinRequests.values()) clearTimeout(r.timer);
@@ -1523,10 +1609,16 @@ export class TownRoom {
    * Has anyone who knows `m`'s voice identity lost sight of `m`? Then it must
    * be replaced: the shared room shows an identity's presence and speaking
    * to everyone in it, and a modified client could keep following it.
+   *
+   * A block replaces it at once. Merely losing sight (a join pass ended) waits
+   * while `m` is still in a conversation — replacing it means reconnecting,
+   * which would cut off everyone still talking. They can't subscribe to you
+   * either way; until then they only see presence and speaking.
    */
   private identityCompromised(m: TownMember, byDid: Map<string, TownMember[]>): boolean {
     for (const d of m.exposedTo) {
       if (this.blockService.isBlocked(m.did, d)) return true;
+      if (m.roomId) continue;
       for (const v of byDid.get(d) ?? []) {
         if (v.scene === m.scene && !this.canSee(v, m)) return true;
       }
@@ -1653,7 +1745,10 @@ export class TownRoom {
       },
     };
     // Passes that lapsed stop counting before anyone is clustered with them.
-    if (this.expireJoinPasses(now)) this.scheduleView();
+    if (this.expireJoinPasses(now)) {
+      this.scheduleView();
+      this.scheduleHere();
+    }
     // Inside a home the whole house is one conversation, wherever you stand.
     const clusters = [...scenes.values()].flatMap(({ kind, nodes }) =>
       buildClusters(nodes, rules, kind === 'home'),

@@ -250,12 +250,26 @@
       "title": "Khu phố bạn có thể ghé thăm",
       "close": "Đóng"
     },
+    "here": {
+      "button": "Ở đây: {{count}}",
+      "title": "Ai đang ở đây",
+      "empty": "Hiện chỉ có bạn",
+      "more": "+{{count}} người nữa",
+      "close": "Đóng"
+    },
     "fof": {
       "off": "Bạn của bạn bè: tắt",
       "on": "Bạn của bạn bè: bật",
       "hint": "Khi bật, chỉ bạn bè hai chiều của bạn và bạn bè hai chiều của họ mới thấy bạn ở đây, và bạn cũng chỉ thấy họ.",
       "announceOn": "Đã bật chế độ bạn của bạn bè. Chỉ bạn bè hai chiều của bạn và bạn bè hai chiều của họ mới thấy bạn ở đây.",
       "announceOff": "Đã tắt chế độ bạn của bạn bè. Mọi người trong quảng trường đều thấy bạn."
+    },
+    "publicNotice": {
+      "title": "Bạn đang ở nơi công cộng",
+      "bodyFof": "Trong thị trấn, những người ở cùng không gian có thể thấy bạn. Bạn đang ở chế độ bạn của bạn bè, nên ở quảng trường thị trấn chỉ bạn bè hai chiều của bạn và bạn bè hai chiều của họ mới thấy bạn, và bạn cũng chỉ thấy họ. Bạn có thể đổi ở phía trên bất cứ lúc nào.",
+      "bodyOpen": "Trong thị trấn, những người ở cùng không gian có thể thấy bạn. Ở quảng trường thị trấn, đó là tất cả mọi người. Muốn ít người hơn? Bật bạn của bạn bè, hoặc về nhà.",
+      "turnOnFof": "Bật bạn của bạn bè",
+      "ok": "Đã hiểu"
     },
     "knock": {
       "prompt": "Gõ cửa nhà của {{name}}?",
@@ -335,7 +349,8 @@
         "full": "Không còn chỗ cho thêm đồ vật.",
         "pickedUp": "Đã nhấc lên. Đặt xuống chỗ muốn đặt, hoặc nhấn Esc để trả về chỗ cũ.",
         "putBack": "Đã trả về chỗ cũ.",
-        "rotated": "Đã xoay."
+        "rotated": "Đã xoay.",
+        "oneWardrobe": "Nhà bạn đã có tủ quần áo rồi. Hãy di chuyển tủ đó."
       },
       "items": {
         "bed": "Giường",
@@ -357,13 +372,30 @@
         "stone": "Hòn đá",
         "chest": "Rương",
         "barrel": "Thùng gỗ",
-        "wildflowers": "Hoa dại"
+        "wildflowers": "Hoa dại",
+        "wardrobe": "Tủ quần áo"
       },
       "consent": {
         "title": "Lưu thiết kế của bạn",
         "body": "Thiết kế của bạn được lưu vào tài khoản của chính bạn, nơi ai cũng có thể xem, giống như bài đăng của bạn. Việc này cần thêm một quyền nữa. Bạn sẽ xác nhận bằng tài khoản của mình và quay lại ngay.",
         "allow": "Tiếp tục",
         "notNow": "Để sau"
+      },
+      "wardrobe": {
+        "choose": "Đồ trong tủ ({{chosen}}/{{slots}})",
+        "title": "Tủ quần áo của bạn",
+        "body": "Chọn tối đa {{count}} món đồ rpg.actor để khoe. Ai ghé thăm nhà bạn cũng sẽ thấy.",
+        "count": "{{chosen}} trên {{slots}}",
+        "loading": "Đang tải đồ của bạn…",
+        "loadFailed": "Không tải được đồ của bạn.",
+        "empty": "Bạn chưa có món đồ rpg.actor nào. Hãy thắng ở khu trò chơi, hoặc nhận tại rpg.actor.",
+        "full": "Đầy rồi. Bỏ chọn một món để đổi.",
+        "save": "Trưng những món này",
+        "cancel": "Hủy",
+        "saved": "Đã cập nhật tủ quần áo.",
+        "look": "Cách hiển thị {{title}}",
+        "lookIcon": "Biểu tượng",
+        "lookWorn": "Đang mặc"
       }
     },
     "sprite": {

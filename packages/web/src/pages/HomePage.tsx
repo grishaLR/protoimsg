@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect, useMemo, lazy, Suspense } from 'react';
+import { useState, useCallback, useEffect, useMemo, useRef, lazy, Suspense } from 'react';
 import { Header } from '../components/layout/Header';
 import { MobileTabBar } from '../components/layout/MobileTabBar';
 import type { MobileTab } from '../components/layout/MobileTabBar';
@@ -109,32 +109,122 @@ export function HomePage() {
     const inCall = activeCall != null || activeGroupCall != null;
     void import('../lib/tauri-tray').then(({ updateTrayTooltip, setTrayCallState }) => {
       void updateTrayTooltip(onlineCount, 'online', 0, inCall);
-      void setTrayCallState(inCall);
+      void setTrayCallState(inCall, TOWN_ENABLED);
     });
   }, [buddies, activeCall, activeGroupCall]);
 
-  const handleTabChange = useCallback((tab: MobileTab) => {
-    if (tab === 'fun' && !GAMES_ENABLED) return;
-    if (IS_TAURI && tab === 'fun') {
-      void import('../lib/tauri-windows').then(({ openGamesWindow }) => {
-        void openGamesWindow();
-      });
+  // Desktop (Tauri): town lives in the main window, not a child window, so it
+  // shares the real WebSocket and presence state with the buddy list. The
+  // window grows to fit town + buddy sidebar before town mounts.
+  // Each open gets a token; anything that moves you elsewhere mid-grow (another
+  // view, hiding to tray) bumps it, so a stale open never lands you in town.
+  const townOpenTokenRef = useRef(0);
+  const openTown = useCallback(() => {
+    if (!TOWN_ENABLED) return;
+    if (IS_TAURI) {
+      const token = ++townOpenTokenRef.current;
+      void import('../lib/tauri-windows').then(
+        async ({ expandMainWindowForTown, restoreMainWindowFromTown }) => {
+          await expandMainWindowForTown();
+          if (token === townOpenTokenRef.current) setView('town');
+          else await restoreMainWindowFromTown();
+        },
+      );
       return;
     }
-    if (IS_TAURI && tab === 'meet') {
+    setView('town');
+  }, []);
+
+  const handleLeaveTown = useCallback(() => {
+    setView('buddies');
+  }, []);
+
+  const handleOpenMeet = useCallback(() => {
+    if (IS_TAURI) {
       void import('../lib/tauri-windows').then(({ openMeetWindow }) => {
         void openMeetWindow();
       });
       return;
     }
-    if (tab === 'town') {
-      if (TOWN_ENABLED) setView('town');
-      return;
-    }
-    if (tab === 'meet' || tab === 'buddies' || tab === 'fun') {
-      setView(tab === 'fun' ? 'games' : tab);
-    }
+    setView('meet');
   }, []);
+
+  // Tauri: shrink back to the buddy-list size whenever we're not in town, and
+  // cancel any town open still waiting on the window to grow.
+  useEffect(() => {
+    if (!IS_TAURI || view === 'town') return;
+    townOpenTokenRef.current++;
+    void import('../lib/tauri-windows').then(({ restoreMainWindowFromTown }) => {
+      void restoreMainWindowFromTown();
+    });
+  }, [view]);
+
+  // Tauri: tray "Start Meet" / "Open proto town" → open them. Hiding to tray → leave town, so
+  // you aren't standing in town (mic live) behind a hidden window.
+  useEffect(() => {
+    if (!IS_TAURI) return;
+    let aborted = false;
+    const unlisteners: (() => void)[] = [];
+    const register = (pending: Promise<() => void>): void => {
+      pending
+        .then((fn) => {
+          if (aborted) fn();
+          else unlisteners.push(fn);
+        })
+        .catch((err: unknown) => {
+          console.error('HomePage: failed to register Tauri listener:', err);
+        });
+    };
+    void import('@tauri-apps/api/event').then(({ listen }) => {
+      if (aborted) return;
+      register(
+        listen('app://open-town', () => {
+          openTown();
+        }),
+      );
+      register(
+        listen('app://open-meet', () => {
+          handleOpenMeet();
+        }),
+      );
+      register(
+        listen('app://window-hiding', () => {
+          townOpenTokenRef.current++;
+          setView((v) => (v === 'town' ? 'buddies' : v));
+        }),
+      );
+    });
+    return () => {
+      aborted = true;
+      for (const fn of unlisteners) fn();
+    };
+  }, [openTown, handleOpenMeet]);
+
+  const handleTabChange = useCallback(
+    (tab: MobileTab) => {
+      if (tab === 'fun' && !GAMES_ENABLED) return;
+      if (IS_TAURI && tab === 'fun') {
+        void import('../lib/tauri-windows').then(({ openGamesWindow }) => {
+          void openGamesWindow();
+        });
+        return;
+      }
+      if (IS_TAURI && tab === 'meet') {
+        void import('../lib/tauri-windows').then(({ openMeetWindow }) => {
+          void openMeetWindow();
+        });
+        return;
+      }
+      if (tab === 'town') {
+        openTown();
+        return;
+      }
+      if (tab === 'meet' || tab === 'buddies' || tab === 'fun') {
+        setView(tab === 'fun' ? 'games' : tab);
+      }
+    },
+    [openTown],
+  );
 
   const handleOpenSettings = useCallback(() => {
     setView('settings');
@@ -149,11 +239,6 @@ export function HomePage() {
       return;
     }
     setView('games');
-  }, []);
-
-  const handleOpenTown = useCallback(() => {
-    if (!TOWN_ENABLED) return;
-    setView('town');
   }, []);
 
   if (view === 'settings') {
@@ -207,15 +292,10 @@ export function HomePage() {
       onDeleteGroup={deleteGroup}
       onMoveBuddy={moveBuddy}
       onBuddyClick={handleBuddyClick}
-      onOpenMeet={
-        view !== 'meet'
-          ? () => {
-              setView('meet');
-            }
-          : undefined
-      }
+      onBack={IS_TAURI && view === 'town' ? handleLeaveTown : undefined}
+      onOpenMeet={view !== 'meet' ? handleOpenMeet : undefined}
       onOpenGames={GAMES_ENABLED && view !== 'games' ? handleOpenGames : undefined}
-      onOpenTown={TOWN_ENABLED && view !== 'town' ? handleOpenTown : undefined}
+      onOpenTown={TOWN_ENABLED && view !== 'town' ? openTown : undefined}
     />
   );
 
@@ -265,7 +345,10 @@ export function HomePage() {
     );
   }
 
-  // Desktop: meet center + buddy sidebar
+  // Desktop: meet center + buddy sidebar.
+  // Keep page > body > div.main > Suspense at the same position as the mobile
+  // branch: on Tauri the window grows from mobile to desktop width while in
+  // town, and a tree change here would remount ProtoTownPanel (leave + rejoin).
   return (
     <div className={styles.page}>
       <Header onOpenSettings={handleOpenSettings} />

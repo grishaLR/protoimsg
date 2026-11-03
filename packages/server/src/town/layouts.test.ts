@@ -3,10 +3,12 @@ import { TOWN_DEFAULT_LAYOUT, type TownPlacement } from '@protoimsg/shared';
 import type { Sql } from '../db/client.js';
 import { IndexedTownLayouts, placementsFromRecord, recordTime } from './layouts.js';
 
+const A = 'did:plc:a';
+
 describe('placementsFromRecord', () => {
   it('reads a valid record', () => {
     expect(
-      placementsFromRecord('home', {
+      placementsFromRecord(A, 'home', {
         $type: 'app.protoimsg.town.layout',
         space: 'home',
         placements: [{ builtin: 'armchair', x: 3, y: 4 }],
@@ -17,10 +19,10 @@ describe('placementsFromRecord', () => {
 
   it("ignores a record for another space or one that isn't a layout", () => {
     expect(
-      placementsFromRecord('yard', { space: 'home', placements: TOWN_DEFAULT_LAYOUT.home }),
+      placementsFromRecord(A, 'yard', { space: 'home', placements: TOWN_DEFAULT_LAYOUT.home }),
     ).toEqual([]);
-    expect(placementsFromRecord('home', 'nope')).toEqual([]);
-    expect(placementsFromRecord('home', null)).toEqual([]);
+    expect(placementsFromRecord(A, 'home', 'nope')).toEqual([]);
+    expect(placementsFromRecord(A, 'home', null)).toEqual([]);
   });
 });
 
@@ -51,7 +53,6 @@ vi.mock('./queries.js', () => ({
   },
 }));
 
-const A = 'did:plc:a';
 const sql = {} as Sql;
 const chair = (x: number): TownPlacement => ({ builtin: 'armchair', x, y: 4 });
 const record = (x: number, updatedAt: string) => ({

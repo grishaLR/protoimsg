@@ -1,0 +1,78 @@
+/* Same card as the build consent: bottom centre, over the world. */
+.card {
+  position: absolute;
+  z-index: var(--cm-z-local-top);
+  inset-inline: var(--cm-space-0);
+  inset-block-end: calc(var(--cm-space-6) + var(--cm-space-16));
+  margin-inline: auto;
+  inline-size: min(calc(100% - var(--cm-space-12)), var(--cm-panel-width-dm));
+  /* Short screens (a phone on its side): scroll rather than run into the HUD. */
+  max-block-size: 50%;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--cm-space-3);
+  padding: var(--cm-space-3) var(--cm-space-5) var(--cm-space-4);
+  color: var(--color-base-content);
+  background: var(--color-base-100);
+  border: var(--cm-space-0.5) solid var(--color-base-300);
+  border-radius: var(--cm-radius-md);
+  box-shadow: var(--cm-raised);
+}
+
+.title {
+  margin: var(--cm-space-0);
+  font-size: var(--cm-text-sm);
+  font-weight: 700;
+}
+
+.body {
+  margin: var(--cm-space-0);
+  font-size: var(--cm-text-sm);
+  line-height: var(--cm-leading-normal);
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--cm-space-2);
+}
+
+.button {
+  padding: var(--cm-space-1) var(--cm-space-4);
+  font-size: var(--cm-text-xs);
+  color: var(--color-base-content);
+  background: var(--cm-surface-button);
+  border: var(--cm-space-0.5) solid var(--color-base-300);
+  border-radius: var(--cm-radius-sm);
+  box-shadow: var(--cm-raised);
+  cursor: pointer;
+}
+
+.button:hover {
+  background: var(--color-base-200);
+}
+
+.button:active {
+  box-shadow: var(--cm-pressed);
+}
+
+.primary {
+  color: var(--color-base-content);
+  background: var(--color-base-100);
+  border: var(--cm-space-1) solid var(--color-base-content);
+  font-weight: 700;
+}
+
+.button:focus-visible {
+  outline: var(--cm-focus-thin) solid var(--cm-focus);
+  outline-offset: var(--cm-focus-offset);
+}
+
+/* 44px touch targets. */
+@media (pointer: coarse) {
+  .button {
+    min-block-size: calc(var(--cm-space-16) + var(--cm-space-6));
+  }
+}

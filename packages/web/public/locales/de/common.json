@@ -250,12 +250,26 @@
       "title": "Nachbarschaften, die du besuchen kannst",
       "close": "Schließen"
     },
+    "here": {
+      "button": "Hier: {{count}}",
+      "title": "Wer ist hier",
+      "empty": "Bisher nur du",
+      "more": "+{{count}} weitere",
+      "close": "Schließen"
+    },
     "fof": {
       "off": "Freunde von Freunden: aus",
       "on": "Freunde von Freunden: an",
       "hint": "Wenn an, sehen dich hier nur deine gegenseitigen Kontakte und deren gegenseitige Kontakte, und du siehst nur sie.",
       "announceOn": "Freunde-von-Freunden-Modus an. Hier sehen dich nur deine gegenseitigen Kontakte und deren gegenseitige Kontakte.",
       "announceOff": "Freunde-von-Freunden-Modus aus. Alle auf dem Marktplatz können dich sehen."
+    },
+    "publicNotice": {
+      "title": "Du bist in der Öffentlichkeit",
+      "bodyFof": "In der Stadt können dich alle im selben Bereich sehen. Du bist im Modus Freunde von Freunden, also sehen dich auf dem Marktplatz nur deine gegenseitigen Kontakte und deren gegenseitige Kontakte, und du siehst nur sie. Das kannst du oben jederzeit ändern.",
+      "bodyOpen": "In der Stadt können dich alle im selben Bereich sehen. Auf dem Marktplatz sind das alle. Lieber weniger Leute? Schalte Freunde von Freunden an oder geh nach Hause.",
+      "turnOnFof": "Freunde von Freunden anschalten",
+      "ok": "Verstanden"
     },
     "knock": {
       "prompt": "Bei {{name}} anklopfen?",
@@ -335,7 +349,8 @@
         "full": "Kein Platz für weitere Teile.",
         "pickedUp": "Aufgehoben. Stell es dort ab, wo es hin soll, oder drück Esc, um es zurückzustellen.",
         "putBack": "Zurückgestellt.",
-        "rotated": "Gedreht."
+        "rotated": "Gedreht.",
+        "oneWardrobe": "Du hast schon einen Kleiderschrank. Verschieb lieber den."
       },
       "items": {
         "bed": "Bett",
@@ -357,13 +372,30 @@
         "stone": "Stein",
         "chest": "Truhe",
         "barrel": "Fass",
-        "wildflowers": "Wildblumen"
+        "wildflowers": "Wildblumen",
+        "wardrobe": "Kleiderschrank"
       },
       "consent": {
         "title": "Speichere deine Designs",
         "body": "Dein Design wird in deinem eigenen Account gespeichert, wo es alle sehen können, wie deine Posts. Dafür braucht es noch eine Berechtigung. Du bestätigst sie mit deinem Account und bist gleich wieder da.",
         "allow": "Weiter",
         "notNow": "Jetzt nicht"
+      },
+      "wardrobe": {
+        "choose": "Kleiderschrank ({{chosen}}/{{slots}})",
+        "title": "Dein Kleiderschrank",
+        "body": "Wähle bis zu {{count}} deiner rpg.actor-Gegenstände zum Vorzeigen. Alle, die dich zu Hause besuchen, sehen sie.",
+        "count": "{{chosen}} von {{slots}}",
+        "loading": "Deine Gegenstände werden geladen…",
+        "loadFailed": "Deine Gegenstände konnten nicht geladen werden.",
+        "empty": "Du hast noch keine rpg.actor-Gegenstände. Gewinne welche in der Spielhalle oder hol sie dir auf rpg.actor.",
+        "full": "Voll. Entferne einen Haken, um zu tauschen.",
+        "save": "Diese zeigen",
+        "cancel": "Abbrechen",
+        "saved": "Kleiderschrank aktualisiert.",
+        "look": "So wird {{title}} gezeigt",
+        "lookIcon": "Symbol",
+        "lookWorn": "Getragen"
       }
     },
     "sprite": {

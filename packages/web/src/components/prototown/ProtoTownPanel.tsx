@@ -13,6 +13,7 @@ import {
   townDoorwayTarget,
   townSceneId,
   validateTownLayout,
+  townDisplaySlots,
 } from '@protoimsg/shared';
 import type {
   PresenceVisibility,
@@ -20,6 +21,7 @@ import type {
   TownGate,
   TownPlacement,
   TownScene,
+  TownDisplayed,
   TownSceneKind,
   TownSpace,
 } from '@protoimsg/shared';
@@ -33,8 +35,12 @@ import { useWebSocket } from '../../contexts/WebSocketContext';
 import { WorldEngine, type SignId, type TownBuildView } from '../../town/WorldEngine';
 import { sceneSpace } from '../../town/map';
 import { BuildConsent, BuildTray } from './TownBuild';
+import { WardrobePicker } from './TownWardrobe';
+import { loadWardrobeItems } from '../../town/wardrobeItems';
 import { canSaveLayouts, useLayoutSaver } from './useLayoutSaver';
 import { useProfiles } from '../../contexts/ProfileContext';
+import { TownHere } from './TownHere';
+import { TownPublicNotice } from './TownPublicNotice';
 import { TownSignpost } from './TownSignpost';
 import { GuestList, KnockPrompt, RequestCards, type PendingRequest } from './TownKnock';
 import { playDoorOpen, playImNotify } from '../../lib/sounds';
@@ -172,9 +178,24 @@ function closeKnockNotification(): void {
   knockNotification = null;
 }
 
+/**
+ * Friends-of-friends is the default: town is public, so the smaller crowd is
+ * where everyone starts. Only an explicit "off" makes the square fully open.
+ */
 function readFofPref(): boolean {
   try {
-    return localStorage.getItem(FOF_STORAGE_KEY) === 'on';
+    return localStorage.getItem(FOF_STORAGE_KEY) !== 'off';
+  } catch {
+    return true;
+  }
+}
+
+/** The once-only "you're out in public" card for the square. */
+const PUBLIC_NOTICE_KEY = 'protoimsg:townPublicNoticeSeen';
+
+function readPublicNoticeSeen(): boolean {
+  try {
+    return localStorage.getItem(PUBLIC_NOTICE_KEY) === '1';
   } catch {
     return false;
   }
@@ -285,6 +306,7 @@ export function ProtoTownPanel() {
   const [moreGates, setMoreGates] = useState<string[]>([]);
   const [signpostOpen, setSignpostOpen] = useState(false);
   const [fof, setFof] = useState(readFofPref);
+  const [publicNoticeSeen, setPublicNoticeSeen] = useState(readPublicNoticeSeen);
   // Knocking: may you knock on this neighborhood's door; your knock prompt
   // (null = closed); knocks at your own door; your guests; your door's state.
   const canKnockRef = useRef(false);
@@ -302,6 +324,10 @@ export function ProtoTownPanel() {
   const [asking, setAsking] = useState(false);
   const [joinRequests, setJoinRequests] = useState<PendingRequest[]>([]);
   const [guests, setGuests] = useState<string[]>([]);
+  // Everyone in this scene you may see, wherever they stand (server-filtered).
+  // Null until the server says for this scene (never a misleading "0").
+  const [here, setHere] = useState<{ dids: string[]; total: number } | null>(null);
+  const [hereOpen, setHereOpen] = useState(false);
   const [knockingOpen, setKnockingOpen] = useState(readKnockingOpen);
   // Offer knock notifications only where the browser can still ask.
   const [canAskNotify, setCanAskNotify] = useState(
@@ -336,6 +362,31 @@ export function ProtoTownPanel() {
   // prompt for sessions that can't save designs yet.
   const [buildView, setBuildView] = useState<TownBuildView | null>(null);
   const [consentOpen, setConsentOpen] = useState(false);
+  // The items on this space's wardrobes, read from its owner's PDS (like the
+  // items tab on their profile). A newer layout cancels an older read.
+  const dressAbortRef = useRef<AbortController | null>(null);
+  const dress = useCallback((scene: TownScene, placements: readonly TownPlacement[]) => {
+    dressAbortRef.current?.abort();
+    dressAbortRef.current = null;
+    const engine = engineRef.current;
+    if (!engine) return;
+    const display = placements.flatMap((p) => p.display ?? []);
+    if (scene.kind === 'square' || display.length === 0) {
+      engine.setDisplayItems([]);
+      return;
+    }
+    const ac = new AbortController();
+    dressAbortRef.current = ac;
+    void loadWardrobeItems(scene.owner, display, ac.signal).then((items) => {
+      if (!ac.signal.aborted && engineRef.current === engine) engine.setDisplayItems(items);
+    });
+  }, []);
+  const dressRef = useRef(dress);
+  dressRef.current = dress;
+  useEffect(() => () => dressAbortRef.current?.abort(), []);
+
+  // Choosing what your wardrobe shows: the piece, as it was when you opened it.
+  const [wardrobeEdit, setWardrobeEdit] = useState<TownPlacement | null>(null);
   const canSave = canSaveLayouts(grantedScopes);
   const saver = useLayoutSaver(agent, did, send);
   const saverRef = useRef(saver);
@@ -367,9 +418,23 @@ export function ProtoTownPanel() {
     for (const r of joinRequests) out.add(r.from);
     for (const g of guests) out.add(g);
     if (signpostOpen) for (const d of moreGates.slice(0, SIGNPOST_NAMES)) out.add(d);
+    // Only while the list is open: a busy square shouldn't fetch 100 profiles.
+    if (hereOpen && here) for (const d of here.dids) out.add(d);
     if (did) out.delete(did);
     return [...out];
-  }, [gates, scene, noticeOwner, signpostOpen, moreGates, knocks, joinRequests, guests, did]);
+  }, [
+    gates,
+    scene,
+    noticeOwner,
+    signpostOpen,
+    moreGates,
+    knocks,
+    joinRequests,
+    guests,
+    hereOpen,
+    here,
+    did,
+  ]);
   const { getProfile, version: namesVersion } = useProfiles(nameDids);
   const nameOf = useCallback(
     (d: string) => {
@@ -491,6 +556,8 @@ export function ProtoTownPanel() {
     setKnockPrompt(null);
     setJoinRequests([]);
     setAsking(false);
+    // The server sends the new scene's list shortly; never show the old one.
+    setHere(null);
     // Knock cards and the guest list only make sense inside your own home.
     if (next.kind !== 'home' || next.owner !== didRef.current) {
       setKnocks([]);
@@ -650,8 +717,14 @@ export function ProtoTownPanel() {
     engine.onBuildAction = (action) => {
       announce(tRef.current(`town.build.announce.${action}`));
     };
+    engine.onWardrobePlaced = (piece) => {
+      setWardrobeEdit(piece);
+    };
     engine.onLayoutEdit = (space, placements) => {
       saverRef.current.queue(space, placements);
+      // Your own edits: your wardrobe's picks show as you make them.
+      const here = sceneRef.current;
+      if (here) dressRef.current(here, placements);
     };
     void engine.init(container, did, home.kind).then(() => {
       if (engineRef.current === engine) setEngineEpoch((e) => e + 1);
@@ -677,6 +750,8 @@ export function ProtoTownPanel() {
       gatesRef.current = [];
       setGates([]);
       setMoreGates([]);
+      setHere(null);
+      setHereOpen(false);
       setSignpostOpen(false);
       setAudioBlocked(false);
       setMicLive(false);
@@ -791,6 +866,7 @@ export function ProtoTownPanel() {
             e.setWindowLit(msg.data.windowLit ?? false);
             arriveIn(next); // first, so the new scene's signs read right
             e.enterScene(next.kind, msg.data.self, layoutFor(next.kind, msg.data.layout));
+            dressRef.current(next, layoutFor(next.kind, msg.data.layout));
             endTransition();
             if (msg.data.reason === 'visitOver') setSceneError('visitOver');
             else if (msg.data.reason === 'removed' && left) {
@@ -802,6 +878,7 @@ export function ProtoTownPanel() {
             e.setWindowLit(msg.data.windowLit ?? false);
             arriveIn(next);
             e.enterScene(next.kind, msg.data.self, layoutFor(next.kind, msg.data.layout));
+            dressRef.current(next, layoutFor(next.kind, msg.data.layout));
             endTransition();
             pendingSceneRef.current = null;
           } else if (!cur || msg.data.scene !== townSceneId(cur)) {
@@ -816,6 +893,7 @@ export function ProtoTownPanel() {
           e.setWindowLit(msg.data.windowLit ?? false);
           if (next && !(next.kind !== 'square' && next.owner === did && saverRef.current.busy())) {
             e.setLayout(layoutFor(next.kind, msg.data.layout));
+            dressRef.current(next, layoutFor(next.kind, msg.data.layout));
           }
           e.setPeers(msg.data.peers);
           setVoiceSupported(msg.data.voice);
@@ -870,6 +948,7 @@ export function ProtoTownPanel() {
           // than what you see. The last save's echo brings it in line.
           if (here.kind !== 'square' && here.owner === did && saverRef.current.busy()) break;
           e.setLayout(msg.data.placements);
+          dressRef.current(here, msg.data.placements);
           break;
         }
         case 'town_join_available':
@@ -918,6 +997,9 @@ export function ProtoTownPanel() {
           break;
         case 'town_guests':
           setGuests(msg.data.guests);
+          break;
+        case 'town_here':
+          setHere(msg.data);
           break;
         case 'town_view':
           // Batched: who appeared/moved in your view, and who left it.
@@ -1099,6 +1181,27 @@ export function ProtoTownPanel() {
     }
     announce(t(next ? 'town.fof.announceOn' : 'town.fof.announceOff'));
   }, [fof, send, t]);
+
+  const dismissPublicNotice = useCallback(() => {
+    setPublicNoticeSeen(true);
+    try {
+      localStorage.setItem(PUBLIC_NOTICE_KEY, '1');
+    } catch {
+      // localStorage unavailable — it shows again next time, which is fine
+    }
+  }, []);
+
+  const turnOnFofFromNotice = useCallback(() => {
+    // The ref, not state: a double tap must never toggle it back off.
+    if (!fofRef.current) toggleFof();
+    dismissPublicNotice();
+  }, [toggleFof, dismissPublicNotice]);
+
+  const showPublicNotice = scene?.kind === 'square' && !publicNoticeSeen && !signpostOpen;
+  // Safety copy: make sure screen readers hear it appear, not just sighted users.
+  useEffect(() => {
+    if (showPublicNotice) announce(tRef.current('town.publicNotice.title'));
+  }, [showPublicNotice, announce]);
 
   const knock = useCallback(() => {
     send({ type: 'town_knock' });
@@ -1291,7 +1394,7 @@ export function ProtoTownPanel() {
           const value = res.data.value as { space?: unknown; placements?: unknown };
           placements =
             value.space === space
-              ? validateTownLayout(space, value.placements)
+              ? validateTownLayout(space, value.placements, did)
               : TOWN_DEFAULT_LAYOUT[space];
         } catch (err: unknown) {
           // Never designed: start from the default. Anything else: don't guess.
@@ -1307,6 +1410,8 @@ export function ProtoTownPanel() {
         return;
       }
       engine.beginBuild(placements);
+      const here = sceneRef.current;
+      if (here) dressRef.current(here, placements);
     } catch {
       setSceneError('buildLoad');
     } finally {
@@ -1315,6 +1420,30 @@ export function ProtoTownPanel() {
   }, [ownSpace, canSave, agent, did, saver, announce, t]);
   const startBuildingRef = useRef(startBuilding);
   startBuildingRef.current = startBuilding;
+
+  // Done designing: any wardrobe choice in progress goes with it.
+  useEffect(() => {
+    if (!buildView) setWardrobeEdit(null);
+  }, [buildView]);
+
+  // Choosing wardrobe items: nothing in hand meanwhile (no ghost of a bed).
+  const choosingItems = wardrobeEdit !== null;
+  useEffect(() => {
+    engineRef.current?.setBuildPaused(choosingItems);
+  }, [choosingItems]);
+
+  const chooseWardrobeItems = useCallback(() => {
+    setWardrobeEdit(engineRef.current?.wardrobe() ?? null);
+  }, []);
+
+  const saveWardrobe = useCallback(
+    (display: TownDisplayed[]) => {
+      const saved = !!wardrobeEdit && !!engineRef.current?.setDisplay(wardrobeEdit, display);
+      setWardrobeEdit(null);
+      if (saved) announce(t('town.build.wardrobe.saved'));
+    },
+    [wardrobeEdit, announce, t],
+  );
 
   const toggleBuild = useCallback(() => {
     const engine = engineRef.current;
@@ -1430,6 +1559,15 @@ export function ProtoTownPanel() {
       <div className={`${styles.topBar} ${bannerShown ? styles.belowBanner : ''}`}>
         <div className={styles.hudGroup}>
           {scene && <div className={styles.sceneChip}>{chipText}</div>}
+          {scene && (
+            <TownHere
+              here={here}
+              open={hereOpen}
+              onOpenChange={setHereOpen}
+              nameOf={nameOf}
+              buttonClassName={`${styles.voiceButton} ${styles.fofToggle}`}
+            />
+          )}
           <div className={styles.hud}>
             {t(touchFirst ? 'town.hud.controlsTouch' : 'town.hud.controls')}
           </div>
@@ -1679,6 +1817,13 @@ export function ProtoTownPanel() {
       {atOwnHome && guests.length > 0 && (
         <GuestList guests={guests} nameOf={nameOf} onAskToLeave={askToLeave} />
       )}
+      {showPublicNotice && (
+        <TownPublicNotice
+          fof={fof}
+          onTurnOnFof={turnOnFofFromNotice}
+          onDismiss={dismissPublicNotice}
+        />
+      )}
       {signpostOpen && moreGates.length > 0 && (
         <TownSignpost
           owners={moreGates}
@@ -1690,6 +1835,18 @@ export function ProtoTownPanel() {
         />
       )}
       {/* A knock outranks the tray (they share a spot): answer, then carry on. */}
+      {buildView && wardrobeEdit && agent && did && !(atOwnHome && knocks.length > 0) && (
+        <WardrobePicker
+          agent={agent}
+          did={did}
+          slots={townDisplaySlots(wardrobeEdit.builtin)}
+          chosen={wardrobeEdit.display ?? []}
+          onSave={saveWardrobe}
+          onCancel={() => {
+            setWardrobeEdit(null);
+          }}
+        />
+      )}
       {buildView && !(atOwnHome && knocks.length > 0) && (
         <BuildTray
           view={buildView}
@@ -1701,6 +1858,7 @@ export function ProtoTownPanel() {
           onRemove={() => engineRef.current?.removeAtCursor()}
           onRetry={saver.flush}
           onDone={() => engineRef.current?.endBuild()}
+          onChooseItems={chooseWardrobeItems}
         />
       )}
       {consentOpen && ownSpace && !canSave && (
@@ -1712,7 +1870,8 @@ export function ProtoTownPanel() {
         />
       )}
       {/* Walking on a touch screen; out of the way while the build tray is up. */}
-      {touchFirst && !buildView && (
+      {/* Off while the public notice is up: it sits where the stick does on phones. */}
+      {touchFirst && !buildView && !showPublicNotice && (
         <TownJoystick onMove={(x, y) => engineRef.current?.setStick(x, y)} />
       )}
       {videos.length > 0 && (

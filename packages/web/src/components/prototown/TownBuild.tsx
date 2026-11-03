@@ -14,6 +14,8 @@ interface BuildTrayProps {
   onRemove: () => void;
   onRetry: () => void;
   onDone: () => void;
+  /** Aiming at your wardrobe: pick what it shows. */
+  onChooseItems: () => void;
 }
 
 /**
@@ -31,6 +33,7 @@ export function BuildTray({
   onRemove,
   onRetry,
   onDone,
+  onChooseItems,
 }: BuildTrayProps) {
   const { t } = useTranslation('common');
   return (
@@ -101,6 +104,14 @@ export function BuildTray({
             }}
           >
             {t('town.build.pickUp')}
+          </button>
+        )}
+        {view.display && (
+          <button type="button" className={styles.button} onClick={onChooseItems}>
+            {t('town.build.wardrobe.choose', {
+              chosen: view.display.chosen.length,
+              slots: view.display.slots,
+            })}
           </button>
         )}
         <button

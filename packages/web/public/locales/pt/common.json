@@ -250,12 +250,26 @@
       "title": "Vizinhanças que você pode visitar",
       "close": "Fechar"
     },
+    "here": {
+      "button": "Aqui: {{count}}",
+      "title": "Quem está aqui",
+      "empty": "Só você por enquanto",
+      "more": "Mais {{count}}",
+      "close": "Fechar"
+    },
     "fof": {
       "off": "Amigos de amigos: desligado",
       "on": "Amigos de amigos: ligado",
       "hint": "Quando ligado, só seus contatos mútuos e os contatos mútuos deles podem ver você aqui, e você só vê essas pessoas.",
       "announceOn": "Modo amigos de amigos ligado. Só seus contatos mútuos e os contatos mútuos deles podem ver você aqui.",
       "announceOff": "Modo amigos de amigos desligado. Todo mundo na praça pode ver você."
+    },
+    "publicNotice": {
+      "title": "Você está em público",
+      "bodyFof": "Na cidade, quem está no mesmo espaço pode ver você. Você está no modo amigos de amigos, então na praça da cidade só seus contatos mútuos e os contatos mútuos deles veem você, e você só vê essas pessoas. Dá para mudar isso lá em cima quando quiser.",
+      "bodyOpen": "Na cidade, quem está no mesmo espaço pode ver você. Na praça da cidade, isso é todo mundo. Quer menos gente? Ligue amigos de amigos ou volte para casa.",
+      "turnOnFof": "Ligar amigos de amigos",
+      "ok": "Entendi"
     },
     "knock": {
       "prompt": "Bater na porta de {{name}}?",
@@ -335,7 +349,8 @@
         "full": "Não há espaço para mais peças.",
         "pickedUp": "Peça pega. Coloque onde ela vai, ou aperte Esc para devolvê-la ao lugar.",
         "putBack": "Devolvida ao lugar.",
-        "rotated": "Girada."
+        "rotated": "Girada.",
+        "oneWardrobe": "Sua casa já tem um guarda-roupa. Mova esse no lugar."
       },
       "items": {
         "bed": "Cama",
@@ -357,13 +372,30 @@
         "stone": "Pedra",
         "chest": "Baú",
         "barrel": "Barril",
-        "wildflowers": "Flores silvestres"
+        "wildflowers": "Flores silvestres",
+        "wardrobe": "Guarda-roupa"
       },
       "consent": {
         "title": "Salve suas decorações",
         "body": "Sua decoração fica salva na sua própria conta, onde qualquer pessoa pode vê-la, como seus posts. Para isso é preciso mais uma permissão. Você vai confirmar com sua conta e voltar logo em seguida.",
         "allow": "Continuar",
         "notNow": "Agora não"
+      },
+      "wardrobe": {
+        "choose": "Itens do guarda-roupa ({{chosen}}/{{slots}})",
+        "title": "Seu guarda-roupa",
+        "body": "Escolha até {{count}} dos seus itens do rpg.actor para exibir. Todo mundo que visitar sua casa vai ver.",
+        "count": "{{chosen}} de {{slots}}",
+        "loading": "Carregando seus itens…",
+        "loadFailed": "Não foi possível carregar seus itens.",
+        "empty": "Você ainda não tem itens do rpg.actor. Ganhe alguns no fliperama ou pegue no rpg.actor.",
+        "full": "Cheio. Desmarque um para trocar.",
+        "save": "Mostrar estes",
+        "cancel": "Cancelar",
+        "saved": "Guarda-roupa atualizado.",
+        "look": "Como {{title}} aparece",
+        "lookIcon": "Ícone",
+        "lookWorn": "Vestido"
       }
     },
     "sprite": {
