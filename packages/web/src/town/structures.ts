@@ -13,8 +13,8 @@ import { barrierAt, gateSlotAt } from './map';
 import { ART_SCALE, PIECE_FRAMES, type FrameId, type OpenPixels } from './openpixels';
 
 // Each scene's walls, fence, house and ground, composed from the OpenPixels
-// sheet (see openpixels.ts). The bench and lamppost are still hand-drawn on
-// a 16-px grid scaled 3×, until open art turns up for them.
+// sheet (see openpixels.ts). The bench, lamppost and wardrobe are still
+// hand-drawn on a 16-px grid, until open art turns up for them.
 const U = TOWN_TILE / 16;
 const T = TOWN_TILE;
 
@@ -78,6 +78,77 @@ function drawLamppost(g: Graphics, x: number, y: number): void {
   px(g, x, y, 6, -20, 4, 2, IRON_LIGHT);
 }
 
+/**
+ * The wardrobe: an open clothes rack two tiles wide, standing a tile taller
+ * than its row. A shelf on top for hats, a rail to hang things from, and a
+ * low shelf for shoes and whatever else. Drawn with its feet on tile (0, 0).
+ */
+function drawWardrobe(g: Graphics): void {
+  px(g, 0, 0, 1, 14, 30, 2, WOOD_DARK); // feet
+  px(g, 0, 0, 1, -16, 3, 30, WOOD); // posts
+  px(g, 0, 0, 28, -16, 3, 30, WOOD);
+  px(g, 0, 0, 3, -16, 1, 30, WOOD_DARK);
+  px(g, 0, 0, 28, -16, 1, 30, WOOD_DARK);
+  px(g, 0, 0, 0, -18, 32, 3, WOOD); // hat shelf
+  px(g, 0, 0, 0, -15, 32, 1, WOOD_DARK);
+  px(g, 0, 0, 4, -11, 24, 1, IRON_LIGHT); // rail
+  px(g, 0, 0, 4, -10, 24, 1, IRON);
+  px(g, 0, 0, 1, 9, 30, 3, WOOD); // low shelf
+  px(g, 0, 0, 1, 12, 30, 1, WOOD_DARK);
+}
+
+/** Where an item can go on the wardrobe: on a shelf, or hung from the rail. */
+export type WardrobeSpotKind = 'top' | 'hang' | 'shelf';
+
+export interface WardrobeSpot {
+  kind: WardrobeSpotKind;
+  /** Centre x, in px from the wardrobe's left edge. */
+  x: number;
+  /** A shelf spot: the shelf's surface (items stand on it). Hung: the hook (items hang below). */
+  y: number;
+  /** The most room an item may take, px. */
+  w: number;
+  h: number;
+}
+
+/** The wardrobe's spots, in px from its top-left tile (`display` slots: 7). */
+export const WARDROBE_SPOTS: readonly WardrobeSpot[] = [
+  { kind: 'top', x: 9 * U, y: -18 * U, w: 12 * U, h: 9 * U },
+  { kind: 'top', x: 23 * U, y: -18 * U, w: 12 * U, h: 9 * U },
+  { kind: 'hang', x: 8 * U, y: -9 * U, w: 8 * U, h: 17 * U },
+  { kind: 'hang', x: 16 * U, y: -9 * U, w: 8 * U, h: 17 * U },
+  { kind: 'hang', x: 24 * U, y: -9 * U, w: 8 * U, h: 17 * U },
+  { kind: 'shelf', x: 10 * U, y: 9 * U, w: 12 * U, h: 8 * U },
+  { kind: 'shelf', x: 22 * U, y: 9 * U, w: 12 * U, h: 8 * U },
+];
+
+/** Which spot suits an rpg.actor item category. */
+function spotKindFor(category: string): WardrobeSpotKind {
+  if (category === 'headwear') return 'top';
+  if (['feet', 'lefthand', 'righthand', 'inventory'].includes(category)) return 'shelf';
+  return 'hang';
+}
+
+/**
+ * Give each item a spot, in the order chosen: its own kind of spot if one
+ * is free, else whatever's left (hung first). Returns spot index per item
+ * (-1: no room).
+ */
+export function arrangeWardrobe(categories: readonly string[]): number[] {
+  const taken = new Set<number>();
+  const fallback: WardrobeSpotKind[] = ['hang', 'shelf', 'top'];
+  return categories.map((category) => {
+    for (const kind of [spotKindFor(category), ...fallback]) {
+      const i = WARDROBE_SPOTS.findIndex((s, j) => s.kind === kind && !taken.has(j));
+      if (i >= 0) {
+        taken.add(i);
+        return i;
+      }
+    }
+    return -1;
+  });
+}
+
 // ── Placed pieces ───────────────────────────────────────────────────────
 
 /**
@@ -110,6 +181,16 @@ export function drawPlacement(art: OpenPixels | null, p: TownPlacement): Contain
     const tall = turns === 0 && h > fp.h * T;
     const cy = tall ? (p.y + fp.h) * T - h / 2 - 2 : (p.y + fp.h / 2) * T;
     node.position.set(cx, cy);
+    node.zIndex = z;
+    return node;
+  }
+  if (p.builtin === 'wardrobe') {
+    // Never turned: a container (so its items can sit in it) on its tiles.
+    const node = new Container();
+    const g = new Graphics();
+    drawWardrobe(g);
+    node.addChild(g);
+    node.position.set(p.x * T, p.y * T);
     node.zIndex = z;
     return node;
   }

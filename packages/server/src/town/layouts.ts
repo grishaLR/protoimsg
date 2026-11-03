@@ -49,12 +49,16 @@ const MAX_RECORD_BYTES = 64 * 1024;
 // the owner's clock only this far.
 const MAX_CLOCK_SKEW_MS = 5 * 60_000;
 
-/** The placements a record may show in `space` (wrong space, malformed → none). */
-export function placementsFromRecord(space: TownSpace, record: unknown): TownPlacement[] {
+/** The placements `owner`'s record may show in `space` (wrong space, malformed → none). */
+export function placementsFromRecord(
+  owner: string,
+  space: TownSpace,
+  record: unknown,
+): TownPlacement[] {
   if (!record || typeof record !== 'object') return [];
   const r = record as { space?: unknown; placements?: unknown };
   if (r.space !== space) return [];
-  return validateTownLayout(space, r.placements);
+  return validateTownLayout(space, r.placements, owner);
 }
 
 /** When the owner says they saved it (clamped), for ordering writes. */
@@ -108,7 +112,7 @@ export class IndexedTownLayouts implements TownLayouts {
       // A save landed while we read: it's newer than what we read.
       if (this.cache.has(k)) return;
       // Re-validate on the way out too: the rules may have changed since.
-      this.remember(k, stored ? validateTownLayout(space, stored) : null);
+      this.remember(k, stored ? validateTownLayout(space, stored, owner) : null);
     } catch (err) {
       log.error({ err, owner, space }, 'Could not load a town layout; showing the default');
     }
@@ -123,7 +127,7 @@ export class IndexedTownLayouts implements TownLayouts {
       this.update(owner, space, null);
       return;
     }
-    const placements = placementsFromRecord(space, record);
+    const placements = placementsFromRecord(owner, space, record);
     const updatedAt = recordTime(record);
     // Older than what's stored (a late firehose event): keep the newer one.
     if (!(await upsertTownLayout(this.sql, { did: owner, space, placements, cid, updatedAt }))) {

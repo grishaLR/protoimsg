@@ -349,7 +349,8 @@
         "full": "Không còn chỗ cho thêm đồ vật.",
         "pickedUp": "Đã nhấc lên. Đặt xuống chỗ muốn đặt, hoặc nhấn Esc để trả về chỗ cũ.",
         "putBack": "Đã trả về chỗ cũ.",
-        "rotated": "Đã xoay."
+        "rotated": "Đã xoay.",
+        "oneWardrobe": "Nhà bạn đã có tủ quần áo rồi. Hãy di chuyển tủ đó."
       },
       "items": {
         "bed": "Giường",
@@ -371,13 +372,30 @@
         "stone": "Hòn đá",
         "chest": "Rương",
         "barrel": "Thùng gỗ",
-        "wildflowers": "Hoa dại"
+        "wildflowers": "Hoa dại",
+        "wardrobe": "Tủ quần áo"
       },
       "consent": {
         "title": "Lưu thiết kế của bạn",
         "body": "Thiết kế của bạn được lưu vào tài khoản của chính bạn, nơi ai cũng có thể xem, giống như bài đăng của bạn. Việc này cần thêm một quyền nữa. Bạn sẽ xác nhận bằng tài khoản của mình và quay lại ngay.",
         "allow": "Tiếp tục",
         "notNow": "Để sau"
+      },
+      "wardrobe": {
+        "choose": "Đồ trong tủ ({{chosen}}/{{slots}})",
+        "title": "Tủ quần áo của bạn",
+        "body": "Chọn tối đa {{count}} món đồ rpg.actor để khoe. Ai ghé thăm nhà bạn cũng sẽ thấy.",
+        "count": "{{chosen}} trên {{slots}}",
+        "loading": "Đang tải đồ của bạn…",
+        "loadFailed": "Không tải được đồ của bạn.",
+        "empty": "Bạn chưa có món đồ rpg.actor nào. Hãy thắng ở khu trò chơi, hoặc nhận tại rpg.actor.",
+        "full": "Đầy rồi. Bỏ chọn một món để đổi.",
+        "save": "Trưng những món này",
+        "cancel": "Hủy",
+        "saved": "Đã cập nhật tủ quần áo.",
+        "look": "Cách hiển thị {{title}}",
+        "lookIcon": "Biểu tượng",
+        "lookWorn": "Đang mặc"
       }
     },
     "sprite": {

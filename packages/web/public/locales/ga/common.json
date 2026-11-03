@@ -349,7 +349,8 @@
         "full": "Níl spás do thuilleadh píosaí.",
         "pickedUp": "Piocadh suas é. Leag síos é san áit a dtéann sé, nó brúigh Escape chun é a chur ar ais.",
         "putBack": "Curtha ar ais.",
-        "rotated": "Casta."
+        "rotated": "Casta.",
+        "oneWardrobe": "Tá vardrús i do theach cheana féin. Bog é sin ina ionad."
       },
       "items": {
         "bed": "Leaba",
@@ -371,13 +372,30 @@
         "stone": "Cloch",
         "chest": "Cófra",
         "barrel": "Bairille",
-        "wildflowers": "Bláthanna fiáine"
+        "wildflowers": "Bláthanna fiáine",
+        "wardrobe": "Vardrús"
       },
       "consent": {
         "title": "Sábháil do dhearthaí",
         "body": "Sábháiltear do dhearadh i do chuntas féin, áit ar féidir le duine ar bith é a fheiceáil, cosúil le do phostálacha. Teastaíonn cead amháin eile chuige sin. Deimhneoidh tú é le do chuntas agus beidh tú ar ais láithreach.",
         "allow": "Lean ar aghaidh",
         "notNow": "Ní anois"
+      },
+      "wardrobe": {
+        "choose": "Míreanna an vardrúis ({{chosen}}/{{slots}})",
+        "title": "Do vardrús",
+        "body": "Roghnaigh suas le {{count}} de do mhíreanna rpg.actor le taispeáint. Feicfidh gach duine a thugann cuairt ar do theach iad.",
+        "count": "{{chosen}} as {{slots}}",
+        "loading": "Do mhíreanna á lódáil…",
+        "loadFailed": "Níorbh fhéidir do mhíreanna a lódáil.",
+        "empty": "Níl aon mhíreanna rpg.actor agat fós. Buaigh cuid acu sa stuara, nó faigh iad ag rpg.actor.",
+        "full": "Lán. Bain tic de cheann chun é a mhalartú.",
+        "save": "Taispeáin iad seo",
+        "cancel": "Cealaigh",
+        "saved": "Vardrús nuashonraithe.",
+        "look": "Conas a thaispeántar {{title}}",
+        "lookIcon": "Deilbhín",
+        "lookWorn": "Á caitheamh"
       }
     },
     "sprite": {

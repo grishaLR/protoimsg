@@ -349,7 +349,8 @@
         "full": "더 놓을 자리가 없어요.",
         "pickedUp": "들었어요. 놓을 곳에 내려놓거나, Esc를 누르면 제자리로 돌아가요.",
         "putBack": "제자리에 돌려놓았어요.",
-        "rotated": "돌렸어요."
+        "rotated": "돌렸어요.",
+        "oneWardrobe": "집에 이미 옷장이 있어요. 그 옷장을 옮겨 주세요."
       },
       "items": {
         "bed": "침대",
@@ -371,13 +372,30 @@
         "stone": "돌",
         "chest": "상자",
         "barrel": "통",
-        "wildflowers": "들꽃"
+        "wildflowers": "들꽃",
+        "wardrobe": "옷장"
       },
       "consent": {
         "title": "디자인 저장하기",
         "body": "디자인은 내 계정에 저장되며, 내 게시물처럼 누구나 볼 수 있어요. 이를 위해 권한이 하나 더 필요해요. 계정에서 확인하면 바로 돌아와요.",
         "allow": "계속",
         "notNow": "나중에"
+      },
+      "wardrobe": {
+        "choose": "옷장 아이템 ({{chosen}}/{{slots}})",
+        "title": "내 옷장",
+        "body": "자랑할 rpg.actor 아이템을 최대 {{count}}개까지 고르세요. 집에 오는 모든 사람이 볼 수 있어요.",
+        "count": "{{chosen}} / {{slots}}",
+        "loading": "아이템을 불러오는 중…",
+        "loadFailed": "아이템을 불러오지 못했어요.",
+        "empty": "아직 rpg.actor 아이템이 없어요. 오락실에서 얻거나 rpg.actor에서 받아 보세요.",
+        "full": "가득 찼어요. 바꾸려면 하나를 해제하세요.",
+        "save": "이걸로 보여주기",
+        "cancel": "취소",
+        "saved": "옷장을 업데이트했어요.",
+        "look": "{{title}} 보여주는 방식",
+        "lookIcon": "아이콘",
+        "lookWorn": "착용"
       }
     },
     "sprite": {
