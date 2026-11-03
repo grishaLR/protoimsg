@@ -250,6 +250,48 @@
       "title": "Khu phố bạn có thể ghé thăm",
       "close": "Đóng"
     },
+    "guide": {
+      "name": "ProtoBuddy",
+      "greeting": "Chào! Lại đây chào một tiếng nào 👋",
+      "talk": "Nói chuyện với {{name}}",
+      "talkHint": "Nhấn E hoặc chạm vào anh ấy",
+      "intro": "Chào mừng đến proto town! Bạn muốn biết gì?",
+      "close": "Đóng",
+      "sendAway": "Gửi {{name}} ra quảng trường",
+      "bringBack": "Đưa {{name}} về khu phố của tôi",
+      "bye": "Hẹn gặp bạn ở quảng trường! Tìm mình cạnh cái giếng nhé 👋",
+      "comingHome": "Khi bạn quay lại, mình sẽ ở khu phố của bạn 🏡",
+      "topics": {
+        "what": {
+          "q": "proto town là gì?",
+          "a": "Thế giới nhỏ của chúng mình trên ATmosphere. Đi dạo bằng nhân vật rpg.actor của bạn, trò chuyện với những người ở gần, và ghé thăm khu phố của bạn bè. Đây là bản beta, nên có vài chỗ vẫn đang được xây."
+        },
+        "look": {
+          "q": "Làm sao để đổi ngoại hình?",
+          "a": "Nhân vật của bạn đến từ rpg.actor. Tạo một nhân vật bằng trình tạo sprite của họ, và nó sẽ hiện ở đây vào lần tới bạn đến thị trấn."
+        },
+        "design": {
+          "q": "Làm sao để trang trí chỗ của mình?",
+          "a": "Về nhà, rồi nhấn B (hoặc Trang trí) để sắp xếp nhà hoặc sân của bạn. Ai ghé thăm cũng thấy thiết kế của bạn. Thêm một tủ quần áo để khoe những món đồ rpg.actor bạn có."
+        },
+        "talk": {
+          "q": "Làm sao để nói chuyện với mọi người?",
+          "a": "Đến gần ai đó và một vầng hào quang tím sẽ nối hai người. Khi nó sáng lên, bạn có thể nói chuyện. Mic và camera của bạn vẫn tắt cho đến khi bạn bật. Bạn cũng có thể gõ vào ô chat: mọi người ở gần đều thấy bong bóng của bạn."
+        },
+        "visible": {
+          "q": "Ai có thể thấy mình ở đây?",
+          "a": "Thị trấn giống như ra ngoài nơi công cộng: những người ở cùng không gian có thể thấy bạn. Ở quảng trường thì đó là tất cả mọi người, trừ khi bạn bật bạn của bạn bè. Khu phố của bạn dành cho cộng đồng của bạn, còn nhà bạn chỉ có bạn và những người bạn cho vào. Chặn luôn được áp dụng."
+        },
+        "around": {
+          "q": "Làm sao để đi lại?",
+          "a": "WASD hoặc phím mũi tên để đi, và Space để chạy. Từ nhà, ra cửa trước để đến khu phố của bạn, rồi ra cổng khu phố để đến quảng trường. Các cổng dọc hàng rào phía trên quảng trường dẫn đến khu phố của những người bạn có bạn trong cộng đồng của họ. Khi nhiều hơn số chỗ, biển chỉ đường sẽ liệt kê phần còn lại."
+        },
+        "help": {
+          "q": "Có gì đó bị hỏng",
+          "a": "Xin lỗi nhé! Dùng Gửi phản hồi trong menu ứng dụng và kể cho chúng mình nghe chuyện gì đã xảy ra. Chúng mình đọc từng cái một."
+        }
+      }
+    },
     "here": {
       "button": "Ở đây: {{count}}",
       "title": "Ai đang ở đây",

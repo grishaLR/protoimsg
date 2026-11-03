@@ -250,6 +250,48 @@
       "title": "Nachbarschaften, die du besuchen kannst",
       "close": "Schließen"
     },
+    "guide": {
+      "name": "ProtoBuddy",
+      "greeting": "Hi! Sag doch mal Hallo 👋",
+      "talk": "Mit {{name}} reden",
+      "talkHint": "Drück E oder tipp ihn an",
+      "intro": "Willkommen in proto town! Was möchtest du wissen?",
+      "close": "Schließen",
+      "sendAway": "{{name}} auf den Marktplatz schicken",
+      "bringBack": "{{name}} in meine Nachbarschaft holen",
+      "bye": "Wir sehen uns auf dem Marktplatz! Du findest mich am Brunnen 👋",
+      "comingHome": "Ich bin in deiner Nachbarschaft, wenn du zurückkommst 🏡",
+      "topics": {
+        "what": {
+          "q": "Was ist proto town?",
+          "a": "Unsere kleine Welt in der ATmosphere. Lauf als dein rpg.actor-Charakter herum, chatte mit Leuten in der Nähe und besuch die Nachbarschaften deiner Freunde. Es ist noch Beta, also wird an manchem noch gebaut."
+        },
+        "look": {
+          "q": "Wie ändere ich mein Aussehen?",
+          "a": "Dein Charakter kommt von rpg.actor. Erstell einen mit deren Sprite-Generator, und er taucht hier auf, wenn du das nächste Mal in die Stadt kommst."
+        },
+        "design": {
+          "q": "Wie richte ich mein Zuhause ein?",
+          "a": "Geh nach Hause und drück B (oder Einrichten), um dein Zuhause oder deinen Garten zu gestalten. Alle, die dich besuchen, sehen dein Design. Stell einen Kleiderschrank auf, um deine rpg.actor-Items zu zeigen."
+        },
+        "talk": {
+          "q": "Wie rede ich mit Leuten?",
+          "a": "Geh zu jemandem hin, und eine lila Aura verbindet euch. Sobald sie leuchtet, könnt ihr reden. Mikro und Kamera bleiben aus, bis du sie einschaltest. Du kannst auch ins Chatfeld tippen: Alle in der Nähe sehen deine Blase."
+        },
+        "visible": {
+          "q": "Wer kann mich hier sehen?",
+          "a": "Die Stadt ist wie draußen in der Öffentlichkeit: Leute im selben Bereich können dich sehen. Auf dem Marktplatz sind das alle, außer du schaltest Freunde von Freunden an. Deine Nachbarschaft ist für deine Community, und dein Zuhause ist nur für dich und alle, die du reinlässt. Blockierungen gelten immer."
+        },
+        "around": {
+          "q": "Wie komme ich herum?",
+          "a": "Mit WASD oder den Pfeiltasten läufst du, mit der Leertaste sprintest du. Von zu Hause geht's durch die Haustür in deine Nachbarschaft und durch ihr Tor auf den Marktplatz. Die Tore am oberen Zaun des Marktplatzes führen zu den Nachbarschaften von Freunden, die dich in ihrer Community haben. Wenn es mehr sind, als Platz haben, zeigt der Wegweiser den Rest."
+        },
+        "help": {
+          "q": "Etwas ist kaputt",
+          "a": "Tut mir leid! Nutz Feedback senden im App-Menü und erzähl uns, was passiert ist. Wir lesen jede Nachricht."
+        }
+      }
+    },
     "here": {
       "button": "Hier: {{count}}",
       "title": "Wer ist hier",

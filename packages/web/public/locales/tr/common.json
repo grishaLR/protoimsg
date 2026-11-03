@@ -250,6 +250,48 @@
       "title": "Ziyaret edebileceğin mahalleler",
       "close": "Kapat"
     },
+    "guide": {
+      "name": "ProtoBuddy",
+      "greeting": "Selam! Gel bir merhaba de 👋",
+      "talk": "{{name}} ile konuş",
+      "talkHint": "E'ye bas ya da ona dokun",
+      "intro": "proto town'a hoş geldin! Ne öğrenmek istersin?",
+      "close": "Kapat",
+      "sendAway": "{{name}}'yi meydana gönder",
+      "bringBack": "{{name}}'yi mahalleme getir",
+      "bye": "Meydanda görüşürüz! Beni kuyunun yanında bulabilirsin 👋",
+      "comingHome": "Döndüğünde mahallende olacağım 🏡",
+      "topics": {
+        "what": {
+          "q": "proto town nedir?",
+          "a": "ATmosphere'deki küçük dünyamız. rpg.actor karakterinle dolaş, yakındaki insanlarla sohbet et ve arkadaşlarının mahallelerini ziyaret et. Beta aşamasında, yani bazı yerleri hâlâ yapım aşamasında."
+        },
+        "look": {
+          "q": "Görünüşümü nasıl değiştiririm?",
+          "a": "Karakterin rpg.actor'dan geliyor. Onların sprite oluşturucusuyla bir tane yap, kasabaya bir dahaki gelişinde burada görünsün."
+        },
+        "design": {
+          "q": "Yerimi nasıl dekore ederim?",
+          "a": "Eve git, sonra evini ya da bahçeni düzenlemek için B'ye (veya Dekore et'e) bas. Seni ziyaret eden herkes tasarımını görür. Sahip olduğun rpg.actor eşyalarını sergilemek için bir gardırop ekle."
+        },
+        "talk": {
+          "q": "İnsanlarla nasıl konuşurum?",
+          "a": "Birine yaklaş, mor bir aura sizi bağlar. Işıldadığında konuşabilirsiniz. Mikrofonun ve kameran sen açana kadar kapalı kalır. Sohbet kutusuna da yazabilirsin: yakındaki herkes balonunu görür."
+        },
+        "visible": {
+          "q": "Burada beni kim görebilir?",
+          "a": "Kasaba dışarıda, herkese açık bir yerde olmak gibidir: aynı alandaki kişiler seni görebilir. Meydanda bu herkes demek, tabii arkadaşların arkadaşlarını açmazsan. Mahallen topluluğun için, evin ise sadece sen ve içeri aldığın kişiler için. Engellemeler her zaman geçerlidir."
+        },
+        "around": {
+          "q": "Nasıl dolaşırım?",
+          "a": "Yürümek için WASD ya da ok tuşları, koşmak için Boşluk. Evden ön kapıdan çıkıp mahallene, mahallenin bahçe kapısından da meydana çıkarsın. Meydanın üst çitindeki bahçe kapıları, seni topluluğuna eklemiş arkadaşların mahallelerine çıkar. Sığmayacak kadar çok olduğunda, tabela geri kalanları listeler."
+        },
+        "help": {
+          "q": "Bir şey bozuk",
+          "a": "Üzgünüm! Uygulama menüsündeki Geri Bildirim Gönder'i kullan ve ne olduğunu anlat. Her birini okuyoruz."
+        }
+      }
+    },
     "here": {
       "button": "Burada: {{count}}",
       "title": "Kimler burada",

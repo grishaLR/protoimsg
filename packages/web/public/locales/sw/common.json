@@ -248,6 +248,48 @@
       "title": "Mitaa unayoweza kutembelea",
       "close": "Funga"
     },
+    "guide": {
+      "name": "ProtoBuddy",
+      "greeting": "Habari! Njoo useme habari 👋",
+      "talk": "Ongea na {{name}}",
+      "talkHint": "Bonyeza E au mguse",
+      "intro": "Karibu proto town! Unataka kujua nini?",
+      "close": "Funga",
+      "sendAway": "Mtume {{name}} uwanjani",
+      "bringBack": "Mlete {{name}} mtaani kwangu",
+      "bye": "Tuonane uwanjani! Nitakuwa karibu na kisima 👋",
+      "comingHome": "Nitakuwa mtaani kwako ukirudi 🏡",
+      "topics": {
+        "what": {
+          "q": "proto town ni nini?",
+          "a": "Ulimwengu wetu mdogo kwenye ATmosphere. Tembea kama mhusika wako wa rpg.actor, piga gumzo na watu walio karibu, na tembelea mitaa ya marafiki zako. Iko katika beta, kwa hiyo baadhi ya sehemu bado zinajengwa."
+        },
+        "look": {
+          "q": "Nabadilishaje mwonekano wangu?",
+          "a": "Mhusika wako anatoka rpg.actor. Tengeneza mmoja kwa kitengeneza sprite chao, na atatokea hapa wakati ujao utakapokuja mjini."
+        },
+        "design": {
+          "q": "Napambaje mahali pangu?",
+          "a": "Nenda nyumbani, kisha bonyeza B (au Pamba) kupanga nyumba yako au uwanja wako. Kila anayekutembelea ataona mpangilio wako. Ongeza kabati la nguo kuonyesha vitu vya rpg.actor ulivyo navyo."
+        },
+        "talk": {
+          "q": "Naongeaje na watu?",
+          "a": "Mkaribie mtu na mwanga wa zambarau utawaunganisha. Ukiwaka, mnaweza kuzungumza. Maikrofoni na kamera yako hubaki zimezimwa hadi uziwashe. Unaweza pia kuandika kwenye kisanduku cha gumzo: kila mtu aliye karibu ataona kiputo chako."
+        },
+        "visible": {
+          "q": "Nani anaweza kuniona hapa?",
+          "a": "Mji ni kama kuwa hadharani: watu walio katika eneo moja nawe wanaweza kukuona. Kwenye uwanja hao ni kila mtu, isipokuwa ukiwasha marafiki wa marafiki. Mtaa wako ni wa jamii yako, na nyumba yako ni yako tu na yeyote unayemruhusu kuingia. Kuzuia hutumika kila wakati."
+        },
+        "around": {
+          "q": "Nazungukaje?",
+          "a": "WASD au vitufe vya mishale kutembea, na Space kukimbia. Kutoka nyumbani, toka kwa mlango wa mbele hadi mtaa wako, kisha kwa lango lake hadi uwanjani. Malango kwenye uzio wa juu wa uwanja yanaelekea mitaa ya marafiki walio nawe kwenye jamii yao. Yakiwa mengi kuliko nafasi, kibao cha njia kinaorodhesha yaliyobaki."
+        },
+        "help": {
+          "q": "Kuna kitu kimeharibika",
+          "a": "Samahani! Tumia Tuma maoni kwenye menyu ya programu na utuambie kilichotokea. Tunasoma kila moja."
+        }
+      }
+    },
     "here": {
       "button": "Hapa: {{count}}",
       "title": "Nani yuko hapa",

@@ -41,6 +41,7 @@ import { canSaveLayouts, useLayoutSaver } from './useLayoutSaver';
 import { useProfiles } from '../../contexts/ProfileContext';
 import { TownHere } from './TownHere';
 import { TownPublicNotice } from './TownPublicNotice';
+import { TownGuide, TownGuidePrompt } from './TownGuide';
 import { TownSignpost } from './TownSignpost';
 import { GuestList, KnockPrompt, RequestCards, type PendingRequest } from './TownKnock';
 import { playDoorOpen, playImNotify } from '../../lib/sounds';
@@ -110,6 +111,8 @@ function writeKnockingOpen(open: boolean): void {
 }
 
 const FOF_STORAGE_KEY = 'protoimsg:townFof';
+/** 'off' once you've sent the guide from your yard to the square (this device). */
+const GUIDE_YARD_KEY = 'protoimsg:townGuideInYard';
 // The signpost resolves names for at most this many neighborhoods.
 const SIGNPOST_NAMES = 100;
 // Gate signs sit four tiles (128 world px) apart; longer names would run into
@@ -182,6 +185,14 @@ function closeKnockNotification(): void {
  * Friends-of-friends is the default: town is public, so the smaller crowd is
  * where everyone starts. Only an explicit "off" makes the square fully open.
  */
+function readGuideYardPref(): boolean {
+  try {
+    return localStorage.getItem(GUIDE_YARD_KEY) !== 'off';
+  } catch {
+    return true;
+  }
+}
+
 function readFofPref(): boolean {
   try {
     return localStorage.getItem(FOF_STORAGE_KEY) !== 'off';
@@ -305,6 +316,11 @@ export function ProtoTownPanel() {
   const gatesRef = useRef<TownGate[]>([]);
   const [moreGates, setMoreGates] = useState<string[]>([]);
   const [signpostOpen, setSignpostOpen] = useState(false);
+  // The square's guide (ProtoBuddy): standing beside him, and talking to him.
+  const [guideNear, setGuideNear] = useState(false);
+  const [guideOpen, setGuideOpen] = useState(false);
+  // He keeps you company in your own yard too, unless you sent him off.
+  const [guideInYard, setGuideInYard] = useState(readGuideYardPref);
   const [fof, setFof] = useState(readFofPref);
   const [publicNoticeSeen, setPublicNoticeSeen] = useState(readPublicNoticeSeen);
   // Knocking: may you knock on this neighborhood's door; your knock prompt
@@ -505,6 +521,8 @@ export function ProtoTownPanel() {
       setSceneNote(null);
       setSceneError(null);
       setSignpostOpen(false);
+      setGuideNear(false);
+      setGuideOpen(false);
       playDoorOpen();
       transitionTimerRef.current = setTimeout(
         () => {
@@ -691,6 +709,18 @@ export function ProtoTownPanel() {
       setSignpostOpen(on);
       if (on) announce(tRef.current('town.signpost.title'));
     };
+    engine.onGuideNear = (near) => {
+      setGuideNear(near);
+      if (near) {
+        const tr = tRef.current;
+        announce(
+          `${tr('town.guide.talk', { name: tr('town.guide.name') })}. ${tr('town.guide.talkHint')}`,
+        );
+      } else setGuideOpen(false);
+    };
+    engine.onGuideTalk = () => {
+      setGuideOpen(true);
+    };
     let building = false;
     let heldItem: string | null = null;
     engine.onBuildChange = (view) => {
@@ -753,6 +783,8 @@ export function ProtoTownPanel() {
       setHere(null);
       setHereOpen(false);
       setSignpostOpen(false);
+      setGuideNear(false);
+      setGuideOpen(false);
       setAudioBlocked(false);
       setMicLive(false);
       setCameraOn(false);
@@ -1166,6 +1198,36 @@ export function ProtoTownPanel() {
     engineRef.current?.refreshSigns();
   }, [t, engineEpoch, scene, namesVersion]);
 
+  // In your own yard (and not sent to the square), the guide is there too.
+  const inOwnYard = scene?.kind === 'neighborhood' && scene.owner === did;
+  useEffect(() => {
+    if (engineEpoch === 0) return;
+    engineRef.current?.setGuideInYard(inOwnYard && guideInYard);
+  }, [inOwnYard, guideInYard, engineEpoch, scene]);
+
+  const moveGuide = useCallback(
+    (toYard: boolean) => {
+      try {
+        localStorage.setItem(GUIDE_YARD_KEY, toYard ? 'on' : 'off');
+      } catch {
+        // localStorage unavailable: it lasts this visit, which is fine
+      }
+      const line = t(toYard ? 'town.guide.comingHome' : 'town.guide.bye');
+      engineRef.current?.guideSay(line);
+      announce(line);
+      // Leaving your yard ends the chat; in the square you keep talking.
+      if (!toYard) setGuideOpen(false);
+      setGuideInYard(toYard);
+    },
+    [t, announce],
+  );
+
+  // The guide's name and greeting follow the language too.
+  useEffect(() => {
+    if (engineEpoch === 0) return;
+    engineRef.current?.setGuide(t('town.guide.name'), t('town.guide.greeting'));
+  }, [t, engineEpoch]);
+
   const toggleFof = useCallback(() => {
     const next = !fof;
     setFof(next);
@@ -1197,7 +1259,8 @@ export function ProtoTownPanel() {
     dismissPublicNotice();
   }, [toggleFof, dismissPublicNotice]);
 
-  const showPublicNotice = scene?.kind === 'square' && !publicNoticeSeen && !signpostOpen;
+  const showPublicNotice =
+    scene?.kind === 'square' && !publicNoticeSeen && !signpostOpen && !guideOpen;
   // Safety copy: make sure screen readers hear it appear, not just sighted users.
   useEffect(() => {
     if (showPublicNotice) announce(tRef.current('town.publicNotice.title'));
@@ -1834,6 +1897,32 @@ export function ProtoTownPanel() {
           }}
         />
       )}
+      {guideOpen ? (
+        <TownGuide
+          move={inOwnYard ? 'toSquare' : !guideInYard && scene?.kind === 'square' ? 'toYard' : null}
+          onMove={() => {
+            moveGuide(!inOwnYard);
+          }}
+          onAsk={(answer) => {
+            // He answers in a speech bubble; screen readers hear it too.
+            engineRef.current?.guideSay(answer);
+            announce(answer);
+          }}
+          onClose={() => {
+            setGuideOpen(false);
+          }}
+        />
+      ) : (
+        guideNear &&
+        !signpostOpen &&
+        !showPublicNotice && (
+          <TownGuidePrompt
+            onTalk={() => {
+              setGuideOpen(true);
+            }}
+          />
+        )
+      )}
       {/* A knock outranks the tray (they share a spot): answer, then carry on. */}
       {buildView && wardrobeEdit && agent && did && !(atOwnHome && knocks.length > 0) && (
         <WardrobePicker
@@ -1871,7 +1960,8 @@ export function ProtoTownPanel() {
       )}
       {/* Walking on a touch screen; out of the way while the build tray is up. */}
       {/* Off while the public notice is up: it sits where the stick does on phones. */}
-      {touchFirst && !buildView && !showPublicNotice && (
+      {/* The guide's card covers the stick's spot on phones, like the notice. */}
+      {touchFirst && !buildView && !showPublicNotice && !guideOpen && (
         <TownJoystick onMove={(x, y) => engineRef.current?.setStick(x, y)} />
       )}
       {videos.length > 0 && (

@@ -1,5 +1,9 @@
 import { describe, expect, it } from 'vitest';
-import { TOWN_DEFAULT_LAYOUT } from '@protoimsg/shared';
+import {
+  TOWN_DEFAULT_LAYOUT,
+  TOWN_NEIGHBORHOOD_LAYOUT,
+  TOWN_SQUARE_LAYOUT,
+} from '@protoimsg/shared';
 import { SCENE_MAPS, layoutBlocks, sceneSpace } from './map';
 
 describe('designed spaces on the map', () => {
@@ -31,5 +35,20 @@ describe('designed spaces on the map', () => {
     for (const p of TOWN_DEFAULT_LAYOUT.home) {
       expect(SCENE_MAPS.home.isBlockedTile(p.x, p.y)).toBe(false);
     }
+  });
+
+  it('starts the guide on open ground, with room to stroll', () => {
+    const g = TOWN_SQUARE_LAYOUT.guide;
+    for (let dx = -1; dx <= 1; dx++) {
+      for (let dy = -1; dy <= 1; dy++) {
+        expect(SCENE_MAPS.square.isBlockedTile(g.x + dx, g.y + dy)).toBe(false);
+      }
+    }
+  });
+
+  it('gives the guide an open spot in the yard, clear of the default design', () => {
+    const g = TOWN_NEIGHBORHOOD_LAYOUT.guide;
+    expect(SCENE_MAPS.neighborhood.isBlockedTile(g.x, g.y)).toBe(false);
+    expect(layoutBlocks(TOWN_DEFAULT_LAYOUT.yard).has(`${String(g.x)},${String(g.y)}`)).toBe(false);
   });
 });
