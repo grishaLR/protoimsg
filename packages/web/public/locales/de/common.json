@@ -250,12 +250,26 @@
       "title": "Nachbarschaften, die du besuchen kannst",
       "close": "Schließen"
     },
+    "here": {
+      "button": "Hier: {{count}}",
+      "title": "Wer ist hier",
+      "empty": "Bisher nur du",
+      "more": "+{{count}} weitere",
+      "close": "Schließen"
+    },
     "fof": {
       "off": "Freunde von Freunden: aus",
       "on": "Freunde von Freunden: an",
       "hint": "Wenn an, sehen dich hier nur deine gegenseitigen Kontakte und deren gegenseitige Kontakte, und du siehst nur sie.",
       "announceOn": "Freunde-von-Freunden-Modus an. Hier sehen dich nur deine gegenseitigen Kontakte und deren gegenseitige Kontakte.",
       "announceOff": "Freunde-von-Freunden-Modus aus. Alle auf dem Marktplatz können dich sehen."
+    },
+    "publicNotice": {
+      "title": "Du bist in der Öffentlichkeit",
+      "bodyFof": "In der Stadt können dich alle im selben Bereich sehen. Du bist im Modus Freunde von Freunden, also sehen dich auf dem Marktplatz nur deine gegenseitigen Kontakte und deren gegenseitige Kontakte, und du siehst nur sie. Das kannst du oben jederzeit ändern.",
+      "bodyOpen": "In der Stadt können dich alle im selben Bereich sehen. Auf dem Marktplatz sind das alle. Lieber weniger Leute? Schalte Freunde von Freunden an oder geh nach Hause.",
+      "turnOnFof": "Freunde von Freunden anschalten",
+      "ok": "Verstanden"
     },
     "knock": {
       "prompt": "Bei {{name}} anklopfen?",
