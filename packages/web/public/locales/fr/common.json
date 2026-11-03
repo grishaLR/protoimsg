@@ -349,7 +349,8 @@
         "full": "Plus de place pour d’autres objets.",
         "pickedUp": "Objet pris. Pose-le là où il va, ou appuie sur Échap pour le remettre en place.",
         "putBack": "Remis en place.",
-        "rotated": "Tourné."
+        "rotated": "Tourné.",
+        "oneWardrobe": "Ta maison a déjà une penderie. Déplace plutôt celle-là."
       },
       "items": {
         "bed": "Lit",
@@ -371,13 +372,30 @@
         "stone": "Pierre",
         "chest": "Coffre",
         "barrel": "Tonneau",
-        "wildflowers": "Fleurs sauvages"
+        "wildflowers": "Fleurs sauvages",
+        "wardrobe": "Penderie"
       },
       "consent": {
         "title": "Enregistre tes aménagements",
         "body": "Ton aménagement est enregistré sur ton propre compte, où tout le monde peut le voir, comme tes publications. Il faut pour cela une autorisation de plus. Tu la confirmeras avec ton compte et tu reviendras tout de suite.",
         "allow": "Continuer",
         "notNow": "Pas maintenant"
+      },
+      "wardrobe": {
+        "choose": "Objets de la penderie ({{chosen}}/{{slots}})",
+        "title": "Ta penderie",
+        "body": "Choisis jusqu’à {{count}} de tes objets rpg.actor à exposer. Tous ceux qui visitent ta maison les verront.",
+        "count": "{{chosen}} sur {{slots}}",
+        "loading": "Chargement de tes objets…",
+        "loadFailed": "Impossible de charger tes objets.",
+        "empty": "Tu n’as pas encore d’objets rpg.actor. Gagnes-en à l’arcade ou trouve-les sur rpg.actor.",
+        "full": "Pleine. Décoche un objet pour l’échanger.",
+        "save": "Montrer ceux-ci",
+        "cancel": "Annuler",
+        "saved": "Penderie mise à jour.",
+        "look": "Affichage de {{title}}",
+        "lookIcon": "Icône",
+        "lookWorn": "Porté"
       }
     },
     "sprite": {

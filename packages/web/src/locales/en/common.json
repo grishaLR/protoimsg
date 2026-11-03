@@ -522,7 +522,8 @@
         "full": "No room for more pieces.",
         "pickedUp": "Picked up. Put it down where it goes, or press Escape to put it back.",
         "putBack": "Put back.",
-        "rotated": "Turned."
+        "rotated": "Turned.",
+        "oneWardrobe": "Your home already has a wardrobe. Move that one instead."
       },
       "items": {
         "bed": "Bed",
@@ -544,13 +545,30 @@
         "stone": "Stone",
         "chest": "Chest",
         "barrel": "Barrel",
-        "wildflowers": "Wildflowers"
+        "wildflowers": "Wildflowers",
+        "wardrobe": "Wardrobe"
       },
       "consent": {
         "title": "Save your designs",
         "body": "Your design is saved to your own account, where anyone can see it, like your posts. That needs one more permission. You'll confirm it with your account and come right back.",
         "allow": "Continue",
         "notNow": "Not now"
+      },
+      "wardrobe": {
+        "choose": "Wardrobe items ({{chosen}}/{{slots}})",
+        "title": "Your wardrobe",
+        "body": "Pick up to {{count}} of your rpg.actor items to show off. Everyone who visits your home sees them.",
+        "count": "{{chosen}} of {{slots}}",
+        "loading": "Loading your items…",
+        "loadFailed": "Couldn't load your items.",
+        "empty": "You don't have any rpg.actor items yet. Win some in the arcade, or get them at rpg.actor.",
+        "full": "Full. Untick one to swap it.",
+        "save": "Show these",
+        "cancel": "Cancel",
+        "saved": "Wardrobe updated.",
+        "look": "How {{title}} shows",
+        "lookIcon": "Icon",
+        "lookWorn": "Worn"
       }
     },
     "sprite": {

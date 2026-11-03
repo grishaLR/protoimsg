@@ -13,6 +13,7 @@ import {
   townDoorwayTarget,
   townSceneId,
   validateTownLayout,
+  townDisplaySlots,
 } from '@protoimsg/shared';
 import type {
   PresenceVisibility,
@@ -20,6 +21,7 @@ import type {
   TownGate,
   TownPlacement,
   TownScene,
+  TownDisplayed,
   TownSceneKind,
   TownSpace,
 } from '@protoimsg/shared';
@@ -33,6 +35,8 @@ import { useWebSocket } from '../../contexts/WebSocketContext';
 import { WorldEngine, type SignId, type TownBuildView } from '../../town/WorldEngine';
 import { sceneSpace } from '../../town/map';
 import { BuildConsent, BuildTray } from './TownBuild';
+import { WardrobePicker } from './TownWardrobe';
+import { loadWardrobeItems } from '../../town/wardrobeItems';
 import { canSaveLayouts, useLayoutSaver } from './useLayoutSaver';
 import { useProfiles } from '../../contexts/ProfileContext';
 import { TownHere } from './TownHere';
@@ -358,6 +362,31 @@ export function ProtoTownPanel() {
   // prompt for sessions that can't save designs yet.
   const [buildView, setBuildView] = useState<TownBuildView | null>(null);
   const [consentOpen, setConsentOpen] = useState(false);
+  // The items on this space's wardrobes, read from its owner's PDS (like the
+  // items tab on their profile). A newer layout cancels an older read.
+  const dressAbortRef = useRef<AbortController | null>(null);
+  const dress = useCallback((scene: TownScene, placements: readonly TownPlacement[]) => {
+    dressAbortRef.current?.abort();
+    dressAbortRef.current = null;
+    const engine = engineRef.current;
+    if (!engine) return;
+    const display = placements.flatMap((p) => p.display ?? []);
+    if (scene.kind === 'square' || display.length === 0) {
+      engine.setDisplayItems([]);
+      return;
+    }
+    const ac = new AbortController();
+    dressAbortRef.current = ac;
+    void loadWardrobeItems(scene.owner, display, ac.signal).then((items) => {
+      if (!ac.signal.aborted && engineRef.current === engine) engine.setDisplayItems(items);
+    });
+  }, []);
+  const dressRef = useRef(dress);
+  dressRef.current = dress;
+  useEffect(() => () => dressAbortRef.current?.abort(), []);
+
+  // Choosing what your wardrobe shows: the piece, as it was when you opened it.
+  const [wardrobeEdit, setWardrobeEdit] = useState<TownPlacement | null>(null);
   const canSave = canSaveLayouts(grantedScopes);
   const saver = useLayoutSaver(agent, did, send);
   const saverRef = useRef(saver);
@@ -688,8 +717,14 @@ export function ProtoTownPanel() {
     engine.onBuildAction = (action) => {
       announce(tRef.current(`town.build.announce.${action}`));
     };
+    engine.onWardrobePlaced = (piece) => {
+      setWardrobeEdit(piece);
+    };
     engine.onLayoutEdit = (space, placements) => {
       saverRef.current.queue(space, placements);
+      // Your own edits: your wardrobe's picks show as you make them.
+      const here = sceneRef.current;
+      if (here) dressRef.current(here, placements);
     };
     void engine.init(container, did, home.kind).then(() => {
       if (engineRef.current === engine) setEngineEpoch((e) => e + 1);
@@ -831,6 +866,7 @@ export function ProtoTownPanel() {
             e.setWindowLit(msg.data.windowLit ?? false);
             arriveIn(next); // first, so the new scene's signs read right
             e.enterScene(next.kind, msg.data.self, layoutFor(next.kind, msg.data.layout));
+            dressRef.current(next, layoutFor(next.kind, msg.data.layout));
             endTransition();
             if (msg.data.reason === 'visitOver') setSceneError('visitOver');
             else if (msg.data.reason === 'removed' && left) {
@@ -842,6 +878,7 @@ export function ProtoTownPanel() {
             e.setWindowLit(msg.data.windowLit ?? false);
             arriveIn(next);
             e.enterScene(next.kind, msg.data.self, layoutFor(next.kind, msg.data.layout));
+            dressRef.current(next, layoutFor(next.kind, msg.data.layout));
             endTransition();
             pendingSceneRef.current = null;
           } else if (!cur || msg.data.scene !== townSceneId(cur)) {
@@ -856,6 +893,7 @@ export function ProtoTownPanel() {
           e.setWindowLit(msg.data.windowLit ?? false);
           if (next && !(next.kind !== 'square' && next.owner === did && saverRef.current.busy())) {
             e.setLayout(layoutFor(next.kind, msg.data.layout));
+            dressRef.current(next, layoutFor(next.kind, msg.data.layout));
           }
           e.setPeers(msg.data.peers);
           setVoiceSupported(msg.data.voice);
@@ -910,6 +948,7 @@ export function ProtoTownPanel() {
           // than what you see. The last save's echo brings it in line.
           if (here.kind !== 'square' && here.owner === did && saverRef.current.busy()) break;
           e.setLayout(msg.data.placements);
+          dressRef.current(here, msg.data.placements);
           break;
         }
         case 'town_join_available':
@@ -1355,7 +1394,7 @@ export function ProtoTownPanel() {
           const value = res.data.value as { space?: unknown; placements?: unknown };
           placements =
             value.space === space
-              ? validateTownLayout(space, value.placements)
+              ? validateTownLayout(space, value.placements, did)
               : TOWN_DEFAULT_LAYOUT[space];
         } catch (err: unknown) {
           // Never designed: start from the default. Anything else: don't guess.
@@ -1371,6 +1410,8 @@ export function ProtoTownPanel() {
         return;
       }
       engine.beginBuild(placements);
+      const here = sceneRef.current;
+      if (here) dressRef.current(here, placements);
     } catch {
       setSceneError('buildLoad');
     } finally {
@@ -1379,6 +1420,30 @@ export function ProtoTownPanel() {
   }, [ownSpace, canSave, agent, did, saver, announce, t]);
   const startBuildingRef = useRef(startBuilding);
   startBuildingRef.current = startBuilding;
+
+  // Done designing: any wardrobe choice in progress goes with it.
+  useEffect(() => {
+    if (!buildView) setWardrobeEdit(null);
+  }, [buildView]);
+
+  // Choosing wardrobe items: nothing in hand meanwhile (no ghost of a bed).
+  const choosingItems = wardrobeEdit !== null;
+  useEffect(() => {
+    engineRef.current?.setBuildPaused(choosingItems);
+  }, [choosingItems]);
+
+  const chooseWardrobeItems = useCallback(() => {
+    setWardrobeEdit(engineRef.current?.wardrobe() ?? null);
+  }, []);
+
+  const saveWardrobe = useCallback(
+    (display: TownDisplayed[]) => {
+      const saved = !!wardrobeEdit && !!engineRef.current?.setDisplay(wardrobeEdit, display);
+      setWardrobeEdit(null);
+      if (saved) announce(t('town.build.wardrobe.saved'));
+    },
+    [wardrobeEdit, announce, t],
+  );
 
   const toggleBuild = useCallback(() => {
     const engine = engineRef.current;
@@ -1770,6 +1835,18 @@ export function ProtoTownPanel() {
         />
       )}
       {/* A knock outranks the tray (they share a spot): answer, then carry on. */}
+      {buildView && wardrobeEdit && agent && did && !(atOwnHome && knocks.length > 0) && (
+        <WardrobePicker
+          agent={agent}
+          did={did}
+          slots={townDisplaySlots(wardrobeEdit.builtin)}
+          chosen={wardrobeEdit.display ?? []}
+          onSave={saveWardrobe}
+          onCancel={() => {
+            setWardrobeEdit(null);
+          }}
+        />
+      )}
       {buildView && !(atOwnHome && knocks.length > 0) && (
         <BuildTray
           view={buildView}
@@ -1781,6 +1858,7 @@ export function ProtoTownPanel() {
           onRemove={() => engineRef.current?.removeAtCursor()}
           onRetry={saver.flush}
           onDone={() => engineRef.current?.endBuild()}
+          onChooseItems={chooseWardrobeItems}
         />
       )}
       {consentOpen && ownSpace && !canSave && (

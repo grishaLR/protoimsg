@@ -347,7 +347,8 @@
         "full": "Hakuna nafasi ya vitu zaidi.",
         "pickedUp": "Kimenyanyuliwa. Kiweke mahali kinapokwenda, au bonyeza Escape kukirudisha.",
         "putBack": "Kimerudishwa.",
-        "rotated": "Kimezungushwa."
+        "rotated": "Kimezungushwa.",
+        "oneWardrobe": "Nyumba yako tayari ina kabati la nguo. Hamisha hilo badala yake."
       },
       "items": {
         "bed": "Kitanda",
@@ -369,13 +370,30 @@
         "stone": "Jiwe",
         "chest": "Sanduku",
         "barrel": "Pipa",
-        "wildflowers": "Maua ya porini"
+        "wildflowers": "Maua ya porini",
+        "wardrobe": "Kabati la nguo"
       },
       "consent": {
         "title": "Hifadhi mipangilio yako",
         "body": "Mpangilio wako unahifadhiwa kwenye akaunti yako mwenyewe, ambapo mtu yeyote anaweza kuuona, kama machapisho yako. Hilo linahitaji ruhusa moja zaidi. Utaithibitisha kwa akaunti yako na kurudi hapa mara moja.",
         "allow": "Endelea",
         "notNow": "Si sasa"
+      },
+      "wardrobe": {
+        "choose": "Vitu vya kabati ({{chosen}}/{{slots}})",
+        "title": "Kabati lako la nguo",
+        "body": "Chagua hadi vitu {{count}} vyako vya rpg.actor uvionyeshe. Kila anayetembelea nyumba yako ataviona.",
+        "count": "{{chosen}} kati ya {{slots}}",
+        "loading": "Inapakia vitu vyako…",
+        "loadFailed": "Imeshindwa kupakia vitu vyako.",
+        "empty": "Bado huna vitu vya rpg.actor. Shinda baadhi kwenye michezo, au vipate kwenye rpg.actor.",
+        "full": "Limejaa. Ondoa alama kwenye kimoja ili kubadilisha.",
+        "save": "Onyesha hivi",
+        "cancel": "Ghairi",
+        "saved": "Kabati la nguo limesasishwa.",
+        "look": "Jinsi {{title}} inavyoonekana",
+        "lookIcon": "Ikoni",
+        "lookWorn": "Imevaliwa"
       }
     },
     "sprite": {

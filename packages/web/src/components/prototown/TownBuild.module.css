@@ -121,3 +121,119 @@
     min-block-size: calc(var(--cm-space-16) + var(--cm-space-6));
   }
 }
+
+/* The wardrobe picker: the tray's look, as a modal dialog over the town. */
+.dialog {
+  position: fixed;
+  inset-block: auto;
+  inset-block-end: calc(var(--cm-space-6) + var(--cm-space-16));
+  max-block-size: 70vh;
+  margin-block: auto var(--cm-space-0);
+}
+
+.dialog::backdrop {
+  background: transparent;
+}
+
+/* Your rpg.actor items: an even two-column grid of cards. */
+.choices {
+  /* A fieldset won't shrink below its content by default: long titles wrap instead. */
+  min-inline-size: 0;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--cm-space-2);
+  margin: var(--cm-space-0);
+  padding: var(--cm-space-0);
+  border: none;
+}
+
+/* One item: its checkbox, picture and name, and (chosen) how it shows. */
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--cm-space-2);
+  min-inline-size: 0;
+  padding: var(--cm-space-2) var(--cm-space-3);
+  color: var(--color-base-content);
+  background: var(--cm-surface-button);
+  border: var(--cm-space-0.5) solid var(--color-base-300);
+  border-radius: var(--cm-radius-sm);
+}
+
+.card:hover {
+  background: var(--color-base-200);
+}
+
+/* Chosen: framed like the piece in hand (.selected), and bold. */
+.card:has(input:checked) {
+  background: var(--color-base-100);
+  border: var(--cm-space-1) solid var(--color-base-content);
+}
+
+/* Full: the rest grey out until you untick one. */
+.card:has(input:disabled) {
+  opacity: var(--cm-opacity-disabled);
+}
+
+.card:has(input:focus-visible) {
+  outline: var(--cm-focus-thin) solid var(--cm-focus);
+  outline-offset: var(--cm-focus-offset);
+}
+
+.choice {
+  display: flex;
+  align-items: center;
+  gap: var(--cm-space-2);
+  font-size: var(--cm-text-xs);
+  overflow-wrap: anywhere;
+  cursor: pointer;
+}
+
+.choice:has(input:checked) {
+  font-weight: 700;
+}
+
+.choice:has(input:disabled) {
+  cursor: default;
+}
+
+.choice input {
+  flex: none;
+  accent-color: var(--color-base-content);
+}
+
+/* Icon / Worn: the tray's own piece buttons (.item / .selected), side by side. */
+.looks {
+  display: flex;
+  gap: var(--cm-space-1);
+}
+
+.looks > button {
+  flex: 1;
+  padding-inline: var(--cm-space-2);
+}
+
+/* The item's art, as it'll look on the wardrobe: crisp pixels, kept whole. */
+.thumb {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  inline-size: var(--cm-space-16);
+  block-size: var(--cm-space-16);
+  background: var(--color-base-200);
+  border-radius: var(--cm-radius-sm);
+}
+
+.thumb canvas {
+  inline-size: 100%;
+  block-size: 100%;
+  object-fit: contain;
+  image-rendering: pixelated;
+}
+
+@media (pointer: coarse) {
+  .choice {
+    min-block-size: calc(var(--cm-space-16) + var(--cm-space-6));
+  }
+}

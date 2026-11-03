@@ -349,7 +349,8 @@
         "full": "Daha fazla eşyaya yer yok.",
         "pickedUp": "Eline aldın. Gideceği yere bırak ya da yerine geri koymak için Esc'ye bas.",
         "putBack": "Yerine kondu.",
-        "rotated": "Döndürüldü."
+        "rotated": "Döndürüldü.",
+        "oneWardrobe": "Evinde zaten bir gardırop var. Onu taşı."
       },
       "items": {
         "bed": "Yatak",
@@ -371,13 +372,30 @@
         "stone": "Taş",
         "chest": "Sandık",
         "barrel": "Fıçı",
-        "wildflowers": "Kır çiçekleri"
+        "wildflowers": "Kır çiçekleri",
+        "wardrobe": "Gardırop"
       },
       "consent": {
         "title": "Tasarımlarını kaydet",
         "body": "Tasarımın kendi hesabına kaydedilir ve gönderilerin gibi herkes onu görebilir. Bunun için bir izin daha gerekiyor. Hesabınla onaylayıp hemen geri döneceksin.",
         "allow": "Devam et",
         "notNow": "Şimdi değil"
+      },
+      "wardrobe": {
+        "choose": "Gardırop eşyaları ({{chosen}}/{{slots}})",
+        "title": "Gardırobun",
+        "body": "Sergilemek için rpg.actor eşyalarından en fazla {{count}} tane seç. Evine gelen herkes görür.",
+        "count": "{{chosen}}/{{slots}}",
+        "loading": "Eşyaların yükleniyor…",
+        "loadFailed": "Eşyaların yüklenemedi.",
+        "empty": "Henüz hiç rpg.actor eşyan yok. Atari salonunda kazan ya da rpg.actor’dan edin.",
+        "full": "Dolu. Değiştirmek için birinin işaretini kaldır.",
+        "save": "Bunları göster",
+        "cancel": "İptal",
+        "saved": "Gardırop güncellendi.",
+        "look": "{{title}} nasıl görünsün",
+        "lookIcon": "Simge",
+        "lookWorn": "Giyili"
       }
     },
     "sprite": {

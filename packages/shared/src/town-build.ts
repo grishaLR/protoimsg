@@ -6,17 +6,25 @@
 // A layout is an `app.protoimsg.town.layout` record in its owner's repo
 // (record key `home` or `yard`). Each placement is a starter object from the
 // catalog below, or — once rpg.actor items can be world objects — an
-// `equipment.rpg.item` the owner holds.
+// `equipment.rpg.item` the owner holds. A wardrobe shows the rpg.actor
+// items its owner picks, worn ones included (nothing until they choose).
 
 import { TOWN_HOME_LAYOUT, TOWN_NEIGHBORHOOD_LAYOUT } from './town.js';
 
 export const TOWN_LAYOUT_COLLECTION = 'app.protoimsg.town.layout';
+export const RPG_ITEM_COLLECTION = 'equipment.rpg.item';
 
 /** A space you can design: your home's room, or your neighborhood yard. */
 export type TownSpace = 'home' | 'yard';
 
 /** Most placements a layout may hold (matches the lexicon's maxLength). */
 export const TOWN_MAX_PLACEMENTS = 200;
+
+/**
+ * Most items a whole layout may show, however many wardrobes it has (each
+ * visitor's browser reads every one from the owner's PDS).
+ */
+export const TOWN_MAX_DISPLAYED = 7;
 
 export interface TownPlacement {
   /** A starter object id from TOWN_BUILTINS. */
@@ -27,6 +35,22 @@ export interface TownPlacement {
   y: number;
   /** Quarter turns clockwise (0–3); only pieces that `rotate` keep one. */
   rotation?: number;
+  /** Wardrobes only: the owner's rpg.actor items shown on it, in the order chosen. */
+  display?: TownDisplayed[];
+}
+
+/**
+ * How an item shows on a wardrobe: its icon (the default), or `worn`, the
+ * front-facing frame of how it looks on a character.
+ */
+export type TownDisplayLook = 'icon' | 'worn';
+
+/** One item on a wardrobe. */
+export interface TownDisplayed {
+  /** An `equipment.rpg.item` AT-URI in the owner's own repo. */
+  item: string;
+  /** Absent: its icon. */
+  look?: 'worn';
 }
 
 export interface TownBuiltin {
@@ -39,6 +63,10 @@ export interface TownBuiltin {
   spaces: readonly TownSpace[];
   /** Can be turned (a lamp or a round bush looks the same every way). */
   rotates: boolean;
+  /** Display pieces: how many of the owner's rpg.actor items it can show. */
+  display?: number;
+  /** At most this many in one space (a home has one wardrobe). */
+  max?: number;
 }
 
 /** Starter objects every space can use, until rpg.actor world objects arrive. */
@@ -66,6 +94,8 @@ export const TOWN_BUILTINS = {
   lamppost: { w: 1, h: 1, solid: true, spaces: ['yard'], rotates: false },
   // From the ansimuz "RPG Town" pack (CC0).
   pumpkins: { w: 1, h: 1, solid: true, spaces: ['yard'], rotates: false },
+  // Hand-drawn display piece: shows the rpg.actor items its owner picks.
+  wardrobe: { w: 2, h: 1, solid: true, spaces: ['home'], rotates: false, display: 7, max: 1 },
 } as const satisfies Record<string, TownBuiltin>;
 
 export type TownBuiltinId = keyof typeof TOWN_BUILTINS;
@@ -73,6 +103,47 @@ export type TownBuiltinId = keyof typeof TOWN_BUILTINS;
 export function townBuiltin(id: string | undefined): TownBuiltin | null {
   if (!id || !Object.hasOwn(TOWN_BUILTINS, id)) return null;
   return TOWN_BUILTINS[id as TownBuiltinId];
+}
+
+/** How many items a piece can show (0: not a display piece). */
+export function townDisplaySlots(id: string | undefined): number {
+  const def = townBuiltin(id);
+  return def && 'display' in def ? (def.display ?? 0) : 0;
+}
+
+// AT-URI of an item in a repo: `at://<did>/equipment.rpg.item/<rkey>`.
+const ITEM_URI =
+  /^at:\/\/(did:[a-z0-9]+:[a-zA-Z0-9._:%-]+)\/equipment\.rpg\.item\/([a-zA-Z0-9._~:-]{1,512})$/;
+
+/** The repo DID and record key of an item AT-URI (null: not one). */
+export function parseRpgItemUri(uri: string): { did: string; rkey: string } | null {
+  const m = ITEM_URI.exec(uri);
+  return m?.[1] && m[2] ? { did: m[1], rkey: m[2] } : null;
+}
+
+/**
+ * The items a display piece may show: items in the owner's own repo, each
+ * once, at most as many as it has spots (and `room` is left in the layout).
+ * Anything else is dropped; a look we don't know means the icon.
+ */
+export function townDisplay(
+  owner: string | null,
+  builtin: string | undefined,
+  raw: unknown,
+  room = TOWN_MAX_DISPLAYED,
+): TownDisplayed[] {
+  const slots = Math.min(townDisplaySlots(builtin), room);
+  if (!owner || slots === 0 || !Array.isArray(raw)) return [];
+  const out: TownDisplayed[] = [];
+  for (const d of raw) {
+    if (out.length >= slots) break;
+    if (!d || typeof d !== 'object') continue;
+    const { item, look } = d as { item?: unknown; look?: unknown };
+    if (typeof item !== 'string' || out.some((o) => o.item === item)) continue;
+    if (parseRpgItemUri(item)?.did !== owner) continue;
+    out.push(look === 'worn' ? { item, look } : { item });
+  }
+  return out;
 }
 
 interface Rect {
@@ -227,14 +298,21 @@ export const TOWN_DEFAULT_LAYOUT: Record<TownSpace, TownPlacement[]> = {
  * (every open tile stays reachable from the door). Anything else is dropped, never
  * "fixed" (a later valid placement isn't affected by an earlier bad one).
  * Owned rpg.actor items are skipped until they can describe themselves as
- * world objects.
+ * world objects. A display piece keeps only items in `owner`'s own repo
+ * (`townDisplay`).
  */
-export function validateTownLayout(space: TownSpace, placements: unknown): TownPlacement[] {
+export function validateTownLayout(
+  space: TownSpace,
+  placements: unknown,
+  owner: string | null,
+): TownPlacement[] {
   if (!Array.isArray(placements)) return [];
   const area = TOWN_BUILD_AREA[space];
   const clear = TOWN_KEEP_CLEAR[space];
   const solid = new Set<string>();
   const kept: TownPlacement[] = [];
+  const counts = new Map<string, number>();
+  let shown = 0;
   for (const raw of placements.slice(0, TOWN_MAX_PLACEMENTS)) {
     if (!raw || typeof raw !== 'object') continue;
     const p = raw as Record<string, unknown>;
@@ -244,7 +322,9 @@ export function validateTownLayout(space: TownSpace, placements: unknown): TownP
     const py = y as number;
     const builtin = typeof p.builtin === 'string' ? p.builtin : undefined;
     const def = townBuiltin(builtin);
-    if (!def?.spaces.includes(space)) continue;
+    if (!builtin || !def?.spaces.includes(space)) continue;
+    const count = counts.get(builtin) ?? 0;
+    if ('max' in def && def.max !== undefined && count >= def.max) continue;
     const rotation = townRotation({ builtin, rotation: p.rotation as number | undefined });
     const fp = rotation % 2 === 1 ? { w: def.h, h: def.w } : { w: def.w, h: def.h };
     if (px < area.x || py < area.y || px + fp.w > area.x + area.w || py + fp.h > area.y + area.h) {
@@ -259,7 +339,16 @@ export function validateTownLayout(space: TownSpace, placements: unknown): TownP
       if (!allReachable(space, next)) continue;
       for (const t of tiles) solid.add(t);
     }
-    kept.push({ builtin: p.builtin as string, x: px, y: py, ...(rotation ? { rotation } : {}) });
+    counts.set(builtin, count + 1);
+    const display = townDisplay(owner, builtin, p.display, TOWN_MAX_DISPLAYED - shown);
+    shown += display.length;
+    kept.push({
+      builtin: p.builtin as string,
+      x: px,
+      y: py,
+      ...(rotation ? { rotation } : {}),
+      ...(display.length ? { display } : {}),
+    });
   }
   return kept;
 }

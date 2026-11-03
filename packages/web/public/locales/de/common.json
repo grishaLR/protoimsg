@@ -349,7 +349,8 @@
         "full": "Kein Platz für weitere Teile.",
         "pickedUp": "Aufgehoben. Stell es dort ab, wo es hin soll, oder drück Esc, um es zurückzustellen.",
         "putBack": "Zurückgestellt.",
-        "rotated": "Gedreht."
+        "rotated": "Gedreht.",
+        "oneWardrobe": "Du hast schon einen Kleiderschrank. Verschieb lieber den."
       },
       "items": {
         "bed": "Bett",
@@ -371,13 +372,30 @@
         "stone": "Stein",
         "chest": "Truhe",
         "barrel": "Fass",
-        "wildflowers": "Wildblumen"
+        "wildflowers": "Wildblumen",
+        "wardrobe": "Kleiderschrank"
       },
       "consent": {
         "title": "Speichere deine Designs",
         "body": "Dein Design wird in deinem eigenen Account gespeichert, wo es alle sehen können, wie deine Posts. Dafür braucht es noch eine Berechtigung. Du bestätigst sie mit deinem Account und bist gleich wieder da.",
         "allow": "Weiter",
         "notNow": "Jetzt nicht"
+      },
+      "wardrobe": {
+        "choose": "Kleiderschrank ({{chosen}}/{{slots}})",
+        "title": "Dein Kleiderschrank",
+        "body": "Wähle bis zu {{count}} deiner rpg.actor-Gegenstände zum Vorzeigen. Alle, die dich zu Hause besuchen, sehen sie.",
+        "count": "{{chosen}} von {{slots}}",
+        "loading": "Deine Gegenstände werden geladen…",
+        "loadFailed": "Deine Gegenstände konnten nicht geladen werden.",
+        "empty": "Du hast noch keine rpg.actor-Gegenstände. Gewinne welche in der Spielhalle oder hol sie dir auf rpg.actor.",
+        "full": "Voll. Entferne einen Haken, um zu tauschen.",
+        "save": "Diese zeigen",
+        "cancel": "Abbrechen",
+        "saved": "Kleiderschrank aktualisiert.",
+        "look": "So wird {{title}} gezeigt",
+        "lookIcon": "Symbol",
+        "lookWorn": "Getragen"
       }
     },
     "sprite": {

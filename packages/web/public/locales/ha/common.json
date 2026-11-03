@@ -347,7 +347,8 @@
         "full": "Babu wuri don ƙarin kaya.",
         "pickedUp": "An ɗauka. Ajiye shi inda zai tafi, ko danna Escape don mayar da shi.",
         "putBack": "An mayar.",
-        "rotated": "An juya."
+        "rotated": "An juya.",
+        "oneWardrobe": "Gidanka ya riga ya na da akwatin tufafi. Matsar da shi maimakon haka."
       },
       "items": {
         "bed": "Gado",
@@ -369,13 +370,30 @@
         "stone": "Dutse",
         "chest": "Akwati",
         "barrel": "Ganga",
-        "wildflowers": "Furannin daji"
+        "wildflowers": "Furannin daji",
+        "wardrobe": "Akwatin tufafi"
       },
       "consent": {
         "title": "Adana tsarinka",
         "body": "Ana adana tsarinka a asusunka na kanka, inda kowa zai iya gani, kamar rubuce-rubucenka. Hakan na buƙatar ƙarin izini ɗaya. Za ka tabbatar da shi da asusunka sannan ka dawo nan take.",
         "allow": "Ci gaba",
         "notNow": "Ba yanzu ba"
+      },
+      "wardrobe": {
+        "choose": "Kayan akwatin tufafi ({{chosen}}/{{slots}})",
+        "title": "Akwatin tufafinka",
+        "body": "Zaɓi har zuwa {{count}} daga cikin kayayyakinka na rpg.actor don nunawa. Duk wanda ya ziyarci gidanka zai gan su.",
+        "count": "{{chosen}} cikin {{slots}}",
+        "loading": "Ana loda kayayyakinka…",
+        "loadFailed": "Ba a iya loda kayayyakinka ba.",
+        "empty": "Ba ka da wani kaya na rpg.actor tukuna. Ci wasu a wurin wasanni, ko ka samu a rpg.actor.",
+        "full": "Ya cika. Cire alama ɗaya don musanya.",
+        "save": "Nuna waɗannan",
+        "cancel": "Soke",
+        "saved": "An sabunta akwatin tufafi.",
+        "look": "Yadda {{title}} ke bayyana",
+        "lookIcon": "Alama",
+        "lookWorn": "Sanye"
       }
     },
     "sprite": {
