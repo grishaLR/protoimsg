@@ -52,3 +52,6 @@ pgdata/
 
 # Tauri / Rust
 target/
+
+# Apple provisioning profile (Mac App Store builds) — keep local
+*.provisionprofile
