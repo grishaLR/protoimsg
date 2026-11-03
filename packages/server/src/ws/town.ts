@@ -149,6 +149,17 @@ function cellKey(scene: string, cx: number, cy: number): string {
 }
 
 /** Identity + version of what a viewer was last sent about an avatar. */
+/**
+ * A position's server receive time, only while it's fresh. Viewers replay
+ * movement by it; an old stamp (someone standing still) is no use to that and
+ * would tell whoever walks up how long they've been idle.
+ */
+const STAMP_FRESH_MS = 1_000;
+
+function freshStamp(m: TownMember): { t?: number } {
+  return m.t !== undefined && Date.now() - m.t < STAMP_FRESH_MS ? { t: m.t } : {};
+}
+
 function viewKey(m: TownMember): string {
   return `${String(m.id)}:${String(m.ver)}`;
 }
@@ -647,6 +658,7 @@ export class TownRoom {
       y: place.y,
       dir: place.dir,
       sprint: false,
+      t: Date.now(),
       moveBudget: MOVE_BURST,
       moveBudgetTs: Date.now(),
       roomId,
@@ -678,6 +690,7 @@ export class TownRoom {
           y: m.y,
           dir: m.dir,
           ...(m.sprint ? { sprint: true } : {}),
+          ...freshStamp(m),
         });
       }
     }
@@ -1264,6 +1277,8 @@ export class TownRoom {
     m.y = pos.y;
     m.dir = dir;
     m.sprint = sprint;
+    // Stamped on arrival, before batching: viewers replay moves by it.
+    m.t = Date.now();
     m.ver++;
     this.scheduleView(); // moves never change who's here
     this.scheduleProximity();
@@ -1371,7 +1386,7 @@ export class TownRoom {
       // Several tabs of one DID in a scene: the most recently moved one is the avatar.
       const key = `${m.scene}|${m.did}`;
       const cur = rep.get(key);
-      if (!cur || m.ver > cur.ver) rep.set(key, m);
+      if (!cur || (m.t ?? 0) > (cur.t ?? 0)) rep.set(key, m);
     }
     const grid = new Map<string, TownMember[]>();
     for (const m of rep.values()) {
@@ -1419,6 +1434,7 @@ export class TownRoom {
           y: m.y,
           dir: m.dir,
           ...(m.sprint ? { sprint: true } : {}),
+          ...freshStamp(m),
         });
       }
       for (const did of v.known.keys()) {

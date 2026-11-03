@@ -509,7 +509,9 @@ describe('TownRoom views (scene privacy, area of interest, batching)', () => {
     town.move(a.ws, 960, 200, 0);
     town.join(b.ws, B, SQ, 5, 5, 1);
     tick();
-    expect(views(a).at(-1)?.upsert).toEqual([{ did: B, ...townArrival('square', 'home') }]);
+    expect(views(a).at(-1)?.upsert).toEqual([
+      { did: B, ...townArrival('square', 'home'), t: expect.any(Number) as number },
+    ]);
   });
 
   it('keeps chat inside the scene', () => {
@@ -586,7 +588,9 @@ describe('TownRoom views (scene privacy, area of interest, batching)', () => {
     tick();
     town.move(a.ws, 5000, 5000, 0);
     tick();
-    expect(views(b).at(-1)?.upsert).toEqual([{ did: A, x: edgeX, y: edgeY, dir: 0 }]);
+    expect(views(b).at(-1)?.upsert).toEqual([
+      { did: A, x: edgeX, y: edgeY, dir: 0, t: expect.any(Number) as number },
+    ]);
   });
 
   it('hides a newly blocked avatar without waiting for anyone to move', () => {
@@ -645,7 +649,37 @@ describe('TownRoom views (scene privacy, area of interest, batching)', () => {
     for (let i = 1; i <= 5; i++) town.move(b.ws, NEAR_X + 20 + i, NEAR_Y, 0);
     tick();
     expect(views(a)).toHaveLength(1);
-    expect(views(a)[0]?.upsert).toEqual([{ did: B, x: NEAR_X + 25, y: NEAR_Y, dir: 0 }]);
+    expect(views(a)[0]?.upsert).toEqual([
+      { did: B, x: NEAR_X + 25, y: NEAR_Y, dir: 0, t: expect.any(Number) as number },
+    ]);
+  });
+
+  it('stamps each move with when it arrived, not when its batch went out', () => {
+    const a = fakeWs();
+    const b = fakeWs();
+    town.join(a.ws, A, SQ, NEAR_X, NEAR_Y, 0);
+    town.join(b.ws, B, SQ, NEAR_X + 20, NEAR_Y, 0);
+    tick();
+    a.send.mockClear();
+    const arrived = Date.now();
+    town.move(b.ws, NEAR_X + 30, NEAR_Y, 0);
+    vi.advanceTimersByTime(90); // still waiting in the batch
+    tick();
+    const upsert = views(a).at(-1)?.upsert as Array<{ t?: number }> | undefined;
+    expect(upsert?.[0]?.t).toBe(arrived);
+  });
+
+  it("never stamps a standing peer's position: how long they've been idle stays theirs", () => {
+    const a = fakeWs();
+    const b = fakeWs();
+    town.join(b.ws, B, SQ, NEAR_X + 20, NEAR_Y, 0);
+    vi.advanceTimersByTime(60_000); // B stands still for a minute
+    town.join(a.ws, A, SQ, NEAR_X, NEAR_Y, 0);
+    const peers = (
+      sent(a, 'town_state').at(-1)?.data as { peers: Array<{ did: string; t?: number }> }
+    ).peers;
+    expect(peers.find((p) => p.did === B)).toBeDefined();
+    expect(peers.find((p) => p.did === B)?.t).toBeUndefined();
   });
 
   it('never shows a blocked user, and leaving town removes you', () => {

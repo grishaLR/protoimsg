@@ -59,6 +59,7 @@ import {
   type SignId,
 } from './structures';
 import { loadDisplayArt } from './displayArt';
+import { PeerClock, PeerTrack, type PeerSample } from './peerMotion';
 import { pictureKey, type WardrobeItem } from './wardrobeItems';
 import { OPENPIXELS_SHEET, OpenPixels } from './openpixels';
 import {
@@ -81,7 +82,6 @@ const SPEED = 132; // px/sec
 const SPRINT = 1.75;
 const MOVE_SEND_MS = 110; // position broadcast throttle
 const PEER_SNAP_DIST = 240; // snap a peer instead of interpolating past this
-const PEER_LERP = 11; // peer position ease rate (per second)
 const MAX_FRAME_MS = 50; // clamp delta time — avoids tunneling on stalls
 
 // Proximity aura mesh — drawn between everyone in your voice cluster.
@@ -213,12 +213,10 @@ async function loadTexture(src: string): Promise<Texture | null> {
 
 interface Peer {
   avatar: Avatar;
+  /** Where they're shown now (replayed slightly in the past; see peerMotion). */
   x: number;
   y: number;
-  tx: number;
-  ty: number;
-  /** Walk-cycle speed: 1 walking, SPRINT while they say they're running. */
-  pace: number;
+  track: PeerTrack;
 }
 
 const MOVE_KEYS = new Set(['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'a', 'd', 'w', 's']);
@@ -270,6 +268,8 @@ export class WorldEngine {
   private world = new Container();
   private player = new Avatar('');
   private peers = new Map<string, Peer>();
+  /** Server → local time, shared by every peer (one server clock). */
+  private peerClock = new PeerClock();
   private keys = new Set<string>();
   private fallbackTex: Texture | null = null;
   private ownedTextures: Texture[] = [];
@@ -1451,9 +1451,7 @@ export class WorldEngine {
       avatar,
       x: p.x,
       y: p.y,
-      tx: p.x,
-      ty: p.y,
-      pace: p.sprint ? SPRINT : 1,
+      track: new PeerTrack(this.peerSample(p), PEER_SNAP_DIST, SPEED),
     });
     void this.dressAvatar(avatar, p.did);
   }
@@ -1464,10 +1462,22 @@ export class WorldEngine {
       this.peerJoin(p);
       return;
     }
-    peer.pace = p.sprint ? SPRINT : 1;
-    peer.tx = p.x;
-    peer.ty = p.y;
-    peer.avatar.dir = p.dir;
+    peer.track.push(this.peerSample(p));
+  }
+
+  /** A peer update as a timed sample; feeds the shared clock. */
+  private peerSample(p: TownPeer): PeerSample {
+    // Monotonic: a wall-clock jump must never throw playback off.
+    const now = performance.now();
+    const pose = { x: p.x, y: p.y, dir: p.dir, pace: p.sprint ? SPRINT : 1 };
+    if (p.t === undefined) {
+      // Unstamped (someone standing still, or an older server): our best guess
+      // at the server time, marked so a real stamp can re-time it. It must
+      // never move the clock.
+      return { ...pose, t: this.peerClock.serverNow(now), provisional: true };
+    }
+    this.peerClock.observe(p.t, now);
+    return { ...pose, t: p.t };
   }
 
   peerLeave(did: string): void {
@@ -1630,26 +1640,15 @@ export class WorldEngine {
       this.onMove?.(Math.round(this.px), Math.round(this.py), this.player.dir, sprinting);
     }
 
-    // Peers: interpolate toward their last reported position.
+    // Peers: replayed a little in the past at a steady speed, by when the
+    // server received each move — batched arrivals would make them surge.
+    const playback = this.peerClock.playbackTime(performance.now());
     for (const peer of this.peers.values()) {
-      const pdx = peer.tx - peer.x;
-      const pdy = peer.ty - peer.y;
-      const dist = Math.hypot(pdx, pdy);
-      let peerMoving = false;
-      if (dist > 0.5) {
-        peerMoving = true;
-        if (dist > PEER_SNAP_DIST) {
-          peer.x = peer.tx;
-          peer.y = peer.ty;
-        } else {
-          // Ease toward the latest reported position — smoother than chasing
-          // at literal walk speed (which stutters between packets).
-          const f = Math.min(1, dt * PEER_LERP);
-          peer.x += pdx * f;
-          peer.y += pdy * f;
-        }
-      }
-      peer.avatar.tick(dtMs, peerMoving, peer.pace);
+      const pose = peer.track.at(playback);
+      peer.x = pose.x;
+      peer.y = pose.y;
+      peer.avatar.dir = pose.dir;
+      peer.avatar.tick(dtMs, pose.moving, pose.pace);
       peer.avatar.setPosition(peer.x, peer.y);
     }
 

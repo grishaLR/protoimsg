@@ -490,6 +490,12 @@ export interface TownPeer {
   y: number;
   dir: number;
   sprint?: boolean;
+  /**
+   * When the server received this position (ms since epoch). Moves reach
+   * viewers in batches, so arrival times are uneven; clients replay peers by
+   * this instead to keep their motion steady. Absent from older servers.
+   */
+  t?: number;
 }
 
 export interface TownStateEvent extends WsMessageBase {
