@@ -1,0 +1,86 @@
+name: Desktop Release
+
+# Builds the Tauri desktop app for macOS (universal), Windows and Linux and
+# attaches the installers to a draft GitHub release. Run it by hand from the
+# Actions tab. The app loads the hosted site (production: protoimsg.app,
+# staging: staging.protoimsg.app), so there's no web build here — only the
+# native shell. Bump `version` in packages/desktop/src-tauri/tauri.conf.json
+# before each release; the tag is derived from it.
+#
+# macOS signing + notarization run when the APPLE_* secrets are set; without
+# them the macOS build is unsigned (fine for a quick internal test only).
+
+on:
+  workflow_dispatch:
+    inputs:
+      channel:
+        description: 'Which site the app loads'
+        type: choice
+        options: [production, staging]
+        default: staging
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - platform: macos-latest
+            args: --target universal-apple-darwin
+          - platform: windows-latest
+            args: ''
+          - platform: ubuntu-22.04
+            args: ''
+    runs-on: ${{ matrix.platform }}
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Install Linux system dependencies
+        if: matrix.platform == 'ubuntu-22.04'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf
+
+      - uses: pnpm/action-setup@v6
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '22'
+          cache: 'pnpm'
+
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.platform == 'macos-latest' && 'aarch64-apple-darwin,x86_64-apple-darwin' || '' }}
+
+      - uses: swatinem/rust-cache@v2
+        with:
+          workspaces: packages/desktop/src-tauri -> target
+
+      # Only the Tauri CLI is needed — the app loads the hosted site.
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile --filter @protoimsg/desktop
+
+      - uses: tauri-apps/tauri-action@v0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # macOS: Developer ID signing + notarization (skipped when unset)
+          APPLE_CERTIFICATE: ${{ secrets.APPLE_CERTIFICATE }}
+          APPLE_CERTIFICATE_PASSWORD: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
+          APPLE_SIGNING_IDENTITY: ${{ secrets.APPLE_SIGNING_IDENTITY }}
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          APPLE_PASSWORD: ${{ secrets.APPLE_PASSWORD }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+        with:
+          projectPath: packages/desktop
+          tauriScript: pnpm tauri
+          args: >-
+            ${{ matrix.args }}
+            ${{ inputs.channel == 'staging' && '--config src-tauri/tauri.staging.conf.json' || '' }}
+          tagName: ${{ inputs.channel == 'staging' && 'desktop-staging-v__VERSION__' || 'desktop-v__VERSION__' }}
+          releaseName: ${{ inputs.channel == 'staging' && 'Desktop __VERSION__ (staging)' || 'Desktop __VERSION__' }}
+          releaseBody: 'Download the installer for your platform below.'
+          releaseDraft: true
+          prerelease: ${{ inputs.channel == 'staging' }}

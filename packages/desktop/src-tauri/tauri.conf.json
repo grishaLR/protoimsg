@@ -1,16 +1,16 @@
 {
-  "$schema": "https://raw.githubusercontent.com/nicklasxyz/tauri-v2/main/core/tauri-config-schema/schema.json",
+  "$schema": "https://schema.tauri.app/config/2",
   "productName": "proto instant messenger",
   "version": "0.0.1",
   "identifier": "app.protoimsg.desktop",
   "build": {
     "devUrl": "http://127.0.0.1:5173",
-    "frontendDist": "../../web/dist",
+    "frontendDist": "https://protoimsg.app",
     "beforeDevCommand": "pnpm --filter @protoimsg/web dev",
     "beforeBuildCommand": ""
   },
   "app": {
-    "withGlobalTauri": true,
+    "withGlobalTauri": false,
     "windows": [
       {
         "label": "main",
@@ -39,10 +39,7 @@
     "macOS": {
       "infoPlist": "Info.plist",
       "entitlements": "./entitlements.mac.plist",
-      "files": {
-        "embedded.provisionprofile": "./embedded.provisionprofile"
-      },
-      "signingIdentity": "Apple Distribution"
+      "hardenedRuntime": true
     }
   }
 }

@@ -1,0 +1,13 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "bundle": {
+    "targets": ["app"],
+    "macOS": {
+      "entitlements": "./entitlements.appstore.plist",
+      "files": {
+        "embedded.provisionprofile": "./embedded.provisionprofile"
+      },
+      "signingIdentity": "Apple Distribution"
+    }
+  }
+}
