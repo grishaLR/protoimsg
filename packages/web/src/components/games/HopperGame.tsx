@@ -4,7 +4,7 @@ import { makeSeed, type HopperInputLog } from '@protoimsg/game-sim';
 import type { Agent } from '@atproto/api';
 import type { Difficulty } from './GamesPanel';
 import { useAuth } from '../../hooks/useAuth';
-import { NORMALIZED_SPRITE, normalizedSpriteUrl } from '../../lib/actor-sprite';
+import { NORMALIZED_SPRITE, currentSpriteUrl } from '../../lib/actor-sprite';
 import { blobUrl } from '../../lib/record-blobs';
 import { authFetch } from '../../lib/api';
 import { API_URL } from '../../lib/config';
@@ -237,16 +237,24 @@ export function HopperGame({
       setSpriteStatus('missing');
       return;
     }
+    let cancelled = false;
     const img = new Image();
-    img.src = normalizedSpriteUrl(did);
     img.onload = () => {
+      if (cancelled) return;
       imgRef.current = img;
       engineRef.current?.updateActor(NORMALIZED_SPRITE, img);
       setSpriteStatus('ok');
     };
     // 404 / load failure → the user has no rpg.actor character.
     img.onerror = () => {
-      setSpriteStatus('missing');
+      if (!cancelled) setSpriteStatus('missing');
+    };
+    // Versioned by the current sprite, so a just-changed one shows at once.
+    void currentSpriteUrl(did).then((url) => {
+      if (!cancelled) img.src = url;
+    });
+    return () => {
+      cancelled = true;
     };
   }, [did]);
 

@@ -37,7 +37,8 @@ import type {
   TownSpace,
   TownSpawn,
 } from '@protoimsg/shared';
-import { GAME_MASTER_DID, RPG_ACTOR_API_URL } from '../lib/config';
+import { currentSpriteUrl, normalizedSpriteUrl } from '../lib/actor-sprite';
+import { GAME_MASTER_DID } from '../lib/config';
 import { resolveDisplayNameForDid } from '../lib/resolve-pds';
 import {
   Avatar,
@@ -192,15 +193,11 @@ function covers(p: TownPlacement, tx: number, ty: number): boolean {
   return !!fp && tx >= p.x && tx < p.x + fp.w && ty >= p.y && ty < p.y + fp.h;
 }
 
-function spriteUrl(did: string): string {
-  return `${RPG_ACTOR_API_URL}/api/sprite/normalized?did=${encodeURIComponent(did)}`;
-}
-
-/** rpg.actor confirms this DID has no sprite (as opposed to being unreachable). */
-async function spriteMissing(did: string): Promise<boolean> {
+/** rpg.actor confirms this sprite doesn't exist (as opposed to being unreachable). */
+async function spriteMissing(url: string): Promise<boolean> {
   try {
     // GET, not HEAD: only called after the image failed, so the body is an error.
-    const res = await fetch(spriteUrl(did));
+    const res = await fetch(url);
     return res.status === 404;
   } catch {
     return false;
@@ -1405,10 +1402,10 @@ export class WorldEngine {
 
   /** One front-facing frame of `owner`'s sheet (the default sheet if they have none). */
   private async loadGateFrame(owner: string): Promise<Texture | null> {
-    let sheet = await loadTexture(spriteUrl(owner));
+    let sheet = await loadTexture(await currentSpriteUrl(owner));
     if (sheet) this.ownedTextures.push(sheet);
     else {
-      this.defaultSheet ??= loadTexture(spriteUrl(GAME_MASTER_DID)).then((t) => {
+      this.defaultSheet ??= loadTexture(normalizedSpriteUrl(GAME_MASTER_DID)).then((t) => {
         if (t) this.ownedTextures.push(t);
         return t;
       });
@@ -1636,15 +1633,17 @@ export class WorldEngine {
   private async dressAvatar(avatar: Avatar, did: string): Promise<void> {
     let img: HTMLImageElement | null = null;
     let borrowed = false;
+    // Versioned by the current sprite, so a change shows at once (see actor-sprite).
+    const url = await currentSpriteUrl(did);
     try {
-      img = await loadImage(spriteUrl(did));
+      img = await loadImage(url);
     } catch {
       borrowed = true;
-      img = await loadImage(spriteUrl(GAME_MASTER_DID)).catch(() => null);
+      img = await loadImage(normalizedSpriteUrl(GAME_MASTER_DID)).catch(() => null);
     }
     if (did === this.selfDid && avatar === this.player) {
       // Only a confirmed "no sprite" (404) — not a network blip or outage.
-      const missing = borrowed && (await spriteMissing(did));
+      const missing = borrowed && (await spriteMissing(url));
       if (!this.destroyed) this.onOwnSprite?.(missing);
     }
     if (!this.destroyed && img) {
