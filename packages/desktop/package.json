@@ -7,6 +7,8 @@
     "dev": "tauri dev",
     "dev:attach": "TAURI_CLI_NO_DEV_SERVER_WAIT=true tauri dev --config '{\"build\":{\"beforeDevCommand\":\"\"}}'",
     "build": "tauri build",
+    "build:staging": "tauri build --config src-tauri/tauri.staging.conf.json",
+    "build:appstore": "tauri build --config src-tauri/tauri.appstore.conf.json",
     "tauri": "tauri"
   },
   "dependencies": {

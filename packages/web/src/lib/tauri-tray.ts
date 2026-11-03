@@ -20,7 +20,12 @@ export async function updateTrayTooltip(
     parts.push(`${String(unreadCount)} unread mention${unreadCount === 1 ? '' : 's'}`);
   }
 
-  await invoke('update_tray_tooltip', { tooltip: parts.join(' · ') });
+  try {
+    await invoke('update_tray_tooltip', { tooltip: parts.join(' · ') });
+  } catch (err) {
+    // The site can be newer than the installed app: never let tray sync throw.
+    console.warn('update_tray_tooltip failed:', err);
+  }
 }
 
 /**
@@ -28,5 +33,9 @@ export async function updateTrayTooltip(
  * item when town is enabled in this build.
  */
 export async function setTrayCallState(active: boolean, townEnabled: boolean): Promise<void> {
-  await invoke('set_call_state', { active, town: townEnabled });
+  try {
+    await invoke('set_call_state', { active, town: townEnabled });
+  } catch (err) {
+    console.warn('set_call_state failed:', err);
+  }
 }

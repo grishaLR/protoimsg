@@ -58,6 +58,38 @@ jobs:
           DATABASE_URL: postgres://protoimsg:localdev@localhost:5432/protoimsg
           NODE_ENV: test
 
+  # The desktop shell isn't in the turbo pipeline: compile + lint it when it
+  # changes (tauri-build also validates tauri.conf.json).
+  desktop:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v6
+      - uses: dorny/paths-filter@v4
+        id: filter
+        with:
+          filters: |
+            desktop:
+              - 'packages/desktop/**'
+      - name: Install Linux system dependencies
+        if: steps.filter.outputs.desktop == 'true'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf
+      - uses: dtolnay/rust-toolchain@stable
+        if: steps.filter.outputs.desktop == 'true'
+        with:
+          components: clippy, rustfmt
+      - uses: swatinem/rust-cache@v2
+        if: steps.filter.outputs.desktop == 'true'
+        with:
+          workspaces: packages/desktop/src-tauri -> target
+      - name: Format check
+        if: steps.filter.outputs.desktop == 'true'
+        run: cargo fmt --manifest-path packages/desktop/src-tauri/Cargo.toml --check
+      - name: Clippy
+        if: steps.filter.outputs.desktop == 'true'
+        run: cargo clippy --manifest-path packages/desktop/src-tauri/Cargo.toml -- -D warnings
+
   changes:
     needs: ci
     if: github.event_name == 'push'
