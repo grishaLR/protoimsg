@@ -250,12 +250,26 @@
       "title": "Ziyaret edebileceğin mahalleler",
       "close": "Kapat"
     },
+    "here": {
+      "button": "Burada: {{count}}",
+      "title": "Kimler burada",
+      "empty": "Şimdilik sadece sen",
+      "more": "+{{count}} kişi daha",
+      "close": "Kapat"
+    },
     "fof": {
       "off": "Arkadaşların arkadaşları: kapalı",
       "on": "Arkadaşların arkadaşları: açık",
       "hint": "Açıkken burada seni yalnızca karşılıklı arkadaşların ve onların karşılıklı arkadaşları görebilir, sen de yalnızca onları görürsün.",
       "announceOn": "Arkadaşların arkadaşları modu açık. Burada seni yalnızca karşılıklı arkadaşların ve onların karşılıklı arkadaşları görebilir.",
       "announceOff": "Arkadaşların arkadaşları modu kapalı. Meydandaki herkes seni görebilir."
+    },
+    "publicNotice": {
+      "title": "Herkese açık bir yerdesin",
+      "bodyFof": "Kasabada aynı alandaki kişiler seni görebilir. Arkadaşların arkadaşları modundasın; kasaba meydanında seni yalnızca karşılıklı arkadaşların ve onların karşılıklı arkadaşları görür, sen de yalnızca onları görürsün. Bunu istediğin zaman yukarıdan değiştirebilirsin.",
+      "bodyOpen": "Kasabada aynı alandaki kişiler seni görebilir. Kasaba meydanında bu, buradaki herkes demek. Daha az kalabalık mı istersin? Arkadaşların arkadaşları modunu aç ya da eve dön.",
+      "turnOnFof": "Arkadaşların arkadaşlarını aç",
+      "ok": "Anladım"
     },
     "knock": {
       "prompt": "{{name}} kullanıcısının kapısını çalmak ister misin?",

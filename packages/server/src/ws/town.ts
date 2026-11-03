@@ -52,6 +52,8 @@ interface TownMember extends TownPeer {
   owner: string | null;
   /** Friends-of-friends mode (square): see and be seen only within two steps. */
   fof: boolean;
+  /** The "who's here" list this socket was last sent ('' = none yet). */
+  hereKey: string;
   /** Square: the gate row this socket was last sent. */
   gates: TownGate[];
   /** Holds a reference in the graph (released on leave). */
@@ -121,6 +123,11 @@ const MOVE_BURST = 30; // bucket capacity
 const PROXIMITY_TICK_MS = 200;
 // Avatar views are diffed and sent in one batch per viewer at most this often.
 const VIEW_TICK_MS = 100;
+/** "Who's here" refresh: joins, leaves and visibility changes, never movement. */
+const HERE_TICK_MS = 500;
+/** Most DIDs in one "who's here" list; the count is always exact. */
+const HERE_MAX = 100;
+const SQUARE_SCENE = townSceneId({ kind: 'square' });
 // Spatial grid for view lookups: a viewer's box spans at most 3×3 cells.
 const VIEW_CELL = Math.max(TOWN_VIEW.halfWidth, TOWN_VIEW.halfHeight);
 // A new link must hold this long before a room is minted — stops jittering
@@ -270,6 +277,9 @@ export class TownRoom {
   private nextId = 1;
   private proximityTimer: ReturnType<typeof setTimeout> | null = null;
   private viewTimer: ReturnType<typeof setTimeout> | null = null;
+  private hereTimer: ReturnType<typeof setTimeout> | null = null;
+  /** Scenes whose "who's here" lists may have changed since the last flush. */
+  private hereDirty: Set<string> | 'all' = new Set();
   private reconcileTimer: ReturnType<typeof setInterval> | null = null;
   private sweepTimer: ReturnType<typeof setInterval> | null = null;
   private disposed = false;
@@ -460,6 +470,8 @@ export class TownRoom {
     m.fof = on;
     this.recountFof();
     this.scheduleView();
+    // Friends-of-friends is per DID: another tab of theirs may be in the square.
+    this.scheduleHere(m.scene, SQUARE_SCENE);
     this.scheduleProximity();
   }
 
@@ -622,6 +634,8 @@ export class TownRoom {
       kind: scene.kind,
       owner: scene.kind === 'square' ? null : scene.owner,
       fof: fof ?? prev?.fof ?? false,
+      // A new scene gets a fresh list, even if it happens to match.
+      hereKey: prev?.scene === id ? prev.hereKey : '',
       gates: row?.gates ?? [],
       graphRef: prev?.graphRef ?? false,
       moreGates: row?.more ?? [],
@@ -648,7 +662,8 @@ export class TownRoom {
       known: new Map(),
     });
     // Friends-of-friends from the join must narrow the very first view.
-    if ((fof ?? prev?.fof ?? false) !== (prev?.fof ?? false)) this.recountFof();
+    const fofChanged = (fof ?? prev?.fof ?? false) !== (prev?.fof ?? false);
+    if (fofChanged) this.recountFof();
 
     // Your initial view, sent directly; everyone else learns about you on the
     // next view tick.
@@ -695,6 +710,11 @@ export class TownRoom {
     // connection, and ignores it if it's still connected as this identity.
     if (voiceWanted) this.issueVoice(ws);
     this.scheduleView();
+    this.scheduleHere(
+      id,
+      ...(prev && prev.scene !== id ? [prev.scene] : []),
+      ...(fofChanged ? [SQUARE_SCENE] : []),
+    );
     this.scheduleProximity();
   }
 
@@ -942,6 +962,7 @@ export class TownRoom {
     }, JOIN_PASS_GRACE_MS + 100).unref();
     this.endJoinRequest(request, 'accepted');
     this.scheduleView();
+    this.scheduleHere(request.scene);
     this.scheduleProximity();
   }
 
@@ -1227,6 +1248,7 @@ export class TownRoom {
       this.place(m.ws, m.did, { kind: 'square' }, townArrival('square', null), 'removed');
     }
     this.scheduleView();
+    this.scheduleHere();
     this.scheduleProximity();
   }
 
@@ -1243,7 +1265,7 @@ export class TownRoom {
     m.dir = dir;
     m.sprint = sprint;
     m.ver++;
-    this.scheduleView();
+    this.scheduleView(); // moves never change who's here
     this.scheduleProximity();
   }
 
@@ -1286,6 +1308,8 @@ export class TownRoom {
     // Viewers drop the avatar on the next view tick — unless another visible
     // socket of the same DID keeps it alive.
     this.scheduleView();
+    // Dropping a friends-of-friends tab can widen the square for their others.
+    this.scheduleHere(m.scene, ...(m.fof ? [SQUARE_SCENE] : []));
   }
 
   private scheduleView(): void {
@@ -1294,6 +1318,50 @@ export class TownRoom {
       this.viewTimer = null;
       this.flushViews();
     }, VIEW_TICK_MS);
+  }
+
+  /** Refresh "who's here" for these scenes — none given: every scene (relationships changed). */
+  private scheduleHere(...scenes: string[]): void {
+    if (this.disposed) return;
+    if (scenes.length === 0) this.hereDirty = 'all';
+    else if (this.hereDirty !== 'all') for (const sc of scenes) this.hereDirty.add(sc);
+    if (this.hereTimer) return;
+    this.hereTimer = setTimeout(() => {
+      this.hereTimer = null;
+      this.flushHere();
+    }, HERE_TICK_MS);
+  }
+
+  /**
+   * Send each socket who else is in its scene — everyone it may see there
+   * (`canSee`), wherever they stand. Sorted by DID so neither order nor the
+   * cap says anything about who arrived when.
+   */
+  private flushHere(): void {
+    if (this.disposed) return;
+    const dirty = this.hereDirty;
+    this.hereDirty = new Set();
+    const inDirty = (scene: string): boolean => dirty === 'all' || dirty.has(scene);
+    const byScene = new Map<string, TownMember[]>();
+    for (const m of this.members.values()) {
+      if (!inDirty(m.scene)) continue;
+      const list = byScene.get(m.scene);
+      if (list) list.push(m);
+      else byScene.set(m.scene, [m]);
+    }
+    for (const v of this.members.values()) {
+      if (!inDirty(v.scene)) continue;
+      const here = new Set<string>();
+      for (const r of byScene.get(v.scene) ?? []) {
+        if (this.canSee(v, r)) here.add(r.did);
+      }
+      const all = [...here].sort();
+      const dids = all.slice(0, HERE_MAX);
+      const key = `${String(all.length)}|${dids.join(',')}`;
+      if (key === v.hereKey) continue;
+      v.hereKey = key;
+      this.sendTo(v.ws, { type: 'town_here', data: { dids, total: all.length } });
+    }
   }
 
   /** Members bucketed by scene + grid cell, one representative socket per DID per scene. */
@@ -1413,6 +1481,8 @@ export class TownRoom {
     this.disposed = true;
     if (this.proximityTimer) clearTimeout(this.proximityTimer);
     if (this.viewTimer) clearTimeout(this.viewTimer);
+    if (this.hereTimer) clearTimeout(this.hereTimer);
+    this.hereTimer = null;
     for (const k of this.knocks.values()) clearTimeout(k.timer);
     this.knocks.clear();
     for (const r of this.joinRequests.values()) clearTimeout(r.timer);
@@ -1659,7 +1729,10 @@ export class TownRoom {
       },
     };
     // Passes that lapsed stop counting before anyone is clustered with them.
-    if (this.expireJoinPasses(now)) this.scheduleView();
+    if (this.expireJoinPasses(now)) {
+      this.scheduleView();
+      this.scheduleHere();
+    }
     // Inside a home the whole house is one conversation, wherever you stand.
     const clusters = [...scenes.values()].flatMap(({ kind, nodes }) =>
       buildClusters(nodes, rules, kind === 'home'),

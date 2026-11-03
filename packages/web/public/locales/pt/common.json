@@ -250,12 +250,26 @@
       "title": "Vizinhanças que você pode visitar",
       "close": "Fechar"
     },
+    "here": {
+      "button": "Aqui: {{count}}",
+      "title": "Quem está aqui",
+      "empty": "Só você por enquanto",
+      "more": "Mais {{count}}",
+      "close": "Fechar"
+    },
     "fof": {
       "off": "Amigos de amigos: desligado",
       "on": "Amigos de amigos: ligado",
       "hint": "Quando ligado, só seus contatos mútuos e os contatos mútuos deles podem ver você aqui, e você só vê essas pessoas.",
       "announceOn": "Modo amigos de amigos ligado. Só seus contatos mútuos e os contatos mútuos deles podem ver você aqui.",
       "announceOff": "Modo amigos de amigos desligado. Todo mundo na praça pode ver você."
+    },
+    "publicNotice": {
+      "title": "Você está em público",
+      "bodyFof": "Na cidade, quem está no mesmo espaço pode ver você. Você está no modo amigos de amigos, então na praça da cidade só seus contatos mútuos e os contatos mútuos deles veem você, e você só vê essas pessoas. Dá para mudar isso lá em cima quando quiser.",
+      "bodyOpen": "Na cidade, quem está no mesmo espaço pode ver você. Na praça da cidade, isso é todo mundo. Quer menos gente? Ligue amigos de amigos ou volte para casa.",
+      "turnOnFof": "Ligar amigos de amigos",
+      "ok": "Entendi"
     },
     "knock": {
       "prompt": "Bater na porta de {{name}}?",

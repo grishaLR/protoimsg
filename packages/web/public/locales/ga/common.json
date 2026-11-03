@@ -250,12 +250,26 @@
       "title": "Comharsanachtaí ar féidir leat cuairt a thabhairt orthu",
       "close": "Dún"
     },
+    "here": {
+      "button": "Anseo: {{count}}",
+      "title": "Cé atá anseo",
+      "empty": "Tusa amháin go fóill",
+      "more": "+{{count}} eile",
+      "close": "Dún"
+    },
     "fof": {
       "off": "Cairde cairde: as",
       "on": "Cairde cairde: ar siúl",
       "hint": "Nuair atá sé ar siúl, ní fheiceann ach do chomhchairde agus a gcomhchairde siúd tú anseo, agus ní fheiceann tú ach iad.",
       "announceOn": "Mód cairde cairde ar siúl. Ní fheiceann ach do chomhchairde agus a gcomhchairde siúd tú anseo.",
       "announceOff": "Mód cairde cairde as. Feiceann gach duine sa chearnóg tú."
+    },
+    "publicNotice": {
+      "title": "Tá tú amuigh go poiblí",
+      "bodyFof": "Sa bhaile mór, is féidir le daoine sa spás céanna tú a fheiceáil. Tá tú i mód cairde cairde, mar sin i gCearnóg an bhaile ní fheiceann ach do chomhchairde agus a gcomhchairde siúd tú, agus ní fheiceann tú ach iad. Is féidir é seo a athrú ag an mbarr am ar bith.",
+      "bodyOpen": "Sa bhaile mór, is féidir le daoine sa spás céanna tú a fheiceáil. I gCearnóg an bhaile, sin cách anseo. Slua níos lú uait? Cuir cairde cairde ar siúl, nó téigh abhaile.",
+      "turnOnFof": "Cuir cairde cairde ar siúl",
+      "ok": "Tuigim"
     },
     "knock": {
       "prompt": "Cnag a bhualadh ar dhoras {{name}}?",

@@ -87,6 +87,7 @@ export type {
   TownChatEvent,
   TownVoiceMember,
   TownProximityEvent,
+  TownHereEvent,
   TownVoiceRoomEvent,
   TownVoiceJoinMessage,
   TownStayMessage,

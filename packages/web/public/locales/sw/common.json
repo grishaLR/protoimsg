@@ -248,12 +248,26 @@
       "title": "Mitaa unayoweza kutembelea",
       "close": "Funga"
     },
+    "here": {
+      "button": "Hapa: {{count}}",
+      "title": "Nani yuko hapa",
+      "empty": "Ni wewe tu kwa sasa",
+      "more": "+{{count}} zaidi",
+      "close": "Funga"
+    },
     "fof": {
       "off": "Marafiki wa marafiki: kimezimwa",
       "on": "Marafiki wa marafiki: kimewashwa",
       "hint": "Kikiwashwa, marafiki zako wa pamoja na marafiki zao wa pamoja pekee ndio wanaoweza kukuona hapa, nawe unawaona wao tu.",
       "announceOn": "Hali ya marafiki wa marafiki imewashwa. Marafiki zako wa pamoja na marafiki zao wa pamoja pekee ndio wanaoweza kukuona hapa.",
       "announceOff": "Hali ya marafiki wa marafiki imezimwa. Kila mtu uwanjani anaweza kukuona."
+    },
+    "publicNotice": {
+      "title": "Uko hadharani",
+      "bodyFof": "Mjini, watu walio katika eneo moja nawe wanaweza kukuona. Uko katika hali ya marafiki wa marafiki, kwa hiyo kwenye uwanja wa mji ni marafiki zako wa pamoja na marafiki zao wa pamoja pekee wanaokuona, nawe unawaona wao tu. Unaweza kubadilisha hili juu wakati wowote.",
+      "bodyOpen": "Mjini, watu walio katika eneo moja nawe wanaweza kukuona. Kwenye uwanja wa mji, hao ni kila mtu aliyepo. Unataka watu wachache? Washa marafiki wa marafiki, au rudi nyumbani.",
+      "turnOnFof": "Washa marafiki wa marafiki",
+      "ok": "Nimeelewa"
     },
     "knock": {
       "prompt": "Ugonge mlango wa {{name}}?",

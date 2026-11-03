@@ -250,12 +250,26 @@
       "title": "Vecindarios que puedes visitar",
       "close": "Cerrar"
     },
+    "here": {
+      "button": "Aquí: {{count}}",
+      "title": "Quién está aquí",
+      "empty": "Por ahora solo tú",
+      "more": "+{{count}} más",
+      "close": "Cerrar"
+    },
     "fof": {
       "off": "Amigos de amigos: desactivado",
       "on": "Amigos de amigos: activado",
       "hint": "Al activarlo, solo tus contactos mutuos y los contactos mutuos de ellos pueden verte aquí, y solo los ves a ellos.",
       "announceOn": "Modo amigos de amigos activado. Solo tus contactos mutuos y los contactos mutuos de ellos pueden verte aquí.",
       "announceOff": "Modo amigos de amigos desactivado. Todos en la plaza pueden verte."
+    },
+    "publicNotice": {
+      "title": "Estás en público",
+      "bodyFof": "En el pueblo, quienes están en el mismo espacio pueden verte. Estás en modo amigos de amigos, así que en la plaza del pueblo solo te ven tus contactos mutuos y los contactos mutuos de ellos, y solo los ves a ellos. Puedes cambiarlo arriba cuando quieras.",
+      "bodyOpen": "En el pueblo, quienes están en el mismo espacio pueden verte. En la plaza del pueblo, eso es todo el mundo. ¿Prefieres menos gente? Activa amigos de amigos o vuelve a casa.",
+      "turnOnFof": "Activar amigos de amigos",
+      "ok": "Entendido"
     },
     "knock": {
       "prompt": "¿Tocar la puerta de {{name}}?",
