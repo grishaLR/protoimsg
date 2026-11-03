@@ -9,6 +9,13 @@ const WALK_CYCLE = [1, 0, 2, 0] as const;
 const WALK_FRAME_MS = 150;
 const BUBBLE_MS = 6000;
 const NEUTRAL_COL = 0; // idle pose
+/**
+ * Text renders at the world zoom (WorldEngine's SCALE): drawn at 1× and then
+ * scaled up with the world, names and bubbles come out blurry.
+ */
+const TEXT_RESOLUTION = 2;
+/** A bubble's bottom sits this far above the avatar's feet. */
+const BUBBLE_Y = -SPRITE_H - 6;
 
 export const DIR_FORWARD = 0;
 export const DIR_LEFT = 1;
@@ -33,7 +40,7 @@ export function buildFrames(base: Texture): Texture[][] {
   return frames;
 }
 
-function makeBubble(text: string): Container {
+function makeBubble(text: string, wrap: number): Container {
   const c = new Container();
   const label = new Text({
     text,
@@ -43,8 +50,9 @@ function makeBubble(text: string): Container {
       fill: 0x1a1726,
       align: 'center',
       wordWrap: true,
-      wordWrapWidth: 150,
+      wordWrapWidth: wrap,
     },
+    resolution: TEXT_RESOLUTION,
   });
   label.anchor.set(0.5, 0.5);
   const w = Math.ceil(label.width) + 12;
@@ -73,6 +81,8 @@ export class Avatar {
   private label: Text;
   private frames: Texture[][] = [];
   private bubble: Container | null = null;
+  /** Where bubbles are drawn: a layer over the whole world, if given. */
+  private bubbleLayer: Container | null = null;
   private bubbleExpiry = 0;
   private animStep = 0;
   private animMs = 0;
@@ -93,10 +103,20 @@ export class Avatar {
         align: 'center',
         stroke: { color: 0x1a1726, width: 3 },
       },
+      resolution: TEXT_RESOLUTION,
     });
     this.label.anchor.set(0.5, 0);
     this.label.y = 3;
     this.container.addChild(this.label);
+  }
+
+  /**
+   * Draw speech bubbles on `layer` (above the world), not inside this
+   * avatar: otherwise whatever stands in front of them — a tree, the well —
+   * covers what they say.
+   */
+  setBubbleLayer(layer: Container): void {
+    this.bubbleLayer = layer;
   }
 
   setName(name: string): void {
@@ -161,35 +181,48 @@ export class Avatar {
     }
     this.applyFrame();
 
-    if (this.bubble && performance.now() > this.bubbleExpiry) {
-      this.container.removeChild(this.bubble);
-      this.bubble.destroy({ children: true });
-      this.bubble = null;
-    }
+    if (this.bubble && performance.now() > this.bubbleExpiry) this.clearBubble();
   }
 
   setPosition(x: number, y: number): void {
     if (this.destroyed) return;
     this.container.position.set(x, y);
     this.container.zIndex = y;
+    this.placeBubble();
   }
 
-  showBubble(text: string): void {
+  /** On the bubble layer, the bubble follows the avatar by hand. */
+  private placeBubble(): void {
+    if (!this.bubble) return;
+    if (this.bubbleLayer) {
+      this.bubble.position.set(this.container.x, this.container.y + BUBBLE_Y);
+    } else this.bubble.position.set(0, BUBBLE_Y);
+  }
+
+  private clearBubble(): void {
+    if (!this.bubble) return;
+    this.bubble.removeFromParent();
+    this.bubble.destroy({ children: true });
+    this.bubble = null;
+  }
+
+  /** Say something: `ms` how long it stays up, `wrap` how wide it gets. */
+  showBubble(text: string, ms = BUBBLE_MS, wrap = 150): void {
     if (this.destroyed) return;
-    if (this.bubble) {
-      this.container.removeChild(this.bubble);
-      this.bubble.destroy({ children: true });
-    }
-    const bubble = makeBubble(text);
-    bubble.y = -SPRITE_H - 6;
-    this.container.addChild(bubble);
+    this.clearBubble();
+    const bubble = makeBubble(text, wrap);
+    // A layer that's gone (the scene was rebuilt) falls back to the avatar.
+    if (this.bubbleLayer?.destroyed) this.bubbleLayer = null;
+    (this.bubbleLayer ?? this.container).addChild(bubble);
     this.bubble = bubble;
-    this.bubbleExpiry = performance.now() + BUBBLE_MS;
+    this.placeBubble();
+    this.bubbleExpiry = performance.now() + ms;
   }
 
   destroy(): void {
     if (this.destroyed) return;
     this.destroyed = true;
+    this.clearBubble();
     this.container.destroy({ children: true });
   }
 }

@@ -1,0 +1,134 @@
+/* The square's guide: same card as the signpost, in the same spot (they're
+   never both open: you talk to him only beside him, across the square). */
+.guide {
+  position: absolute;
+  z-index: var(--cm-z-local-top);
+  inset-inline: var(--cm-space-0);
+  inset-block-end: calc(var(--cm-space-6) + var(--cm-space-16));
+  margin-inline: auto;
+  inline-size: min(calc(100% - var(--cm-space-12)), var(--cm-panel-width-dm));
+  max-block-size: 50%;
+  display: flex;
+  flex-direction: column;
+  color: var(--color-base-content);
+  background: var(--color-base-100);
+  border: var(--cm-space-0.5) solid var(--color-base-300);
+  border-radius: var(--cm-radius-md);
+  box-shadow: var(--cm-raised);
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--cm-space-3);
+  padding: var(--cm-space-3) var(--cm-space-5);
+  border-block-end: var(--cm-space-0.5) solid var(--color-base-300);
+}
+
+.title {
+  margin: var(--cm-space-0);
+  font-size: var(--cm-text-sm);
+  font-weight: 700;
+}
+
+.body {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--cm-space-3);
+  padding: var(--cm-space-4) var(--cm-space-5);
+  overflow-y: auto;
+}
+
+.intro {
+  margin: var(--cm-space-0);
+  font-size: var(--cm-text-sm);
+  line-height: var(--cm-leading-normal);
+}
+
+.list {
+  align-self: stretch;
+  margin: var(--cm-space-0);
+  padding: var(--cm-space-0);
+  list-style: none;
+}
+
+.item {
+  inline-size: 100%;
+  padding: var(--cm-space-2) var(--cm-space-4);
+  font-size: var(--cm-text-sm);
+  text-align: start;
+  color: var(--color-base-content);
+  background: transparent;
+  border: none;
+  border-radius: var(--cm-radius-sm);
+  cursor: pointer;
+}
+
+.item:hover,
+.item:focus-visible {
+  /* base-300: base-200 barely differs from base-100 in dark themes. */
+  background: var(--color-base-300);
+}
+
+/* The question he's answering right now (his bubble says the answer). */
+.item[aria-current='true'] {
+  font-weight: 700;
+}
+
+.button,
+.prompt {
+  padding: var(--cm-space-1) var(--cm-space-4);
+  font-size: var(--cm-text-xs);
+  color: var(--color-base-content);
+  background: var(--cm-surface-button);
+  border: var(--cm-space-0.5) solid var(--color-base-300);
+  border-radius: var(--cm-radius-sm);
+  box-shadow: var(--cm-raised);
+  cursor: pointer;
+}
+
+.button:hover,
+.prompt:hover {
+  background: var(--color-base-200);
+}
+
+.button:active,
+.prompt:active {
+  box-shadow: var(--cm-pressed);
+}
+
+/* Beside the guide: "Talk to ProtoBuddy", where the card will open. */
+.prompt {
+  position: absolute;
+  z-index: var(--cm-z-local-top);
+  inset-inline: var(--cm-space-0);
+  inset-block-end: calc(var(--cm-space-6) + var(--cm-space-16));
+  inline-size: max-content;
+  margin-inline: auto;
+  padding: var(--cm-space-2) var(--cm-space-5);
+  font-size: var(--cm-text-sm);
+  font-weight: 700;
+}
+
+.button:focus-visible,
+.prompt:focus-visible,
+.item:focus-visible {
+  outline: var(--cm-focus-thin) solid var(--cm-focus);
+  outline-offset: var(--cm-focus-offset);
+}
+
+/* 44px touch targets — often opened standing beside him on a phone. */
+@media (pointer: coarse) {
+  .item,
+  .button,
+  .prompt {
+    min-block-size: calc(var(--cm-space-16) + var(--cm-space-6));
+  }
+}
+
+/* Focused programmatically so Escape and Tab work; no ring for the box itself. */
+.guide:focus {
+  outline: none;
+}

@@ -250,6 +250,48 @@
       "title": "Vizinhanças que você pode visitar",
       "close": "Fechar"
     },
+    "guide": {
+      "name": "ProtoBuddy",
+      "greeting": "Oi! Vem dar um oi 👋",
+      "talk": "Falar com {{name}}",
+      "talkHint": "Aperte E ou toque nele",
+      "intro": "Bem-vindo a proto town! O que você quer saber?",
+      "close": "Fechar",
+      "sendAway": "Mandar {{name}} para a praça",
+      "bringBack": "Trazer {{name}} para minha vizinhança",
+      "bye": "Te vejo na praça! Me procura perto do poço 👋",
+      "comingHome": "Vou estar na sua vizinhança quando você voltar 🏡",
+      "topics": {
+        "what": {
+          "q": "O que é proto town?",
+          "a": "Nosso mundinho na ATmosphere. Ande por aí como seu personagem do rpg.actor, converse com quem está por perto e visite as vizinhanças dos seus amigos. Está em beta, então algumas partes ainda estão sendo construídas."
+        },
+        "look": {
+          "q": "Como mudo minha aparência?",
+          "a": "Seu personagem vem do rpg.actor. Crie um com o gerador de sprites deles, e ele aparece aqui na próxima vez que você vier à cidade."
+        },
+        "design": {
+          "q": "Como decoro meu espaço?",
+          "a": "Vá para casa e aperte B (ou Decorar) para arrumar sua casa ou seu quintal. Todo mundo que visitar vê sua decoração. Coloque um guarda-roupa para exibir os itens do rpg.actor que você tem."
+        },
+        "talk": {
+          "q": "Como converso com as pessoas?",
+          "a": "Chegue perto de alguém e uma aura roxa liga vocês. Quando ela acender, dá para conversar. Seu microfone e sua câmera ficam desligados até você ligar. Você também pode digitar na caixa de chat: todo mundo por perto vê seu balão."
+        },
+        "visible": {
+          "q": "Quem pode me ver aqui?",
+          "a": "A cidade é como estar em público: quem está no mesmo espaço pode ver você. Na praça, isso é todo mundo, a menos que você ligue amigos de amigos. Sua vizinhança é para sua comunidade, e sua casa é só sua e de quem você deixar entrar. Bloqueios sempre valem."
+        },
+        "around": {
+          "q": "Como me movimento?",
+          "a": "WASD ou as setas para andar, e Espaço para correr. De casa, saia pela porta da frente até sua vizinhança e pelo portão dela até a praça. Os portões na cerca de cima da praça levam às vizinhanças de amigos que têm você na comunidade deles. Quando são mais do que cabem, a placa lista o resto."
+        },
+        "help": {
+          "q": "Algo quebrou",
+          "a": "Desculpa! Use Enviar feedback no menu do app e conte para a gente o que aconteceu. Lemos todos."
+        }
+      }
+    },
     "here": {
       "button": "Aqui: {{count}}",
       "title": "Quem está aqui",
