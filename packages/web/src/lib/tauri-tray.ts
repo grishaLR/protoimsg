@@ -23,7 +23,10 @@ export async function updateTrayTooltip(
   await invoke('update_tray_tooltip', { tooltip: parts.join(' · ') });
 }
 
-/** Rebuild the tray menu to show/hide the active-call indicator. */
-export async function setTrayCallState(active: boolean): Promise<void> {
-  await invoke('set_call_state', { active });
+/**
+ * Rebuild the tray menu: active-call indicator, and the "Open proto town"
+ * item when town is enabled in this build.
+ */
+export async function setTrayCallState(active: boolean, townEnabled: boolean): Promise<void> {
+  await invoke('set_call_state', { active, town: townEnabled });
 }
