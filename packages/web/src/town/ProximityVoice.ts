@@ -15,6 +15,7 @@ import {
   type VideoTrack,
 } from 'livekit-client';
 import type { TownProximityEvent, TownVoiceRoomEvent } from '@protoimsg/shared';
+import { fetchIceServers } from '../lib/api';
 import { Sentry } from '../sentry';
 
 type VoiceRoom = NonNullable<TownVoiceRoomEvent['data']['voice']>;
@@ -223,13 +224,23 @@ export class ProximityVoice {
     this.bindRoomEvents(room);
     this.setStatus('connecting');
 
+    // Our coturn relay, same as 1:1 calls. LiveKit offers no TURN of its own,
+    // so without this a network that blocks its media ports (7881–7884) —
+    // school, work, guest Wi-Fi — joins the room and never hears anyone.
+    // These replace LiveKit's ICE servers rather than add to them, which is
+    // fine: it sends none. Fetched per connect so credentials stay fresh.
+    const iceServers = await fetchIceServers();
+    if (this.isStale(room)) {
+      room.removeAllListeners();
+      return;
+    }
+
     try {
-      // ICE servers come from LiveKit itself (incl. its TURN/TLS fallback) —
-      // passing our own would replace them, not add to them.
       await room.connect(next.url, next.token, {
         // Nothing is heard until it's your conversation's — subscriptions
         // follow the roster (applySubscriptions).
         autoSubscribe: false,
+        ...(iceServers.length > 0 && { rtcConfig: { iceServers } }),
       });
     } catch (err) {
       if (this.room === room) {
