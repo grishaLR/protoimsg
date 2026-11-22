@@ -24,6 +24,11 @@ const isLocalDev =
 /** ?forceRelay=true in the URL forces TURN-only (no direct/STUN) for testing */
 const forceRelay = new URLSearchParams(window.location.search).has('forceRelay');
 
+/** `?forceRelay` is on: relay-only ICE everywhere (1:1, group calls, town voice). */
+export function isForceRelay(): boolean {
+  return forceRelay;
+}
+
 export function shouldForceRelayForDid(recipientDid: string): boolean {
   if (forceRelay) return true;
   const level = getIpProtectionLevel();

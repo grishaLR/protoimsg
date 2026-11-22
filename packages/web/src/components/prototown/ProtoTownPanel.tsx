@@ -615,15 +615,17 @@ export function ProtoTownPanel() {
 
     const voice = new ProximityVoice(audioHost, did, readMicPref());
     voiceRef.current = voice;
+    let wasBlocked = false;
     voice.onStatusChange = (status) => {
       setVoiceStatus(status);
       // Only trouble is announced — not every door's connecting → connected.
-      if (status === 'failed' || status === 'reconnecting') {
+      // A blocked network already said why; "failed" right after would
+      // replace that message in the live region before it's read.
+      if (status === 'reconnecting' || (status === 'failed' && !wasBlocked)) {
         announce(tRef.current(`town.voice.status.${status}`));
       }
     };
     voice.onStayChange = setStayOn;
-    let wasBlocked = false;
     voice.onNetworkBlockedChange = (blocked) => {
       setNetworkBlocked(blocked);
       // Re-sent with each voice assignment: the server forgets it on a new

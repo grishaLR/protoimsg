@@ -18,6 +18,7 @@ import {
 } from 'livekit-client';
 import type { TownProximityEvent, TownVoiceRoomEvent } from '@protoimsg/shared';
 import { fetchIceServers } from '../lib/api';
+import { isForceRelay } from '../lib/ip-protection';
 import { Sentry } from '../sentry';
 
 type VoiceRoom = NonNullable<TownVoiceRoomEvent['data']['voice']>;
@@ -122,6 +123,8 @@ export class ProximityVoice {
   private networkBlocked = false;
   /** The current room's signalling reached LiveKit (reset per room). */
   private signalReached = false;
+  /** The current room was offered our TURN relay (for the network-blocked report). */
+  private relayOffered = false;
   /** Roster changes apply one at a time (camera-off must finish before new grants). */
   private rosterChain: Promise<void> = Promise.resolve();
   private onContextState = (): void => {
@@ -252,13 +255,20 @@ export class ProximityVoice {
       room.removeAllListeners();
       return;
     }
+    this.relayOffered = iceServers.length > 0;
 
     try {
       await room.connect(next.url, next.token, {
         // Nothing is heard until it's your conversation's — subscriptions
         // follow the roster (applySubscriptions).
         autoSubscribe: false,
-        ...(iceServers.length > 0 && { rtcConfig: { iceServers } }),
+        ...(iceServers.length > 0 && {
+          rtcConfig: {
+            iceServers,
+            // Debug: prove the coturn → LiveKit path on its own.
+            ...(isForceRelay() && { iceTransportPolicy: 'relay' as const }),
+          },
+        }),
       });
     } catch (err) {
       // LiveKit emits Disconnected before connect() rejects, so that handler
@@ -758,6 +768,14 @@ export class ProximityVoice {
   private setNetworkBlocked(blocked: boolean): void {
     if (this.networkBlocked === blocked) return;
     this.networkBlocked = blocked;
+    // One event per verdict: a spike across many users means our media
+    // ports or relay are down, not everyone's network.
+    if (blocked) {
+      Sentry.captureMessage('town voice: network blocked', {
+        level: 'warning',
+        tags: { area: 'town-voice', relayOffered: String(this.relayOffered) },
+      });
+    }
     this.onNetworkBlockedChange?.(blocked);
   }
 

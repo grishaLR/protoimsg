@@ -197,9 +197,19 @@
 
 .micError,
 .voiceWarning {
-  max-inline-size: var(--cm-panel-width-dm);
+  max-inline-size: min(var(--cm-panel-width-dm), 100%);
   overflow-wrap: anywhere; /* long handles / DIDs in "can't hear you" */
+}
+
+.micError {
   color: var(--color-error);
+}
+
+/* Workable, not broken ("try a hotspot") — warning, not error red. */
+.voiceWarning {
+  color: var(--color-warning-content);
+  background: var(--color-warning);
+  border-color: var(--color-warning);
 }
 
 .voiceButton {

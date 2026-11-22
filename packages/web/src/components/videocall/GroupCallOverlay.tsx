@@ -4,6 +4,7 @@ import { LiveKitRoom } from '@livekit/components-react';
 import type { RoomConnectOptions } from 'livekit-client';
 import { useGroupCall } from '../../contexts/GroupCallContext';
 import { fetchIceServers } from '../../lib/api';
+import { isForceRelay } from '../../lib/ip-protection';
 import { GroupCallInner } from './groupcall/GroupCallInner';
 import { ROOM_OPTIONS } from './groupcall/types';
 
@@ -24,7 +25,7 @@ export function GroupCallOverlay() {
   useEffect(() => {
     if (!token) return;
     const ac = new AbortController();
-    void fetchIceServers().then((servers) => {
+    void fetchIceServers(ac.signal).then((servers) => {
       if (!ac.signal.aborted) setIce({ token, servers });
     });
     return () => {
@@ -34,7 +35,15 @@ export function GroupCallOverlay() {
 
   const iceServers = ice && ice.token === token ? ice.servers : null;
   const connectOptions = useMemo<RoomConnectOptions | undefined>(
-    () => (iceServers?.length ? { rtcConfig: { iceServers } } : undefined),
+    () =>
+      iceServers?.length
+        ? {
+            rtcConfig: {
+              iceServers,
+              ...(isForceRelay() && { iceTransportPolicy: 'relay' as const }),
+            },
+          }
+        : undefined,
     [iceServers],
   );
 

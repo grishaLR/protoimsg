@@ -447,9 +447,21 @@ export async function fetchPoll(
 
 // -- ICE servers --
 
-export async function fetchIceServers(): Promise<RTCIceServer[]> {
+/** A stalled request must not hold up a call — connect without the relay instead. */
+const ICE_FETCH_TIMEOUT_MS = 5_000;
+
+export async function fetchIceServers(signal?: AbortSignal): Promise<RTCIceServer[]> {
+  const ac = new AbortController();
+  const timer = setTimeout(() => {
+    ac.abort();
+  }, ICE_FETCH_TIMEOUT_MS);
+  const onAbort = (): void => {
+    ac.abort();
+  };
+  signal?.addEventListener('abort', onAbort, { once: true });
   try {
-    const res = await authFetch('/api/ice-servers');
+    if (signal?.aborted) return [];
+    const res = await authFetch('/api/ice-servers', { signal: ac.signal });
     if (!res.ok) throw new Error(`ICE server request failed: ${res.status}`);
     const data = (await res.json()) as {
       iceServers: Array<{ urls: string | string[]; username?: string; credential?: string }>;
@@ -458,6 +470,9 @@ export async function fetchIceServers(): Promise<RTCIceServer[]> {
   } catch {
     // No fallback to third-party STUN — prevents IP address leaks to Google
     return [];
+  } finally {
+    clearTimeout(timer);
+    signal?.removeEventListener('abort', onAbort);
   }
 }
 
