@@ -1,4 +1,6 @@
 import {
+  ConnectionError,
+  ConnectionErrorReason,
   ConnectionState,
   DisconnectReason,
   Room,
@@ -41,6 +43,8 @@ const RETRY_BASE_MS = 2000;
 const RETRY_MAX_MS = 30_000;
 /** Still not connected after this long: say so, and offer "Reconnect". */
 const CONNECT_TIMEOUT_MS = 15_000;
+/** Slack past LiveKit's own 15s peer-connection timeout once signalling is up. */
+const SIGNAL_GRACE_MS = 5_000;
 /** Still reconnecting after this long: drop the room and fetch a fresh one. */
 const RECONNECT_TIMEOUT_MS = 15_000;
 
@@ -114,6 +118,10 @@ export class ProximityVoice {
   private connectTimer: ReturnType<typeof setTimeout> | null = null;
   /** A failure was already sent to Sentry since the last good connection. */
   private reported = false;
+  /** Signalling reached LiveKit but media never connected — the network blocks it. */
+  private networkBlocked = false;
+  /** The current room's signalling reached LiveKit (reset per room). */
+  private signalReached = false;
   /** Roster changes apply one at a time (camera-off must finish before new grants). */
   private rosterChain: Promise<void> = Promise.resolve();
   private onContextState = (): void => {
@@ -136,6 +144,14 @@ export class ProximityVoice {
   onRequestRefresh?: () => void;
   /** The real voice connection state. */
   onStatusChange?: (status: VoiceStatus) => void;
+  /**
+   * Your network blocks voice: the server answered but media never got
+   * through. Also re-fired (true) with each new voice assignment, so the
+   * server — which forgets it on a new socket or scene — hears it again.
+   */
+  onNetworkBlockedChange?: (blocked: boolean) => void;
+  /** DIDs in your conversation whose network blocks voice. */
+  onBlockedPeersChange?: (dids: string[]) => void;
   /** Camera feeds currently showing in your conversation. */
   onVideoChange?: (videos: ProximityVideo[]) => void;
   /**
@@ -190,6 +206,7 @@ export class ProximityVoice {
       return;
     }
     if (!this.joined) return;
+    if (this.networkBlocked) this.onNetworkBlockedChange?.(true);
 
     // Same room, same identity, still alive: a fresh token we don't need.
     // A room stuck reconnecting isn't alive — take the fresh token instead.
@@ -221,6 +238,7 @@ export class ProximityVoice {
     this.room = room;
     this.roomName = next.room;
     this.selfPidValue = next.selfPid;
+    this.signalReached = false;
     this.bindRoomEvents(room);
     this.setStatus('connecting');
 
@@ -243,11 +261,16 @@ export class ProximityVoice {
         ...(iceServers.length > 0 && { rtcConfig: { iceServers } }),
       });
     } catch (err) {
+      // LiveKit emits Disconnected before connect() rejects, so that handler
+      // usually got here first (status, retry and the network verdict live
+      // there). Report either way — unless we cancelled it ourselves.
+      if (!(err instanceof ConnectionError && err.reason === ConnectionErrorReason.Cancelled)) {
+        this.reportOnce('connect failed', err);
+      }
       if (this.room === room) {
         this.room = null;
         this.roomName = null;
         this.setStatus('failed');
-        this.reportOnce('connect failed', err);
         this.scheduleRetry();
       }
       return;
@@ -281,6 +304,14 @@ export class ProximityVoice {
         .map((m) => [m.pid, m.did]),
     );
     this.onMembersChange?.(conv ? [...new Set(conv.members.map((m) => m.did))] : []);
+    // Unique DIDs, like onMembersChange: one person on two devices is one person.
+    this.onBlockedPeersChange?.([
+      ...new Set(
+        (conv?.members ?? [])
+          .filter((m) => m.netBlocked && m.did !== this.selfDid)
+          .map((m) => m.did),
+      ),
+    ]);
     this.onStayChange?.(conv?.members.some((m) => m.did === this.selfDid && m.stay) ?? false);
 
     const room = this.room;
@@ -469,6 +500,8 @@ export class ProximityVoice {
     this.onMicError = undefined;
     this.onRequestRefresh = undefined;
     this.onStatusChange = undefined;
+    this.onNetworkBlockedChange = undefined;
+    this.onBlockedPeersChange = undefined;
     this.onVideoChange = undefined;
     this.onCameraChange = undefined;
     this.onCameraError = undefined;
@@ -479,6 +512,15 @@ export class ProximityVoice {
   private bindRoomEvents(room: Room): void {
     // Every handler ignores a room we've already moved on from.
     room
+      .on(RoomEvent.SignalConnected, () => {
+        if (this.room !== room) return;
+        this.signalReached = true;
+        // The server answered; media gets LiveKit's own peer-connection
+        // timeout to succeed or fail. Don't call it "failed" before that
+        // verdict — a Reconnect click then would throw the attempt away.
+        if (this.status === 'connecting')
+          this.armConnectTimer(CONNECT_TIMEOUT_MS + SIGNAL_GRACE_MS);
+      })
       .on(RoomEvent.TrackPublished, (_pub: RemoteTrackPublication, p: RemoteParticipant) => {
         if (this.room === room) this.applySubscriptions(p);
       })
@@ -578,6 +620,18 @@ export class ProximityVoice {
           this.setStatus('connecting');
           return;
         }
+        // Signalling worked but media never connected, with no reason from
+        // the server (a leave/restart/duplicate carries one): the network
+        // blocks voice media — campus, school or work Wi-Fi.
+        if (
+          this.signalReached &&
+          // Never connected (a drop after connecting goes through
+          // connected/reconnecting) — 'failed' if our own timer beat it.
+          (this.status === 'connecting' || this.status === 'failed') &&
+          (reason === undefined || reason === DisconnectReason.UNKNOWN_REASON)
+        ) {
+          this.setNetworkBlocked(true);
+        }
         this.setStatus('failed');
         Sentry.addBreadcrumb({
           category: 'town.voice',
@@ -659,15 +713,12 @@ export class ProximityVoice {
   private setStatus(status: VoiceStatus): void {
     if (this.status === status) return;
     this.status = status;
+    // Retries keep a blocked network's verdict; only success or leaving clears it.
+    if (status === 'connected' || status === 'off') this.setNetworkBlocked(false);
     if (this.connectTimer) clearTimeout(this.connectTimer);
     this.connectTimer = null;
     if (status === 'connecting') {
-      this.connectTimer = setTimeout(() => {
-        this.connectTimer = null;
-        if (this.status === 'connecting' && this.joined && !this.destroyed) {
-          this.setStatus('failed');
-        }
-      }, CONNECT_TIMEOUT_MS);
+      this.armConnectTimer(CONNECT_TIMEOUT_MS);
     } else if (status === 'reconnecting') {
       // LiveKit's own reconnect can hang (e.g. an ICE restart on a closed
       // peer connection) without ever firing Disconnected — give up on the
@@ -682,6 +733,17 @@ export class ProximityVoice {
     this.onStatusChange?.(status);
   }
 
+  /** Still 'connecting' after `ms`: say so (and offer "Reconnect"). */
+  private armConnectTimer(ms: number): void {
+    if (this.connectTimer) clearTimeout(this.connectTimer);
+    this.connectTimer = setTimeout(() => {
+      this.connectTimer = null;
+      if (this.status === 'connecting' && this.joined && !this.destroyed) {
+        this.setStatus('failed');
+      }
+    }, ms);
+  }
+
   private abandonStuckRoom(): void {
     Sentry.addBreadcrumb({
       category: 'town.voice',
@@ -691,6 +753,12 @@ export class ProximityVoice {
     this.leaveRoom();
     this.setStatus('failed');
     this.scheduleRetry();
+  }
+
+  private setNetworkBlocked(blocked: boolean): void {
+    if (this.networkBlocked === blocked) return;
+    this.networkBlocked = blocked;
+    this.onNetworkBlockedChange?.(blocked);
   }
 
   /** Persistent failures retry for as long as you're in town — report the first only. */

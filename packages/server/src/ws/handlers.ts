@@ -878,6 +878,11 @@ export async function handleClientMessage(
       break;
     }
 
+    case 'town_voice_status': {
+      townRoom.setVoiceBlocked(ws, data.netBlocked);
+      break;
+    }
+
     case 'town_leave': {
       townRoom.leave(ws);
       break;

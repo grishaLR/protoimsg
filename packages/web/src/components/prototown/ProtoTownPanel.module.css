@@ -184,7 +184,8 @@
 }
 
 .nearby,
-.micError {
+.micError,
+.voiceWarning {
   padding: var(--cm-space-2) var(--cm-space-5);
   font-size: var(--cm-text-xs);
   color: var(--color-base-content);
@@ -194,8 +195,10 @@
   box-shadow: var(--cm-raised);
 }
 
-.micError {
+.micError,
+.voiceWarning {
   max-inline-size: var(--cm-panel-width-dm);
+  overflow-wrap: anywhere; /* long handles / DIDs in "can't hear you" */
   color: var(--color-error);
 }
 

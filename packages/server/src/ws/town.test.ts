@@ -338,6 +338,50 @@ describe('TownRoom proximity voice', () => {
     expect(lastRoom(a)?.members.some((m) => m.stay)).toBe(false);
   });
 
+  it("tells a conversation when someone's network blocks voice, until it clears", async () => {
+    const a = fakeWs();
+    const b = fakeWs();
+    town.join(a.ws, A, SQ, OPEN, ROW, 0, false, AUDIO);
+    town.join(b.ws, B, SQ, OPEN + 20, ROW, 0, false, AUDIO);
+    await settle();
+    expect(lastRoom(a)?.members.some((m) => m.netBlocked)).toBe(false);
+
+    town.setVoiceBlocked(b.ws, true);
+    await settle();
+    expect(lastRoom(a)?.members.find((m) => m.did === B)?.netBlocked).toBe(true);
+
+    town.setVoiceBlocked(b.ws, false);
+    await settle();
+    expect(lastRoom(a)?.members.some((m) => m.netBlocked)).toBe(false);
+
+    // Leaving audio clears it; without audio it can't be set.
+    town.setVoiceBlocked(b.ws, true);
+    town.setVoiceWanted(b.ws, false);
+    await settle();
+    expect(lastRoom(a)?.members.some((m) => m.netBlocked)).toBe(false);
+    town.setVoiceBlocked(b.ws, true);
+    await settle();
+    expect(lastRoom(a)?.members.some((m) => m.netBlocked)).toBe(false);
+  });
+
+  it('a reconnect that takes over a voice identity leaves no stale network-blocked entry', async () => {
+    const a = fakeWs();
+    const b = fakeWs();
+    town.join(a.ws, A, SQ, OPEN, ROW, 0, false, AUDIO);
+    town.join(b.ws, B, SQ, OPEN + 20, ROW, 0, false, AUDIO);
+    await settle();
+    town.setVoiceBlocked(b.ws, true);
+    await settle();
+    const v = lastVoice(b);
+
+    // B switches networks: a new socket picks up the identity while the old
+    // one hasn't been reaped yet.
+    const b2 = fakeWs();
+    town.join(b2.ws, B, SQ, OPEN + 20, ROW, 0, false, { on: true, pid: v?.selfPid });
+    await settle();
+    expect(lastRoom(a)?.members.some((m) => m.netBlocked)).toBe(false);
+  });
+
   it('replaces the voice identity of someone who blocks a person who knew it', async () => {
     const a = fakeWs();
     const b = fakeWs();
