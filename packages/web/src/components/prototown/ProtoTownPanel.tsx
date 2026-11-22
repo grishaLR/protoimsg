@@ -294,6 +294,10 @@ export function ProtoTownPanel() {
   const [micError, setMicError] = useState(false);
   const [audioBlocked, setAudioBlocked] = useState(false);
   const [nearbyCount, setNearbyCount] = useState(0);
+  // Your network blocks voice media (campus/work Wi-Fi) — say so, and why.
+  const [networkBlocked, setNetworkBlocked] = useState(false);
+  // People in your conversation whose network blocks voice: they can't hear you.
+  const [blockedPeers, setBlockedPeers] = useState<string[]>([]);
   // Joined audio (the scene's voice room), and where that connection stands.
   const [audioJoined, setAudioJoined] = useState(readAudioPref);
   const audioJoinedRef = useRef(audioJoined);
@@ -433,6 +437,7 @@ export function ProtoTownPanel() {
     for (const k of knocks) out.add(k.from);
     for (const r of joinRequests) out.add(r.from);
     for (const g of guests) out.add(g);
+    for (const b of blockedPeers) out.add(b);
     if (signpostOpen) for (const d of moreGates.slice(0, SIGNPOST_NAMES)) out.add(d);
     // Only while the list is open: a busy square shouldn't fetch 100 profiles.
     if (hereOpen && here) for (const d of here.dids) out.add(d);
@@ -447,6 +452,7 @@ export function ProtoTownPanel() {
     knocks,
     joinRequests,
     guests,
+    blockedPeers,
     hereOpen,
     here,
     did,
@@ -609,14 +615,30 @@ export function ProtoTownPanel() {
 
     const voice = new ProximityVoice(audioHost, did, readMicPref());
     voiceRef.current = voice;
+    let wasBlocked = false;
     voice.onStatusChange = (status) => {
       setVoiceStatus(status);
       // Only trouble is announced — not every door's connecting → connected.
-      if (status === 'failed' || status === 'reconnecting') {
+      // A blocked network already said why; "failed" right after would
+      // replace that message in the live region before it's read.
+      if (status === 'reconnecting' || (status === 'failed' && !wasBlocked)) {
         announce(tRef.current(`town.voice.status.${status}`));
       }
     };
     voice.onStayChange = setStayOn;
+    voice.onNetworkBlockedChange = (blocked) => {
+      setNetworkBlocked(blocked);
+      // Re-sent with each voice assignment: the server forgets it on a new
+      // socket or scene. It ignores repeats.
+      sendRef.current({ type: 'town_voice_status', netBlocked: blocked });
+      if (blocked && !wasBlocked) announce(tRef.current('town.voice.networkBlocked'));
+      wasBlocked = blocked;
+    };
+    voice.onBlockedPeersChange = (dids) => {
+      setBlockedPeers((prev) =>
+        prev.length === dids.length && prev.every((d, i) => d === dids[i]) ? prev : dids,
+      );
+    };
     voice.setJoined(audioJoinedRef.current);
     voice.onMembersChange = (dids) => {
       engine.setVoiceCluster(dids);
@@ -769,6 +791,8 @@ export function ProtoTownPanel() {
       setVoiceSupported(false);
       setNearbyCount(0);
       setVoiceStatus('off');
+      setNetworkBlocked(false);
+      setBlockedPeers([]);
       setStayOn(false);
       setJoinAvailable(false);
       setJoinAnswered(false);
@@ -1092,6 +1116,23 @@ export function ProtoTownPanel() {
       setRevealed(new Set());
     }
   }, [nearbyCount, t]);
+
+  // Someone in your conversation can't hear you: say so once each, by name —
+  // so wait for their profile rather than reading out a DID.
+  const announcedBlockedRef = useRef(new Set<string>());
+  useEffect(() => {
+    const done = announcedBlockedRef.current;
+    for (const d of done) if (!blockedPeers.includes(d)) done.delete(d);
+    if (!audioJoined) return;
+    const ready = blockedPeers.filter((d) => !done.has(d) && getProfile(d));
+    if (ready.length === 0) return;
+    for (const d of ready) done.add(d);
+    announce(
+      blockedPeers.length === 1
+        ? t('town.voice.peerBlocked', { name: nameOf(ready[0] ?? '') })
+        : t('town.voice.peersBlocked'),
+    );
+  }, [blockedPeers, audioJoined, namesVersion, getProfile, announce, nameOf, t]);
 
   useEffect(() => {
     if (!cameraEvent) return;
@@ -1749,11 +1790,22 @@ export function ProtoTownPanel() {
                 {t('town.voice.reconnect')}
               </button>
             )}
+            {audioJoined && networkBlocked && (
+              <span className={styles.voiceWarning}>{t('town.voice.networkBlocked')}</span>
+            )}
             {nearbyCount > 0 && (
               <span className={`${styles.nearby} ${micLive ? styles.live : ''}`}>
-                {micLive
-                  ? t('town.voice.live', { count: nearbyCount })
+                {/* Only people who can actually hear you count as hearing you. */}
+                {micLive && nearbyCount > blockedPeers.length
+                  ? t('town.voice.live', { count: nearbyCount - blockedPeers.length })
                   : t('town.voice.nearby', { count: nearbyCount })}
+              </span>
+            )}
+            {audioJoined && blockedPeers.length > 0 && (
+              <span className={styles.voiceWarning}>
+                {blockedPeers.length === 1
+                  ? t('town.voice.peerBlocked', { name: nameOf(blockedPeers[0] ?? '') })
+                  : t('town.voice.peersBlocked')}
               </span>
             )}
             {audioJoined && audioBlocked && nearbyCount > 0 && (

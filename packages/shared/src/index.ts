@@ -91,6 +91,7 @@ export type {
   TownVoiceRoomEvent,
   TownVoiceJoinMessage,
   TownStayMessage,
+  TownVoiceStatusMessage,
   TownDeniedEvent,
   TownViewEvent,
   TownGatesEvent,

@@ -338,6 +338,90 @@ describe('TownRoom proximity voice', () => {
     expect(lastRoom(a)?.members.some((m) => m.stay)).toBe(false);
   });
 
+  it("tells a conversation when someone's network blocks voice, until it clears", async () => {
+    const a = fakeWs();
+    const b = fakeWs();
+    town.join(a.ws, A, SQ, OPEN, ROW, 0, false, AUDIO);
+    town.join(b.ws, B, SQ, OPEN + 20, ROW, 0, false, AUDIO);
+    await settle();
+    expect(lastRoom(a)?.members.some((m) => m.netBlocked)).toBe(false);
+
+    town.setVoiceBlocked(b.ws, true);
+    await settle();
+    expect(lastRoom(a)?.members.find((m) => m.did === B)?.netBlocked).toBe(true);
+
+    town.setVoiceBlocked(b.ws, false);
+    await settle();
+    expect(lastRoom(a)?.members.some((m) => m.netBlocked)).toBe(false);
+
+    // Leaving audio clears it; without audio it can't be set.
+    town.setVoiceBlocked(b.ws, true);
+    town.setVoiceWanted(b.ws, false);
+    await settle();
+    expect(lastRoom(a)?.members.some((m) => m.netBlocked)).toBe(false);
+    town.setVoiceBlocked(b.ws, true);
+    await settle();
+    expect(lastRoom(a)?.members.some((m) => m.netBlocked)).toBe(false);
+  });
+
+  it("never tells someone who can't see you that your network blocks voice", async () => {
+    blocks.sync(A, [C]);
+    const a = fakeWs();
+    const b = fakeWs();
+    const c = fakeWs();
+    town.join(a.ws, A, SQ, OPEN, ROW, 0, false, AUDIO);
+    // B and C talk out of A's range; A blocked C.
+    town.join(b.ws, B, SQ, OPEN + 280, ROW, 0, false, AUDIO);
+    town.join(c.ws, C, SQ, OPEN + 260, ROW, 0, false, AUDIO);
+    await settle();
+    town.setVoiceBlocked(c.ws, true);
+    await settle();
+
+    // B is in C's conversation and hears about it; A, who blocked C, never does.
+    expect(lastRoom(b)?.members.find((m) => m.did === C)?.netBlocked).toBe(true);
+    const seenByA = (sent(a, 'town_proximity') as TownProximityEvent[]).flatMap(
+      (m) => m.data.conversation?.members ?? [],
+    );
+    expect(seenByA.some((m) => m.did === C)).toBe(false);
+  });
+
+  it('a scene change clears the network-blocked flag', async () => {
+    const a = fakeWs();
+    const b = fakeWs();
+    town.join(a.ws, A, SQ, OPEN, ROW, 0, false, AUDIO);
+    town.join(b.ws, B, homeOf(B), OPEN, ROW, 0, false, AUDIO);
+    await settle();
+    town.setVoiceBlocked(b.ws, true);
+    await settle();
+
+    // Through a door: a new voice assignment, so the client re-reports — the
+    // server must not carry the old scene's verdict in.
+    town.join(b.ws, B, SQ, OPEN + 20, ROW, 0, false, AUDIO);
+    // Arriving through a door places you at it; walk over to A.
+    town.move(b.ws, OPEN + 20, ROW, 0);
+    await settle();
+    expect(lastRoom(a)?.members.find((m) => m.did === B)).toBeDefined();
+    expect(lastRoom(a)?.members.some((m) => m.netBlocked)).toBe(false);
+  });
+
+  it('a reconnect that takes over a voice identity leaves no stale network-blocked entry', async () => {
+    const a = fakeWs();
+    const b = fakeWs();
+    town.join(a.ws, A, SQ, OPEN, ROW, 0, false, AUDIO);
+    town.join(b.ws, B, SQ, OPEN + 20, ROW, 0, false, AUDIO);
+    await settle();
+    town.setVoiceBlocked(b.ws, true);
+    await settle();
+    const v = lastVoice(b);
+
+    // B switches networks: a new socket picks up the identity while the old
+    // one hasn't been reaped yet.
+    const b2 = fakeWs();
+    town.join(b2.ws, B, SQ, OPEN + 20, ROW, 0, false, { on: true, pid: v?.selfPid });
+    await settle();
+    expect(lastRoom(a)?.members.some((m) => m.netBlocked)).toBe(false);
+  });
+
   it('replaces the voice identity of someone who blocks a person who knew it', async () => {
     const a = fakeWs();
     const b = fakeWs();

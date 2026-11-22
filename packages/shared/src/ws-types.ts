@@ -276,6 +276,17 @@ export interface TownVoiceJoinMessage extends WsMessageBase {
 }
 
 /**
+ * Your voice reaches the server but media can't get through — the network
+ * blocks it (campus, work, guest Wi-Fi). Shown to your conversation so
+ * people know you can't hear them. Re-sent with each new voice assignment.
+ * (A network problem — unrelated to user blocks.)
+ */
+export interface TownVoiceStatusMessage extends WsMessageBase {
+  type: 'town_voice_status';
+  netBlocked: boolean;
+}
+
+/**
  * "Stay together": while on, your links to the people in your current
  * conversation who also chose to stay hold at any distance in the scene.
  * Resets when the conversation ends.
@@ -317,6 +328,7 @@ export type ClientMessage =
   | TownVoiceRefreshMessage
   | TownVoiceJoinMessage
   | TownStayMessage
+  | TownVoiceStatusMessage
   | TownFofMessage
   | TownKnockMessage
   | TownKnockAnswerMessage
@@ -670,6 +682,11 @@ export interface TownVoiceMember {
   pid: string;
   /** They chose "stay together". */
   stay?: boolean;
+  /**
+   * Their network blocks voice media: they can't hear you, nor you them.
+   * A network problem — unrelated to user blocks.
+   */
+  netBlocked?: boolean;
 }
 
 /**
