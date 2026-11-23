@@ -51,6 +51,7 @@
 
 .canvas {
   display: block;
+  touch-action: none;
   image-rendering: pixelated;
   border-radius: var(--radius-md);
 }
@@ -71,7 +72,7 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 14px;
+  gap: var(--cm-space-4);
   background: rgba(0, 0, 0, 0.92);
   border-radius: var(--radius-md);
   padding: 20px;
@@ -172,8 +173,44 @@
   color: #94a3b8;
 }
 
+.deathCauseGroup {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--cm-space-2);
+}
+
+.deathTitleFlower {
+  color: var(--cm-game-lose);
+}
+
+.deathTitleUfo {
+  color: var(--cm-game-win);
+}
+
+.deathResult {
+  font-size: var(--cm-text-md);
+  font-weight: 900;
+  letter-spacing: 0.06em;
+}
+
+.deathResultBoard {
+  color: var(--cm-game-gold);
+}
+
+.deathResultBest {
+  color: var(--cm-game-win);
+}
+
 @media (max-width: 767px) {
   .hint {
     display: none;
+  }
+
+  /* The canvas scales down with the screen, but the overlays' text and
+     buttons don't — make room while one is up. Not during play: the extra
+     strip under the canvas would be dead space that taps don't reach. */
+  .canvasContainerOverlay {
+    min-height: var(--cm-game-overlay-min-h);
   }
 }

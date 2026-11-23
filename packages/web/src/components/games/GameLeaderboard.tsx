@@ -35,6 +35,16 @@ export const EMPTY_STATS: GameStats = { best: 0, worst: 0, tries: 0 };
 
 export const HURDLES_CREDITS = [
   { label: 'Icons', author: 'game-icons.net · CC BY 3.0', href: 'https://game-icons.net' },
+  {
+    label: 'SFX',
+    author: 'Vircon32 · CC-BY 4.0',
+    href: 'https://opengameart.org/content/retro-game-sound-effects',
+  },
+  {
+    label: 'Music + jingles',
+    author: 'Little Robot Sound Factory · CC-BY 3.0',
+    href: 'https://www.littlerobotsoundfactory.com',
+  },
 ];
 
 export const HOPPER_CREDITS = [

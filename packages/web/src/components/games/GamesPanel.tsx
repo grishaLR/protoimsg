@@ -5,7 +5,7 @@ import { resolvePdsForDid } from '../../lib/resolve-pds';
 import { API_URL, HURDLES_ENABLED } from '../../lib/config';
 import { HopperGame } from './HopperGame';
 
-// Lazy: Hurdles is WIP behind HURDLES_ENABLED. With the flag off its chunk is
+// Lazy: Hurdles sits behind HURDLES_ENABLED. With the flag off its chunk is
 // never fetched, so users can't hit stale-deploy preload errors for a game
 // they can't reach.
 const HurdlesGame = lazy(() => import('./HurdlesGame').then((m) => ({ default: m.HurdlesGame })));
