@@ -63,7 +63,7 @@ const GAME_INFO: Record<StatusGame, { title: string; description: string }> = {
 
 /**
  * AT-URI of a game's `games.atmosphere.define` record. They live in the game
- * master's repo under a stable key (see `packages/server/scripts/publish-game-defines.ts`).
+ * master's repo under a stable key (see `packages/server/scripts/game-defines/`).
  */
 export function gameDefineUri(game: StatusGame): string {
   return `at://${GAME_MASTER_DID}/${DEFINE_COLLECTION}/${game}`;
