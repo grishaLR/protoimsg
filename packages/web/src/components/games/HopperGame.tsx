@@ -4,11 +4,13 @@ import { makeSeed, type HopperInputLog } from '@protoimsg/game-sim';
 import type { Agent } from '@atproto/api';
 import type { Difficulty } from './GamesPanel';
 import { useAuth } from '../../hooks/useAuth';
+import { useGameStatus } from '../../hooks/useGameStatus';
 import { NORMALIZED_SPRITE, currentSpriteUrl } from '../../lib/actor-sprite';
 import { blobUrl } from '../../lib/record-blobs';
 import { authFetch } from '../../lib/api';
 import { API_URL } from '../../lib/config';
 import { HopperEngine, type HopperDeathInfo, type HopperRun } from './HopperEngine';
+import { ShareStatusToggle } from './ShareStatusToggle';
 import styles from './HopperGame.module.css';
 
 interface HopperGameProps {
@@ -78,6 +80,11 @@ export function HopperGame({
   practiceMode,
 }: HopperGameProps) {
   const { agent, did: viewerDid, refreshGifts } = useAuth();
+  const status = useGameStatus('hopper', difficulty, practiceMode);
+  const markRunEndedRef = useRef(status.markRunEnded);
+  markRunEndedRef.current = status.markRunEnded;
+  // Bumped to rebuild the engine when the very first ticket failed.
+  const [attempt, setAttempt] = useState(0);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const engineRef = useRef<HopperEngine | null>(null);
   const imgRef = useRef<HTMLImageElement | null>(null);
@@ -157,7 +164,10 @@ export function HopperGame({
           setDeathInfo(info);
           setUiPhase('dead');
         };
-        engine.onScore = (score, diff) => onScoreRef.current?.(score, diff);
+        engine.onScore = (score, diff) => {
+          markRunEndedRef.current();
+          onScoreRef.current?.(score, diff);
+        };
         engine.onSubmitRun = submitRun;
         engine.onClose = () => {
           onCloseRef.current();
@@ -177,7 +187,7 @@ export function HopperGame({
       engine?.destroy();
       engineRef.current = null;
     };
-  }, [difficulty, practiceMode]); // sprite/auth pushed via refs + separate effects
+  }, [difficulty, practiceMode, attempt]); // sprite/auth pushed via refs + separate effects
 
   // Fetch leaderboard
   useEffect(() => {
@@ -278,17 +288,24 @@ export function HopperGame({
 
   const handlePlay = () => {
     engineRef.current?.startGame();
+    status.markPlaying();
     setUiPhase('playing');
   };
 
   const handleRetry = () => {
     setUiPhase('loading');
     setDeathInfo(null);
+    // No engine means the first ticket never arrived: build it from scratch.
+    if (!engineRef.current) {
+      setAttempt((n) => n + 1);
+      return;
+    }
     acquireTicket()
       .then((ticket) => {
         if (!mountedRef.current || !engineRef.current) return;
         ticketRef.current = ticket;
         engineRef.current.restart(ticket.seed);
+        status.markPlaying();
         setUiPhase('playing');
       })
       .catch(() => {
@@ -383,6 +400,7 @@ export function HopperGame({
             <button className={styles.overlayBtn} type="button" onClick={handlePlay}>
               PLAY
             </button>
+            <ShareStatusToggle status={status} />
           </div>
         )}
         {uiPhase === 'dead' && deathInfo && (
@@ -434,6 +452,7 @@ export function HopperGame({
                 Try Again
               </button>
             </div>
+            <ShareStatusToggle status={status} />
           </div>
         )}
       </div>

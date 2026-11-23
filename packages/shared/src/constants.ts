@@ -61,8 +61,11 @@ export const DM_LIMITS = {
 
 /* -------------------------------------------------------------------------- */
 /*  OAuth scopes — minimal set for a video meeting platform.                 */
-/*  Only ATProto core + protoimsg chat collection access.                    */
+/*  Only ATProto core + protoimsg chat collection access, plus the few        */
+/*  records the games and town write to the player's own repo.               */
+/*  `games.atmosphere.status` is the opt-in "now playing" record.            */
+/*  Keep packages/web/public/oauth-client-metadata.json in sync.             */
 /* -------------------------------------------------------------------------- */
 
 export const OAUTH_SCOPE =
-  'atproto include:app.protoimsg.chat.authFull repo:actor.rpg.stats repo:equipment.rpg.item repo:app.protoimsg.town.layout';
+  'atproto include:app.protoimsg.chat.authFull repo:actor.rpg.stats repo:equipment.rpg.item repo:app.protoimsg.town.layout repo:games.atmosphere.status';

@@ -4,7 +4,7 @@ import { useAuth } from '../hooks/useAuth';
 import { API_URL, HURDLES_ENABLED } from '../lib/config';
 import { HopperGame } from '../components/games/HopperGame';
 
-// Lazy: Hurdles is WIP behind HURDLES_ENABLED. With the flag off its chunk is
+// Lazy: Hurdles sits behind HURDLES_ENABLED. With the flag off its chunk is
 // never fetched, so users can't hit stale-deploy preload errors for it.
 const HurdlesGame = lazy(() =>
   import('../components/games/HurdlesGame').then((m) => ({ default: m.HurdlesGame })),

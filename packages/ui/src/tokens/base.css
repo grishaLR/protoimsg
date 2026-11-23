@@ -21,6 +21,16 @@
   --cm-town-fade-outdoors: oklch(0.28 0.04 135);
   --cm-town-fade-indoors: oklch(0.22 0.03 55);
 
+  /* ── Arcade games ────────────────────────────────── */
+  /* The games' overlays are always near-black, in every theme, so their
+     text colours are theme-invariant too: a theme's own status colours can
+     be dark-on-dark there. */
+  --cm-game-lose: #ef4444;
+  --cm-game-win: #34d399;
+  --cm-game-gold: #fbbf24;
+  /* Room the overlays need on screens where the canvas scales down. */
+  --cm-game-overlay-min-h: 15rem;
+
   /* ── Spacing ─────────────────────────────────────── */
   --cm-space-0: 0px;
   --cm-space-0.5: 1px;
