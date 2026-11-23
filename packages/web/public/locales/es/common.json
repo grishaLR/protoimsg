@@ -463,5 +463,11 @@
         "detail": "sprites de personajes"
       }
     }
+  },
+  "atmochi": {
+    "meet": "Conoce a {{name}}",
+    "play": "Jugar con {{name}}",
+    "loading": "{{name}} se está despertando…",
+    "visit": "Visitar a {{name}}"
   }
 }

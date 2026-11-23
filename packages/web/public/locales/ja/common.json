@@ -463,5 +463,11 @@
         "detail": "キャラクタースプライト"
       }
     }
+  },
+  "atmochi": {
+    "meet": "{{name}}に会う",
+    "play": "{{name}}と遊ぶ",
+    "loading": "{{name}}が目を覚ましています…",
+    "visit": "{{name}}に会いに行く"
   }
 }

@@ -463,5 +463,11 @@
         "detail": "karakter sprite'ları"
       }
     }
+  },
+  "atmochi": {
+    "meet": "{{name}} ile tanış",
+    "play": "{{name}} ile oyna",
+    "loading": "{{name}} uyanıyor…",
+    "visit": "{{name}} adlı dostu ziyaret et"
   }
 }
