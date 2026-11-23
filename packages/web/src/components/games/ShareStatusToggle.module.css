@@ -1,0 +1,26 @@
+/* Sits on the games' always-dark start overlay, so it inherits the overlay's
+   text colour rather than a theme text token (which may be dark-on-dark). */
+.toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--cm-space-2);
+  max-width: 100%;
+  font-family: monospace;
+  font-size: var(--cm-text-xs);
+  color: inherit;
+  opacity: 0.8;
+  cursor: pointer;
+  text-align: left;
+}
+
+.toggle:hover,
+.toggle:focus-within {
+  opacity: 1;
+}
+
+.checkbox {
+  flex-shrink: 0;
+  margin: 0;
+  accent-color: var(--color-primary);
+  cursor: pointer;
+}

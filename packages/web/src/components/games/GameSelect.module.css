@@ -1,0 +1,172 @@
+/* ── Landing: one button per game ────────────────────────────────────────── */
+
+.grid {
+  display: flex;
+  gap: var(--cm-space-6);
+  justify-content: center;
+  padding: var(--cm-space-4);
+}
+
+@media (max-width: 767px) {
+  .grid {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}
+
+.gameCard {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--cm-space-4);
+  padding: var(--cm-space-8) var(--cm-space-10);
+  background: var(--cm-surface-button);
+  border: none;
+  border-radius: var(--cm-radius-md);
+  box-shadow: var(--cm-raised);
+  color: var(--color-base-content);
+  cursor: pointer;
+}
+
+.gameCard:hover {
+  background: var(--cm-button-hover);
+}
+
+.gameCard:active {
+  box-shadow: var(--cm-pressed);
+}
+
+.gameCard:focus-visible,
+.backBtn:focus-visible {
+  outline: var(--cm-focus-thin) solid var(--cm-focus);
+  outline-offset: var(--cm-focus-offset);
+}
+
+.gameIcon {
+  display: flex;
+  padding: var(--cm-space-2);
+}
+
+.gameName {
+  font-size: var(--cm-text-lg);
+  font-weight: 700;
+}
+
+.gameDesc {
+  font-size: var(--cm-text-sm);
+  opacity: 0.75;
+  text-align: center;
+  max-width: 20ch;
+}
+
+/* ── One game: canvas placeholder + difficulty overlay ───────────────────── */
+
+.previewWrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--cm-space-3);
+  max-width: 100%;
+}
+
+.backBtn {
+  align-self: flex-start;
+  padding: var(--cm-space-1) var(--cm-space-4);
+  background: var(--cm-surface-button);
+  border: none;
+  border-radius: var(--cm-radius-sm);
+  box-shadow: var(--cm-raised);
+  font-size: var(--cm-text-sm);
+  font-weight: 700;
+  color: var(--color-base-content);
+  cursor: pointer;
+}
+
+.backBtn:hover {
+  background: var(--cm-button-hover);
+}
+
+.backBtn:active {
+  box-shadow: var(--cm-pressed);
+}
+
+.previewCanvas {
+  position: relative;
+  max-width: 100%;
+}
+
+.gamePlaceholderHopper {
+  width: 352px;
+  height: 580px;
+  max-width: 100%;
+  background: #06000f;
+  border-radius: var(--cm-radius-md);
+}
+
+.gamePlaceholderHurdles {
+  width: 680px;
+  height: 296px;
+  max-width: 100%;
+  background: #0f172a;
+  border-radius: var(--cm-radius-md);
+}
+
+.diffOverlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--cm-space-4);
+  background: oklch(0 0 0 / 0.58);
+  backdrop-filter: blur(2px);
+  z-index: var(--cm-z-submenu);
+  color: #fff;
+}
+
+.diffOverlayGame {
+  font-size: var(--cm-text-xl, 1.25rem);
+  font-weight: 900;
+  color: #fff;
+  letter-spacing: 0.12em;
+  text-transform: lowercase;
+}
+
+.diffOverlayHint {
+  font-size: var(--cm-text-sm);
+  color: #fff;
+  opacity: 0.65;
+  margin-top: calc(-1 * var(--cm-space-2));
+}
+
+.diffBtns {
+  display: flex;
+  gap: var(--cm-space-3);
+}
+
+.diffBtn {
+  padding: var(--cm-space-3) var(--cm-space-10);
+  background: var(--color-primary, #1a6400);
+  border: none;
+  border-radius: var(--cm-radius-sm);
+  box-shadow: var(--cm-raised);
+  font-size: var(--cm-text-md);
+  font-weight: 900;
+  color: var(--color-primary-content, #fff);
+  cursor: pointer;
+  letter-spacing: 0.04em;
+}
+
+.diffBtn:hover {
+  filter: brightness(1.15);
+}
+
+.diffBtn:active {
+  box-shadow: var(--cm-pressed);
+}
+
+.diffBtn:focus-visible {
+  outline: var(--cm-focus-outset) solid currentColor;
+  outline-offset: var(--cm-focus-offset);
+}

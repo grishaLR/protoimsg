@@ -45,6 +45,27 @@ export class RunStore {
     return { runId, seed };
   }
 
+  /**
+   * Read a run without spending it. Lets a submission be checked (right
+   * player, a log that is valid for this run's game) before the ticket is
+   * consumed, so a bad request can't burn someone's run. Never a substitute
+   * for consume(): only consume() makes a run single-use.
+   */
+  async peek(runId: string): Promise<PendingRun | null> {
+    if (this.redis) {
+      const raw = await this.redis.get(KEY_PREFIX + runId);
+      if (!raw) return null;
+      try {
+        return JSON.parse(raw) as PendingRun;
+      } catch {
+        return null;
+      }
+    }
+    const entry = this.mem.get(runId);
+    if (!entry || entry.expiresAt < Date.now()) return null;
+    return entry.run;
+  }
+
   /** Single-use fetch — returns the run and removes it atomically. */
   async consume(runId: string): Promise<PendingRun | null> {
     if (this.redis) {

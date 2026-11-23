@@ -144,6 +144,9 @@
       "micOff": "Mikrofon kapalı",
       "enableAudio": "Yakındaki kişileri duymak için tıkla",
       "micDenied": "Mikrofon engellendi — tarayıcı izinlerini kontrol et",
+      "networkBlocked": "Bağlı olduğun ağ sesli sohbeti engelliyor — telefonunun hotspot'unu ya da başka bir ağı dene",
+      "peerBlocked": "{{name}} seni duyamıyor — bağlı olduğu ağ sesi engelliyor",
+      "peersBlocked": "Yakındaki bazı kişiler seni duyamıyor — ağları sesi engelliyor",
       "nearby": "Yakındakiler: {{count}}",
       "live": "Canlı · {{count}} kişi seni duyabiliyor",
       "announceJoined": "Yakınlarda biri var — ses bağlandı",
@@ -460,5 +463,11 @@
         "detail": "karakter sprite'ları"
       }
     }
+  },
+  "atmochi": {
+    "meet": "{{name}} ile tanış",
+    "play": "{{name}} ile oyna",
+    "loading": "{{name}} uyanıyor…",
+    "visit": "{{name}} adlı dostu ziyaret et"
   }
 }

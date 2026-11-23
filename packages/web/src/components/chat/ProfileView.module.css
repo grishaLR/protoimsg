@@ -96,15 +96,42 @@
   text-overflow: ellipsis;
 }
 
+/* The Atmochi pet, then the status. In flow on phones, where there is no room beside the bio. */
+.headerAside {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--cm-space-4);
+}
+
+.headerAside:not(:empty) {
+  padding-bottom: var(--cm-space-4);
+}
+
+@media (min-width: 480px) {
+  /* Bottom corner of the header, over it. */
+  .headerAside {
+    position: absolute;
+    bottom: var(--cm-space-4);
+    inset-inline-end: var(--cm-space-4);
+    z-index: 1;
+  }
+
+  .headerAside:not(:empty) {
+    padding-bottom: 0;
+  }
+
+  /* Out of flow, so a short header would clip a pet stacked on a status. */
+  .profileHeader:has(.headerAside > :nth-child(2)):has(.headerAside iframe) {
+    min-height: calc(var(--cm-banner-h) + var(--cm-pet-tile-h) + var(--cm-space-16) * 4);
+  }
+}
+
 .statusBadge {
-  position: absolute;
-  bottom: var(--cm-space-4);
-  right: var(--cm-space-4);
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: var(--cm-space-3);
-  z-index: 1;
 }
 
 .statusEmoji {

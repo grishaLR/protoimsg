@@ -144,6 +144,9 @@
       "micOff": "Microfone desligado",
       "enableAudio": "Clique para ouvir as pessoas por perto",
       "micDenied": "Microfone bloqueado — verifique as permissões do navegador",
+      "networkBlocked": "Sua rede está bloqueando a voz — tente usar o celular como ponto de acesso ou outra rede",
+      "peerBlocked": "{{name}} não consegue te ouvir — a rede dessa pessoa está bloqueando a voz",
+      "peersBlocked": "Algumas pessoas por perto não conseguem te ouvir — a rede delas está bloqueando a voz",
       "nearby": "Por perto: {{count}}",
       "live": "Ao vivo · {{count}} podem ouvir você",
       "announceJoined": "Alguém está por perto — voz conectada",
@@ -460,5 +463,11 @@
         "detail": "sprites de personagens"
       }
     }
+  },
+  "atmochi": {
+    "meet": "Conheça {{name}}",
+    "play": "Brincar com {{name}}",
+    "loading": "{{name}} está acordando…",
+    "visit": "Visitar {{name}}"
   }
 }

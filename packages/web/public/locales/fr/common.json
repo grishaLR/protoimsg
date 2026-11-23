@@ -144,6 +144,9 @@
       "micOff": "Micro coupé",
       "enableAudio": "Cliquez pour entendre les personnes à proximité",
       "micDenied": "Micro bloqué — vérifiez les autorisations du navigateur",
+      "networkBlocked": "Votre réseau bloque la voix — essayez un partage de connexion ou un autre réseau",
+      "peerBlocked": "{{name}} ne vous entend pas — son réseau bloque la voix",
+      "peersBlocked": "Certaines personnes à proximité ne vous entendent pas — leur réseau bloque la voix",
       "nearby": "À proximité : {{count}}",
       "live": "En direct · {{count}} peuvent vous entendre",
       "announceJoined": "Quelqu’un est à proximité — voix connectée",
@@ -460,5 +463,11 @@
         "detail": "sprites des personnages"
       }
     }
+  },
+  "atmochi": {
+    "meet": "Rencontrer {{name}}",
+    "play": "Jouer avec {{name}}",
+    "loading": "{{name}} se réveille…",
+    "visit": "Rendre visite à {{name}}"
   }
 }

@@ -89,6 +89,8 @@ interface TownMember extends TownPeer {
   exposedTo: Set<string>;
   /** Chose "stay together" in its current conversation. */
   stay: boolean;
+  /** Its network blocks voice media — shown to its conversation. */
+  voiceBlocked: boolean;
   /** The conversation roster this socket was last sent (JSON), to send only changes. */
   rosterKey: string;
   /** Bumped on every position change — views re-send only what moved. */
@@ -613,6 +615,8 @@ export class TownRoom {
     let pid = prev?.pid ?? '';
     let voiceRoom = prev?.voiceRoom ?? null;
     let stay = prev?.stay ?? false;
+    // The client re-sends this with each new voice assignment.
+    let voiceBlocked = prev?.voiceBlocked ?? false;
     let rosterKey = prev?.rosterKey ?? NO_ROSTER;
     let exposedTo = prev?.exposedTo ?? new Set<string>();
     // A join says what it wants; a server-side move keeps what it had.
@@ -621,6 +625,7 @@ export class TownRoom {
       if (roomId) this.sendTo(ws, { type: 'town_proximity', data: { conversation: null } });
       roomId = null;
       stay = false;
+      voiceBlocked = false;
       rosterKey = NO_ROSTER;
     }
     if (voiceRoom && (!voiceWanted || (prev && prev.scene !== id))) {
@@ -629,6 +634,7 @@ export class TownRoom {
       voiceRoom = null;
       pid = '';
       exposedTo = new Set();
+      voiceBlocked = false;
     }
     // A reconnecting socket picks its voice identity back up — its LiveKit
     // connection never dropped, so nothing rebuilds. Either parked, or still
@@ -669,6 +675,7 @@ export class TownRoom {
       voiceRetries: 0,
       exposedTo,
       stay,
+      voiceBlocked,
       rosterKey,
       ver: (prev?.ver ?? 0) + 1,
       known: new Map(),
@@ -1481,6 +1488,7 @@ export class TownRoom {
     m.voiceRoom = null;
     m.pid = '';
     m.exposedTo = new Set();
+    m.voiceBlocked = false;
     this.sendTo(ws, { type: 'town_voice_room', data: { voice: null } });
     this.scheduleProximity();
   }
@@ -1490,6 +1498,14 @@ export class TownRoom {
     const m = this.members.get(ws);
     if (!m || m.stay === on || (on && !m.roomId)) return;
     m.stay = on;
+    this.scheduleProximity();
+  }
+
+  /** Its network blocks voice media (or no longer does) — tell its conversation. */
+  setVoiceBlocked(ws: WebSocket, blocked: boolean): void {
+    const m = this.members.get(ws);
+    if (!m || m.voiceBlocked === blocked || (blocked && !m.voiceWanted)) return;
+    m.voiceBlocked = blocked;
     this.scheduleProximity();
   }
 
@@ -1599,6 +1615,7 @@ export class TownRoom {
       o.pid = '';
       o.voiceRoom = null;
       o.voiceWanted = false;
+      o.voiceBlocked = false;
       o.exposedTo = new Set();
       return taken;
     }
@@ -1815,7 +1832,12 @@ export class TownRoom {
       .filter((r) => r === m || this.canSee(m, r))
       .map((r) => {
         if (r !== m && r.pid) r.exposedTo.add(m.did);
-        return { did: r.did, pid: r.pid, ...(r.stay ? { stay: true } : {}) };
+        return {
+          did: r.did,
+          pid: r.pid,
+          ...(r.stay ? { stay: true } : {}),
+          ...(r.voiceBlocked ? { netBlocked: true } : {}),
+        };
       });
     return { id: m.roomId, members };
   }

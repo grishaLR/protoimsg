@@ -16,6 +16,7 @@
   "dependencies": {
     "@atproto/api": "^0.13.0",
     "@atproto/oauth-client-browser": "^0.3.0",
+    "@dasl/tile-loader": "^3.2.0",
     "@livekit/components-react": "^2.9.20",
     "@livekit/components-styles": "^1.2.0",
     "@protoimsg/game-sim": "workspace:*",

@@ -1,6 +1,10 @@
 import '@livekit/components-styles';
+import { useEffect, useMemo, useState } from 'react';
 import { LiveKitRoom } from '@livekit/components-react';
+import type { RoomConnectOptions } from 'livekit-client';
 import { useGroupCall } from '../../contexts/GroupCallContext';
+import { fetchIceServers } from '../../lib/api';
+import { isForceRelay } from '../../lib/ip-protection';
 import { GroupCallInner } from './groupcall/GroupCallInner';
 import { ROOM_OPTIONS } from './groupcall/types';
 
@@ -11,10 +15,41 @@ import { ROOM_OPTIONS } from './groupcall/types';
  */
 export function GroupCallOverlay() {
   const { activeGroupCall, leaveGroupCall } = useGroupCall();
+  const token = activeGroupCall?.token;
+
+  // Our coturn relay, same as 1:1 calls. LiveKit offers no TURN of its own, so
+  // without this a network that blocks its media ports (7881–7884) joins the
+  // call and never gets audio or video. Fetched per token so credentials are
+  // fresh; we hold off connecting until they arrive (or fail → LiveKit only).
+  const [ice, setIce] = useState<{ token: string; servers: RTCIceServer[] } | null>(null);
+  useEffect(() => {
+    if (!token) return;
+    const ac = new AbortController();
+    void fetchIceServers(ac.signal).then((servers) => {
+      if (!ac.signal.aborted) setIce({ token, servers });
+    });
+    return () => {
+      ac.abort();
+    };
+  }, [token]);
+
+  const iceServers = ice && ice.token === token ? ice.servers : null;
+  const connectOptions = useMemo<RoomConnectOptions | undefined>(
+    () =>
+      iceServers?.length
+        ? {
+            rtcConfig: {
+              iceServers,
+              ...(isForceRelay() && { iceTransportPolicy: 'relay' as const }),
+            },
+          }
+        : undefined,
+    [iceServers],
+  );
 
   if (!activeGroupCall) return null;
 
-  const { token, url, meetCode } = activeGroupCall;
+  const { url, meetCode } = activeGroupCall;
 
   return (
     <>
@@ -29,7 +64,8 @@ export function GroupCallOverlay() {
         token={token}
         serverUrl={url}
         options={ROOM_OPTIONS}
-        connect={true}
+        connectOptions={connectOptions}
+        connect={iceServers !== null}
         audio={false}
         video={false}
         onDisconnected={() => {

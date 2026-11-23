@@ -179,6 +179,8 @@ const townVoiceJoin = z.object({ type: z.literal('town_voice_join'), on: z.boole
 
 const townStay = z.object({ type: z.literal('town_stay'), on: z.boolean() });
 
+const townVoiceStatus = z.object({ type: z.literal('town_voice_status'), netBlocked: z.boolean() });
+
 const townFof = z.object({ type: z.literal('town_fof'), on: z.boolean() });
 
 const townKnock = z.object({ type: z.literal('town_knock') });
@@ -245,6 +247,7 @@ const clientMessage = z.discriminatedUnion('type', [
   townVoiceRefresh,
   townVoiceJoin,
   townStay,
+  townVoiceStatus,
 ]);
 
 export type ValidatedClientMessage = z.infer<typeof clientMessage>;

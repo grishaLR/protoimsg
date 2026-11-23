@@ -2,10 +2,10 @@ import { lazy, Suspense, useCallback, useEffect, useRef, useState } from 'react'
 import { useQuery } from '@tanstack/react-query';
 import { useAuth } from '../../hooks/useAuth';
 import { resolvePdsForDid } from '../../lib/resolve-pds';
-import { API_URL, HURDLES_ENABLED } from '../../lib/config';
+import { API_URL } from '../../lib/config';
 import { HopperGame } from './HopperGame';
 
-// Lazy: Hurdles is WIP behind HURDLES_ENABLED. With the flag off its chunk is
+// Lazy: Hurdles sits behind HURDLES_ENABLED. With the flag off its chunk is
 // never fetched, so users can't hit stale-deploy preload errors for a game
 // they can't reach.
 const HurdlesGame = lazy(() => import('./HurdlesGame').then((m) => ({ default: m.HurdlesGame })));
@@ -13,24 +13,24 @@ import {
   LeaderboardCol,
   StatsCol,
   AttributionsCol,
-  GameIcon,
   HURDLES_CREDITS,
   HOPPER_CREDITS,
   type LbEntry,
   type GameStats,
   EMPTY_STATS,
 } from './GameLeaderboard';
+import { GameSelect, type Difficulty, type GameId } from './GameSelect';
 import styles from './GamesPanel.module.css';
 
-type ActiveGame = 'hurdles' | 'hopper' | null;
-export type Difficulty = 'fast' | 'faster';
+export type { Difficulty } from './GameSelect';
+type ActiveGame = GameId | null;
 
 export function GamesPanel() {
   const { did, agent } = useAuth();
   const [activeGame, setActiveGame] = useState<ActiveGame>(null);
   const [difficulty, setDifficulty] = useState<Difficulty>('fast');
   const [mobilePage, setMobilePage] = useState(0); // 0=Game 1=Scores
-  const [previewGame, setPreviewGame] = useState<'hurdles' | 'hopper'>('hopper');
+  const [pickedGame, setPickedGame] = useState<GameId | null>(null);
   const [leaderboards, setLeaderboards] = useState<{ fast: LbEntry[]; faster: LbEntry[] }>({
     fast: [],
     faster: [],
@@ -119,6 +119,7 @@ export function GamesPanel() {
   const reset = () => {
     if (refreshTimerRef.current) clearTimeout(refreshTimerRef.current);
     setActiveGame(null);
+    setPickedGame(null);
     setLeaderboards({ fast: [], faster: [] });
     setHandleMap({});
     setGameStats({ fast: EMPTY_STATS, faster: EMPTY_STATS });
@@ -274,64 +275,7 @@ export function GamesPanel() {
   return (
     <div className={styles.panel}>
       <h2 className={styles.heading}>Fun</h2>
-      <div className={styles.previewWrap}>
-        {HURDLES_ENABLED && (
-          <div className={styles.previewTabs}>
-            <button
-              className={`${styles.previewTab} ${previewGame === 'hurdles' ? styles.previewTabActive : ''}`}
-              onClick={() => {
-                setPreviewGame('hurdles');
-              }}
-              type="button"
-            >
-              hurdles
-            </button>
-            <button
-              className={`${styles.previewTab} ${previewGame === 'hopper' ? styles.previewTabActive : ''}`}
-              onClick={() => {
-                setPreviewGame('hopper');
-              }}
-              type="button"
-            >
-              hopper
-            </button>
-          </div>
-        )}
-        <div className={styles.previewCanvas}>
-          <div
-            className={
-              previewGame === 'hurdles'
-                ? styles.gamePlaceholderHurdles
-                : styles.gamePlaceholderHopper
-            }
-          />
-          <div className={styles.diffOverlay}>
-            <GameIcon icon={previewGame === 'hurdles' ? 'run' : 'ufo'} size={64} />
-            <span className={styles.diffOverlayGame}>{previewGame}</span>
-            <span className={styles.diffOverlayHint}>choose difficulty</span>
-            <div className={styles.diffBtns}>
-              <button
-                className={styles.diffBtn}
-                onClick={() => {
-                  launch(previewGame, 'fast');
-                }}
-                type="button"
-              >
-                fast
-              </button>
-              <button
-                className={styles.diffBtn}
-                onClick={() => {
-                  launch(previewGame, 'faster');
-                }}
-                type="button"
-              >
-                faster
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
+      <GameSelect game={pickedGame} onPick={setPickedGame} onLaunch={launch} />
     </div>
   );
 }

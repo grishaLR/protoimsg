@@ -144,6 +144,9 @@
       "micOff": "Mic tắt",
       "enableAudio": "Nhấn để nghe những người ở gần",
       "micDenied": "Micrô bị chặn — kiểm tra quyền của trình duyệt",
+      "networkBlocked": "Mạng của bạn đang chặn giọng nói — hãy thử điểm phát sóng điện thoại hoặc mạng khác",
+      "peerBlocked": "{{name}} không nghe được bạn — mạng của họ đang chặn giọng nói",
+      "peersBlocked": "Một số người ở gần không nghe được bạn — mạng của họ đang chặn giọng nói",
       "nearby": "Ở gần: {{count}}",
       "live": "Trực tiếp · {{count}} người nghe được bạn",
       "announceJoined": "Có người ở gần — đã kết nối giọng nói",
@@ -460,5 +463,11 @@
         "detail": "sprite nhân vật"
       }
     }
+  },
+  "atmochi": {
+    "meet": "Gặp {{name}}",
+    "play": "Chơi với {{name}}",
+    "loading": "{{name}} đang thức dậy…",
+    "visit": "Ghé thăm {{name}}"
   }
 }

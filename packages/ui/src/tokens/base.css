@@ -21,6 +21,16 @@
   --cm-town-fade-outdoors: oklch(0.28 0.04 135);
   --cm-town-fade-indoors: oklch(0.22 0.03 55);
 
+  /* ── Arcade games ────────────────────────────────── */
+  /* The games' overlays are always near-black, in every theme, so their
+     text colours are theme-invariant too: a theme's own status colours can
+     be dark-on-dark there. */
+  --cm-game-lose: #ef4444;
+  --cm-game-win: #34d399;
+  --cm-game-gold: #fbbf24;
+  /* Room the overlays need on screens where the canvas scales down. */
+  --cm-game-overlay-min-h: 15rem;
+
   /* ── Spacing ─────────────────────────────────────── */
   --cm-space-0: 0px;
   --cm-space-0.5: 1px;
@@ -71,6 +81,9 @@
   --cm-content-max-w: 600px;
   --cm-content-wide-max-w: 800px;
   --cm-banner-h: 120px;
+  --cm-pet-tile-w: 200px;
+  --cm-pet-tile-h: 150px;
+  --cm-pet-spinner: 48px;
   --cm-titlebar-min-h: 36px;
   --cm-modal-max-w: 28rem;
   --cm-modal-max-w-sm: 420px;
@@ -112,6 +125,7 @@
   --cm-duration-slow: 0.2s;
   --cm-duration-slower: 0.3s;
   --cm-duration-progress: 2.5s;
+  --cm-duration-spin: 1.6s;
   /* Controls that are present but inert (waiting, unavailable). */
   --cm-opacity-disabled: 0.5;
 

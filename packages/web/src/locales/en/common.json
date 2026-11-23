@@ -317,6 +317,9 @@
       "micOff": "Mic off",
       "enableAudio": "Click to hear people nearby",
       "micDenied": "Microphone blocked — check browser permissions",
+      "networkBlocked": "Your network is blocking voice — try a phone hotspot or another network",
+      "peerBlocked": "{{name}} can't hear you — their network is blocking voice",
+      "peersBlocked": "Some people nearby can't hear you — their network is blocking voice",
       "nearby": "Nearby: {{count}}",
       "live": "Live · {{count}} can hear you",
       "announceJoined": "Someone is nearby — voice connected",
@@ -633,5 +636,11 @@
         "detail": "character sprites"
       }
     }
+  },
+  "atmochi": {
+    "meet": "Meet {{name}}",
+    "play": "Play with {{name}}",
+    "loading": "{{name}} is waking up…",
+    "visit": "Visit {{name}}"
   }
 }

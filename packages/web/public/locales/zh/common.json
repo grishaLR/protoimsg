@@ -144,6 +144,9 @@
       "micOff": "麦克风已关",
       "enableAudio": "点击收听附近的人",
       "micDenied": "麦克风被阻止 — 请检查浏览器权限",
+      "networkBlocked": "你的网络屏蔽了语音 — 试试手机热点或其他网络",
+      "peerBlocked": "{{name}} 听不到你 — 对方的网络屏蔽了语音",
+      "peersBlocked": "附近有些人听不到你 — 他们的网络屏蔽了语音",
       "nearby": "附近：{{count}}",
       "live": "直播中 · {{count}} 人能听到你",
       "announceJoined": "附近有人 — 语音已连接",
@@ -460,5 +463,11 @@
         "detail": "角色形象"
       }
     }
+  },
+  "atmochi": {
+    "meet": "认识一下 {{name}}",
+    "play": "和 {{name}} 一起玩",
+    "loading": "{{name}} 正在醒来…",
+    "visit": "去看看 {{name}}"
   }
 }

@@ -1,0 +1,265 @@
+.pet {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--cm-space-3);
+}
+
+/* Holds the tile's frame and the loader's press-to-use layer, nothing else. */
+.frameBox {
+  position: relative;
+  width: var(--cm-pet-tile-w);
+  height: var(--cm-pet-tile-h);
+  max-width: 100%;
+  /* Room for an inset bevel (AIM), which the frame would otherwise cover. */
+  padding: var(--cm-space-1);
+  box-sizing: border-box;
+  border-radius: var(--cm-radius-md);
+  box-shadow: var(--cm-raised);
+  background: var(--cm-surface-content);
+  overflow: hidden;
+}
+
+/* The box, and the spinner that covers it until the tile is up. */
+.stage {
+  position: relative;
+  max-width: 100%;
+}
+
+.loading {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--cm-radius-md);
+  box-shadow: var(--cm-raised);
+  background: var(--cm-surface-content);
+  color: var(--color-primary);
+  pointer-events: none;
+}
+
+/* Quick lookups never flash the box: it fades in only after a beat. */
+.checking {
+  animation: petAppear var(--cm-duration-slower) ease-out var(--cm-duration-slow) backwards;
+}
+
+@keyframes petAppear {
+  from {
+    opacity: 0;
+  }
+}
+
+/*
+ * One cycle: the egg rocks left and right to wind up, crouches, hops and
+ * turns once in the air, lands with a squash and settles. The shadow shrinks
+ * while it is off the ground.
+ */
+.spinner {
+  width: var(--cm-pet-spinner);
+  height: var(--cm-pet-spinner);
+  overflow: visible;
+}
+
+.shell {
+  fill: var(--color-base-200);
+  stroke: currentColor;
+  stroke-width: 2.5;
+  stroke-linejoin: round;
+}
+
+.screen {
+  fill: var(--cm-surface-content);
+  stroke: currentColor;
+  stroke-width: 2;
+}
+
+.line {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.shadow {
+  fill: currentColor;
+  opacity: 0.18;
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: petShadow var(--cm-duration-spin) ease-in-out infinite;
+}
+
+.hop {
+  transform-box: fill-box;
+  transform-origin: 50% 100%;
+  animation: petHop var(--cm-duration-spin) ease-in-out infinite;
+}
+
+.turn {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: petTurn var(--cm-duration-spin) ease-in-out infinite;
+}
+
+@keyframes petTurn {
+  0% {
+    transform: rotate(0deg);
+  }
+  10% {
+    transform: rotate(-12deg);
+  }
+  22% {
+    transform: rotate(12deg);
+  }
+  32% {
+    transform: rotate(0deg);
+  }
+  68%,
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes petHop {
+  0%,
+  30% {
+    transform: translateY(0) scale(1, 1);
+  }
+  36% {
+    transform: translateY(0) scale(1.1, 0.86);
+  }
+  50% {
+    transform: translateY(-9px) scale(0.96, 1.05);
+  }
+  66% {
+    transform: translateY(0) scale(1, 1);
+  }
+  72% {
+    transform: translateY(0) scale(1.12, 0.84);
+  }
+  82% {
+    transform: translateY(0) scale(0.98, 1.03);
+  }
+  90%,
+  100% {
+    transform: translateY(0) scale(1, 1);
+  }
+}
+
+@keyframes petShadow {
+  0%,
+  36%,
+  66%,
+  100% {
+    transform: scale(1);
+    opacity: 0.18;
+  }
+  50% {
+    transform: scale(0.6);
+    opacity: 0.08;
+  }
+  72% {
+    transform: scale(1.12);
+  }
+}
+
+/* At rest, on the "meet" button: no hop, a little rock now and then. */
+.idle {
+  flex-shrink: 0;
+  width: 1.75em;
+  height: 1.75em;
+}
+
+.idle .shadow {
+  display: none;
+}
+
+.idle .hop {
+  animation: none;
+}
+
+.idle .turn {
+  transform-origin: 50% 100%;
+  animation: petRock var(--cm-duration-progress) ease-in-out infinite;
+}
+
+@keyframes petRock {
+  0%,
+  40%,
+  100% {
+    transform: rotate(0deg);
+  }
+  10%,
+  30% {
+    transform: rotate(-10deg);
+  }
+  20% {
+    transform: rotate(10deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .checking,
+  .shadow,
+  .hop,
+  .turn {
+    animation: none;
+  }
+}
+
+/* The loader sizes its frame inline; the box decides here. */
+.frame {
+  height: 100% !important;
+}
+
+/* Someone else's pet, before the viewer asks to meet it. */
+.meet,
+.visit {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--cm-space-2);
+  max-width: var(--cm-pet-tile-w);
+  padding: var(--cm-space-1) var(--cm-space-4);
+  background: var(--color-base-200);
+  color: var(--color-base-content);
+  border: none;
+  border-radius: var(--cm-radius-sm);
+  box-shadow: var(--cm-raised);
+  font-size: var(--cm-text-sm);
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.meetLabel {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.meet:hover,
+.visit:hover {
+  background: var(--cm-button-hover);
+}
+
+.meet:active,
+.visit:active {
+  box-shadow: var(--cm-pressed);
+}
+
+.credit {
+  font-size: var(--cm-text-md);
+  color: var(--cm-border-dark);
+  text-decoration: none;
+}
+
+.credit:hover {
+  text-decoration: underline;
+}
+
+/* The loader's link prompt; Tailwind's reset removes a dialog's centering. */
+:global(.tile-link-dialog) {
+  margin: auto;
+}
