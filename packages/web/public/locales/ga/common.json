@@ -466,6 +466,8 @@
   },
   "atmochi": {
     "meet": "Buail le {{name}}",
-    "play": "Imir le {{name}}"
+    "play": "Imir le {{name}}",
+    "loading": "Tá {{name}} ag dúiseacht…",
+    "visit": "Tabhair cuairt ar {{name}}"
   }
 }

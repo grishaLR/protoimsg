@@ -466,6 +466,8 @@
   },
   "atmochi": {
     "meet": "تعرّف على {{name}}",
-    "play": "العب مع {{name}}"
+    "play": "العب مع {{name}}",
+    "loading": "{{name}} يستيقظ…",
+    "visit": "زُر {{name}}"
   }
 }

@@ -2266,7 +2266,7 @@ export function ProfileView({ actor, onBack }: ProfileViewProps) {
             )}
             {ctx && (
               <div className={styles.headerAside}>
-                <AtmochiPet key={ctx.did} pds={ctx.pds} did={ctx.did} />
+                <AtmochiPet key={ctx.did} pds={ctx.pds} did={ctx.did} handle={ctx.handle} />
                 <StatusBadge pds={ctx.pds} did={ctx.did} />
               </div>
             )}

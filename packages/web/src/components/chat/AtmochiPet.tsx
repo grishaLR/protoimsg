@@ -25,6 +25,40 @@ function getMothership(): Promise<TileMothership> {
   return mothership;
 }
 
+/**
+ * The loading mark: a little egg-shaped virtual pet rocks to wind up, hops,
+ * turns once in the air and lands with a squash. `idle` is the same pet at
+ * rest, only rocking now and then. Still under reduced motion.
+ */
+function PetSpinner({ idle = false }: { idle?: boolean }) {
+  return (
+    <svg
+      className={`${styles.spinner} ${idle ? styles.idle : ''}`}
+      viewBox="0 0 64 64"
+      aria-hidden="true"
+    >
+      <ellipse className={styles.shadow} cx="32" cy="58" rx="14" ry="3" />
+      <g className={styles.hop}>
+        <g className={styles.turn}>
+          {/* keychain loop */}
+          <circle className={styles.line} cx="32" cy="9.5" r="2.5" />
+          {/* shell */}
+          <path
+            className={styles.shell}
+            d="M32 12c-9 0-16 10.5-16 21.5a16 16 0 0 0 32 0C48 22.5 41 12 32 12Z"
+          />
+          {/* screen */}
+          <rect className={styles.screen} x="23" y="23" width="18" height="15" rx="3" />
+          {/* face */}
+          <path className={styles.line} d="M28 28.5v1.5M36 28.5v1.5M28.5 33c2 1.8 5 1.8 7 0" />
+          {/* buttons */}
+          <path className={styles.line} d="M27 43h.01M32 44.5h.01M37 43h.01" />
+        </g>
+      </g>
+    </svg>
+  );
+}
+
 /** Pets this viewer chose to meet, for as long as the page lives. */
 const metPets = new Set<string>();
 
@@ -39,19 +73,22 @@ const metPets = new Set<string>();
  * keep the keyboard, and its links open only through a prompt that names the
  * destination.
  */
-export function AtmochiPet({ pds, did }: { pds: string; did: string }) {
+export function AtmochiPet({ pds, did, handle }: { pds: string; did: string; handle: string }) {
   const { t } = useTranslation();
   const { did: viewerDid } = useAuth();
-  const { data: pet } = useAtmochiTile(did, pds);
+  const { data: pet, isPending } = useAtmochiTile(did, pds);
   const frameBoxRef = useRef<HTMLDivElement>(null);
   const pickedRef = useRef(false);
   const [met, setMet] = useState(() => metPets.has(did));
   const [failed, setFailed] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   const uri = pet?.uri;
   const name = pet?.name ?? 'Atmochi';
   const run = met || did === viewerDid;
   const playLabel = t('atmochi.play', { name });
+  // atmochi.pet knows a pet's room by its owner's handle only.
+  const roomUrl = handle && handle !== 'handle.invalid' ? `https://atmochi.pet/@${handle}` : null;
 
   useEffect(() => {
     const box = frameBoxRef.current;
@@ -89,6 +126,14 @@ export function AtmochiPet({ pds, did }: { pds: string; did: string }) {
         },
         { signal: ac.signal },
       );
+      // Its runtime is up and its page is on the way: the spinner can go.
+      tile.addEventListener(
+        'load',
+        () => {
+          setLoading(false);
+        },
+        { signal: ac.signal },
+      );
       // The dock or a guard stopped it: nothing is left to show.
       tile.addEventListener('stopped', fail, { signal: ac.signal });
 
@@ -120,9 +165,9 @@ export function AtmochiPet({ pds, did }: { pds: string; did: string }) {
     };
   }, [run, uri, name, playLabel]);
 
-  if (!pet || failed) return null;
+  if (failed || (!isPending && !pet)) return null;
 
-  if (!run) {
+  if (pet && !run) {
     return (
       <button
         type="button"
@@ -133,22 +178,45 @@ export function AtmochiPet({ pds, did }: { pds: string; did: string }) {
           setMet(true);
         }}
       >
-        {t('atmochi.meet', { name })}
+        <PetSpinner idle />
+        <span className={styles.meetLabel}>{t('atmochi.meet', { name })}</span>
       </button>
     );
   }
 
+  // Still finding out whether there is a pet: the box and its spinner show
+  // only after a beat, so a quick "no" never flashes them.
   return (
-    <div className={styles.pet}>
-      <div ref={frameBoxRef} className={styles.frameBox} />
-      <a
-        className={styles.credit}
-        href="https://atmochi.pet"
-        target="_blank"
-        rel="noopener noreferrer"
-      >
-        Powered by atmochi.pet
-      </a>
+    <div className={`${styles.pet} ${isPending ? styles.checking : ''}`}>
+      <div className={styles.stage}>
+        <div ref={frameBoxRef} className={styles.frameBox} />
+        {loading && (
+          <div className={styles.loading} role="status" aria-label={t('atmochi.loading', { name })}>
+            <PetSpinner />
+          </div>
+        )}
+      </div>
+      {pet && !loading && roomUrl && (
+        <a
+          className={styles.visit}
+          // eslint-disable-next-line no-restricted-syntax -- https base URL + the actor's handle
+          href={roomUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          {t('atmochi.visit', { name })}
+        </a>
+      )}
+      {pet && (
+        <a
+          className={styles.credit}
+          href="https://atmochi.pet"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          Powered by atmochi.pet
+        </a>
+      )}
     </div>
   );
 }

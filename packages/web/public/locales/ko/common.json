@@ -466,6 +466,8 @@
   },
   "atmochi": {
     "meet": "{{name}} 만나기",
-    "play": "{{name}}와(과) 놀기"
+    "play": "{{name}}와(과) 놀기",
+    "loading": "{{name}} 깨어나는 중…",
+    "visit": "{{name}} 보러 가기"
   }
 }

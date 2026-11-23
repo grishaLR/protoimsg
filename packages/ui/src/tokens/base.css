@@ -83,6 +83,7 @@
   --cm-banner-h: 120px;
   --cm-pet-tile-w: 200px;
   --cm-pet-tile-h: 150px;
+  --cm-pet-spinner: 48px;
   --cm-titlebar-min-h: 36px;
   --cm-modal-max-w: 28rem;
   --cm-modal-max-w-sm: 420px;
@@ -124,6 +125,7 @@
   --cm-duration-slow: 0.2s;
   --cm-duration-slower: 0.3s;
   --cm-duration-progress: 2.5s;
+  --cm-duration-spin: 1.6s;
   /* Controls that are present but inert (waiting, unavailable). */
   --cm-opacity-disabled: 0.5;
 

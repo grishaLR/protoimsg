@@ -639,6 +639,8 @@
   },
   "atmochi": {
     "meet": "Meet {{name}}",
-    "play": "Play with {{name}}"
+    "play": "Play with {{name}}",
+    "loading": "{{name}} is waking up…",
+    "visit": "Visit {{name}}"
   }
 }
