@@ -81,6 +81,8 @@
   --cm-content-max-w: 600px;
   --cm-content-wide-max-w: 800px;
   --cm-banner-h: 120px;
+  --cm-pet-tile-w: 200px;
+  --cm-pet-tile-h: 150px;
   --cm-titlebar-min-h: 36px;
   --cm-modal-max-w: 28rem;
   --cm-modal-max-w-sm: 420px;

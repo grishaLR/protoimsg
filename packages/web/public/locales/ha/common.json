@@ -461,5 +461,9 @@
         "detail": "sprites na haruffa"
       }
     }
+  },
+  "atmochi": {
+    "meet": "Meet {{name}}",
+    "play": "Play with {{name}}"
   }
 }

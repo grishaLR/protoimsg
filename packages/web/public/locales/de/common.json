@@ -463,5 +463,9 @@
         "detail": "Figuren-Sprites"
       }
     }
+  },
+  "atmochi": {
+    "meet": "{{name}} kennenlernen",
+    "play": "Mit {{name}} spielen"
   }
 }

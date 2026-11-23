@@ -636,5 +636,9 @@
         "detail": "character sprites"
       }
     }
+  },
+  "atmochi": {
+    "meet": "Meet {{name}}",
+    "play": "Play with {{name}}"
   }
 }

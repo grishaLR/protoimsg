@@ -461,5 +461,9 @@
         "detail": "sprites za wahusika"
       }
     }
+  },
+  "atmochi": {
+    "meet": "Meet {{name}}",
+    "play": "Play with {{name}}"
   }
 }

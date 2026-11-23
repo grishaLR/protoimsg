@@ -1,0 +1,67 @@
+.pet {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--cm-space-1);
+}
+
+/* Holds the tile's frame and the loader's press-to-use layer, nothing else. */
+.frameBox {
+  position: relative;
+  width: var(--cm-pet-tile-w);
+  height: var(--cm-pet-tile-h);
+  max-width: 100%;
+  /* Room for an inset bevel (AIM), which the frame would otherwise cover. */
+  padding: var(--cm-space-1);
+  box-sizing: border-box;
+  border-radius: var(--cm-radius-md);
+  box-shadow: var(--cm-raised);
+  background: var(--cm-surface-content);
+  overflow: hidden;
+}
+
+/* The loader sizes its frame inline; the box decides here. */
+.frame {
+  height: 100% !important;
+}
+
+/* Someone else's pet, before the viewer asks to meet it. */
+.meet {
+  display: inline-flex;
+  align-items: center;
+  max-width: var(--cm-pet-tile-w);
+  padding: var(--cm-space-1) var(--cm-space-4);
+  background: var(--color-base-200);
+  color: var(--color-base-content);
+  border: none;
+  border-radius: var(--cm-radius-sm);
+  box-shadow: var(--cm-raised);
+  font-size: var(--cm-text-sm);
+  cursor: pointer;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.meet:hover {
+  background: var(--cm-button-hover);
+}
+
+.meet:active {
+  box-shadow: var(--cm-pressed);
+}
+
+.credit {
+  font-size: var(--cm-text-md);
+  color: var(--cm-border-dark);
+  text-decoration: none;
+}
+
+.credit:hover {
+  text-decoration: underline;
+}
+
+/* The loader's link prompt; Tailwind's reset removes a dialog's centering. */
+:global(.tile-link-dialog) {
+  margin: auto;
+}

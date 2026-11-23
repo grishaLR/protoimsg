@@ -463,5 +463,9 @@
         "detail": "sprites des personnages"
       }
     }
+  },
+  "atmochi": {
+    "meet": "Rencontrer {{name}}",
+    "play": "Jouer avec {{name}}"
   }
 }

@@ -463,5 +463,9 @@
         "detail": "sprite nhân vật"
       }
     }
+  },
+  "atmochi": {
+    "meet": "Gặp {{name}}",
+    "play": "Chơi với {{name}}"
   }
 }

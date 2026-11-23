@@ -8,6 +8,7 @@ import { useAuth } from '../../hooks/useAuth';
 import { useActorSprite } from '../../hooks/useActorSprite';
 import type { SpriteRecord } from '../../hooks/useActorSprite';
 import { HurdlesGame } from '../games/HurdlesGame';
+import { AtmochiPet } from './AtmochiPet';
 import { useGermDeclaration } from '../../hooks/useGermDeclaration';
 import { useActorCollections, useActorRecords } from '../../hooks/useActorRecords';
 import {
@@ -2263,7 +2264,12 @@ export function ProfileView({ actor, onBack }: ProfileViewProps) {
                 cursorDir={cursorDir}
               />
             )}
-            {ctx && <StatusBadge pds={ctx.pds} did={ctx.did} />}
+            {ctx && (
+              <div className={styles.headerAside}>
+                <AtmochiPet key={ctx.did} pds={ctx.pds} did={ctx.did} />
+                <StatusBadge pds={ctx.pds} did={ctx.did} />
+              </div>
+            )}
           </div>
         )}
         {gameOpen && ctx && (
