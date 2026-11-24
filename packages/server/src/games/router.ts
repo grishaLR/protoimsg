@@ -198,8 +198,10 @@ export function gamesRouter(
       // determined attacker computing an optimal input log and waiting out
       // the clock remains possible — the accepted ceiling for any
       // client-rendered leaderboard game.
-      void gameService.submitScore(did, run.system, result.score);
-      res.json({ ok: true, score: result.score });
+      // Waits for the leaderboard write, so the response can say whether the
+      // run earned a gift and the client knows to show it.
+      const { gifted } = await gameService.submitScore(did, run.system, result.score);
+      res.json({ ok: true, score: result.score, gifted });
     } catch (err) {
       next(err);
     }

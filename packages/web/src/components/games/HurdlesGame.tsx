@@ -77,7 +77,7 @@ async function writeHurdlesStats(
 }
 
 export function HurdlesGame({ onClose, onScore, did, difficulty, practiceMode }: HurdlesGameProps) {
-  const { agent, did: viewerDid } = useAuth();
+  const { agent, did: viewerDid, refreshGifts } = useAuth();
   const status = useGameStatus('hurdles', difficulty, practiceMode);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const canvasContainerRef = useRef<HTMLDivElement>(null);
@@ -126,10 +126,19 @@ export function HurdlesGame({ onClose, onScore, did, difficulty, practiceMode }:
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ runId, inputLog: run.inputLog satisfies HurdlesInputLog }),
-      }).catch(() => {});
+      })
+        .then(async (res) => {
+          if (!res.ok) return;
+          // A run that reaches the leaderboard earns the Hermes Shoes. The
+          // server has written that `equipment.rpg.give` by the time it
+          // answers, so accept it now and the unlock modal shows right away.
+          const data = (await res.json()) as { gifted?: boolean };
+          if (data.gifted) refreshGifts();
+        })
+        .catch(() => {});
       if (agent && viewerDid) void writeHurdlesStats(agent, viewerDid, run.score, difficulty);
     },
-    [agent, viewerDid, difficulty],
+    [agent, viewerDid, difficulty, refreshGifts],
   );
   const submitRunRef = useRef(submitRun);
   submitRunRef.current = submitRun;

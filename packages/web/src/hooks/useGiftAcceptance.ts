@@ -10,6 +10,8 @@ export interface AcceptedGift {
   item: string;
   title: string;
   assetCid: string;
+  /** The item's inventory icon; gives written before icons were added have none. */
+  iconCid?: string;
   description?: string;
   context?: string;
   givenAt: string;
@@ -23,6 +25,7 @@ interface GiveRecord {
     kind: string;
     title: string;
     assetCid: string;
+    iconCid?: string;
     category: string;
     recipient: string;
     givenAt: string;
@@ -76,7 +79,12 @@ async function fetchPendingGives(userDid: string): Promise<GiveRecord[]> {
   return pending;
 }
 
-async function hasItemRecord(agent: Agent, userDid: string, giveUri: string): Promise<boolean> {
+/** The item the user accepted from this give, if they have. */
+async function findItemRecord(
+  agent: Agent,
+  userDid: string,
+  giveUri: string,
+): Promise<{ rkey: string; value: Record<string, unknown> } | null> {
   let cursor: string | undefined;
   do {
     const res = await agent.com.atproto.repo.listRecords({
@@ -87,11 +95,33 @@ async function hasItemRecord(agent: Agent, userDid: string, giveUri: string): Pr
     });
     for (const r of res.data.records) {
       const v = r.value as Record<string, unknown>;
-      if (v.give === giveUri) return true;
+      if (v.give === giveUri) return { rkey: r.uri.split('/').pop() ?? '', value: v };
     }
     cursor = res.data.cursor;
   } while (cursor);
-  return false;
+  return null;
+}
+
+/**
+ * An accepted item names its pictures by copying the give's CIDs. If the give
+ * has since been corrected (an icon added, a sheet replaced), copy them again
+ * so the item shows the right pictures wherever it is displayed.
+ */
+async function refreshItemImages(
+  agent: Agent,
+  userDid: string,
+  item: { rkey: string; value: Record<string, unknown> },
+  give: GiveRecord,
+): Promise<void> {
+  const { assetCid, iconCid } = give.value;
+  if (!item.rkey) return;
+  if (item.value.assetCid === assetCid && item.value.iconCid === iconCid) return;
+  await agent.com.atproto.repo.putRecord({
+    repo: userDid,
+    collection: ITEM_COLLECTION,
+    rkey: item.rkey,
+    record: { ...item.value, assetCid, ...(iconCid ? { iconCid } : {}) },
+  });
 }
 
 async function acceptGive(agent: Agent, userDid: string, give: GiveRecord): Promise<void> {
@@ -108,6 +138,7 @@ async function acceptGive(agent: Agent, userDid: string, give: GiveRecord): Prom
       category: give.value.category,
       provider: GAME_MASTER_DID,
       acceptedAt: new Date().toISOString(),
+      ...(give.value.iconCid ? { iconCid: give.value.iconCid } : {}),
       ...(give.value.context ? { context: give.value.context } : {}),
       ...(give.value.description ? { description: give.value.description } : {}),
     },
@@ -132,14 +163,18 @@ export function useGiftAcceptance(agent: Agent | null, did: string | null) {
 
         const newlyAccepted: AcceptedGift[] = [];
         for (const give of pending) {
-          const already = await hasItemRecord(agent, did, give.uri);
-          if (already) continue;
+          const item = await findItemRecord(agent, did, give.uri);
+          if (item) {
+            await refreshItemImages(agent, did, item, give);
+            continue;
+          }
           await acceptGive(agent, did, give);
           newlyAccepted.push({
             uri: give.uri,
             item: give.value.item,
             title: give.value.title,
             assetCid: give.value.assetCid,
+            iconCid: give.value.iconCid,
             description: give.value.description,
             context: give.value.context,
             givenAt: give.value.givenAt,

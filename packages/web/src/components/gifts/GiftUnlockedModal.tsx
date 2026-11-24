@@ -1,7 +1,8 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { PDS_URL, GAME_MASTER_DID } from '../../lib/config';
 import { blobUrl } from '../../lib/record-blobs';
 import type { AcceptedGift } from '../../hooks/useGiftAcceptance';
+import { isSafeUrl } from '../../lib/sanitize';
 import styles from './GiftUnlockedModal.module.css';
 
 interface Props {
@@ -35,7 +36,10 @@ export function GiftUnlockedModal({ gift, onClose }: Props) {
     };
   }, [onClose]);
 
-  const imgSrc = blobUrl(PDS_URL, GAME_MASTER_DID, gift.assetCid);
+  // Set when the icon fails to load, so the sprite sheet is shown instead.
+  const [iconFailed, setIconFailed] = useState(false);
+  const iconSrc = gift.iconCid ? blobUrl(PDS_URL, GAME_MASTER_DID, gift.iconCid) : null;
+  const sheetSrc = blobUrl(PDS_URL, GAME_MASTER_DID, gift.assetCid);
   const text = gift.description ?? gift.context ?? 'A rare item has been added to your inventory.';
 
   return (
@@ -56,14 +60,26 @@ export function GiftUnlockedModal({ gift, onClose }: Props) {
 
         <div className={styles.body}>
           <div className={styles.spriteWrap}>
-            {/* assetCid is the layerable 3x4 sprite sheet — there's no separate
-                icon blob, so crop it to a single cell (see the CSS) as the icon. */}
-            <div
-              className={styles.sprite}
-              style={{ backgroundImage: `url(${imgSrc})` }}
-              role="img"
-              aria-label={gift.title}
-            />
+            {iconSrc && !iconFailed && isSafeUrl(iconSrc) ? (
+              <img
+                className={styles.icon}
+                // eslint-disable-next-line no-restricted-syntax -- validated by isSafeUrl() above
+                src={iconSrc}
+                alt={gift.title}
+                onError={() => {
+                  setIconFailed(true);
+                }}
+              />
+            ) : (
+              // No icon (older gives carry none) or it did not load: crop the
+              // layerable 3x4 sprite sheet (assetCid) to a single cell instead.
+              <div
+                className={styles.sprite}
+                style={{ backgroundImage: `url(${sheetSrc})` }}
+                role="img"
+                aria-label={gift.title}
+              />
+            )}
           </div>
 
           <div className={styles.info}>
