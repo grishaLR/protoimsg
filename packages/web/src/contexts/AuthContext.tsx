@@ -429,7 +429,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   return (
     <AuthContext.Provider value={value}>
       {children}
-      {pendingGift && <GiftUnlockedModal gift={pendingGift} onClose={dismissGift} />}
+      {pendingGift && (
+        <GiftUnlockedModal key={pendingGift.uri} gift={pendingGift} onClose={dismissGift} />
+      )}
     </AuthContext.Provider>
   );
 }

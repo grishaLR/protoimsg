@@ -21,7 +21,7 @@ import {
 import { collectImageBlobs, collectAudioBlobs, blobUrl, pdslsUrl } from '../../lib/record-blobs';
 import { resolvePdsForDid } from '../../lib/resolve-pds';
 import { isSafeUrl } from '../../lib/sanitize';
-import { API_URL } from '../../lib/config';
+import { API_URL, GAME_MASTER_DID, PDS_URL } from '../../lib/config';
 import styles from './ProfileView.module.css';
 
 interface StatusRecord {
@@ -1448,8 +1448,16 @@ function RPGItemCard({ record, ctx }: { record: RecordItem; ctx: RenderContext }
   const category = typeof obj?.category === 'string' ? obj.category : null;
   const acceptedAt = typeof obj?.acceptedAt === 'string' ? obj.acceptedAt : null;
 
+  // Items accepted on rpg.actor carry their own icon blob. Items accepted here
+  // (gifts from our game master) only name it: a blob in the game master's repo.
   const iconCid = blobCid(obj?.icon);
-  const iconSrc = iconCid ? blobUrl(ctx.pds, ctx.did, iconCid) : null;
+  const namedIconCid =
+    obj?.provider === GAME_MASTER_DID && typeof obj.iconCid === 'string' ? obj.iconCid : null;
+  const iconSrc = iconCid
+    ? blobUrl(ctx.pds, ctx.did, iconCid)
+    : namedIconCid
+      ? blobUrl(PDS_URL, GAME_MASTER_DID, namedIconCid)
+      : null;
 
   return (
     <article className={styles.rpgItemCard}>

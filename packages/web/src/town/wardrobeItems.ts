@@ -87,34 +87,44 @@ export async function picturesOf(
   owner: string,
   pds: string,
 ): Promise<{ icon: ItemPicture | null; worn: ItemPicture | null }> {
-  const iconCid = blobCid(v.icon);
-  // The icon is a blob in the owner's repo.
-  const icon = iconCid ? { image: blobUrl(pds, owner, iconCid), sheet: false } : null;
+  // Items accepted on rpg.actor carry their own copy of each picture (a blob
+  // in the owner's repo). Items accepted here only name them (`iconCid`,
+  // `assetCid`): blobs in the provider's repo, as the gift popup loads them.
+  const provider =
+    typeof v.provider === 'string' && v.provider.startsWith('did:') ? v.provider : null;
+  const named = (cid: unknown) => (typeof cid === 'string' && CID.test(cid) ? cid : null);
+  const namedIcon = named(v.iconCid);
+  const namedAsset = named(v.assetCid);
+  const ownIcon = blobCid(v.icon);
+  const ownAsset = blobCid(v.asset);
+  const providerPds =
+    provider && ((!ownIcon && namedIcon) || (!ownAsset && namedAsset))
+      ? await resolvePdsForDid(provider)
+      : null;
+
+  const icon = ownIcon
+    ? { image: blobUrl(pds, owner, ownIcon), sheet: false }
+    : namedIcon && provider && providerPds
+      ? { image: blobUrl(providerPds, provider, namedIcon), sheet: false }
+      : null;
   // The worn layer: the item's own copy (owner's repo), coloured by its mask.
-  const assetCid = blobCid(v.asset);
-  if (assetCid) {
+  if (ownAsset) {
     const maskCid = blobCid(v.colorway);
     const colors = channelColors(v);
     return {
       icon,
       worn: {
-        image: blobUrl(pds, owner, assetCid),
+        image: blobUrl(pds, owner, ownAsset),
         sheet: true,
         ...(maskCid && colors.length ? { mask: blobUrl(pds, owner, maskCid), colors } : {}),
       },
     };
   }
-  // Older items only name the sheet (`assetCid`), a blob in the provider's
-  // repo, as the gift popup loads it.
-  const asset = typeof v.assetCid === 'string' && CID.test(v.assetCid) ? v.assetCid : null;
-  const provider =
-    typeof v.provider === 'string' && v.provider.startsWith('did:') ? v.provider : null;
-  const providerPds = asset && provider ? await resolvePdsForDid(provider) : null;
   return {
     icon,
     worn:
-      asset && provider && providerPds
-        ? { image: blobUrl(providerPds, provider, asset), sheet: true }
+      namedAsset && provider && providerPds
+        ? { image: blobUrl(providerPds, provider, namedAsset), sheet: true }
         : null,
   };
 }
