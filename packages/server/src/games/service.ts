@@ -5,17 +5,79 @@ const log = createLogger('games');
 
 const LEADERBOARD_SIZE = 5;
 const MASTER_COLLECTION = 'actor.rpg.master';
-const GIVE_COLLECTION = 'equipment.rpg.give';
+export const GIVE_COLLECTION = 'equipment.rpg.give';
 
-const JETPACK_GIFT = {
-  item: 'jet_pack',
-  title: 'Jet Pack',
-  description: 'Built for those who jump higher than the rest.',
-  context: 'Earned by reaching the leaderboard in hopper',
-  category: 'hind',
-  kind: 'layer',
-  assetCid: 'bafkreihglyimgjcbe2sykhjismvtgrydarkk6ff2rv6wlgv4geu54ehnpm',
-} as const;
+/** A PNG the game master's repo holds: its CID and size in bytes. */
+interface GiftImage {
+  cid: string;
+  size: number;
+}
+
+export interface LeaderboardGift {
+  item: string;
+  title: string;
+  description: string;
+  context: string;
+  category: string;
+  kind: string;
+  /** The worn layer: a 3×4 sprite sheet. */
+  asset: GiftImage;
+  /** The inventory icon. */
+  icon: GiftImage;
+}
+
+/**
+ * The item a player is given the first time they reach a game's leaderboard,
+ * keyed by the game's base system. Each mirrors a gift defined on rpg.actor.
+ * The images must already be blobs in the game master's repo.
+ */
+export const LEADERBOARD_GIFTS: Record<string, LeaderboardGift> = {
+  hopper: {
+    item: 'jet_pack',
+    title: 'Jet Pack',
+    description: 'Built for those who jump higher than the rest.',
+    context: 'Earned by reaching the leaderboard in hopper',
+    category: 'hind',
+    kind: 'layer',
+    asset: { cid: 'bafkreiausggyytkgnfy7mwbj2ztupcogr677svawqjkj4ra45ibmopq2ra', size: 3735 },
+    icon: { cid: 'bafkreigg2gdlvrw4cixbyy3aqmhknigvreumnngthfkk7hzah6esalsw2y', size: 10037 },
+  },
+  hurdles: {
+    item: 'hermes_shoes',
+    title: 'Hermes Shoes',
+    description: 'A gift for top hurdlers!',
+    context: 'Earned by reaching the leaderboard in hurdles',
+    category: 'feet',
+    kind: 'layer',
+    asset: { cid: 'bafkreibc4j4o7swl6q36nhzczenqrrqshhsbmhw66xzzcj6y3ksoqhekce', size: 4361 },
+    icon: { cid: 'bafkreibye742xeu5jguxh2vg2wq73gr2sgt5csvqjufg3j4rk4qhhzu3he', size: 1959 },
+  },
+};
+
+function blobRef(image: GiftImage) {
+  return { $type: 'blob', ref: { $link: image.cid }, mimeType: 'image/png', size: image.size };
+}
+
+/**
+ * The fields of a give that describe the gift (everything but who and when).
+ * `assetCid` / `iconCid` are what readers look up; the `asset` / `icon` blob
+ * references are there so the give itself keeps those images in the repo —
+ * a bare CID string does not, and the PDS drops a blob nothing references.
+ */
+export function giveFields(gift: LeaderboardGift): Record<string, unknown> {
+  return {
+    item: gift.item,
+    title: gift.title,
+    description: gift.description,
+    context: gift.context,
+    category: gift.category,
+    kind: gift.kind,
+    assetCid: gift.asset.cid,
+    iconCid: gift.icon.cid,
+    asset: blobRef(gift.asset),
+    icon: blobRef(gift.icon),
+  };
+}
 
 export interface LeaderboardEntry {
   did: string;
@@ -24,7 +86,12 @@ export interface LeaderboardEntry {
 }
 
 export interface GameService {
-  submitScore: (playerDid: string, system: string, score: number) => Promise<void>;
+  /**
+   * Record a replayed score. Resolves once the leaderboard (and any gift it
+   * earned) is written; `gifted` is true when this run earned the player a
+   * new item. Never rejects — a failed write is logged and reports no gift.
+   */
+  submitScore: (playerDid: string, system: string, score: number) => Promise<{ gifted: boolean }>;
   getLeaderboard: (system: string) => Promise<LeaderboardEntry[]>;
 }
 
@@ -80,10 +147,13 @@ function buildPost(
   return { text, facets };
 }
 
-async function giftJetpack(agent: AtpAgent, playerDid: string): Promise<void> {
-  if (!agent.did) return;
-
-  // Dedup — skip if already gifted
+/** The game master's existing give of `item` to this player, if there is one. */
+export async function findGive(
+  agent: AtpAgent,
+  playerDid: string,
+  item: string,
+): Promise<{ rkey: string; value: Record<string, unknown> } | null> {
+  if (!agent.did) return null;
   let cursor: string | undefined;
   do {
     const res = await agent.com.atproto.repo.listRecords({
@@ -94,25 +164,43 @@ async function giftJetpack(agent: AtpAgent, playerDid: string): Promise<void> {
     });
     for (const r of res.data.records) {
       const v = r.value as Record<string, unknown>;
-      if (v.item === JETPACK_GIFT.item && v.recipient === playerDid) {
-        log.info({ playerDid }, 'Jetpack already gifted — skipping');
-        return;
+      if (v.item === item && v.recipient === playerDid) {
+        return { rkey: r.uri.split('/').pop() ?? '', value: v };
       }
     }
     cursor = res.data.cursor;
   } while (cursor);
+  return null;
+}
+
+/**
+ * Give `gift` to a player, once: a player who already has it is skipped.
+ * Resolves true when a new give was written.
+ */
+export async function giftItem(
+  agent: AtpAgent,
+  playerDid: string,
+  gift: LeaderboardGift,
+): Promise<boolean> {
+  if (!agent.did) return false;
+
+  if (await findGive(agent, playerDid, gift.item)) {
+    log.info({ playerDid, item: gift.item }, 'Item already gifted — skipping');
+    return false;
+  }
 
   await agent.com.atproto.repo.createRecord({
     repo: agent.did,
     collection: GIVE_COLLECTION,
     record: {
       $type: GIVE_COLLECTION,
-      ...JETPACK_GIFT,
+      ...giveFields(gift),
       recipient: playerDid,
       givenAt: new Date().toISOString(),
     },
   });
-  log.info({ playerDid }, 'Jetpack gifted');
+  log.info({ playerDid, item: gift.item }, 'Item gifted');
+  return true;
 }
 
 async function postLeaderboardAnnouncement(
@@ -221,9 +309,29 @@ export function createGameService(
     }
   };
 
-  const submitScore = async (playerDid: string, system: string, score: number) => {
+  // One submission per player at a time. Each is a read-modify-write of the
+  // player's records, so two at once (the same player finishing runs in two
+  // tabs) could both find no gift and write it twice. In-process only: enough
+  // while a single server instance writes scores.
+  const queues = new Map<string, Promise<unknown>>();
+  const submitScore = (playerDid: string, system: string, score: number) => {
+    const run = (queues.get(playerDid) ?? Promise.resolve()).then(() =>
+      writeScore(playerDid, system, score),
+    );
+    queues.set(playerDid, run);
+    void run.finally(() => {
+      if (queues.get(playerDid) === run) queues.delete(playerDid);
+    });
+    return run;
+  };
+
+  const writeScore = async (
+    playerDid: string,
+    system: string,
+    score: number,
+  ): Promise<{ gifted: boolean }> => {
     const a = await getAgent();
-    if (!a?.did) return;
+    if (!a?.did) return { gifted: false };
 
     const { base, difficulty } = parseSystem(system);
     const now = new Date().toISOString();
@@ -326,7 +434,9 @@ export function createGameService(
           { playerDid, system, newBoardSize: newBoard.length, madeBoard: !!newEntry },
           'submit: board state after write',
         );
-        if (newEntry) {
+        // A run that scored nothing can still land on a board with room on
+        // it; that is not worth an announcement or a gift.
+        if (newEntry && newEntry.score > 0) {
           const rank = newBoard.indexOf(newEntry) + 1;
           const newDids = new Set(newBoard.map((e) => e.did));
           const bumped =
@@ -344,10 +454,13 @@ export function createGameService(
           ).catch((err: unknown) => {
             log.error({ err, playerDid, system }, 'Failed to post leaderboard announcement');
           });
-          if (base === 'hopper') {
-            void giftJetpack(a, playerDid).catch((err: unknown) => {
-              log.error({ err, playerDid }, 'Failed to gift jetpack');
+          const gift = LEADERBOARD_GIFTS[base];
+          if (gift) {
+            const gifted = await giftItem(a, playerDid, gift).catch((err: unknown) => {
+              log.error({ err, playerDid, item: gift.item }, 'Failed to gift item');
+              return false;
             });
+            return { gifted };
           }
         }
       }
@@ -355,6 +468,7 @@ export function createGameService(
       agent = null;
       log.error({ err, playerDid, system }, 'Failed to write score record');
     }
+    return { gifted: false };
   };
 
   return { submitScore, getLeaderboard };

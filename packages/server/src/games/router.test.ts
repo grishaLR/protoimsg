@@ -45,7 +45,7 @@ async function call(handler: Handler, body: unknown, did: string | undefined = D
 }
 
 function setup() {
-  const submitScore = vi.fn<GameService['submitScore']>().mockResolvedValue(undefined);
+  const submitScore = vi.fn<GameService['submitScore']>().mockResolvedValue({ gifted: false });
   const getLeaderboard = vi.fn<GameService['getLeaderboard']>().mockResolvedValue([]);
   const requireAuth: RequestHandler = (_req, _res, next) => {
     next();
@@ -107,8 +107,23 @@ describe('gamesRouter', () => {
 
       const res = await call(score, { runId: run.runId, inputLog: HURDLES_JUMPS });
 
-      expect(res).toEqual({ status: 200, body: { ok: true, score: expected.score } });
+      expect(res).toEqual({
+        status: 200,
+        body: { ok: true, score: expected.score, gifted: false },
+      });
       expect(submitScore).toHaveBeenCalledExactlyOnceWith(DID, 'hurdles_fast', expected.score);
+    });
+
+    it('tells the client when the run earned a gift', async () => {
+      const { start, score, submitScore } = setup();
+      submitScore.mockResolvedValue({ gifted: true });
+      const run = await startRun(start, 'hurdles_fast');
+      const expected = simulateHurdles(run.seed, 'fast', HURDLES_JUMPS);
+      vi.advanceTimersByTime(expected.ticks * 17);
+
+      const res = await call(score, { runId: run.runId, inputLog: HURDLES_JUMPS });
+
+      expect(res.body.gifted).toBe(true);
     });
 
     it('replays hurdles with the difficulty the run was started with', async () => {
@@ -131,7 +146,10 @@ describe('gamesRouter', () => {
 
       const res = await call(score, { runId: run.runId, inputLog: HOPPER_LOG });
 
-      expect(res).toEqual({ status: 200, body: { ok: true, score: expected.score } });
+      expect(res).toEqual({
+        status: 200,
+        body: { ok: true, score: expected.score, gifted: false },
+      });
       expect(submitScore).toHaveBeenCalledExactlyOnceWith(DID, 'hopper_fast', expected.score);
     });
 

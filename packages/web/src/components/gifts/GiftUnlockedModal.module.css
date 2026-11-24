@@ -10,8 +10,12 @@
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; }
-  to   { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 .modal {
@@ -26,8 +30,14 @@
 }
 
 @keyframes slideUp {
-  from { transform: translateY(12px); opacity: 0; }
-  to   { transform: translateY(0);    opacity: 1; }
+  from {
+    transform: translateY(12px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
 }
 
 /* ── Header ─────────────────────────────────────────────────── */
@@ -81,8 +91,18 @@
   overflow: hidden;
 }
 
-/* assetCid is a 3x4 layer sprite sheet — crop to a single cell so the modal
-   shows an icon, not the whole sheet. Cell (col 0, row 3) is the DIR_BACK pose
+/* The item's inventory icon, whatever its size or proportions. */
+.icon {
+  width: 100%;
+  height: 100%;
+  padding: var(--cm-space-3);
+  box-sizing: border-box;
+  object-fit: contain;
+  image-rendering: pixelated;
+}
+
+/* Fallback for gives without an icon. assetCid is a 3x4 layer sprite sheet —
+   crop to a single cell so the modal shows one pose, not the whole sheet. Cell (col 0, row 3) is the DIR_BACK pose
    (`Avatar.ts`) — best view for back-worn equipment like the jetpack. For a
    different cell: background-position: calc(col / 2 * 100%) calc(row / 3 * 100%). */
 .sprite {

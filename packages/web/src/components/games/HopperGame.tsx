@@ -131,11 +131,13 @@ export function HopperGame({
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ runId, inputLog: run.inputLog satisfies HopperInputLog }),
       })
-        .then(() => {
-          // The server writes the jetpack `equipment.rpg.give` synchronously
-          // when the score hits the leaderboard, so by the time this resolves
-          // the gift is queryable — pop the unlock modal without a page refresh.
-          refreshGifts();
+        .then(async (res) => {
+          if (!res.ok) return;
+          // A run that reaches the leaderboard earns the jetpack. The server
+          // has written that `equipment.rpg.give` by the time it answers, so
+          // accept it now and the unlock modal shows right away.
+          const data = (await res.json()) as { gifted?: boolean };
+          if (data.gifted) refreshGifts();
         })
         .catch(() => {});
       if (agent && viewerDid) void writeHopperStats(agent, viewerDid, run.score, difficulty);

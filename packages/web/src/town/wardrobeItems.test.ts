@@ -61,6 +61,21 @@ describe('loadWardrobeItems', () => {
     expect(pics.icon?.image).toContain(`cid=${CID}`);
   });
 
+  it("finds a named icon in the provider's repo when the item has no copy of its own", async () => {
+    const ICON = 'bafkreibye742xeu5jguxh2vg2wq73gr2sgt5csvqjufg3j4rk4qhhzu3he';
+    const pics = await picturesOf(
+      { title: 'Hermes Shoes', assetCid: CID, iconCid: ICON, provider: GM },
+      OWNER,
+      'https://pds.test/owner',
+    );
+    expect(pics.icon).toEqual({
+      image: expect.stringContaining(`https://pds.test/${GM}/`) as string,
+      sheet: false,
+    });
+    expect(pics.icon?.image).toContain(`cid=${ICON}`);
+    expect(pics.worn?.image).toContain(`cid=${CID}`);
+  });
+
   it("colours the item's own worn layer with its mask and channel colours", async () => {
     const blob = (cid: string) => ({ $type: 'blob', ref: { $link: cid }, mimeType: 'image/png' });
     const pics = await picturesOf(
